@@ -120,6 +120,22 @@ h1 { font-family: var(--font-display); font-weight: 850; font-stretch: 75%; font
 .src { font-size: 12.5px; color: var(--muted); margin-top: 8px; max-width: 330px; }
 .src .badge { display: inline-block; font-weight: 600; color: var(--accent); }
 
+/* tap-to-explain */
+.label [data-k] { cursor: pointer; }
+.label [data-k]:hover { background: var(--accent-soft); }
+.label [data-k].on { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.label [data-k]:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.explain { max-width: 330px; margin-top: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.explain .ex-h { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.explain .ex-t { font: 800 16px var(--font-display); font-stretch: 85%; margin: 0; }
+.explain .ex-g { font: 700 11px var(--font-display); letter-spacing: .1em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; }
+.explain .ex-g.more { background: var(--good-soft); color: var(--good); }
+.explain .ex-g.low { background: var(--bad-soft); color: var(--bad); }
+.explain .ex-g.ctx { background: var(--bar-track); color: var(--muted); }
+.explain p { margin: 0; font-size: 14px; }
+.explain .ex-r { color: var(--muted); }
+.explain .ex-hint { color: var(--muted); font-size: 13.5px; }
+
 /* verdict tag */
 .side { display: grid; gap: 18px; min-width: 0; }
 .tag {
@@ -352,33 +368,61 @@ const el = (tag, attrs = {}, ...kids) => {
 };
 const pct = (v, dv) => Math.round(v / dv * 100) + "%";
 
-function labelRow(name, amt, dvKey, val, cls = "", bold = true) {
+function labelRow(name, amt, dvKey, val, cls = "", bold = true, k = dvKey) {
   const left = el("span");
   if (bold) left.append(el("b", { text: name }), " " + amt); else left.append(name + " " + amt);
-  return el("div", { class: "row " + cls }, left, el("span", { class: "pct", text: dvKey ? pct(val, DV[dvKey]) : "" }));
+  return el("div", { class: "row " + cls, "data-k": k }, left, el("span", { class: "pct", text: dvKey ? pct(val, DV[dvKey]) : "" }));
 }
 
+// what each label line means; rules of thumb use the viewer's own goals
+function explain(k, f) {
+  const p = profile, share = (v, t) => Math.round(v / t * 100);
+  const E = {
+    cal: ["Calories", "ctx", "The energy in one serving.", `Your budget is ${p.cal.toLocaleString()} a day; this serving is ${share(f.cal, p.cal)}% of it.`],
+    fat: ["Total fat", "ctx", "All the fat combined. Not good or bad by itself.", "Look at saturated fat below it: that's the part that matters most."],
+    sat: ["Saturated fat", "low", "The fat in fatty meat, butter, cheese and cream. It's the biggest food driver of LDL (\"bad\") cholesterol.", `Your limit is ${p.sat} g a day; this serving is ${share(f.sat, p.sat)}% of it.`],
+    trans: ["Trans fat", "low", "Mostly from processed food; small amounts occur naturally in meat and dairy. It raises LDL more than any other fat.", "Keep it as close to zero as possible."],
+    chol: ["Cholesterol", "ctx", "Cholesterol in the food itself, found only in animal foods.", "For most people it affects blood cholesterol much less than saturated fat does, so don't avoid eggs or shrimp for this alone."],
+    na: ["Sodium", "low", "Salt. Too much raises blood pressure and makes you hold water.", `Your limit is ${p.na.toLocaleString()} mg a day; this serving is ${share(f.na, p.na)}% of it. Over 20% DV per serving is salty.`],
+    carb: ["Total carbohydrate", "ctx", "Starch, sugar and fiber combined: your main fuel.", "Judge the quality by the fiber and added-sugar lines beneath it."],
+    fib: ["Dietary fiber", "more", "The part of plants you don't digest. It keeps you full, steadies blood sugar and lowers LDL a little.", `Your goal is ${p.fib} g a day; 3 g or more per serving is a good source.`],
+    sug: ["Total sugars", "ctx", "Natural sugar (in fruit and milk) plus added sugar.", "Natural sugar is fine. Check the added-sugar line instead."],
+    add: ["Added sugars", "low", "Sugar put in during processing: calories that don't keep you full.", `Your limit is ${p.add} g a day; this serving is ${share(f.add, p.add)}% of it.`],
+    pro: ["Protein", "more", "Builds and keeps muscle, and keeps you full longer than carbs or fat.", `Your goal is ${p.pro} g a day (about ${Math.round(p.pro / 4)} g per meal over four meals); this serving is ${share(f.pro, p.pro)}% of it.`],
+  };
+  return E[k];
+}
+const GROUP = { more: "Aim for more", low: "Keep low", ctx: "Context" };
+function renderExplain(box, k, f) {
+  const e = k && explain(k, f);
+  if (!e) { box.replaceChildren(el("p", { class: "ex-hint", text: "Tap any line on the label to see what it means." })); return; }
+  box.replaceChildren(
+    el("div", { class: "ex-h" }, el("p", { class: "ex-t", text: e[0] }), el("span", { class: "ex-g " + e[1], text: GROUP[e[1]] })),
+    el("p", { text: e[2] }), el("p", { class: "ex-r", text: e[3] }));
+}
+let explainKey = null;
+
 function renderLabel(f) {
-  return el("div", { class: "label", role: "table", "aria-label": `Nutrition facts for ${f.n}` },
+  return el("div", { class: "label", role: "group", "aria-label": `Nutrition facts for ${f.n}. Select a line to see what it means.` },
     el("p", { class: "lt", text: "Nutrition Facts" }),
     el("p", { class: "food", text: f.n }),
     el("div", { class: "rule-thin", style: "margin-top:4px" }),
     el("div", { class: "serv" }, el("span", { text: "Serving size" }), el("span", { text: f.s })),
     el("div", { class: "rule-thick" }),
     el("div", { class: "amt", text: "Amount per serving" }),
-    el("div", { class: "cal" }, el("span", { class: "k", text: "Calories" }), el("span", { class: "v", text: String(Math.round(f.cal)) })),
+    el("div", { class: "cal", "data-k": "cal" }, el("span", { class: "k", text: "Calories" }), el("span", { class: "v", text: String(Math.round(f.cal)) })),
     el("div", { class: "rule-med" }),
     el("div", { class: "dvh", text: "% Daily Value*" }),
     labelRow("Total Fat", fmt(f.fat) + "g", "fat", f.fat),
     labelRow("Saturated Fat", fmt(f.sat) + "g", "sat", f.sat, "ind", false),
-    (() => { const r = el("div", { class: "row ind" }); const s = el("span"); s.append(el("i", { text: "Trans" }), " Fat " + fmt(f.trans) + "g"); r.append(s, el("span")); return r; })(),
+    (() => { const r = el("div", { class: "row ind", "data-k": "trans" }); const s = el("span"); s.append(el("i", { text: "Trans" }), " Fat " + fmt(f.trans) + "g"); r.append(s, el("span")); return r; })(),
     labelRow("Cholesterol", Math.round(f.chol) + "mg", "chol", f.chol),
     labelRow("Sodium", Math.round(f.na) + "mg", "na", f.na),
     labelRow("Total Carbohydrate", fmt(f.carb) + "g", "carb", f.carb),
     labelRow("Dietary Fiber", fmt(f.fib) + "g", "fib", f.fib, "ind", false),
-    labelRow("Total Sugars", fmt(f.sug) + "g", null, 0, "ind", false),
+    labelRow("Total Sugars", fmt(f.sug) + "g", null, 0, "ind", false, "sug"),
     labelRow("Includes " + fmt(f.add) + "g Added Sugars", "", "add", f.add, "ind2", false),
-    el("div", { class: "row", style: "border-top-width:1px" }, (() => { const s = el("span"); s.append(el("b", { text: "Protein" }), " " + fmt(f.pro) + "g"); return s; })(), el("span")),
+    el("div", { class: "row", style: "border-top-width:1px", "data-k": "pro" }, (() => { const s = el("span"); s.append(el("b", { text: "Protein" }), " " + fmt(f.pro) + "g"); return s; })(), el("span")),
     el("div", { class: "rule-thick" }),
     el("div", { class: "foot", text: "* The % Daily Value tells you how much a nutrient in a serving contributes to a daily diet. 2,000 calories a day is used for general nutrition advice." })
   );
@@ -415,9 +459,23 @@ function renderResult(f) {
   const src = el("p", { class: "src" });
   if (f.claude) { src.append(el("span", { class: "badge", text: "Looked up by Claude. " }), "Typical values; check the package label for exact numbers."); }
   else src.append("Typical values for this serving. Brands vary.");
+  const label = renderLabel(f), box = el("div", { class: "explain", "aria-live": "polite" });
+  const rows = [...label.querySelectorAll("[data-k]")];
+  const choose = k => {
+    explainKey = explainKey === k ? null : k;
+    rows.forEach(r => { const on = r.dataset.k === explainKey; r.classList.toggle("on", on); r.setAttribute("aria-pressed", on ? "true" : "false"); });
+    renderExplain(box, explainKey, f);
+  };
+  rows.forEach(r => {
+    r.setAttribute("role", "button"); r.setAttribute("tabindex", "0"); r.setAttribute("aria-pressed", "false");
+    r.addEventListener("click", () => choose(r.dataset.k));
+    r.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); choose(r.dataset.k); } });
+  });
+  const keep = explainKey; explainKey = null;
+  if (keep) choose(keep); else renderExplain(box, null, f);
   const out = $("out"); out.replaceChildren(
     el("div", { class: "result" },
-      el("div", {}, renderLabel(f), src),
+      el("div", {}, label, box, src),
       el("div", { class: "side" },
         el("div", { class: "tag " + a.tier }, el("div", { class: "for", text: "For you" }), el("div", { class: "verdict", text: a.word }), el("p", { class: "why", text: a.why })),
         renderBars(f),
