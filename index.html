@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Search a food to see its nutrition label and whether it fits your goals.">
+<title>Should I Buy It?</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+html{color-scheme:light} body{margin:0} [hidden]{display:none!important} img{max-width:100%}
+/* Layout: search bar on top, then a two-column result: the FDA-style label on the left, the personal verdict shelf-tag + "share of your day" bars on the right; stacks on phones. */
+:root {
+  --paper: #f5f6f1;
+  --surface: #ffffff;
+  --ink: #161813;
+  --muted: #5b6157;
+  --line: #d8dccf;
+  --accent: #2c6a3d;
+  --accent-soft: #e2eedf;
+  --good: #2c7a44;
+  --good-soft: #dff0e2;
+  --mid: #a8701a;
+  --mid-soft: #f6ead2;
+  --bad: #b23a2f;
+  --bad-soft: #f6dfdb;
+  --label-bg: #ffffff;
+  --label-ink: #111111;
+  --bar-track: #e7eae1;
+  --font-display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121410; --surface: #1b1e18; --ink: #e8ebe2; --muted: #a1a898; --line: #30352b;
+    --accent: #7cc08d; --accent-soft: #1f3324;
+    --good: #6fc487; --good-soft: #1c3322; --mid: #e0a94a; --mid-soft: #3a2e17; --bad: #ef8577; --bad-soft: #3d201c;
+    --label-bg: #1b1e18; --label-ink: #eef1e8; --bar-track: #2a2f25;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #121410; --surface: #1b1e18; --ink: #e8ebe2; --muted: #a1a898; --line: #30352b;
+  --accent: #7cc08d; --accent-soft: #1f3324;
+  --good: #6fc487; --good-soft: #1c3322; --mid: #e0a94a; --mid-soft: #3a2e17; --bad: #ef8577; --bad-soft: #3d201c;
+  --label-bg: #1b1e18; --label-ink: #eef1e8; --bar-track: #2a2f25;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+.wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 22px; }
+h1 { font-family: var(--font-display); font-weight: 850; font-stretch: 75%; font-size: clamp(30px, 6vw, 44px); line-height: 1; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.sub { color: var(--muted); margin: 6px 0 0; max-width: 62ch; }
+
+/* search */
+.search { position: relative; }
+.search-row { display: flex; gap: 8px; }
+#q {
+  flex: 1; min-width: 0; font: 500 18px var(--font-body); color: var(--ink);
+  background: var(--surface); border: 2px solid var(--ink); border-radius: 10px; padding: 12px 14px;
+}
+#q:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.btn {
+  font: 700 15px var(--font-display); font-stretch: 90%; letter-spacing: 0.02em; text-transform: uppercase;
+  background: var(--ink); color: var(--paper); border: 0; border-radius: 10px; padding: 0 18px; cursor: pointer; min-height: 48px;
+}
+.btn.ghost { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+.btn:disabled { opacity: .5; cursor: default; }
+.suggest {
+  position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 5;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,.12); list-style: none; margin: 0; padding: 4px;
+}
+.suggest li { padding: 9px 12px; border-radius: 7px; cursor: pointer; display: flex; justify-content: space-between; gap: 12px; }
+.suggest li[aria-selected="true"], .suggest li:hover { background: var(--accent-soft); }
+.suggest .tagmini { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chip {
+  font: 500 13px var(--font-body); color: var(--ink); background: transparent;
+  border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; cursor: pointer;
+}
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+
+/* result */
+.result { display: grid; grid-template-columns: minmax(0, 330px) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 760px) { .result { grid-template-columns: minmax(0, 1fr); } }
+
+/* nutrition label */
+.label {
+  background: var(--label-bg); color: var(--label-ink); border: 1px solid var(--label-ink);
+  padding: 6px 9px 9px; font-family: var(--font-display); font-stretch: 100%; font-size: 14px; line-height: 1.25;
+  max-width: 330px; width: 100%;
+}
+.label .lt { font-weight: 900; font-stretch: 62%; font-size: 40px; line-height: 1; margin: 0; letter-spacing: -0.01em; }
+.label .food { font-weight: 600; font-size: 15px; margin: 2px 0 0; }
+.label .rule-thin { border-top: 1px solid var(--label-ink); }
+.label .rule-med { border-top: 5px solid var(--label-ink); }
+.label .rule-thick { border-top: 10px solid var(--label-ink); margin-top: 2px; }
+.label .serv { display: flex; justify-content: space-between; gap: 8px; font-weight: 800; font-size: 16px; padding: 2px 0 3px; }
+.label .serv span:last-child { text-align: right; }
+.label .amt { font-weight: 800; font-size: 12px; padding-top: 3px; }
+.label .cal { display: flex; justify-content: space-between; align-items: baseline; font-weight: 900; padding-bottom: 1px; }
+.label .cal .k { font-size: 26px; font-stretch: 75%; }
+.label .cal .v { font-size: 38px; font-stretch: 75%; line-height: 1; }
+.label .dvh { text-align: right; font-weight: 800; font-size: 12px; padding: 3px 0 2px; }
+.label .row { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; border-top: 1px solid var(--label-ink); font-variant-numeric: tabular-nums; }
+.label .row.ind { padding-left: 14px; }
+.label .row.ind2 { padding-left: 28px; }
+.label .row b { font-weight: 800; }
+.label .row .pct { font-weight: 800; }
+.label .foot { font-family: var(--font-body); font-size: 10.5px; line-height: 1.35; padding-top: 5px; }
+.src { font-size: 12.5px; color: var(--muted); margin-top: 8px; max-width: 330px; }
+.src .badge { display: inline-block; font-weight: 600; color: var(--accent); }
+
+/* verdict tag */
+.side { display: grid; gap: 18px; min-width: 0; }
+.tag {
+  position: relative; border-radius: 6px 16px 16px 6px; padding: 16px 18px 16px 34px;
+  background: var(--tag-soft); border: 1.5px solid var(--tag-c);
+}
+.tag::before { /* hang-tag hole */
+  content: ""; position: absolute; left: 12px; top: 50%; width: 10px; height: 10px; margin-top: -5px;
+  border-radius: 50%; background: var(--paper); border: 1.5px solid var(--tag-c);
+}
+.tag.good { --tag-c: var(--good); --tag-soft: var(--good-soft); }
+.tag.mid { --tag-c: var(--mid); --tag-soft: var(--mid-soft); }
+.tag.bad { --tag-c: var(--bad); --tag-soft: var(--bad-soft); }
+.tag .for { font: 700 11.5px var(--font-display); letter-spacing: .12em; text-transform: uppercase; color: var(--tag-c); }
+.tag .verdict { font-family: var(--font-display); font-weight: 900; font-stretch: 75%; font-size: clamp(34px, 6vw, 46px); line-height: 1; color: var(--tag-c); margin: 4px 0 6px; }
+.tag .why { margin: 0; max-width: 60ch; }
+
+.panel h2 { font: 800 13px var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+.bars { display: grid; gap: 9px; }
+.bar { display: grid; grid-template-columns: 104px minmax(0, 1fr) 92px; gap: 10px; align-items: center; font-variant-numeric: tabular-nums; }
+.bar .name { font-size: 13.5px; }
+.bar .track { position: relative; height: 12px; background: var(--bar-track); border-radius: 3px; overflow: hidden; }
+.bar .fill { position: absolute; inset: 0 auto 0 0; border-radius: 3px; }
+.bar .fill.goal { background: var(--good); }
+.bar .fill.limit-ok { background: var(--muted); opacity: .55; }
+.bar .fill.limit-warn { background: var(--mid); }
+.bar .fill.limit-bad { background: var(--bad); }
+.bar .fill.neutral { background: var(--muted); opacity: .55; }
+.bar .val { font-size: 13px; text-align: right; color: var(--muted); }
+.bar .val b { color: var(--ink); font-weight: 600; }
+.legend { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+
+.reasons { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.reasons li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: start; }
+.reasons .ic { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font: 800 13px var(--font-display); margin-top: 1px; }
+.reasons .pos .ic { background: var(--good-soft); color: var(--good); }
+.reasons .neg .ic { background: var(--bad-soft); color: var(--bad); }
+.reasons .note .ic { background: var(--bar-track); color: var(--muted); }
+
+/* lookup / states */
+.notice { border: 1.5px dashed var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 10px; justify-items: start; background: var(--surface); }
+.notice p { margin: 0; max-width: 62ch; }
+.muted { color: var(--muted); }
+.thinking { display: inline-flex; gap: 8px; align-items: center; color: var(--muted); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
+
+/* profile */
+details.profile { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+details.profile summary { cursor: pointer; padding: 12px 16px; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+details.profile summary::-webkit-details-marker { display: none; }
+details.profile summary .muted { font-weight: 400; font-size: 13.5px; }
+.pgrid { padding: 4px 16px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.pgrid label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.pgrid input[type="number"], .pgrid input[type="text"] {
+  font: 500 15px var(--font-body); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; min-width: 0;
+}
+.pgrid .wide { grid-column: 1 / -1; }
+.pgrid .check { display: flex; align-items: center; gap: 8px; color: var(--ink); font-size: 14px; }
+.fine { font-size: 12.5px; color: var(--muted); max-width: 75ch; margin: 0; }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Should I Buy It?</h1>
+    <p class="sub">Type a food to see its nutrition label and whether it fits your goals.</p>
+  </header>
+
+  <div class="search">
+    <form class="search-row" id="form" autocomplete="off">
+      <input id="q" type="search" placeholder="Try avocado, ground beef, oatmeal…" aria-label="Search a food" aria-autocomplete="list" aria-controls="suggest">
+      <button class="btn" type="submit" id="go">Check</button>
+    </form>
+    <ul class="suggest" id="suggest" role="listbox" hidden></ul>
+    <div class="chips" id="chips" aria-label="Quick picks"></div>
+  </div>
+
+  <main id="out" aria-live="polite"></main>
+
+  <details class="profile" id="profile">
+    <summary><span>Your goals <span class="muted">(saved in this browser)</span></span><span class="muted" id="profSummary"></span></summary>
+    <div class="pgrid">
+      <label>Calories / day<input id="p-cal" type="number" min="800" max="6000" step="10"></label>
+      <label>Protein goal (g)<input id="p-pro" type="number" min="20" max="400"></label>
+      <label>Saturated fat limit (g)<input id="p-sat" type="number" min="5" max="40"></label>
+      <label>Sodium limit (mg)<input id="p-na" type="number" min="500" max="5000" step="50"></label>
+      <label>Added sugar limit (g)<input id="p-add" type="number" min="0" max="100"></label>
+      <label>Fiber goal (g)<input id="p-fib" type="number" min="10" max="70"></label>
+      <label class="wide">Foods you skip (comma separated)<input id="p-skip" type="text"></label>
+      <label class="check wide"><input id="p-mild" type="checkbox"> I prefer mild food (flag spicy items)</label>
+    </div>
+  </details>
+
+  <p class="fine">Built-in values are approximate typical figures for a standard serving; packaged foods vary by brand, so the label on the package wins. The label's % Daily Value uses the standard FDA values. The bars and verdict use your goals. This is general nutrition guidance, not medical advice.</p>
+</div>
+
+<script>
+// ---------- data: approximate typical values per serving ----------
+// cal kcal; fat/sat/trans/carb/fib/sug/add/pro g; chol/na mg
+const F = (n, a, s, cal, fat, sat, trans, chol, na, carb, fib, sug, add, pro, tags = []) =>
+  ({ n, a, s, cal, fat, sat, trans, chol, na, carb, fib, sug, add, pro, tags });
+const FOODS = [
+  F("Avocado", ["avocados", "avo"], "½ medium (75 g)", 120, 11, 1.6, 0, 0, 5, 6.4, 5, 0.5, 0, 1.5),
+  F("Chicken breast, grilled", ["chicken", "chicken breast", "grilled chicken"], "4 oz cooked (113 g)", 187, 4.1, 1.1, 0, 96, 84, 0, 0, 0, 0, 35),
+  F("Rotisserie chicken, breast meat", ["rotisserie", "rotisserie chicken"], "3 oz, no skin (85 g)", 140, 3.5, 1, 0, 75, 380, 0, 0, 0, 0, 25),
+  F("Ground beef 80/20", ["ground beef", "hamburger", "beef 80/20", "80/20"], "4 oz raw (113 g)", 287, 22.6, 8.6, 1.4, 80, 75, 0, 0, 0, 0, 19),
+  F("Ground beef 93/7", ["lean ground beef", "93/7 beef", "extra lean beef"], "4 oz raw (113 g)", 170, 8, 3.3, 0.5, 70, 75, 0, 0, 0, 0, 23),
+  F("Ground turkey 93/7", ["ground turkey", "turkey"], "4 oz raw (113 g)", 170, 9, 2.5, 0.1, 85, 80, 0, 0, 0, 0, 21),
+  F("Ribeye steak", ["ribeye", "steak", "rib eye"], "4 oz cooked (113 g)", 330, 25, 10, 1, 90, 60, 0, 0, 0, 0, 27),
+  F("Sirloin steak, lean", ["sirloin", "top sirloin"], "4 oz cooked (113 g)", 207, 8, 3, 0.3, 90, 64, 0, 0, 0, 0, 33),
+  F("Pork tenderloin", ["pork", "tenderloin"], "4 oz cooked (113 g)", 162, 4, 1.4, 0, 83, 65, 0, 0, 0, 0, 29.5),
+  F("Salmon", ["salmon fillet", "atlantic salmon"], "4 oz cooked (113 g)", 233, 13.9, 2.8, 0, 71, 69, 0, 0, 0, 0, 25),
+  F("Tuna, canned in water", ["tuna", "canned tuna"], "3 oz drained (85 g)", 73, 0.8, 0.2, 0, 30, 200, 0, 0, 0, 0, 16.5),
+  F("Shrimp", ["shrimp", "prawns"], "3 oz cooked (85 g)", 84, 0.2, 0.1, 0, 161, 94, 0.2, 0, 0, 0, 20),
+  F("Bacon", ["bacon strips"], "3 slices cooked (24 g)", 129, 10, 3.3, 0, 27, 410, 0.4, 0, 0, 0, 9, ["processed"]),
+  F("Deli turkey", ["deli meat", "lunch meat", "sliced turkey"], "2 oz (56 g)", 60, 1, 0.3, 0, 25, 540, 2, 0, 1, 0, 10, ["processed"]),
+  F("Hot dog, beef", ["hot dog", "frank", "hotdog"], "1 frank (57 g)", 180, 16, 6.5, 0.5, 30, 500, 2, 0, 1, 0, 6, ["processed"]),
+  F("Eggs", ["egg", "whole egg"], "1 large (50 g)", 72, 4.8, 1.6, 0, 186, 71, 0.4, 0, 0.2, 0, 6.3),
+  F("Egg whites", ["liquid egg whites"], "3 large whites (99 g)", 51, 0.2, 0, 0, 0, 165, 0.7, 0, 0.7, 0, 10.8),
+  F("Greek yogurt, plain nonfat", ["greek yogurt", "plain yogurt"], "1 container (170 g)", 100, 0.7, 0.2, 0, 9, 61, 6, 0, 5.5, 0, 17),
+  F("Yogurt, flavored low-fat", ["flavored yogurt", "fruit yogurt", "yogurt"], "1 container (170 g)", 150, 2, 1.3, 0, 10, 95, 28, 0, 26, 14, 6),
+  F("Cottage cheese 2%", ["cottage cheese"], "½ cup (113 g)", 90, 2.5, 1.5, 0, 10, 350, 5, 0, 4, 0, 12),
+  F("Whole milk", ["milk"], "1 cup (244 g)", 149, 8, 4.6, 0, 24, 105, 12, 0, 12, 0, 8),
+  F("Skim milk", ["fat free milk", "nonfat milk"], "1 cup (245 g)", 83, 0.2, 0.1, 0, 5, 103, 12, 0, 12, 0, 8.3),
+  F("Cheddar cheese", ["cheese", "cheddar"], "1 oz (28 g)", 115, 9.5, 5.3, 0, 28, 180, 0.4, 0, 0.1, 0, 6.5),
+  F("Whey protein powder", ["protein powder", "whey", "protein shake"], "1 scoop (30 g)", 120, 1.5, 1, 0, 30, 50, 3, 0, 2, 1, 24),
+  F("Tofu, firm", ["tofu"], "3 oz (85 g)", 80, 4.5, 0.5, 0, 0, 10, 2, 1, 0, 0, 9),
+  F("Butter", ["salted butter"], "1 tbsp (14 g)", 102, 11.5, 7.3, 0.5, 31, 91, 0, 0, 0, 0, 0.1),
+  F("Olive oil", ["evoo", "extra virgin olive oil"], "1 tbsp (14 g)", 119, 13.5, 1.9, 0, 0, 0, 0, 0, 0, 0, 0),
+  F("Peanut butter", ["pb"], "2 tbsp (32 g)", 190, 16, 3.3, 0, 0, 140, 7, 2, 3, 2, 7),
+  F("Almonds", ["almond", "nuts"], "1 oz, about 23 nuts (28 g)", 164, 14.2, 1.1, 0, 0, 0, 6.1, 3.5, 1.2, 0, 6),
+  F("Hummus", ["humus"], "2 tbsp (30 g)", 70, 5, 0.7, 0, 0, 130, 4, 1, 0, 0, 2),
+  F("Oatmeal, rolled oats", ["oats", "oatmeal", "rolled oats"], "½ cup dry (40 g)", 150, 2.5, 0.5, 0, 0, 0, 27, 4, 1, 0, 5),
+  F("Frosted cereal", ["sugary cereal", "cereal", "frosted flakes"], "1 cup (39 g)", 150, 0, 0, 0, 0, 190, 36, 1, 15, 15, 1),
+  F("White rice", ["rice"], "1 cup cooked (158 g)", 205, 0.4, 0.1, 0, 0, 2, 45, 0.6, 0, 0, 4.3),
+  F("Brown rice", ["brown rice"], "1 cup cooked (195 g)", 218, 1.6, 0.3, 0, 0, 2, 46, 3.5, 0.7, 0, 4.5),
+  F("Pasta", ["spaghetti", "noodles"], "1 cup cooked (140 g)", 220, 1.3, 0.2, 0, 0, 1, 43, 2.5, 0.8, 0, 8),
+  F("Instant ramen", ["ramen", "cup noodles", "instant noodles"], "1 package (85 g)", 380, 14, 7, 0, 0, 1600, 54, 2, 2, 0, 9),
+  F("Potato, baked", ["potato", "potatoes", "baked potato"], "1 medium with skin (173 g)", 161, 0.2, 0.1, 0, 0, 17, 37, 3.8, 2, 0, 4.3),
+  F("Sweet potato, baked", ["sweet potato", "yam"], "1 medium (114 g)", 103, 0.2, 0, 0, 0, 41, 24, 3.8, 7.4, 0, 2.3),
+  F("Whole wheat bread", ["wheat bread", "whole grain bread"], "1 slice (32 g)", 80, 1.1, 0.2, 0, 0, 140, 14, 2, 1.5, 1, 4),
+  F("White bread", ["bread"], "1 slice (28 g)", 75, 1, 0.2, 0, 0, 140, 14, 0.7, 1.5, 1.5, 2.5),
+  F("Black beans, canned", ["beans", "black beans"], "½ cup drained (130 g)", 110, 0.5, 0.1, 0, 0, 360, 20, 7, 0.5, 0, 7),
+  F("Lentils", ["lentil"], "½ cup cooked (99 g)", 115, 0.4, 0.1, 0, 0, 2, 20, 8, 1.8, 0, 9),
+  F("Broccoli", ["brocoli"], "1 cup chopped (91 g)", 31, 0.3, 0, 0, 0, 30, 6, 2.4, 1.5, 0, 2.6),
+  F("Spinach", ["baby spinach"], "2 cups raw (60 g)", 14, 0.2, 0, 0, 0, 47, 2.2, 1.3, 0.3, 0, 1.7),
+  F("Banana", ["bananas"], "1 medium (118 g)", 105, 0.4, 0.1, 0, 0, 1, 27, 3.1, 14.4, 0, 1.3),
+  F("Apple", ["apples"], "1 medium (182 g)", 95, 0.3, 0.1, 0, 0, 2, 25, 4.4, 19, 0, 0.5),
+  F("Blueberries", ["berries", "blueberry"], "1 cup (148 g)", 84, 0.5, 0, 0, 0, 1, 21, 3.6, 14.7, 0, 1.1),
+  F("Orange juice", ["oj", "juice"], "1 cup (248 g)", 112, 0.5, 0.1, 0, 0, 2, 26, 0.5, 21, 0, 1.7),
+  F("Soda", ["coke", "pop", "soft drink", "cola"], "12 fl oz can (355 ml)", 140, 0, 0, 0, 0, 45, 39, 0, 39, 39, 0),
+  F("Frozen pepperoni pizza", ["pizza", "frozen pizza"], "¼ of a 12-inch pizza (130 g)", 380, 18, 8, 0, 35, 800, 39, 2, 5, 3, 15),
+  F("Vanilla ice cream", ["ice cream"], "⅔ cup (95 g)", 200, 11, 7, 0.3, 45, 70, 23, 0, 21, 16, 3),
+  F("Sriracha", ["hot sauce", "chili sauce"], "1 tsp (5 g)", 5, 0, 0, 0, 0, 100, 1, 0, 1, 1, 0, ["spicy"]),
+];
+const DV = { fat: 78, sat: 20, chol: 300, na: 2300, carb: 275, fib: 28, add: 50, pro: 50 };
+
+// ---------- storage (best effort) ----------
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+const DEFAULT_PROFILE = { cal: 2000, pro: 100, sat: 20, na: 2300, add: 50, fib: 28, skip: "", mild: false };
+const savedProfile = store.get("profile", null);
+let profile = { ...DEFAULT_PROFILE, ...(savedProfile || {}) };
+let lookups = store.get("lookups", []);
+const allFoods = () => [...FOODS, ...lookups];
+
+// ---------- verdict engine ----------
+function assess(f) {
+  const p = profile, r = [];
+  const lname = f.n.toLowerCase();
+  const skipList = String(p.skip || "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+  const skipHit = skipList.find(s => lname.includes(s) || (f.a || []).some(a => a.toLowerCase().includes(s)));
+  if (skipHit) return { tier: "bad", word: "Skip", why: `It's on your skip list (${skipHit}).`, reasons: [{ k: "note", t: "Nutrition is shown for reference. Edit your skip list under Your goals." }] };
+  if (p.mild && (f.tags || []).includes("spicy")) return { tier: "bad", word: "Skip", why: "It's spicy, and you prefer mild food.", reasons: [{ k: "note", t: "Turn off the mild-food setting under Your goals if you want it judged on nutrition alone." }] };
+
+  let s = 0;
+  const pd = f.cal > 0 ? (f.pro * 4) / f.cal : 0;
+  if (f.pro >= 5 && pd >= 0.4) { s += 2; r.push({ k: "pos", t: `High protein for the calories: ${fmt(f.pro)} g, about ${Math.round(f.pro / p.pro * 100)}% of your ${p.pro} g goal.` }); }
+  else if (f.pro >= 5 && pd >= 0.2) { s += 1; r.push({ k: "pos", t: `Decent protein: ${fmt(f.pro)} g per serving.` }); }
+
+  if (f.fib >= 3) { s += 2; r.push({ k: "pos", t: `Good fiber source: ${fmt(f.fib)} g keeps you full.` }); }
+  else if (f.fib >= 1.5) { s += 1; r.push({ k: "pos", t: `Some fiber: ${fmt(f.fib)} g.` }); }
+
+  if (f.cal > 0 && f.cal <= 60 && f.fib >= 1.5) { s += 2; r.push({ k: "pos", t: "Lots of food volume for very few calories." }); }
+  if (f.fat >= 5 && f.sat / f.fat <= 0.2) { s += 1; r.push({ k: "pos", t: "Its fat is mostly the unsaturated kind, which is better for cholesterol." }); }
+
+  const satShare = f.sat / p.sat;
+  if (satShare >= 0.3) { s -= 2; r.push({ k: "neg", t: `High saturated fat: ${fmt(f.sat)} g is ${Math.round(satShare * 100)}% of your ${p.sat} g daily limit in one serving.` }); }
+  else if (satShare >= 0.15) { s -= 1; r.push({ k: "neg", t: `Moderate saturated fat: ${fmt(f.sat)} g (${Math.round(satShare * 100)}% of your limit).` }); }
+  if (f.trans > 0.5) { s -= 1; r.push({ k: "neg", t: `Contains ${fmt(f.trans)} g trans fat (naturally occurring in red meat and dairy).` }); }
+
+  const naShare = f.na / p.na;
+  if (naShare >= 0.35) { s -= 2; r.push({ k: "neg", t: `Very salty: ${Math.round(f.na).toLocaleString()} mg sodium is ${Math.round(naShare * 100)}% of your daily limit.` }); }
+  else if (naShare >= 0.2) { s -= 1; r.push({ k: "neg", t: `Salty: ${Math.round(f.na)} mg sodium (${Math.round(naShare * 100)}% of your limit).` }); }
+
+  if (f.add >= 20) { s -= 2; r.push({ k: "neg", t: `${fmt(f.add)} g added sugar, more than half your ${p.add} g limit.` }); }
+  else if (f.add >= 10) { s -= 1; r.push({ k: "neg", t: `${fmt(f.add)} g added sugar.` }); }
+
+  if ((f.tags || []).includes("processed")) { s -= 2; r.push({ k: "neg", t: "Processed meat, which is linked to higher heart and cancer risk." }); }
+  if (f.cal >= 100 && f.pro < 2 && f.fib < 1) { s -= 1; r.push({ k: "neg", t: "Calories with little protein or fiber, so it won't keep you full." }); }
+  if (f.cal >= 300 && pd < 0.15) { s -= 1; r.push({ k: "neg", t: `Calorie-heavy: ${f.cal} cal is ${Math.round(f.cal / p.cal * 100)}% of your day without much protein.` }); }
+
+  if (f.chol >= 150 && satShare < 0.15) r.push({ k: "note", t: `High in dietary cholesterol (${f.chol} mg), but low in saturated fat. For most people saturated fat raises blood cholesterol more.` });
+  if (f.fat >= 10 && f.cal >= 100 && f.sat / f.fat <= 0.2) r.push({ k: "note", t: `Healthy fats are still calorie-dense: ${f.cal} cal per serving, so portion size matters on ${p.cal.toLocaleString()} cal a day.` });
+
+  let tier, word, why;
+  if (s >= 2) { tier = "good"; word = "Get it"; why = "A strong fit for your goals."; }
+  else if (s >= -1) { tier = "mid"; word = "In moderation"; why = "Fine sometimes. See the tradeoffs below."; }
+  else { tier = "bad"; word = "Limit it"; why = "Works against your goals if it's a regular buy."; }
+  if (!r.length) r.push({ k: "note", t: "Nothing stands out either way." });
+  return { tier, word, why, reasons: r };
+}
+const fmt = n => (Math.round(n * 10) / 10).toString();
+
+// ---------- rendering ----------
+const $ = id => document.getElementById(id);
+const el = (tag, attrs = {}, ...kids) => {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else if (k === "style") e.style.cssText = v; else e.setAttribute(k, v);
+  }
+  for (const c of kids) if (c != null) e.append(c);
+  return e;
+};
+const pct = (v, dv) => Math.round(v / dv * 100) + "%";
+
+function labelRow(name, amt, dvKey, val, cls = "", bold = true) {
+  const left = el("span");
+  if (bold) left.append(el("b", { text: name }), " " + amt); else left.append(name + " " + amt);
+  return el("div", { class: "row " + cls }, left, el("span", { class: "pct", text: dvKey ? pct(val, DV[dvKey]) : "" }));
+}
+
+function renderLabel(f) {
+  return el("div", { class: "label", role: "table", "aria-label": `Nutrition facts for ${f.n}` },
+    el("p", { class: "lt", text: "Nutrition Facts" }),
+    el("p", { class: "food", text: f.n }),
+    el("div", { class: "rule-thin", style: "margin-top:4px" }),
+    el("div", { class: "serv" }, el("span", { text: "Serving size" }), el("span", { text: f.s })),
+    el("div", { class: "rule-thick" }),
+    el("div", { class: "amt", text: "Amount per serving" }),
+    el("div", { class: "cal" }, el("span", { class: "k", text: "Calories" }), el("span", { class: "v", text: String(Math.round(f.cal)) })),
+    el("div", { class: "rule-med" }),
+    el("div", { class: "dvh", text: "% Daily Value*" }),
+    labelRow("Total Fat", fmt(f.fat) + "g", "fat", f.fat),
+    labelRow("Saturated Fat", fmt(f.sat) + "g", "sat", f.sat, "ind", false),
+    (() => { const r = el("div", { class: "row ind" }); const s = el("span"); s.append(el("i", { text: "Trans" }), " Fat " + fmt(f.trans) + "g"); r.append(s, el("span")); return r; })(),
+    labelRow("Cholesterol", Math.round(f.chol) + "mg", "chol", f.chol),
+    labelRow("Sodium", Math.round(f.na) + "mg", "na", f.na),
+    labelRow("Total Carbohydrate", fmt(f.carb) + "g", "carb", f.carb),
+    labelRow("Dietary Fiber", fmt(f.fib) + "g", "fib", f.fib, "ind", false),
+    labelRow("Total Sugars", fmt(f.sug) + "g", null, 0, "ind", false),
+    labelRow("Includes " + fmt(f.add) + "g Added Sugars", "", "add", f.add, "ind2", false),
+    el("div", { class: "row", style: "border-top-width:1px" }, (() => { const s = el("span"); s.append(el("b", { text: "Protein" }), " " + fmt(f.pro) + "g"); return s; })(), el("span")),
+    el("div", { class: "rule-thick" }),
+    el("div", { class: "foot", text: "* The % Daily Value tells you how much a nutrient in a serving contributes to a daily diet. 2,000 calories a day is used for general nutrition advice." })
+  );
+}
+
+function renderBars(f) {
+  const p = profile;
+  const rows = [
+    { n: "Protein", v: f.pro, t: p.pro, u: "g", goal: true },
+    { n: "Fiber", v: f.fib, t: p.fib, u: "g", goal: true },
+    { n: "Calories", v: f.cal, t: p.cal, u: "", neutral: true },
+    { n: "Saturated fat", v: f.sat, t: p.sat, u: "g" },
+    { n: "Sodium", v: f.na, t: p.na, u: "mg" },
+    { n: "Added sugar", v: f.add, t: p.add, u: "g" },
+  ];
+  const wrap = el("div", { class: "bars" });
+  for (const r of rows) {
+    const share = r.t > 0 ? r.v / r.t : 0;
+    let cls = r.goal ? "goal" : r.neutral ? "neutral" : share >= 0.3 ? "limit-bad" : share >= 0.15 ? "limit-warn" : "limit-ok";
+    const fill = el("div", { class: "fill " + cls, style: `width:${Math.min(100, share * 100).toFixed(1)}%` });
+    const val = el("span", { class: "val" });
+    val.append(el("b", { text: Math.round(share * 100) + "%" }), ` of ${r.t.toLocaleString()}${r.u}`);
+    wrap.append(el("div", { class: "bar", title: `${r.n}: ${fmt(r.v)}${r.u} of your ${r.t.toLocaleString()}${r.u} ${r.goal ? "goal" : r.neutral ? "budget" : "limit"}` },
+      el("span", { class: "name", text: r.n }), el("div", { class: "track" }, fill), val));
+  }
+  return el("section", { class: "panel" }, el("h2", { text: "One serving, as a share of your day" }), wrap,
+    el("p", { class: "legend", text: "Green bars are goals to reach. Amber and red show how much of a daily limit one serving uses." }));
+}
+
+function renderResult(f) {
+  const a = assess(f);
+  const reasons = el("ul", { class: "reasons" });
+  for (const r of a.reasons) reasons.append(el("li", { class: r.k }, el("span", { class: "ic", "aria-hidden": "true", text: r.k === "pos" ? "+" : r.k === "neg" ? "−" : "i" }), el("span", { text: r.t })));
+  const src = el("p", { class: "src" });
+  if (f.claude) { src.append(el("span", { class: "badge", text: "Looked up by Claude. " }), "Typical values; check the package label for exact numbers."); }
+  else src.append("Typical values for this serving. Brands vary.");
+  const out = $("out"); out.replaceChildren(
+    el("div", { class: "result" },
+      el("div", {}, renderLabel(f), src),
+      el("div", { class: "side" },
+        el("div", { class: "tag " + a.tier }, el("div", { class: "for", text: "For you" }), el("div", { class: "verdict", text: a.word }), el("p", { class: "why", text: a.why })),
+        renderBars(f),
+        el("section", { class: "panel" }, el("h2", { text: "Why" }), reasons)
+      ))
+  );
+  current = f;
+}
+
+// ---------- search ----------
+const norm = s => s.toLowerCase().replace(/[^a-z0-9/ ]/g, "").trim();
+function match(q) {
+  const nq = norm(q); if (!nq) return [];
+  const scored = [];
+  for (const f of allFoods()) {
+    const names = [f.n, ...(f.a || [])].map(norm);
+    let best = 0;
+    for (const n of names) {
+      if (n === nq) best = Math.max(best, 100);
+      else if (n.startsWith(nq)) best = Math.max(best, 80);
+      else if (n.split(" ").some(w => w.startsWith(nq))) best = Math.max(best, 60);
+      else if (n.includes(nq)) best = Math.max(best, 40);
+      else if (nq.length > 3 && nq.includes(n)) best = Math.max(best, 30);
+    }
+    if (best) scored.push({ f, best });
+  }
+  return scored.sort((x, y) => y.best - x.best || x.f.n.length - y.f.n.length).map(x => x.f);
+}
+
+let current = null, sel = -1, sugg = [];
+const q = $("q"), list = $("suggest");
+function showSuggest() {
+  sugg = match(q.value).slice(0, 7); sel = -1;
+  list.replaceChildren();
+  if (!sugg.length || !q.value.trim()) { list.hidden = true; return; }
+  sugg.forEach((f, i) => {
+    const li = el("li", { role: "option", id: "opt" + i, "aria-selected": "false" }, el("span", { text: f.n }), el("span", { class: "tagmini", text: assess(f).word }));
+    li.addEventListener("mousedown", e => { e.preventDefault(); pick(f); });
+    list.append(li);
+  });
+  list.hidden = false;
+}
+function pick(f) { q.value = f.n; list.hidden = true; renderResult(f); }
+q.addEventListener("input", showSuggest);
+q.addEventListener("blur", () => setTimeout(() => list.hidden = true, 100));
+q.addEventListener("keydown", e => {
+  if (list.hidden || !sugg.length) return;
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    e.preventDefault(); sel = (sel + (e.key === "ArrowDown" ? 1 : -1) + sugg.length) % sugg.length;
+    [...list.children].forEach((li, i) => li.setAttribute("aria-selected", i === sel ? "true" : "false"));
+    q.setAttribute("aria-activedescendant", "opt" + sel);
+  } else if (e.key === "Escape") list.hidden = true;
+});
+$("form").addEventListener("submit", e => {
+  e.preventDefault();
+  const text = q.value.trim(); if (!text) return;
+  if (!list.hidden && sel >= 0 && sugg[sel]) return pick(sugg[sel]);
+  const m = match(text);
+  if (m.length && [m[0].n, ...(m[0].a || [])].map(norm).includes(norm(text))) return pick(m[0]);
+  list.hidden = true;
+  offerLookup(text, m.slice(0, 4));
+});
+
+// ---------- Claude lookup for foods not built in ----------
+let sampleFn = null, sampleState = "pending";
+(async () => {
+  try { sampleFn = window.claude ? await window.claude.use("sample") : null; } catch { sampleFn = null; }
+  sampleState = sampleFn ? "ready" : "none";
+  const btn = document.getElementById("lookupBtn"); if (btn && !sampleFn) btn.hidden = true;
+})();
+
+function offerLookup(text, near) {
+  const box = el("div", { class: "notice" });
+  box.append(el("p", {}, `“${text}” isn't in the built-in list.`));
+  if (near.length) {
+    const p = el("p", { class: "muted" }, "Did you mean ");
+    near.forEach((f, i) => { const b = el("button", { class: "chip", type: "button", text: f.n }); b.onclick = () => pick(f); p.append(b, i < near.length - 1 ? " " : ""); });
+    box.append(p);
+  }
+  if (sampleState !== "none") {
+    const b = el("button", { class: "btn ghost", type: "button", id: "lookupBtn", text: `Look up “${text}” with Claude` });
+    b.onclick = () => lookup(text, box);
+    box.append(b, el("p", { class: "muted", style: "font-size:13px", text: "Uses your Claude account. You'll be asked to allow it the first time." }));
+  } else box.append(el("p", { class: "muted", text: "Only the built-in foods are available on this site." }));
+  $("out").replaceChildren(box);
+}
+
+const num = v => { const n = Number(v); return Number.isFinite(n) && n >= 0 ? n : 0; };
+async function lookup(text, box) {
+  if (!sampleFn) return;
+  box.replaceChildren(el("span", { class: "thinking" }, el("span", { class: "dot" }), `Looking up ${text}…`));
+  const prompt = `Give typical nutrition facts for one common US serving of the food "${text}" as bought at a grocery store.
+Reply with only a JSON object in this shape:
+{"found":true,"name":"Title Case food name","serving":"1 cup (240 g)","cal":0,"fat":0,"sat":0,"trans":0,"chol":0,"na":0,"carb":0,"fib":0,"sug":0,"add":0,"pro":0,"spicy":false,"processedMeat":false}
+Units: cal in kcal; chol and na in milligrams; every other number in grams. Use typical USDA FoodData Central values; for a branded or variable product, use a typical mid-range version. "add" is added sugars only. "spicy" is true only if the food is inherently hot. "processedMeat" is true for cured, smoked or deli meats.
+If "${text}" is not a food, reply {"found":false}.`;
+  try {
+    const d = await sampleFn.json(prompt, { modelTier: "default", cache: { gcTime: 86400000 } });
+    if (!d || d.found === false || !d.name) { box.replaceChildren(el("p", { text: `Claude didn't recognize “${text}” as a food. Try a more common name.` })); return; }
+    const tags = []; if (d.spicy) tags.push("spicy"); if (d.processedMeat) tags.push("processed");
+    const f = F(String(d.name).slice(0, 60), [text.toLowerCase()], String(d.serving || "1 serving").slice(0, 40),
+      num(d.cal), num(d.fat), num(d.sat), num(d.trans), num(d.chol), num(d.na), num(d.carb), num(d.fib), num(d.sug), num(d.add), num(d.pro), tags);
+    f.claude = true;
+    lookups = [f, ...lookups.filter(x => norm(x.n) !== norm(f.n))].slice(0, 60);
+    store.set("lookups", lookups);
+    q.value = f.n; renderResult(f);
+  } catch (e) {
+    const msg = {
+      not_granted: "Claude lookups weren't allowed for this page, so only built-in foods work.",
+      sampling_disabled: "Claude isn't available for this account.",
+      rate_limited: "Too many lookups right now. Try again in a minute.",
+      session_expired: "Sign in to Claude again, then retry.",
+      invalid_json: "The answer came back in an unexpected shape. Try again.",
+    }[e && e.code] || "The lookup didn't finish. Try again.";
+    const again = el("button", { class: "btn ghost", type: "button", text: "Try again" }); again.onclick = () => lookup(text, box);
+    box.replaceChildren(el("p", { text: msg }));
+    if (!["not_granted", "sampling_disabled"].includes(e && e.code)) box.append(again);
+    if (e && ["not_granted", "sampling_disabled"].includes(e.code)) sampleState = "none";
+  }
+}
+
+// ---------- chips ----------
+const CHIPS = ["Avocado", "Ground beef 80/20", "Chicken breast, grilled", "Greek yogurt, plain nonfat", "Eggs", "Oatmeal, rolled oats", "Shrimp", "Instant ramen"];
+for (const n of CHIPS) {
+  const f = FOODS.find(x => x.n === n); const b = el("button", { class: "chip", type: "button", text: f.n.split(",")[0] });
+  b.onclick = () => pick(f); $("chips").append(b);
+}
+
+// ---------- profile ----------
+const PF = { cal: "p-cal", pro: "p-pro", sat: "p-sat", na: "p-na", add: "p-add", fib: "p-fib" };
+function syncProfileUI() {
+  for (const [k, id] of Object.entries(PF)) $(id).value = profile[k];
+  $("p-skip").value = profile.skip; $("p-mild").checked = !!profile.mild;
+  $("profSummary").textContent = `${profile.cal.toLocaleString()} cal · ${profile.pro} g protein · ≤${profile.sat} g sat fat`;
+}
+function readProfile() {
+  for (const [k, id] of Object.entries(PF)) { const v = Number($(id).value); if (Number.isFinite(v) && v > 0) profile[k] = v; }
+  profile.skip = $("p-skip").value; profile.mild = $("p-mild").checked;
+  store.set("profile", profile); syncProfileUI();
+  if (current) renderResult(current);
+}
+document.querySelectorAll(".pgrid input").forEach(i => i.addEventListener("change", readProfile));
+syncProfileUI();
+if (!savedProfile) $("profile").open = true;
+
+// open on a real example
+pick(FOODS[0]);
+</script>
+
+</body>
+</html>
