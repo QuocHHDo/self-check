@@ -67,11 +67,10 @@ button { font: inherit; color: inherit; }
 .btn:disabled { opacity: .5; cursor: default; }
 .suggest { position: absolute; left: 0; right: 0; top: 58px; z-index: 5; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.12); list-style: none; margin: 0; padding: 4px; }
 .suggest li { padding: 9px 12px; border-radius: 7px; cursor: pointer; display: flex; justify-content: space-between; gap: 12px; }
-.suggest li[aria-selected="true"], .suggest li:hover { background: var(--accent-soft); }
+.suggest li[aria-selected="true"] { background: var(--accent-soft); }
 .chiprow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; }
 .chiprow .lbl { font: 700 11.5px var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-right: 2px; }
 .chip { font: 500 13px var(--font-body); color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; cursor: pointer; }
-.chip:hover { border-color: var(--accent); color: var(--accent); }
 .chip.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
 /* verdict pill */
@@ -140,7 +139,7 @@ button { font: inherit; color: inherit; }
 .label .row b, .label .row .pct { font-weight: 800; }
 .label .foot { font-family: var(--font-body); font-size: 10.5px; line-height: 1.35; padding-top: 5px; }
 .label [data-k] { cursor: pointer; }
-.label [data-k]:hover, .label [data-k].on { background: var(--accent-soft); }
+.label [data-k].on { background: var(--accent-soft); }
 .label [data-k].on { box-shadow: inset 3px 0 0 var(--accent); }
 .explain { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
 .explain .ex-h { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
@@ -179,7 +178,6 @@ button { font: inherit; color: inherit; }
 .legend { font-size: 12.5px; color: var(--muted); margin: 8px 0 0; }
 .swaps { display: grid; gap: 8px; }
 .swap { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; cursor: pointer; }
-.swap:hover { border-color: var(--accent); }
 .swap .sn { font-weight: 600; }
 .swap .sd { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
 .reasons { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
@@ -212,7 +210,6 @@ button { font: inherit; color: inherit; }
 .muted { color: var(--muted); }
 .results { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; width: 100%; }
 .results button { width: 100%; text-align: left; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 9px 12px; cursor: pointer; }
-.results button:hover { border-color: var(--accent); }
 .results small { color: var(--muted); }
 .thinking { display: inline-flex; gap: 8px; align-items: center; color: var(--muted); }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 1s ease-in-out infinite; }
@@ -232,7 +229,6 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
 .inner { padding: 4px 16px 16px; display: grid; gap: 12px; }
 .blist { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px; }
 .bitem { display: flex; justify-content: space-between; align-items: center; gap: 8px; text-align: left; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; cursor: pointer; }
-.bitem:hover { border-color: var(--accent); }
 .bitem .bright { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .bitem .score { font: 600 12px var(--font-body); color: var(--muted); font-variant-numeric: tabular-nums; min-width: 2.2em; text-align: right; }
 .blist.ranked { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
@@ -258,7 +254,6 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
 .qprompt { margin: 0; font: 800 19px var(--font-display); font-stretch: 85%; text-wrap: balance; }
 .qopts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
 .qopt { text-align: left; font: 600 15px var(--font-body); background: var(--paper); border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 14px; cursor: pointer; }
-.qopt:hover { border-color: var(--accent); }
 .qopt.right { background: var(--good-soft); border-color: var(--good); color: var(--good); }
 .qopt.wrong { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
 .qopt[aria-disabled="true"] { cursor: default; }
@@ -269,6 +264,18 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
 .icon-btn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
 .fine { font-size: 12.5px; color: var(--muted); max-width: 75ch; margin: 0; }
 .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 8px 14px; border-radius: 8px; font-size: 14px; z-index: 20; }
+/* Hover styles only where a real pointer hovers: on touch screens :hover sticks to whatever is under the finger,
+   which made the tapped label line stay highlighted on the next food. */
+@media (hover: hover) {
+  .suggest li:hover, .label [data-k]:hover { background: var(--accent-soft); }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+  .swap:hover { border-color: var(--accent); }
+  .results button:hover { border-color: var(--accent); }
+  .bitem:hover { border-color: var(--accent); }
+  .qopt:hover { border-color: var(--accent); }
+}
+.pgrid .err { color: var(--bad); font-size: 12.5px; font-weight: 600; }
+.pgrid input[aria-invalid="true"] { border-color: var(--bad); }
 </style>
 </head>
 <body>

@@ -19,6 +19,7 @@ w.addEventListener("error", e => errors.push(String(e.message)));
 w.HTMLElement.prototype.scrollIntoView = () => {};
 w.fetch = async url => {
   url = String(url);
+  if (url.includes("/fdc/v1/food/")) { const id = Number(url.match(/food\/(\d+)/)[1]); return { ok: true, status: 200, json: async () => usdaFixture.foods.find(f => f.fdcId === id) }; }
   if (url.includes("api.nal.usda.gov")) return { ok: true, status: 200, json: async () => usdaFixture };
   if (url.includes("openfoodfacts.org") && offMode === "missing") return { ok: false, status: 404, json: async () => ({ status: 0, status_verbose: "product not found" }) };
   if (url.includes("openfoodfacts.org") && offMode === "error") return { ok: false, status: 503, json: async () => ({}) };
@@ -128,6 +129,14 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
       click($("#scanClose")); await tick(2);
       delete w.Html5Qrcode; delete w.navigator.mediaDevices;
     })();
+    ok(/449 common foods built in \+ \d+ looked up\./.test(text("#foodCount")), `count includes lookups (${text("#foodCount")})`);
+    // Shared links to looked-up foods: re-fetched when this browser doesn't have them.
+    // foods[1] was listed but never opened, so this browser has no copy and must fetch it.
+    const fresh = usdaFixture.foods[1];
+    w.location.hash = "#usda-" + fresh.fdcId; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(10);
+    ok(text("#out h2").toLowerCase() === fresh.description.toLowerCase() && /From USDA/.test(text(".src")), `#usda-<id> fetches a food this browser hasn't seen (${text("#out h2")})`);
+    offMode = "ok"; w.location.hash = "#off-0123456789099"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(10);
+    ok(/Open Food Facts/.test(text(".src")), `#off-<code> opens the product (${text("#out h2")})`);
     w.location.hash = "#salmon"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(5);
     ok(text("#out h2") === "Salmon", "#salmon link opens Salmon");
   } else {
@@ -173,5 +182,20 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
   const nullText = (root = w.document.body) => [root, ...root.querySelectorAll("*")].some(e => [...e.childNodes].some(n => n.nodeType === 3 && /^\s*(null|undefined)\s*$|\bnull\b|\bundefined\b/.test(n.textContent)));
   ok(!nullText(w.document.getElementById("quiz")), "quiz never renders the text null");
   ok(!nullText(), "no null or undefined text anywhere on the page");
+  // 16. Small fixes
+  $("#q").value = "Avocado"; submit("#form");
+  type("#cmpq", "salmon"); $(".compare .suggest li").dispatchEvent(new w.MouseEvent("mousedown", { bubbles: true }));
+  ok((text(".compare").match(/Compare/g) || []).length === 1 + (text(".compare").match(/Compare with/g) || []).length, `"Compare" appears once as a heading (${text(".compare").slice(0, 60)})`);
+  const cal = $("#p-cal"), before = cal.value;
+  cal.value = "50"; cal.dispatchEvent(new w.Event("input", { bubbles: true }));
+  ok(cal.getAttribute("aria-invalid") === "true" && /800 to 6,000/.test(text("#p-cal-err")), `invalid goal shows an inline message (${text("#p-cal-err")})`);
+  cal.dispatchEvent(new w.Event("change", { bubbles: true }));
+  ok(JSON.parse(w.localStorage.getItem("selfcheck.profile") || w.localStorage.getItem("profile") || "{}").cal !== 50, "invalid goal isn't saved");
+  cal.value = before; cal.dispatchEvent(new w.Event("input", { bubbles: true }));
+  ok(cal.getAttribute("aria-invalid") === "false" && $("#p-cal-err").hidden, "fixing it clears the message");
+  for (const n of ["Apple", "Banana", "Orange", "Pear", "Kiwi", "Mango", "Lemon", "Greek yogurt, plain nonfat", "Greek yogurt, vanilla"]) { $("#q").value = n; submit("#form"); }
+  const recentChips = $$("#recentRow .chip").map(c => c.textContent);
+  ok(recentChips.length <= 6, `recents show at most 6 (${recentChips.length})`);
+  ok(new Set(recentChips).size === recentChips.length && recentChips.includes("Greek yogurt, vanilla"), `recent chip labels are unique (${recentChips.join(", ")})`);
   ok(errors.length === 0, "no script errors" + (errors.length ? ": " + errors.join(" | ") : ""));
 })();

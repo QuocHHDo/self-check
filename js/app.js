@@ -198,7 +198,7 @@
         if (a2 && b2) { a = a2; b = b2; } else note = `One of these has under ${V.KCAL_MIN} calories per serving, so it's shown per serving instead.`;
       }
       const va = V.assess(f, profile), vb = V.assess(compareWith, profile);
-      const basisRow = el("div", { class: "chiprow", style: "margin:0", role: "group", "aria-label": "Compare basis" }, el("span", { class: "lbl", text: "Compare" }),
+      const basisRow = el("div", { class: "chiprow", style: "margin:0", role: "group", "aria-label": "Compare basis" }, 
         ...[["serving", "Per serving"], ["kcal", "Per 100 calories"]].map(([id, label]) => el("button", { class: "chip" + (cmpBasis === id ? " on" : ""), type: "button", "aria-pressed": cmpBasis === id ? "true" : "false", text: label, onclick: () => { cmpBasis = id; renderResult(current); } })));
       sec.append(basisRow);
       if (note) sec.append(el("p", { class: "legend", text: note }));
@@ -295,7 +295,7 @@
     $("q").value = opts.closest || f.n; $("suggest").hidden = true;
     renderResult(f);
     if (!opts.noRecent) addRecent(f);
-    if (PAGES && !opts.noHash) { try { history.replaceState(null, "", "#" + V.slug(f.n)); } catch {} }
+    if (PAGES && !opts.noHash) { try { history.replaceState(null, "", "#" + S.linkId(f, V.slug)); } catch {} }
     if (opts.scroll) $("out").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -305,28 +305,33 @@
     el("span", { text: onText, "aria-hidden": on ? null : "true", class: on ? null : "ghost" }));
 
   // ---------- favorites, recents, share ----------
-  function addRecent(f) { recents = [f.n, ...recents.filter(n => n !== f.n)].slice(0, 8); store.set("recents", recents); renderChips(); }
+  // Recents keep 12 names; the shelf always shows up to 6 that aren't already favorites.
+  const RECENTS_KEEP = 12, RECENTS_SHOW = 6;
+  function addRecent(f) { recents = [f.n, ...recents.filter(n => n !== f.n)].slice(0, RECENTS_KEEP); store.set("recents", recents); renderChips(); }
   function toggleFav(f) {
     favs = favs.includes(f.n) ? favs.filter(n => n !== f.n) : [f.n, ...favs].slice(0, 30);
     store.set("favorites", favs); renderChips(); renderResult(current);
   }
   async function copyLink(f) {
-    const url = location.href.split("#")[0] + "#" + V.slug(f.n);
+    const url = location.href.split("#")[0] + "#" + S.linkId(f, V.slug);
     try { await navigator.clipboard.writeText(url); toast("Link copied"); }
     catch { toast(url); }
   }
+  // Chips show a short name ("Chicken breast") unless two chips would read the same; then both show in full.
   function chipRow(rowId, names) {
     const row = $(rowId);
     const lbl = row.querySelector(".lbl");
     row.replaceChildren(lbl);
-    const foods = names.map(byName).filter(Boolean);
-    for (const f of foods) row.append(el("button", { class: "chip", type: "button", text: f.n.split(",")[0], title: f.n, onclick: () => pick(f) }));
+    const foods = [...new Set(names)].map(byName).filter(Boolean);
+    const short = f => f.n.split(",")[0];
+    const count = {}; for (const f of foods) count[short(f)] = (count[short(f)] || 0) + 1;
+    for (const f of foods) row.append(el("button", { class: "chip", type: "button", text: count[short(f)] > 1 ? f.n : short(f), title: f.n, onclick: () => pick(f) }));
     row.hidden = !foods.length;
   }
   const QUICK = ["Avocado", "Ground beef 80/20", "Chicken breast, grilled", "Greek yogurt, plain nonfat", "Eggs", "Oatmeal, rolled oats", "Shrimp", "Instant ramen"];
   function renderChips() {
     chipRow("favRow", favs);
-    chipRow("recentRow", recents.filter(n => !favs.includes(n)));
+    chipRow("recentRow", recents.filter(n => !favs.includes(n) && byName(n)).slice(0, RECENTS_SHOW));
     chipRow("quickRow", QUICK);
     $("quickRow").hidden = recents.length + favs.length >= 3;
   }
@@ -534,11 +539,14 @@
   }
 
   // ---------- lookups for foods that aren't built in ----------
+  function updateCount() {
+    $("foodCount").textContent = `${FOODS.length} common foods built in` + (lookups.length ? ` + ${lookups.length} looked up.` : ".");
+  }
   function saveLookup(f) {
     if (FOODS.some(x => x.n === f.n)) f.n += f.src === "off" ? "" : " (lookup)";
     lookups = [f, ...lookups.filter(x => x.n !== f.n)].slice(0, 80);
     store.set("lookups", lookups);
-    renderBrowse();
+    updateCount(); renderBrowse();
   }
 
   function offerLookup(text, near, typo) {
@@ -709,20 +717,69 @@
   // ---------- goals ----------
   const PF = { cal: "p-cal", pro: "p-pro", sat: "p-sat", na: "p-na", add: "p-add", fib: "p-fib" };
   function syncProfileUI() {
-    for (const [k, id] of Object.entries(PF)) $(id).value = profile[k];
+    for (const [k, id] of Object.entries(PF)) if (document.activeElement !== $(id) || $(id).getAttribute("aria-invalid") !== "true") $(id).value = profile[k];
     $("p-skip").value = profile.skip || ""; $("p-mild").checked = !!profile.mild; $("p-usda").value = profile.usdaKey || "";
     $("profSummary").textContent = `${profile.cal.toLocaleString("en-US")} cal · ${profile.pro} g protein · ≤${profile.sat} g sat fat`;
   }
   function readProfile() {
-    for (const [k, id] of Object.entries(PF)) { const v = Number($(id).value); if (Number.isFinite(v) && v > 0) profile[k] = v; }
+    // Only valid numbers are saved; an invalid field keeps its last good value and shows why next to it.
+    for (const [k, id] of Object.entries(PF)) if (checkGoal($(id))) profile[k] = Number($(id).value);
     profile.skip = $("p-skip").value; profile.mild = $("p-mild").checked; profile.usdaKey = $("p-usda").value.trim();
     store.set("profile", profile); syncProfileUI(); renderBrowse(); renderChips(); renderList(); renderPlate();
     if (current) renderResult(current);
   }
 
+  // ---------- shared links ----------
+  // #avocado opens a built-in food; #usda-171705 and #off-3017620422003 open looked-up foods, fetching them
+  // again when this browser hasn't seen them. Returns true when the hash names something to open.
+  function openFromHash(hash, first) {
+    const link = S.parseLinkId(hash);
+    if (!link) return false;
+    const already = f => current && f.n === current.n;
+    if (link.kind === "slug") {
+      const f = allFoods().find(x => V.slug(x.n) === link.slug);
+      if (f && !already(f)) pick(f, { noHash: true, noRecent: first });
+      return !!f;
+    }
+    const cached = lookups.find(x => link.kind === "usda" ? x.src === "usda" && x.fdcId === link.id : x.src === "off" && x.code === link.code);
+    if (cached) { if (!already(cached)) pick(cached, { noHash: true, noRecent: first }); return true; }
+    if (link.kind === "off") { barcodeLookup(link.code); return true; }
+    usdaById(link.id);
+    return true;
+  }
+  async function usdaById(id) {
+    const box = el("div", { class: "notice" }); $("out").replaceChildren(box);
+    busy(box, `Loading USDA food ${id}…`);
+    try {
+      const res = await withTimeout(fetch(S.usdaFoodUrl(id, (profile.usdaKey || "").trim())), LOOKUP_MS);
+      if (res.status === 404) throw Object.assign(new Error("missing"), { name: "NotFound" });
+      if (!res.ok) throw Object.assign(new Error("http"), { name: "HttpError", status: res.status });
+      const f = S.fromUsda(await res.json());
+      saveLookup(f); pick(f, { noHash: true });
+    } catch (e) {
+      box.replaceChildren(el("p", { text: e.name === "NotFound" ? `USDA has no food with id ${id}.` : e.status === 429 ? "The shared USDA key is out of searches for now. Add your own free key under Your goals, or try later." : "Couldn't load that USDA food. Check your connection and try again." }),
+        el("button", { class: "btn small ghost", type: "button", text: "Try again", onclick: () => usdaById(id) }));
+    }
+  }
+
+  // ---------- goal inputs: inline validation ----------
+  function checkGoal(input) {
+    const raw = input.value.trim(), v = Number(raw), min = Number(input.min), max = Number(input.max);
+    const fmtN = n => n.toLocaleString("en-US");
+    const msg = raw === "" ? `Enter a number from ${fmtN(min)} to ${fmtN(max)}.`
+      : !Number.isFinite(v) ? "That isn't a number."
+      : v < min || v > max ? `Use a number from ${fmtN(min)} to ${fmtN(max)}.` : "";
+    let err = input.parentElement.querySelector(".err");
+    if (!err) { err = el("span", { class: "err", id: input.id + "-err", role: "alert" }); input.after(err); }
+    err.textContent = msg; err.hidden = !msg;
+    input.setAttribute("aria-invalid", msg ? "true" : "false");
+    if (msg) input.setAttribute("aria-describedby", err.id); else input.removeAttribute("aria-describedby");
+    return !msg;
+  }
+
   // ---------- boot ----------
   function init() {
-    $("foodCount").textContent = `${FOODS.length} common foods built in.`;
+    updateCount();
     if (!PAGES) document.querySelectorAll("[data-pages-only]").forEach(n => n.remove());
     $("scanBtn").hidden = !PAGES; $("usdaKeyWrap").hidden = !PAGES;
 
@@ -742,6 +799,7 @@
     $("codeForm").addEventListener("submit", async e => { e.preventDefault(); const c = $("code").value; await closeScan(); barcodeLookup(c); });
 
     document.querySelectorAll("#profile input").forEach(i => i.addEventListener("change", readProfile));
+    Object.values(PF).forEach(id => $(id).addEventListener("input", () => checkGoal($(id))));
     syncProfileUI();
     if (!savedProfile && !CFG.profile) $("profile").open = true;
     renderChips(); renderBrowse(); renderList(); renderPlate(); renderQuiz();
@@ -753,13 +811,9 @@
     $("plateView").addEventListener("click", showPlate);
     $("plateClear").addEventListener("click", () => { plate = []; afterPlateChange(); });
 
-    const fromHash = PAGES && location.hash.length > 1 ? allFoods().find(f => V.slug(f.n) === decodeURIComponent(location.hash.slice(1))) : null;
-    const startFood = fromHash || (recents.length && byName(recents[0])) || FOODS[0];
-    pick(startFood, { noHash: true, noRecent: !fromHash });
-    if (PAGES) window.addEventListener("hashchange", () => {
-      const f = allFoods().find(x => V.slug(x.n) === decodeURIComponent(location.hash.slice(1)));
-      if (f && (!current || f.n !== current.n)) pick(f, { noHash: true });
-    });
+    const opened = PAGES && openFromHash(location.hash, true);
+    if (!opened) pick((recents.length && byName(recents[0])) || FOODS[0], { noHash: true, noRecent: true });
+    if (PAGES) window.addEventListener("hashchange", () => openFromHash(location.hash, false));
 
     if (PAGES && "serviceWorker" in navigator && location.protocol === "https:") {
       window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));

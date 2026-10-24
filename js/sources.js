@@ -25,7 +25,9 @@
   // USDA nutrient ids. Energy has three ids depending on data type; sugars has two.
   // Foundation records use some newer ids: total fat 1085 (NLEA), carbs by summation 1050.
   const USDA_IDS = { cal: [1008, 2048, 2047], pro: [1003], fat: [1004, 1085], carb: [1005, 1050], fib: [1079], sug: [2000, 1063], add: [1235], sat: [1258], trans: [1257], chol: [1253], na: [1093] };
-  const titleCase = s => s.toLowerCase().replace(/(^|[ ,(/-])([a-z])/g, (m, a, b) => a + b.toUpperCase());
+  // USDA descriptions are often ALL CAPS. Capitalize words, but keep minor words ("or", "with") lowercase unless first.
+  const MINOR_WORDS = new Set(["a", "an", "and", "as", "at", "by", "for", "from", "in", "into", "of", "on", "or", "the", "to", "with", "without"]);
+  const titleCase = s => s.toLowerCase().replace(/(^|[ ,(/-])([a-z][a-z']*)/g, (m, a, w, i) => a + (i > 0 && MINOR_WORDS.has(w) ? w : w[0].toUpperCase() + w.slice(1)));
 
   // One item from /fdc/v1/foods/search (Foundation, SR Legacy, Survey): values are per 100 g.
   function fromUsda(item) {
@@ -93,6 +95,16 @@
   function usdaSearchUrl(query, key) {
     return "https://api.nal.usda.gov/fdc/v1/foods/search?" + new URLSearchParams({ query, dataType: "Foundation,SR Legacy,Survey (FNDDS)", pageSize: "8", api_key: key || "DEMO_KEY" });
   }
+  const usdaFoodUrl = (id, key) => `https://api.nal.usda.gov/fdc/v1/food/${encodeURIComponent(id)}?` + new URLSearchParams({ api_key: key || "DEMO_KEY" });
+  // Shareable link ids: looked-up foods link by their source id so the link works on a device that never saw them.
+  const linkId = (f, slug) => f.src === "usda" && f.fdcId ? `usda-${f.fdcId}` : f.src === "off" && f.code ? `off-${f.code}` : slug(f.n);
+  function parseLinkId(h) {
+    const id = decodeURIComponent(String(h || "").replace(/^#/, ""));
+    let m;
+    if ((m = id.match(/^usda-(\d{1,10})$/))) return { kind: "usda", id: Number(m[1]) };
+    if ((m = id.match(/^off-(\d{8,14})$/))) return { kind: "off", code: m[1] };
+    return id ? { kind: "slug", slug: id } : null;
+  }
   const offProductUrl = code => `https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,generic_name,brands,nutriments,serving_size,serving_quantity,serving_quantity_unit,categories_tags`;
 
 
@@ -123,5 +135,5 @@ If "${text}" is not a food, reply {"found":false}.`;
     return f;
   }
 
-  return { PROCESSED, makeFood, fromUsda, fromOff, usdaSearchUrl, offProductUrl, claudePrompt, parseJsonReply, fromClaude };
+  return { PROCESSED, makeFood, fromUsda, fromOff, usdaSearchUrl, usdaFoodUrl, linkId, parseLinkId, titleCase, offProductUrl, claudePrompt, parseJsonReply, fromClaude };
 });

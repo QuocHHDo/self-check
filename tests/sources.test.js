@@ -71,3 +71,22 @@ test("API URLs are built correctly", () => {
   assert.equal(new URL(S.usdaSearchUrl("x")).searchParams.get("api_key"), "DEMO_KEY");
   assert.match(S.offProductUrl("737628064502"), /^https:\/\/world\.openfoodfacts\.org\/api\/v2\/product\/737628064502\.json/);
 });
+
+test("16: USDA titles keep minor words lowercase", () => {
+  assert.equal(S.titleCase("CHICKEN, BROILERS OR FRYERS, BREAST, MEAT ONLY, COOKED, ROASTED"), "Chicken, Broilers or Fryers, Breast, Meat Only, Cooked, Roasted");
+  assert.equal(S.titleCase("BEANS, BLACK, MATURE SEEDS, CANNED, LOW SODIUM"), "Beans, Black, Mature Seeds, Canned, Low Sodium");
+  assert.equal(S.titleCase("of the sea and land"), "Of the Sea and Land"); // first word is always capitalized
+  assert.equal(S.titleCase("YOGURT, GREEK, PLAIN, WITH FRUIT"), "Yogurt, Greek, Plain, with Fruit");
+});
+
+test("16: looked-up foods get shareable ids that survive a fresh browser", () => {
+  const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  assert.equal(S.linkId({ n: "X", src: "usda", fdcId: 171705 }, slug), "usda-171705");
+  assert.equal(S.linkId({ n: "X", src: "off", code: "3017620422003" }, slug), "off-3017620422003");
+  assert.equal(S.linkId({ n: "Ground beef 80/20" }, slug), "ground-beef-80-20");
+  assert.deepEqual(S.parseLinkId("#usda-171705"), { kind: "usda", id: 171705 });
+  assert.deepEqual(S.parseLinkId("#off-3017620422003"), { kind: "off", code: "3017620422003" });
+  assert.deepEqual(S.parseLinkId("#avocado"), { kind: "slug", slug: "avocado" });
+  assert.equal(S.parseLinkId("#"), null);
+  assert.match(S.usdaFoodUrl(171705, "k"), /\/fdc\/v1\/food\/171705\?api_key=k$/);
+});
