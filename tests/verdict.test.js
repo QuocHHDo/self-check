@@ -32,7 +32,7 @@ test("dietary cholesterol alone does not sink a food", () => {
 });
 
 test("tighter personal limits make borderline foods stricter, never looser", () => {
-  const rank = { bad: 0, mid: 1, good: 2, skip: -1 };
+  const rank = { bad: 0, mid: 1, fine: 1.5, good: 2, skip: -1 };
   for (const f of FOODS) {
     const a = V.assess(f, { ...P, skip: "" }), b = V.assess(f, { ...P, sat: 13, add: 36, skip: "" });
     assert.ok(rank[b.tier] <= rank[a.tier], `${f.n} got looser under tighter limits`);
@@ -56,7 +56,7 @@ test("scale multiplies every amount and keeps the original intact", () => {
 test("swaps are better than the original and prefer hand-picked options", () => {
   const swaps = V.findSwaps(food("Ground beef 80/20"), FOODS, P);
   assert.equal(swaps[0].food.n, "Ground beef 93/7");
-  const rank = { bad: 0, mid: 1, good: 2 };
+  const rank = { bad: 0, mid: 1, fine: 1.5, good: 2 };
   for (const n of ["Ground beef 80/20", "Soda", "Ranch dressing", "Eggs", "Bagel, plain", "Croissant"]) {
     const base = V.assess(food(n), P);
     for (const s of V.findSwaps(food(n), FOODS, P)) assert.ok(rank[s.verdict.tier] > rank[base.tier], `${n} -> ${s.food.n}`);

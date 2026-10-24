@@ -130,3 +130,22 @@ test("5: label's own per-serving values win; no serving size falls back to label
   const fromText = S.fromOff("3", { product_name: "Z", serving_size: "2 cookies (28 g)", nutriments: { "energy-kcal_100g": 500 } });
   assert.equal(fromText.cal, 140);
 });
+
+// ---- 6. "In moderation" is the default when nothing stands out ----
+test("6: every verdict for every built-in food has a reason that supports it", () => {
+  const supportsNonGetIt = a => a.reasons.some(r => r.k === "neg" || (r.k === "warn" && !/^Spicy/.test(r.t)));
+  for (const p of [P, { ...P, cal: 1850, pro: 140, sat: 13, add: 36, fib: 30, mild: true }]) {
+    for (const f of FOODS) {
+      const a = V.assess(f, p);
+      assert.ok(!a.reasons.some(r => /Nothing stands out/.test(r.t)), `${f.n}: placeholder reason`);
+      if (a.word === "In moderation" || a.word === "Limit it") assert.ok(supportsNonGetIt(a), `${f.n} is ${a.word} without a − or ! reason`);
+      if (a.word === "Get it") assert.ok(a.reasons.some(r => r.k === "pos"), `${f.n} is Get it without a + reason`);
+      if (a.word === "Fine") assert.ok(f.cal < V.NEGLIGIBLE_KCAL && a.reasons.some(r => r.k === "note" && /barely affects/.test(r.t)), `${f.n} is Fine without the negligible-impact reason`);
+    }
+  }
+});
+
+test("6: negligible foods with nothing to flag are Fine, not In moderation", () => {
+  for (const n of ["Zero-calorie sweetener", "Allulose", "Erythritol", "Coffee, black", "Diet soda", "Garlic", "Balsamic vinegar", "Yellow mustard", "Cooking spray"]) assert.equal(V.assess(food(n), P).word, "Fine", n);
+  for (const n of ["Sugar", "Ketchup", "Pickles"]) assert.equal(V.assess(food(n), P).word, "In moderation", n);
+});

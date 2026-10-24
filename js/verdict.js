@@ -6,7 +6,9 @@
 })(typeof self !== "undefined" ? self : this, function () {
   const fmt = n => (Math.round(n * 10) / 10).toString();
   const NUM_KEYS = ["cal", "fat", "sat", "trans", "chol", "na", "carb", "fib", "sug", "add", "pro"];
-  const RANK = { bad: 0, mid: 1, good: 2 };
+  const RANK = { bad: 0, mid: 1, fine: 1.5, good: 2 };
+  // Below this, a food with nothing to flag barely affects the day: the neutral "Fine" verdict.
+  const NEGLIGIBLE_KCAL = 25;
 
   // A small, deliberately short list of foods whose benefits are well established by research but invisible on
   // the label (polyphenols, omega-3 types, long-term outcome trials). Each gets +1 and says why. Keep this list
@@ -146,23 +148,50 @@
     if (K("chol") && K("sat") && f.chol >= 150 && satShare < 0.15) r.push({ k: "note", t: `High in dietary cholesterol (${Math.round(f.chol)} mg), but low in saturated fat. For most people saturated fat raises blood cholesterol more.` });
     if (goodFat && f.fat >= 10 && f.cal >= 100) r.push({ k: "note", t: `Healthy fats are still calorie-dense: ${Math.round(f.cal)} cal per serving, so portion size matters on ${p.cal.toLocaleString("en-US")} cal a day.` });
 
+    // Every verdict must be backed by a reason shown in WHY:
+    //   Get it: score >= 2 (from + reasons)
+    //   Limit it: score <= -2 (from − reasons)
+    //   In moderation: a − reason, or a ! reason saying why a small plus isn't enough
+    //   Fine: negligible calories and nothing to flag either way
+    const hasNeg = r.some(x => x.k === "neg"), hasPos = r.some(x => x.k === "pos");
     let tier, word, why;
     if (s >= 2) { tier = "good"; word = "Get it"; why = "A strong fit for your goals."; }
-    else if (s >= -1) { tier = "mid"; word = "In moderation"; why = "Fine sometimes. See the tradeoffs below."; }
-    else { tier = "bad"; word = "Limit it"; why = "Works against your goals if it's a regular buy."; }
+    else if (s <= -2) { tier = "bad"; word = "Limit it"; why = "Works against your goals if it's a regular buy."; }
+    else if (hasNeg) { tier = "mid"; word = "In moderation"; why = "Fine sometimes. See the tradeoffs below."; }
+    else if (K("cal") && f.cal < NEGLIGIBLE_KCAL) {
+      // Small servings still need to be "low" in the FDA's terms to be Fine: under 2 g added sugar,
+      // under 140 mg sodium and under 1 g saturated fat.
+      const flags = [];
+      if (K("add") && f.add >= 2) flags.push(`${fmt(f.add)} g of it is added sugar`);
+      if (K("na") && f.na >= 140) flags.push(`${Math.round(f.na)} mg sodium`);
+      if (K("sat") && f.sat >= 1) flags.push(`${fmt(f.sat)} g saturated fat`);
+      if (flags.length) {
+        tier = "mid"; word = "In moderation"; why = "A small serving, but not a free one.";
+        r.push({ k: "warn", t: `Only ${Math.round(f.cal)} calories, but ${flags.join(" and ")}. Easy to use more than one serving.` });
+      } else {
+        tier = "fine"; word = "Fine"; why = "No real impact either way.";
+        r.push({ k: "note", t: `Only ${Math.round(f.cal)} calories and nothing to flag, so it barely affects your day.` });
+      }
+    }
+    else if (hasPos) {
+      tier = "mid"; word = "In moderation"; why = "Nothing against it, but not a standout either.";
+      r.push({ k: "warn", t: "Only a modest benefit: one plus and nothing against it isn't enough to make it a top pick." });
+    } else {
+      tier = "mid"; word = "In moderation"; why = "Fine sometimes. See the tradeoffs below.";
+      r.push({ k: "warn", t: K("cal") ? `Not much fiber or protein for its ${Math.round(f.cal)} calories, so it won't do much to keep you full.` : "Calories weren't reported, so there's not enough to judge it well." });
+    }
 
     // Unknown or lower-bound limiting nutrients: say so, and never call it a "Get it" on incomplete data.
     const unknownLimits = KEY_LIMITS.filter(k => isMissing(f, k) || isLowerBound(f, k));
     const note = missingNote(f);
     if (note) r.push({ k: "warn", t: `${note} ${unknownLimits.length ? "Those aren't counted either way." : "They aren't counted either way."}` });
-    if (unknownLimits.length && tier === "good") {
+    if (unknownLimits.length && (tier === "good" || tier === "fine")) {
       tier = "mid"; word = "In moderation"; why = "Looks good on what's known, but key data is missing.";
       r.push({ k: "warn", t: `Can't rate it "Get it" without ${listWords(unknownLimits)}: check the package label.` });
     }
     // The mild-food preference flags spicy foods; it never changes the nutrition verdict. Only the skip list does that.
     const spicy = !!p.mild && (f.tags || []).includes("spicy");
     if (spicy) r.unshift({ k: "warn", t: "Spicy: you said you prefer mild food. The verdict is on nutrition alone." });
-    if (!r.length) r.push({ k: "note", t: "Nothing stands out either way." });
     return { tier, word, why, score: s, reasons: r, partial: !!note, spicy };
   }
 
@@ -296,7 +325,7 @@
   function findSwaps(f, foods, p, max = 3) {
     const base = assess(f, p);
     const want = base.tier === "skip" ? 0 : RANK[base.tier];
-    if (base.tier === "good") return [];
+    if (base.tier === "good" || base.tier === "fine") return [];
     const hints = SWAP_HINTS[f.n] || [];
     const ft = new Set(tokens(f.n));
     const out = [];
@@ -364,5 +393,5 @@
 
   const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-  return { DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, skipMatch, healthyFatSource, servingGrams, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, fmt };
+  return { NEGLIGIBLE_KCAL, RANK, DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, skipMatch, healthyFatSource, servingGrams, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, fmt };
 });

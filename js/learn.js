@@ -58,7 +58,7 @@
     };
   }
   function verdictQuestion(foods, p, r) {
-    const pool = foods.filter(g => V.assess(g, p).tier !== "skip");
+    const pool = foods.filter(g => VERDICTS.includes(V.assess(g, p).word));
     return pool.length ? buildVerdict(pickOne(r, pool), p) : null;
   }
 
@@ -73,7 +73,7 @@
     const i = id.indexOf(":");
     const type = id.slice(0, i), rest = id.slice(i + 1);
     const find = n => foods.find(f => f.n === n);
-    if (type === "verdict") { const f = find(rest); return f ? buildVerdict(f, p) : null; }
+    if (type === "verdict") { const f = find(rest); return f && VERDICTS.includes(V.assess(f, p).word) ? buildVerdict(f, p) : null; }
     if (type === "more") {
       const j = rest.indexOf(":");
       const nu = NUTRIENTS.find(n => n.k === rest.slice(0, j));
