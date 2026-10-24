@@ -136,5 +136,9 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
   ok(/Correct\.|Not quite/.test(text("#quiz .qres")) && /right/.test(text("#learnScore")), `answering scores it (${text("#learnScore")})`);
   click($("#quizNext"));
   ok($$("#quiz .qopt.right").length === 0, "next question resets");
+  // Check text nodes one by one: a stray "null" node next to other text doesn't have word boundaries in textContent.
+  const nullText = (root = w.document.body) => [root, ...root.querySelectorAll("*")].some(e => [...e.childNodes].some(n => n.nodeType === 3 && /^\s*(null|undefined)\s*$|\bnull\b|\bundefined\b/.test(n.textContent)));
+  ok(!nullText(w.document.getElementById("quiz")), "quiz never renders the text null");
+  ok(!nullText(), "no null or undefined text anywhere on the page");
   ok(errors.length === 0, "no script errors" + (errors.length ? ": " + errors.join(" | ") : ""));
 })();

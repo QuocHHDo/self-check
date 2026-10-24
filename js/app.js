@@ -438,7 +438,7 @@
         el("div", { class: "actions" }, el("button", { class: "btn small", type: "button", id: "quizNext", text: "Next question", onclick: nextQuestion }),
           ...quizQ.foods.map(f => el("button", { class: "btn small ghost", type: "button", text: `Open ${f.n}`, onclick: () => pick(f, { scroll: true }) })))));
     }
-    box.replaceChildren(...parts);
+    box.replaceChildren(...parts.filter(Boolean)); // null placeholders would render as the text "null"
   }
 
   // ---------- browse ----------
