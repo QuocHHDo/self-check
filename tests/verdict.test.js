@@ -77,6 +77,21 @@ test("health ranking puts treats and processed food at the bottom and produce at
   assert.ok(V.health(food("Hummus"), CUT).score !== null, "skip list doesn't remove a food from the ranking");
 });
 
+test("extra virgin olive oil outranks other oils through the evidence bonus, without becoming a Get it", () => {
+  const evoo = V.health(food("Extra virgin olive oil"), CUT).score;
+  for (const n of ["Canola oil", "Avocado oil", "Light olive oil", "Vegetable oil (soybean)", "Peanut oil"]) assert.ok(evoo > V.health(food(n), CUT).score, n);
+  const a = V.assess(food("Extra virgin olive oil"), CUT);
+  assert.equal(a.word, "In moderation");
+  assert.ok(a.reasons.some(r => r.k === "pos" && /beyond the label/.test(r.t)));
+});
+
+test("the evidence list stays short and names real foods", () => {
+  const names = new Set(FOODS.map(f => f.n));
+  const list = Object.keys(V.EVIDENCE);
+  assert.ok(list.length <= 12, "keep the evidence bonus list short");
+  for (const n of list) assert.ok(names.has(n), n);
+});
+
 test("foods rated Get it have no swaps", () => {
   assert.deepEqual(V.findSwaps(food("Broccoli"), FOODS, P), []);
 });

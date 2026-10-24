@@ -1,7 +1,7 @@
 // Offline support: the app shell and food data are cached on first visit.
 // Same-origin files are served from the cache and refreshed in the background,
 // so the app opens instantly in a store with no signal and still picks up updates.
-const CACHE = "self-check-v4";
+const CACHE = "self-check-v5";
 const SHELL = [
   "./",
   "index.html",

@@ -8,6 +8,17 @@
   const NUM_KEYS = ["cal", "fat", "sat", "trans", "chol", "na", "carb", "fib", "sug", "add", "pro"];
   const RANK = { bad: 0, mid: 1, good: 2 };
 
+  // A small, deliberately short list of foods whose benefits are well established by research but invisible on
+  // the label (polyphenols, omega-3 types, long-term outcome trials). Each gets +1 and says why. Keep this list
+  // short and evidence-based so the scoring stays label-driven and predictable.
+  const FISH = "Strong research beyond the label: fatty fish supply the omega-3 fats EPA and DHA, and heart health groups recommend about two servings a week.";
+  const NUTS = "Strong research beyond the label: people who eat nuts regularly have lower rates of heart disease in large studies, and nuts were a key food in the PREDIMED trial.";
+  const EVIDENCE = {
+    "Extra virgin olive oil": "Strong research beyond the label: extra virgin olive oil keeps polyphenols that refining removes, and in large trials like PREDIMED it was linked to fewer heart attacks and strokes. That puts it ahead of other oils.",
+    "Salmon": FISH, "Salmon, canned": FISH, "Sardines, canned": FISH, "Trout": FISH,
+    "Almonds": NUTS, "Walnuts": NUTS, "Pistachios": NUTS, "Mixed nuts": NUTS,
+  };
+
   // Generic starting goals (roughly FDA Daily Values on a 2,000-calorie diet).
   const DEFAULT_PROFILE = { cal: 2000, pro: 100, sat: 20, na: 2300, add: 50, fib: 28, skip: "", mild: false };
 
@@ -57,6 +68,7 @@
     if (unsaturatedOil) r.push({ k: "pos", t: "A cooking fat that's mostly unsaturated, which is better for cholesterol than butter, lard or coconut oil." });
     else if (f.cal >= 100 && f.pro < 2 && f.fib < 1) { s -= 1; r.push({ k: "neg", t: "Calories with little protein or fiber, so it won't keep you full." }); }
     if (f.cal >= 300 && pd < 0.15) { s -= 1; r.push({ k: "neg", t: `Calorie-heavy: ${Math.round(f.cal)} cal is ${Math.round(f.cal / p.cal * 100)}% of your day without much protein.` }); }
+    if (EVIDENCE[f.n]) { s += 1; r.push({ k: "pos", t: EVIDENCE[f.n] }); }
 
     if (f.chol >= 150 && satShare < 0.15) r.push({ k: "note", t: `High in dietary cholesterol (${Math.round(f.chol)} mg), but low in saturated fat. For most people saturated fat raises blood cholesterol more.` });
     if (f.fat >= 10 && f.cal >= 100 && f.sat / f.fat <= 0.25) r.push({ k: "note", t: `Healthy fats are still calorie-dense: ${Math.round(f.cal)} cal per serving, so portion size matters on ${p.cal.toLocaleString("en-US")} cal a day.` });
@@ -221,5 +233,5 @@
 
   const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-  return { DEFAULT_PROFILE, NUM_KEYS, assess, explain, scale, findSwaps, health, SWAP_HINTS, slug, fmt };
+  return { DEFAULT_PROFILE, NUM_KEYS, assess, explain, scale, findSwaps, health, SWAP_HINTS, EVIDENCE, slug, fmt };
 });
