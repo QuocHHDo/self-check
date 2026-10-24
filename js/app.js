@@ -534,7 +534,13 @@
     const key = (profile.usdaKey || "").trim() || "DEMO_KEY";
     const url = S.usdaSearchUrl(text, key);
     try {
-      const res = await fetch(url);
+      // USDA's API rejects some requests intermittently; retry twice before giving up.
+      let res;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        if (attempt) await new Promise(r => setTimeout(r, 600 * attempt));
+        res = await fetch(url);
+        if (res.ok || res.status === 403 || res.status === 429) break;
+      }
       if (res.status === 429) throw new Error("rate");
       if (res.status === 403) throw new Error("key");
       if (!res.ok) throw new Error("http");

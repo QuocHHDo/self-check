@@ -50,7 +50,7 @@ export function buildClaudeReport(rows, model) {
   lines.push("Error = |value − USDA| ÷ USDA, with the same small floors as the built-in eval. “Claude now” is a fresh lookup with the app's prompt; “Built-in” is the value already in js/foods.js.", "");
   lines.push("## Median error by nutrient", "", "| Nutrient | Claude now | Built-in | Claude within 25% |", "| --- | --- | --- | --- |");
   for (const [k, , label] of COMPARED) {
-    const c = both.map(r => r.claude.errors[k]), b = both.map(r => r.builtIn.errors[k]);
+    const c = both.map(r => r.claude.errors[k]).filter(x => x != null), b = both.map(r => r.builtIn.errors[k]).filter(x => x != null);
     lines.push(`| ${label} | ${pctf(median(c))} | ${pctf(median(b))} | ${pctf(c.filter(x => x <= 0.25).length / c.length)} |`);
   }
   const agreeC = both.filter(r => r.claude.verdictBuilt === r.claude.verdictUsda).length;
@@ -60,7 +60,7 @@ export function buildClaudeReport(rows, model) {
   if (servingGap.length) lines.push(`${servingGap.length} foods got a very different serving size from Claude than the built-in list (over 50% apart in grams); errors are measured per each one's own serving, so this doesn't count against accuracy.`, "");
   lines.push("## Largest Claude errors", "", "| Food | Worst nutrient | Claude | USDA | Claude's serving |", "| --- | --- | --- | --- | --- |");
   for (const r of [...both].sort((a, b) => b.claude.maxError - a.claude.maxError).slice(0, 20)) {
-    const [k, , label] = COMPARED.reduce((w, c) => (r.claude.errors[c[0]] > r.claude.errors[w[0]] ? c : w));
+    const [k, , label] = COMPARED.reduce((w, c) => ((r.claude.errors[c[0]] ?? -1) > (r.claude.errors[w[0]] ?? -1) ? c : w));
     lines.push(`| ${r.name} | ${label} (${pctf(r.claude.errors[k])}) | ${r.claude.built[k]} | ${r.claude.usda[k]} | ${r.claude.serving} |`);
   }
   const failed = rows.filter(r => r.error || !r.claude);
@@ -80,7 +80,7 @@ async function main() {
   for (const f of sampleFoods(FOODS.filter(g => servingGrams(g.s)), limit)) {
     const row = { name: f.n, claude: null, builtIn: null };
     try {
-      const usdaItem = await fetchUsda(f.n, usdaKey, pinned);
+      const usdaItem = await fetchUsda(f, usdaKey, pinned);
       if (!usdaItem) throw new Error("no USDA result");
       const usda = S.fromUsda(usdaItem);
       row.builtIn = compareFood(f, usda);

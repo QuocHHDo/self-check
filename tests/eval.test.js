@@ -59,3 +59,36 @@ test("Claude eval: production prompt, reply parsing and scoring work offline", a
   assert.equal(sampleFoods(FOODS, 10).length, 10);
   assert.equal(new Set(sampleFoods(FOODS, 10).map(f => f.c)).size > 3, true);
 });
+
+test("matcher rejects the wrong-food matches from the first real run and keeps the right ones", async () => {
+  const { matchConfidence } = await import("../eval/compare-usda.mjs");
+  const wrong = [["Broccoli", "Fried Broccoli"], ["Spinach", "Spinach, Creamed"], ["Zucchini", "Bread, Zucchini"], ["Walnuts", "Oil, Walnut"],
+    ["Banana", "Bananas, Dehydrated, Or Banana Powder"], ["Green beans", "Green Bean Casserole"], ["Low-carb tortilla", "Alcoholic Beverage, Beer, Light, Low Carb"],
+    ["Cashews", "Cashew Butter"], ["Shrimp", "Shrimp Cocktail"], ["Lentils", "Lentil Curry"], ["Artichoke hearts, canned", "Hearts Of Palm, Canned"],
+    ["Skyr, plain nonfat", "Yogurt, Plain, Nonfat"], ["Yogurt, flavored low-fat", "Yogurt, Plain, Low Fat"], ["Lemonade", "Vodka And Lemonade"]];
+  for (const [ours, theirs] of wrong) assert.ok(matchConfidence(ours, theirs) < 0.5, `${ours} vs ${theirs}: ${matchConfidence(ours, theirs)}`);
+  const right = [["Tomato", "Tomatoes, Raw"], ["Strawberries", "Strawberries, Raw"], ["Kiwi", "Kiwi Fruit, Raw"], ["Medjool dates", "Dates, Medjool"],
+    ["Extra virgin olive oil", "Oil, Olive, Extra Virgin"], ["Ground pork", "Pork, Ground"], ["Dried mango, sweetened", "Mango, Dried, Sweetened"]];
+  for (const [ours, theirs] of right) assert.ok(matchConfidence(ours, theirs) >= 0.5, `${ours} vs ${theirs}: ${matchConfidence(ours, theirs)}`);
+});
+
+test("ranking prefers raw basic records for produce and cooked records for cooked servings", async () => {
+  const { rankCandidates } = await import("../eval/compare-usda.mjs");
+  const broccoli = FOODS.find(f => f.n === "Broccoli");
+  const best = rankCandidates(broccoli, [{ description: "Fried Broccoli", dataType: "Survey (FNDDS)" }, { description: "Broccoli, cooked", dataType: "Survey (FNDDS)" }, { description: "Broccoli, raw", dataType: "SR Legacy" }])[0];
+  assert.equal(best.item.description, "Broccoli, raw");
+  const farro = FOODS.find(f => f.n === "Farro");
+  assert.equal(rankCandidates(farro, [{ description: "Farro, Pearled, Dry, Raw", dataType: "Foundation" }, { description: "Farro, cooked", dataType: "Survey (FNDDS)" }])[0].item.description, "Farro, cooked");
+});
+
+test("nutrients a USDA record leaves out are unknown, not zero", async () => {
+  const { compareFood } = await import("../eval/compare-usda.mjs");
+  const oil = S.fromUsda({ fdcId: 1, description: "Oil, olive, extra virgin", dataType: "Foundation", foodNutrients: [{ nutrientId: 1085, unitName: "G", value: 100 }, { nutrientId: 1258, unitName: "G", value: 13.8 }] });
+  assert.ok(oil.missing.includes("na") && oil.missing.includes("pro"));
+  assert.equal(oil.fat, 100);
+  const r = compareFood(FOODS.find(f => f.n === "Extra virgin olive oil"), oil);
+  assert.equal(r.errors.na, null);
+  assert.ok(r.errors.fat < 0.1, `fat error ${r.errors.fat}`);
+  const est = S.fromUsda({ fdcId: 2, description: "X", foodNutrients: [{ nutrientId: 1003, unitName: "G", value: 10 }, { nutrientId: 1004, unitName: "G", value: 5 }, { nutrientId: 1005, unitName: "G", value: 20 }] });
+  assert.equal(est.cal, 165); assert.equal(est.calEstimated, true);
+});

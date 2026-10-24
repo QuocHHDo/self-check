@@ -17,7 +17,8 @@
   }
 
   // USDA nutrient ids. Energy has three ids depending on data type; sugars has two.
-  const USDA_IDS = { cal: [1008, 2048, 2047], pro: [1003], fat: [1004], carb: [1005], fib: [1079], sug: [2000, 1063], add: [1235], sat: [1258], trans: [1257], chol: [1253], na: [1093] };
+  // Foundation records use some newer ids: total fat 1085 (NLEA), carbs by summation 1050.
+  const USDA_IDS = { cal: [1008, 2048, 2047], pro: [1003], fat: [1004, 1085], carb: [1005, 1050], fib: [1079], sug: [2000, 1063], add: [1235], sat: [1258], trans: [1257], chol: [1253], na: [1093] };
   const titleCase = s => s.toLowerCase().replace(/(^|[ ,(/-])([a-z])/g, (m, a, b) => a + b.toUpperCase());
 
   // One item from /fdc/v1/foods/search (Foundation, SR Legacy, Survey): values are per 100 g.
@@ -31,9 +32,18 @@
       if (byId[id] != null && unit === "KJ") continue; // keep kcal when both units are listed
       byId[id] = unit === "KJ" ? value / 4.184 : value;
     }
-    const v = {};
-    for (const [k, ids] of Object.entries(USDA_IDS)) { const id = ids.find(i => byId[i] != null); v[k] = id != null ? byId[id] : 0; }
-    return makeFood(titleCase(String(item.description || "USDA food")), "100 g", v, { src: "usda", fdcId: item.fdcId });
+    const v = {}, missing = [];
+    for (const [k, ids] of Object.entries(USDA_IDS)) {
+      const id = ids.find(i => byId[i] != null);
+      if (id != null) v[k] = byId[id]; else { v[k] = 0; if (k !== "add" && k !== "trans") missing.push(k); }
+    }
+    // No energy value but the macros are there: estimate calories with 4/4/9.
+    let calEstimated = false;
+    if (missing.includes("cal") && !missing.includes("pro") && !missing.includes("fat") && !missing.includes("carb")) {
+      v.cal = 4 * v.pro + 4 * v.carb + 9 * v.fat; missing.splice(missing.indexOf("cal"), 1); calEstimated = true;
+    }
+    return makeFood(titleCase(String(item.description || "USDA food")), "100 g", v,
+      { src: "usda", fdcId: item.fdcId, dataType: item.dataType, missing, calEstimated, partial: missing.length > 0 });
   }
 
   // One product from Open Food Facts /api/v2/product/{barcode}.json. Uses per-serving values when present, else per 100 g.
