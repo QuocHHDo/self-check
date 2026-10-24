@@ -607,7 +607,7 @@
     const t = setTimeout(() => fail(Object.assign(new Error("timeout"), { name: "TimeoutError" })), ms);
     promise.then(v => { clearTimeout(t); ok(v); }, e => { clearTimeout(t); fail(e); });
   });
-  const LOOKUP_MS = CFG.lookupTimeoutMs || 15000, CAMERA_MS = CFG.cameraTimeoutMs || 10000;
+  const LOOKUP_MS = CFG.lookupTimeoutMs || 15000, CAMERA_MS = CFG.cameraTimeoutMs || 60000;
 
   async function barcodeLookup(code) {
     const clean = String(code).replace(/\D/g, "");
@@ -644,13 +644,16 @@
   function loadScript(src) {
     return new Promise((ok, fail) => { if (window.Html5Qrcode) return ok(); const s = el("script", { src }); s.onload = ok; s.onerror = () => fail(Object.assign(new Error("script"), { name: "ScriptError" })); document.head.append(s); });
   }
+  // html5-qrcode sometimes rejects with a plain string ("… NotAllowedError: Permission denied"), so read the name from either.
+  const CAMERA_ERRORS = /(NotAllowedError|PermissionDeniedError|SecurityError|NotFoundError|DevicesNotFoundError|OverconstrainedError|NotReadableError|TrackStartError|AbortError)/;
+  const errName = e => (e && e.name && e.name !== "Error" ? e.name : (String(e && (e.message || e)).match(CAMERA_ERRORS) || [])[1]);
   function cameraMessage(e) {
-    switch (e && e.name) {
+    switch (errName(e)) {
       case "NoCameraApi": return "This browser can't use the camera here (it needs a secure https page). Type the barcode number below.";
-      case "NotAllowedError": case "PermissionDeniedError": case "SecurityError": return "Camera permission was blocked. Allow it in your browser's site settings, or type the barcode number below.";
-      case "NotFoundError": case "OverconstrainedError": case "DevicesNotFoundError": return "No camera was found. Type the barcode number below.";
-      case "NotReadableError": case "TrackStartError": return "The camera is busy in another app. Close it and tap Scan barcode again, or type the number below.";
-      case "TimeoutError": return "The camera didn't start (the permission prompt may still be waiting, or the camera is busy). Tap Scan barcode to try again, or type the number below.";
+      case "NotAllowedError": case "PermissionDeniedError": case "SecurityError": return "Camera access is blocked for this site. Allow it in your browser's site settings (the icon left of the address), then tap Scan barcode again. Or type the number below.";
+      case "NotFoundError": case "OverconstrainedError": case "DevicesNotFoundError": return "No camera was found on this device. Type the barcode number below.";
+      case "NotReadableError": case "TrackStartError": case "AbortError": return "The camera is in use by another app or tab. Close it and tap Scan barcode again, or type the number below.";
+      case "TimeoutError": return "The camera didn't start. Tap Scan barcode to try again, or type the number below.";
       case "ScriptError": return "The scanner couldn't load (are you offline?). Type the barcode number below.";
       default: return "The camera couldn't start. Type the barcode number below.";
     }
@@ -663,28 +666,47 @@
     try { if (s) { if (s.isScanning) s.stop().catch(() => {}); s.clear(); } } catch {}
     $("code").focus();
   }
+  const CAMERA_WAIT_MS = CFG.cameraWaitMs || 3000, START_MS = CFG.cameraStartMs || 15000;
+  const stopStream = st => { try { (st && st.getTracks ? st.getTracks() : []).forEach(t => t.stop()); } catch {} };
   async function openScan() {
     const attempt = ++scanTry;
     $("scan").hidden = false; $("scanMsg").textContent = "Starting the camera…";
     $("scanBtn").setAttribute("aria-busy", "true");
+    $("code").focus();
     if (!window.isSecureContext || !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) return scanFailed({ name: "NoCameraApi" });
+    // Already blocked for this site: say so now instead of waiting on a prompt that won't appear.
+    try { const st = navigator.permissions && await navigator.permissions.query({ name: "camera" }); if (st && st.state === "denied") return scanFailed({ name: "NotAllowedError" }); } catch {}
+    if (attempt !== scanTry) return;
+    // While the browser's permission prompt is up, explain what we're waiting for.
+    const waiting = setTimeout(() => { if (attempt === scanTry) $("scanMsg").textContent = "Waiting for camera permission. Allow it in your browser, or type the number below."; }, CAMERA_WAIT_MS);
     try {
+      // Ask for the camera ourselves first, so the browser's own error (NotAllowedError, NotFoundError,
+      // NotReadableError) comes back intact, and the wait for the prompt isn't cut short.
+      const gum = navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      gum.then(st => { if (attempt !== scanTry) stopStream(st); }, () => {}); // answered after we gave up: release it
+      stopStream(await withTimeout(gum, CAMERA_MS));
+      clearTimeout(waiting);
+      if (attempt !== scanTry) return;
+      $("scanMsg").textContent = "Starting the camera…";
       await withTimeout((async () => {
         await loadScript("vendor/html5-qrcode.min.js");
         const lib = window.__Html5QrcodeLibrary__ || {};
         const F = window.Html5QrcodeSupportedFormats || lib.Html5QrcodeSupportedFormats;
         const Scanner = window.Html5Qrcode || lib.Html5Qrcode;
+        // Decoding uses the browser's BarcodeDetector when it has one, and the bundled ZXing decoder otherwise
+        // (desktop Chrome on Windows/Linux, Firefox, older Safari).
         const sc = new Scanner("reader", { verbose: false, formatsToSupport: [F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E], experimentalFeatures: { useBarCodeDetectorIfSupported: true } });
         scanner = sc;
-        await sc.start({ facingMode: "environment" }, { fps: 10, qrbox: (w, h) => ({ width: Math.min(300, w * 0.85), height: Math.min(140, h * 0.5) }) },
+        await sc.start({ facingMode: "environment" }, { fps: 10, qrbox: (w, h) => ({ width: Math.floor(w * 0.95), height: Math.floor(Math.max(h * 0.6, Math.min(h, 120))) }) },
           async decoded => { await closeScan(); barcodeLookup(decoded); }, () => {});
         // Started after we gave up (timeout) or the panel was closed: turn the camera back off.
         if (attempt !== scanTry) { try { await sc.stop(); sc.clear(); } catch {} }
-      })(), CAMERA_MS);
+      })(), START_MS);
       if (attempt !== scanTry) return; // closed or restarted meanwhile
       $("scanBtn").removeAttribute("aria-busy");
-      $("scanMsg").textContent = "Point your camera at the barcode.";
+      $("scanMsg").textContent = "Point your camera at the barcode and move closer until it fills the box.";
     } catch (e) {
+      clearTimeout(waiting);
       if (attempt === scanTry) scanFailed(e);
     }
   }

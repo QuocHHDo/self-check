@@ -9,7 +9,7 @@ const usdaFixture = JSON.parse(read("tests/fixtures/usda-search.json"));
 let html = read("index.html").replace(/<script src="[^"]+"><\/script>/g, "").replace(/<link [^>]*>/g, "");
 html = html.replace('window.SELF_CHECK_CONFIG = { mode: "pages" };', MODE === "claude"
   ? 'window.SELF_CHECK_CONFIG = { mode: "claude", profile: { cal: 1850, pro: 140, sat: 13, na: 2300, add: 36, fib: 30, skip: "hummus", mild: true } };'
-  : 'window.SELF_CHECK_CONFIG = { mode: "pages", cameraTimeoutMs: 60, lookupTimeoutMs: 80 };');
+  : 'window.SELF_CHECK_CONFIG = { mode: "pages", cameraTimeoutMs: 400, cameraStartMs: 60, cameraWaitMs: 30, lookupTimeoutMs: 80 };');
 const errors = [];
 let offMode = "ok";
 const dom = new JSDOM(html, { runScripts: "outside-only", url: "https://quochhdo.github.io/self-check/", pretendToBeVisual: true });
@@ -116,16 +116,27 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
     click($("#scanBtn")); await tick(5);
     ok(/needs a secure https page/.test(text("#scanMsg")) && w.document.activeElement === $("#code"), `no camera API: message and focus on typed barcode (${text("#scanMsg")})`);
     await (async () => {
-      Object.defineProperty(w.navigator, "mediaDevices", { value: { getUserMedia: async () => ({}) }, configurable: true });
+      // Each camera outcome gets its own message; the typed-barcode box is focused throughout.
+      let gum = "ok", start = "ok";
+      const err = name => Object.assign(new Error(name), { name });
+      Object.defineProperty(w.navigator, "mediaDevices", { value: { getUserMedia: () => gum === "ok" ? Promise.resolve({ getTracks: () => [] }) : gum === "pending" ? new Promise(() => {}) : Promise.reject(err(gum)) }, configurable: true });
       Object.defineProperty(w, "isSecureContext", { value: true, configurable: true });
       w.Html5QrcodeSupportedFormats = { EAN_13: 1, EAN_8: 2, UPC_A: 3, UPC_E: 4 };
-      let behavior = "deny";
       w.Html5Qrcode = class { constructor() { this.isScanning = false; } clear() {} async stop() {}
-        start() { return behavior === "deny" ? Promise.reject(Object.assign(new Error("denied"), { name: "NotAllowedError" })) : new Promise(() => {}); } };
-      click($("#scanClose")); await tick(2); click($("#scanBtn")); await tick(5);
-      ok(/permission was blocked/.test(text("#scanMsg")) && w.document.activeElement === $("#code"), `camera denied: message and focus (${text("#scanMsg")})`);
-      behavior = "hang"; click($("#scanClose")); await tick(2); click($("#scanBtn")); await tick(150);
-      ok(/didn't start/.test(text("#scanMsg")) && !$("#scanBtn").hasAttribute("aria-busy"), `camera hang: times out with a message (${text("#scanMsg")})`);
+        start() { return start === "ok" ? Promise.resolve() : start === "string" ? Promise.reject("Error getting userMedia, error = NotReadableError: Could not start video source") : new Promise(() => {}); } };
+      const scan = async (ms = 10) => { click($("#scanClose")); await tick(2); click($("#scanBtn")); await tick(ms); };
+      for (const [g, re, label] of [["NotAllowedError", /blocked for this site/, "denied"], ["NotFoundError", /No camera was found/, "no camera"], ["NotReadableError", /in use by another app/, "busy"]]) {
+        gum = g; await scan();
+        ok(re.test(text("#scanMsg")) && w.document.activeElement === $("#code"), `camera ${label}: specific message, barcode box focused (${text("#scanMsg")})`);
+      }
+      gum = "pending"; await scan(80);
+      ok(/Waiting for camera permission\. Allow it in your browser, or type the number below\./.test(text("#scanMsg")) && w.document.activeElement === $("#code"), `pending permission prompt: waiting message (${text("#scanMsg")})`);
+      gum = "ok"; start = "string"; await scan();
+      ok(/in use by another app/.test(text("#scanMsg")), `scanner's string errors are recognized (${text("#scanMsg")})`);
+      start = "hang"; await scan(150);
+      ok(/didn't start/.test(text("#scanMsg")) && !$("#scanBtn").hasAttribute("aria-busy"), `scanner hang: times out with a message (${text("#scanMsg")})`);
+      start = "ok"; await scan();
+      ok(/Point your camera at the barcode/.test(text("#scanMsg")), `camera ready (${text("#scanMsg")})`);
       click($("#scanClose")); await tick(2);
       delete w.Html5Qrcode; delete w.navigator.mediaDevices;
     })();
