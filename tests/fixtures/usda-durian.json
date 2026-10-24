@@ -1,0 +1,14 @@
+{
+  "fdcId": 168192,
+  "description": "Durian, raw or frozen",
+  "dataType": "SR Legacy",
+  "foodNutrients": [
+    { "nutrientId": 1008, "unitName": "KCAL", "value": 147 },
+    { "nutrientId": 1003, "unitName": "G", "value": 1.47 },
+    { "nutrientId": 1004, "unitName": "G", "value": 5.33 },
+    { "nutrientId": 1005, "unitName": "G", "value": 27.09 },
+    { "nutrientId": 1079, "unitName": "G", "value": 3.8 },
+    { "nutrientId": 1093, "unitName": "MG", "value": 2 },
+    { "nutrientId": 1253, "unitName": "MG", "value": 0 }
+  ]
+}

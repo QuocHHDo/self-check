@@ -30,6 +30,27 @@
     "Table salt": "Most sodium in a typical diet comes from packaged and restaurant food, not the salt shaker.",
   };
 
+  // ---- missing data ----
+  // A food from USDA or Open Food Facts can leave nutrients out (listed in f.missing). Those are unknown, not zero:
+  // rules that need them don't fire, and the label shows "—". On a plate, a nutrient some items don't report is a
+  // lower bound (listed in f.atLeast).
+  const NUTRIENT_WORD = { cal: "calories", fat: "total fat", sat: "saturated fat", trans: "trans fat", chol: "cholesterol", na: "sodium",
+    carb: "carbs", fib: "fiber", sug: "total sugars", add: "added sugar", pro: "protein" };
+  const KEY_LIMITS = ["sat", "na", "add"];
+  const isMissing = (f, k) => (f.missing || []).includes(k);
+  const isLowerBound = (f, k) => (f.atLeast || []).includes(k);
+  const known = (f, k) => !isMissing(f, k);
+  const SOURCE_WORD = { usda: "USDA", off: "Open Food Facts", claude: "The lookup" };
+  const listWords = ks => { const w = ks.map(k => NUTRIENT_WORD[k]); return w.length <= 1 ? w.join("") : w.slice(0, -1).join(", ") + " or " + w.at(-1); };
+  // "Partial data: USDA didn't report saturated fat or total sugars." (null when nothing is missing)
+  function missingNote(f) {
+    const order = k => NUM_KEYS.indexOf(k);
+    const miss = (f.missing || []).filter(k => k !== "trans" && k !== "chol").sort((x, y) => order(x) - order(y)), low = [...(f.atLeast || [])].sort((x, y) => order(x) - order(y));
+    if (miss.length) return `Partial data: ${SOURCE_WORD[f.src] || "The source"} didn't report ${listWords(miss)}.`;
+    if (low.length) return `Some items on this plate don't report ${listWords(low)}, so those totals are minimums ("at least").`;
+    return null;
+  }
+
   // Generic starting goals (roughly FDA Daily Values on a 2,000-calorie diet).
   const DEFAULT_PROFILE = { cal: 2000, pro: 100, sat: 20, na: 2300, add: 50, fib: 28, skip: "", mild: false };
 
@@ -49,48 +70,60 @@
 
     let s = 0;
     const r = [];
-    const pd = f.cal > 0 ? (f.pro * 4) / f.cal : 0;
-    if (f.pro >= 5 && pd >= 0.4) { s += 2; r.push({ k: "pos", t: `High protein for the calories: ${fmt(f.pro)} g, about ${Math.round(f.pro / p.pro * 100)}% of your ${p.pro} g goal.` }); }
+    const K = k => known(f, k);
+    const pd = K("cal") && K("pro") && f.cal > 0 ? (f.pro * 4) / f.cal : 0;
+    if (!K("pro")) { /* unknown protein: no protein credit */ }
+    else if (f.pro >= 5 && pd >= 0.4) { s += 2; r.push({ k: "pos", t: `High protein for the calories: ${fmt(f.pro)} g, about ${Math.round(f.pro / p.pro * 100)}% of your ${p.pro} g goal.` }); }
     else if (f.pro >= 5 && pd >= 0.2) { s += 1; r.push({ k: "pos", t: `Decent protein: ${fmt(f.pro)} g per serving.` }); }
 
-    if (f.fib >= 3) { s += 2; r.push({ k: "pos", t: `Good fiber source: ${fmt(f.fib)} g keeps you full.` }); }
+    if (!K("fib")) { /* unknown fiber */ }
+    else if (f.fib >= 3) { s += 2; r.push({ k: "pos", t: `Good fiber source: ${fmt(f.fib)} g keeps you full.` }); }
     else if (f.fib >= 1.5) { s += 1; r.push({ k: "pos", t: `Some fiber: ${fmt(f.fib)} g.` }); }
 
-    if (f.cal >= 5 && f.cal <= 65 && f.fat < 3 && f.sat < 1 && f.add === 0 && f.na < 250 && f.fib >= 0.5) { s += 2; r.push({ k: "pos", t: "Lots of food volume for very few calories." }); }
-    if (f.fat >= 5 && f.fat * 9 >= 0.5 * f.cal && f.sat / f.fat <= 0.25 && (f.pro >= 3 || f.fib >= 2)) { s += 1; r.push({ k: "pos", t: "Its fat is mostly the unsaturated kind, which is better for cholesterol." }); }
+    if (["cal", "fat", "sat", "add", "na", "fib"].every(K) && f.cal >= 5 && f.cal <= 65 && f.fat < 3 && f.sat < 1 && f.add === 0 && f.na < 250 && f.fib >= 0.5) { s += 2; r.push({ k: "pos", t: "Lots of food volume for very few calories." }); }
+    if (K("fat") && K("sat") && K("cal") && f.fat >= 5 && f.fat * 9 >= 0.5 * f.cal && f.sat / f.fat <= 0.25 && (f.pro >= 3 || f.fib >= 2)) { s += 1; r.push({ k: "pos", t: "Its fat is mostly the unsaturated kind, which is better for cholesterol." }); }
 
-    const satShare = f.sat / p.sat;
+    const satShare = K("sat") ? f.sat / p.sat : 0;
     if (satShare >= 0.3) { s -= 2; r.push({ k: "neg", t: `High saturated fat: ${fmt(f.sat)} g is ${Math.round(satShare * 100)}% of your ${p.sat} g daily limit in one serving.` }); }
     else if (satShare >= 0.15) { s -= 1; r.push({ k: "neg", t: `Moderate saturated fat: ${fmt(f.sat)} g (${Math.round(satShare * 100)}% of your limit).` }); }
-    if (f.trans > 0.5) { s -= 1; r.push({ k: "neg", t: `Contains ${fmt(f.trans)} g trans fat (naturally occurring in red meat and dairy).` }); }
+    if (K("trans") && f.trans > 0.5) { s -= 1; r.push({ k: "neg", t: `Contains ${fmt(f.trans)} g trans fat (naturally occurring in red meat and dairy).` }); }
 
-    const naShare = f.na / p.na;
+    const naShare = K("na") ? f.na / p.na : 0;
     if (naShare >= 0.35) { s -= 2; r.push({ k: "neg", t: `Very salty: ${Math.round(f.na).toLocaleString("en-US")} mg sodium is ${Math.round(naShare * 100)}% of your daily limit.` }); }
     else if (naShare >= 0.2) { s -= 1; r.push({ k: "neg", t: `Salty: ${Math.round(f.na)} mg sodium (${Math.round(naShare * 100)}% of your limit).` }); }
 
-    const addShare = p.add > 0 ? f.add / p.add : 0;
+    const addShare = K("add") && p.add > 0 ? f.add / p.add : 0;
     if (addShare >= 0.3) { s -= 2; r.push({ k: "neg", t: `High added sugar: ${fmt(f.add)} g is ${Math.round(addShare * 100)}% of your ${p.add} g daily limit.` }); }
     else if (addShare >= 0.15) { s -= 1; r.push({ k: "neg", t: `Some added sugar: ${fmt(f.add)} g (${Math.round(addShare * 100)}% of your limit).` }); }
 
-    if (f.sug >= 25 && f.add < 10 && f.pro < 5) { s -= 1; r.push({ k: "neg", t: `${fmt(f.sug)} g of sugar in one serving. Even natural sugar adds up at this amount.` }); }
+    if (K("sug") && K("add") && K("pro") && f.sug >= 25 && f.add < 10 && f.pro < 5) { s -= 1; r.push({ k: "neg", t: `${fmt(f.sug)} g of sugar in one serving. Even natural sugar adds up at this amount.` }); }
     if ((f.tags || []).includes("processed")) { s -= 2; r.push({ k: "neg", t: "Processed meat, which is linked to higher heart and cancer risk." }); }
-    const isPureFat = f.fat > 0 && f.carb < 0.5 && f.pro < 0.5 && f.fat * 9 >= 0.9 * f.cal;
-    const unsaturatedOil = isPureFat && f.sat / f.fat <= 0.25 && f.trans <= 0.2;
+    const isPureFat = K("fat") && K("carb") && K("pro") && K("cal") && f.fat > 0 && f.carb < 0.5 && f.pro < 0.5 && f.fat * 9 >= 0.9 * f.cal;
+    const unsaturatedOil = isPureFat && K("sat") && f.sat / f.fat <= 0.25 && f.trans <= 0.2;
     if (unsaturatedOil) r.push({ k: "pos", t: "A cooking fat that's mostly unsaturated, which is better for cholesterol than butter, lard or coconut oil." });
-    else if (f.cal >= 100 && f.pro < 2 && f.fib < 1) { s -= 1; r.push({ k: "neg", t: "Calories with little protein or fiber, so it won't keep you full." }); }
-    if (f.cal >= 300 && pd < 0.15) { s -= 1; r.push({ k: "neg", t: `Calorie-heavy: ${Math.round(f.cal)} cal is ${Math.round(f.cal / p.cal * 100)}% of your day without much protein.` }); }
+    else if (K("cal") && K("pro") && K("fib") && f.cal >= 100 && f.pro < 2 && f.fib < 1) { s -= 1; r.push({ k: "neg", t: "Calories with little protein or fiber, so it won't keep you full." }); }
+    if (K("cal") && K("pro") && f.cal >= 300 && pd < 0.15) { s -= 1; r.push({ k: "neg", t: `Calorie-heavy: ${Math.round(f.cal)} cal is ${Math.round(f.cal / p.cal * 100)}% of your day without much protein.` }); }
     if (EVIDENCE[f.n]) { s += 1; r.push({ k: "pos", t: EVIDENCE[f.n] }); }
     if (NOTES[f.n]) r.push({ k: "note", t: NOTES[f.n] });
 
-    if (f.chol >= 150 && satShare < 0.15) r.push({ k: "note", t: `High in dietary cholesterol (${Math.round(f.chol)} mg), but low in saturated fat. For most people saturated fat raises blood cholesterol more.` });
-    if (f.fat >= 10 && f.cal >= 100 && f.sat / f.fat <= 0.25) r.push({ k: "note", t: `Healthy fats are still calorie-dense: ${Math.round(f.cal)} cal per serving, so portion size matters on ${p.cal.toLocaleString("en-US")} cal a day.` });
+    if (K("chol") && K("sat") && f.chol >= 150 && satShare < 0.15) r.push({ k: "note", t: `High in dietary cholesterol (${Math.round(f.chol)} mg), but low in saturated fat. For most people saturated fat raises blood cholesterol more.` });
+    if (K("fat") && K("sat") && f.fat >= 10 && f.cal >= 100 && f.sat / f.fat <= 0.25) r.push({ k: "note", t: `Healthy fats are still calorie-dense: ${Math.round(f.cal)} cal per serving, so portion size matters on ${p.cal.toLocaleString("en-US")} cal a day.` });
 
     let tier, word, why;
     if (s >= 2) { tier = "good"; word = "Get it"; why = "A strong fit for your goals."; }
     else if (s >= -1) { tier = "mid"; word = "In moderation"; why = "Fine sometimes. See the tradeoffs below."; }
     else { tier = "bad"; word = "Limit it"; why = "Works against your goals if it's a regular buy."; }
+
+    // Unknown or lower-bound limiting nutrients: say so, and never call it a "Get it" on incomplete data.
+    const unknownLimits = KEY_LIMITS.filter(k => isMissing(f, k) || isLowerBound(f, k));
+    const note = missingNote(f);
+    if (note) r.push({ k: "warn", t: `${note} ${unknownLimits.length ? "Those aren't counted either way." : "They aren't counted either way."}` });
+    if (unknownLimits.length && tier === "good") {
+      tier = "mid"; word = "In moderation"; why = "Looks good on what's known, but key data is missing.";
+      r.push({ k: "warn", t: `Can't rate it "Get it" without ${listWords(unknownLimits)}: check the package label.` });
+    }
     if (!r.length) r.push({ k: "note", t: "Nothing stands out either way." });
-    return { tier, word, why, score: s, reasons: r };
+    return { tier, word, why, score: s, reasons: r, partial: !!note };
   }
 
   // What each label line means; rules of thumb use the viewer's own goals.
@@ -273,18 +306,23 @@
   }
 
   // Several foods at chosen servings, added up into one meal ("plate").
+  // A nutrient no item reports is missing; one only some items report is a lower bound ("at least").
   function combine(items, name = "Your plate") {
-    const out = { n: name, a: [], s: `${items.length} item${items.length === 1 ? "" : "s"}`, c: "plate", tags: [], items };
+    const out = { n: name, a: [], s: `${items.length} item${items.length === 1 ? "" : "s"}`, c: "plate", tags: [], items, missing: [], atLeast: [] };
     for (const k of NUM_KEYS) out[k] = 0;
     for (const { food, mult } of items) {
-      for (const k of NUM_KEYS) out[k] += (food[k] || 0) * (mult || 1);
+      for (const k of NUM_KEYS) if (!isMissing(food, k)) out[k] += (food[k] || 0) * (mult || 1);
       for (const t of food.tags || []) if (!out.tags.includes(t)) out.tags.push(t);
     }
-    for (const k of NUM_KEYS) out[k] = Math.round(out[k] * 10) / 10;
+    for (const k of NUM_KEYS) {
+      out[k] = Math.round(out[k] * 10) / 10;
+      const lacking = items.filter(({ food }) => isMissing(food, k)).length;
+      if (lacking === items.length && items.length) out.missing.push(k); else if (lacking) out.atLeast.push(k);
+    }
     return out;
   }
 
   const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-  return { DEFAULT_PROFILE, NUM_KEYS, assess, explain, scale, findSwaps, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, fmt };
+  return { DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, fmt };
 });

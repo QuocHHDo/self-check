@@ -36,6 +36,14 @@
   };
   const fmt = V.fmt;
   const pct = (v, dv) => Math.round(v / dv * 100) + "%";
+  // Amounts that respect missing data: "—" when the source didn't report it, "≥" when it's a plate's lower bound.
+  const whole = k => k === "na" || k === "chol" || k === "cal";
+  function amt(f, k, unit = "") {
+    if (V.isMissing(f, k)) return "—";
+    const n = whole(k) ? Math.round(f[k]).toLocaleString("en-US") : fmt(f[k]);
+    return (V.isLowerBound(f, k) ? "≥" : "") + n + unit;
+  }
+  const dvText = (f, k) => (V.isMissing(f, k) ? "—" : (V.isLowerBound(f, k) ? "≥" : "") + pct(f[k], DV[k]));
   const pill = a => el("span", { class: "vp " + a.tier, text: a.word });
   let toastTimer;
   function toast(msg) {
@@ -55,15 +63,17 @@
   let plate = store.get("plate", []).filter(x => x && x.n);
 
   // ---------- nutrition label ----------
-  function labelRow(name, amt, dvKey, val, cls = "", bold = true, k = dvKey) {
+  function labelRow(f, name, k, cls = "", bold = true, showDv = true, unit = "g") {
     const left = el("span");
-    if (bold) left.append(el("b", { text: name }), " " + amt); else left.append(name + " " + amt);
-    return el("div", { class: "row " + cls, "data-k": k }, left, el("span", { class: "pct", text: dvKey ? pct(val, DV[dvKey]) : "" }));
+    const a = amt(f, k, unit);
+    if (bold) left.append(el("b", { text: name }), " " + a); else left.append(name + " " + a);
+    return el("div", { class: "row " + cls, "data-k": k }, left, el("span", { class: "pct", text: showDv ? dvText(f, k) : "" }));
   }
   function servingText(f) { return f.mult && f.mult !== 1 ? `${fmt(f.mult)} × ${f.s}` : f.s; }
   function renderLabel(f) {
-    const trans = el("div", { class: "row ind", "data-k": "trans" }, el("span", {}, el("i", { text: "Trans" }), " Fat " + fmt(f.trans) + "g"), el("span"));
-    const prot = el("div", { class: "row", "data-k": "pro" }, el("span", {}, el("b", { text: "Protein" }), " " + fmt(f.pro) + "g"), el("span"));
+    const trans = el("div", { class: "row ind", "data-k": "trans" }, el("span", {}, el("i", { text: "Trans" }), " Fat " + amt(f, "trans", "g")), el("span"));
+    const prot = el("div", { class: "row", "data-k": "pro" }, el("span", {}, el("b", { text: "Protein" }), " " + amt(f, "pro", "g")), el("span"));
+    const addRow = el("div", { class: "row ind2", "data-k": "add" }, el("span", { text: V.isMissing(f, "add") ? "Added Sugars —" : `Includes ${amt(f, "add", "g")} Added Sugars` }), el("span", { class: "pct", text: dvText(f, "add") }));
     return el("div", { class: "label", role: "group", "aria-label": `Nutrition facts for ${f.n}. Select a line to see what it means.` },
       el("p", { class: "lt", text: "Nutrition Facts" }),
       el("p", { class: "food", text: f.n }),
@@ -71,18 +81,18 @@
       el("div", { class: "serv" }, el("span", { text: "Serving size" }), el("span", { text: servingText(f) })),
       el("div", { class: "rule-thick" }),
       el("div", { class: "amt", text: "Amount per serving" }),
-      el("div", { class: "cal", "data-k": "cal" }, el("span", { class: "k", text: "Calories" }), el("span", { class: "v", text: String(Math.round(f.cal)) })),
+      el("div", { class: "cal", "data-k": "cal" }, el("span", { class: "k", text: "Calories" }), el("span", { class: "v", text: amt(f, "cal") })),
       el("div", { class: "rule-med" }),
       el("div", { class: "dvh", text: "% Daily Value*" }),
-      labelRow("Total Fat", fmt(f.fat) + "g", "fat", f.fat),
-      labelRow("Saturated Fat", fmt(f.sat) + "g", "sat", f.sat, "ind", false),
+      labelRow(f, "Total Fat", "fat"),
+      labelRow(f, "Saturated Fat", "sat", "ind", false),
       trans,
-      labelRow("Cholesterol", Math.round(f.chol) + "mg", "chol", f.chol),
-      labelRow("Sodium", Math.round(f.na) + "mg", "na", f.na),
-      labelRow("Total Carbohydrate", fmt(f.carb) + "g", "carb", f.carb),
-      labelRow("Dietary Fiber", fmt(f.fib) + "g", "fib", f.fib, "ind", false),
-      labelRow("Total Sugars", fmt(f.sug) + "g", null, 0, "ind", false, "sug"),
-      labelRow("Includes " + fmt(f.add) + "g Added Sugars", "", "add", f.add, "ind2", false),
+      labelRow(f, "Cholesterol", "chol", "", true, true, "mg"),
+      labelRow(f, "Sodium", "na", "", true, true, "mg"),
+      labelRow(f, "Total Carbohydrate", "carb"),
+      labelRow(f, "Dietary Fiber", "fib", "ind", false),
+      labelRow(f, "Total Sugars", "sug", "ind", false, false),
+      addRow,
       prot,
       el("div", { class: "rule-thick" }),
       el("div", { class: "foot", text: "* The % Daily Value tells you how much a nutrient in a serving contributes to a daily diet. 2,000 calories a day is used for general nutrition advice." })
@@ -92,7 +102,8 @@
   function renderExplain(box, k, f) {
     const e = k && V.explain(k, f, profile);
     if (!e) { box.replaceChildren(el("p", { class: "ex-hint", text: "Tap any line on the label to see what it means." })); return; }
-    box.replaceChildren(el("div", { class: "ex-h" }, el("p", { class: "ex-t", text: e[0] }), el("span", { class: "ex-g " + e[1], text: GROUP[e[1]] })), el("p", { text: e[2] }), el("p", { class: "ex-r", text: e[3] }));
+    const detail = V.isMissing(f, k) ? "Not reported for this food, so it isn't counted either way." : (V.isLowerBound(f, k) ? "Some items don't report this, so the total is a minimum. " : "") + e[3];
+    box.replaceChildren(el("div", { class: "ex-h" }, el("p", { class: "ex-t", text: e[0] }), el("span", { class: "ex-g " + e[1], text: GROUP[e[1]] })), el("p", { text: e[2] }), el("p", { class: "ex-r", text: detail }));
   }
   function wireLabel(label, box, f) {
     const rows = [...label.querySelectorAll("[data-k]")];
@@ -114,18 +125,23 @@
   function renderBars(f) {
     const p = profile;
     const rows = [
-      { n: "Protein", v: f.pro, t: p.pro, u: "g", goal: true },
-      { n: "Fiber", v: f.fib, t: p.fib, u: "g", goal: true },
-      { n: "Calories", v: f.cal, t: p.cal, u: "", neutral: true },
-      { n: "Saturated fat", v: f.sat, t: p.sat, u: "g" },
-      { n: "Sodium", v: f.na, t: p.na, u: "mg" },
-      { n: "Added sugar", v: f.add, t: p.add, u: "g" },
+      { n: "Protein", k: "pro", t: p.pro, u: "g", goal: true },
+      { n: "Fiber", k: "fib", t: p.fib, u: "g", goal: true },
+      { n: "Calories", k: "cal", t: p.cal, u: "", neutral: true },
+      { n: "Saturated fat", k: "sat", t: p.sat, u: "g" },
+      { n: "Sodium", k: "na", t: p.na, u: "mg" },
+      { n: "Added sugar", k: "add", t: p.add, u: "g" },
     ];
     const wrap = el("div", { class: "bars" });
     for (const r of rows) {
+      r.v = f[r.k];
+      if (V.isMissing(f, r.k)) {
+        wrap.append(el("div", { class: "bar", title: `${r.n}: not reported` }, el("span", { class: "name", text: r.n }), el("div", { class: "track na" }), el("span", { class: "val", text: "not reported" })));
+        continue;
+      }
       const share = r.t > 0 ? r.v / r.t : 0;
       const cls = r.goal ? "goal" : r.neutral ? "neutral" : share >= 0.3 ? "limit-bad" : share >= 0.15 ? "limit-warn" : "limit-ok";
-      const val = el("span", { class: "val" }, el("b", { text: Math.round(share * 100) + "%" }), ` of ${r.t.toLocaleString("en-US")}${r.u}`);
+      const val = el("span", { class: "val" }, el("b", { text: (V.isLowerBound(f, r.k) ? "≥" : "") + Math.round(share * 100) + "%" }), ` of ${r.t.toLocaleString("en-US")}${r.u}`);
       wrap.append(el("div", { class: "bar", title: `${r.n}: ${fmt(r.v)}${r.u} of your ${r.t.toLocaleString("en-US")}${r.u} ${r.goal ? "goal" : r.neutral ? "budget" : "limit"}` },
         el("span", { class: "name", text: r.n }), el("div", { class: "track" }, el("div", { class: "fill " + cls, style: `width:${Math.min(100, share * 100).toFixed(1)}%` })), val));
     }
@@ -138,6 +154,7 @@
   function swapReason(f, g) {
     const bits = [];
     const d = (k, more, unit, word) => {
+      if (V.isMissing(f, k) || V.isMissing(g, k)) return;
       const diff = g[k] - f[k];
       if (more ? diff >= 2 : diff <= -(k === "na" ? 100 : 1.5)) bits.push(`${fmt(Math.abs(diff))}${unit} ${more ? "more" : "less"} ${word}`);
     };
@@ -188,9 +205,10 @@
       const tbody = el("tbody");
       for (const [label, k, unit, dir] of CMP_ROWS) {
         const x = a[k], y = b[k];
-        const win = dir && Math.abs(x - y) > 0.05 * Math.max(x, y, 1) ? ((dir === "more") === (x > y) ? 0 : 1) : -1;
-        const cell = (v, i) => el("td", { class: win === i ? "win" : null, text: (k === "na" || k === "chol" || k === "cal" ? Math.round(v).toLocaleString("en-US") : fmt(v)) + unit });
-        tbody.append(el("tr", {}, el("td", { text: label }), cell(x, 0), cell(y, 1)));
+        const unknown = V.isMissing(a, k) || V.isMissing(b, k) || V.isLowerBound(a, k) || V.isLowerBound(b, k);
+        const win = !unknown && dir && Math.abs(x - y) > 0.05 * Math.max(x, y, 1) ? ((dir === "more") === (x > y) ? 0 : 1) : -1;
+        const cell = (food, i) => el("td", { class: win === i ? "win" : null, text: amt(food, k, unit) });
+        tbody.append(el("tr", {}, el("td", { text: label }), cell(a, 0), cell(b, 1)));
       }
       sec.append(el("div", { class: "ctable-wrap" }, el("table", { class: "ctable" }, thead, tbody)),
         el("p", { class: "legend", text: a.s === "100 calories" ? "Green marks the better amount for your goals. Per 100 calories shows nutrient density: what you get for the same calories." : "Green marks the better amount for your goals. Servings differ, so compare against how much you'd actually eat, or switch to per 100 calories." }),
@@ -229,17 +247,20 @@
     const src = el("p", { class: "src" });
     if (f.src === "claude") src.append(el("b", { text: "Looked up by Claude. " }), "Typical values; check the package label.");
     else if (f.src === "usda") src.append(el("b", { text: "From USDA FoodData Central. " }), "Values per 100 g.");
-    else if (f.src === "off") src.append(el("b", { text: "From Open Food Facts. " }), f.partial ? "Some values were missing and show as 0; check the package." : "Crowd-sourced; check the package label.");
+    else if (f.src === "off") src.append(el("b", { text: "From Open Food Facts. " }), "Crowd-sourced; check the package label.");
     else if (isPlate) src.append("The sum of every item at the servings you chose.");
     else src.append("Typical values for this serving. Brands vary.");
 
+    const missingNote = V.missingNote(scaled);
+    const partial = missingNote ? el("p", { class: "partial-note", role: "note" }, el("b", { text: "Partial data. " }), missingNote.replace(/^Partial data: /, "") + " Shown as “—” and not counted.") : null;
+    const ICON = { pos: "+", neg: "−", warn: "!", note: "i" };
     const reasons = el("ul", { class: "reasons" });
-    for (const r of a.reasons) reasons.append(el("li", { class: r.k }, el("span", { class: "ic", "aria-hidden": "true", text: r.k === "pos" ? "+" : r.k === "neg" ? "−" : "i" }), el("span", { text: r.t })));
+    for (const r of a.reasons) reasons.append(el("li", { class: r.k }, el("span", { class: "ic", "aria-hidden": "true", text: ICON[r.k] || "i" }), el("span", { text: r.t })));
 
     $("out").replaceChildren(
       head,
       el("div", { class: "result" },
-        el("div", { class: "leftcol" }, seg, label, box, src),
+        el("div", { class: "leftcol" }, seg, partial, label, box, src),
         el("div", { class: "side" },
           el("div", { class: "tag " + a.tier }, el("div", { class: "for", text: isPlate ? "For you · whole meal" : "For you" }), el("div", { class: "verdict", text: a.word }), el("p", { class: "why", text: a.why }),
             mult !== 1 ? el("p", { class: "per", text: "The verdict is for one standard serving; the label and bars show your amount." }) : null),
@@ -352,7 +373,7 @@
     const box = $("plateItems");
     box.replaceChildren();
     const pf = plateFood();
-    $("plateCount").textContent = pf ? `${pf.s} · ${Math.round(pf.cal)} cal` : "empty";
+    $("plateCount").textContent = pf ? `${pf.s} · ${V.isLowerBound(pf, "cal") ? "at least " : ""}${Math.round(pf.cal)} cal` : "empty";
     $("plateView").disabled = !pf; $("plateClear").disabled = !pf;
     if (!pf) { box.append(el("p", { class: "muted", text: "Build a meal: open any food, pick the servings, and choose “Add to plate”." })); return; }
     for (const item of plate) {
@@ -365,7 +386,8 @@
         sel,
         el("button", { class: "linkish", type: "button", text: "Remove", "aria-label": `Remove ${item.n} from plate`, onclick: () => { plate = plate.filter(x => x !== item); afterPlateChange(); } })));
     }
-    box.append(el("p", { class: "ptotal" }, `Total: ${Math.round(pf.cal)} cal · ${fmt(pf.pro)} g protein · ${fmt(pf.sat)} g saturated fat · ${Math.round(pf.na).toLocaleString("en-US")} mg sodium `, pill(V.assess(pf, profile))));
+    const tot = (k, unit, word) => V.isMissing(pf, k) ? `${word} not reported` : `${V.isLowerBound(pf, k) ? "at least " : ""}${amt({ ...pf, atLeast: [] }, k, unit)} ${word}`;
+    box.append(el("p", { class: "ptotal" }, `Total: ${tot("cal", " cal", "").trim()} · ${tot("pro", " g", "protein")} · ${tot("sat", " g", "saturated fat")} · ${tot("na", " mg", "sodium")} `, pill(V.assess(pf, profile))));
   }
 
   // ---------- learn mode ----------
@@ -549,7 +571,7 @@
       if (!items.length) { box.replaceChildren(el("p", { text: `USDA has no match for “${text}”. Try a simpler name, like “chicken thigh” instead of a brand.` })); return; }
       const list = el("ul", { class: "results" });
       for (const f of items) list.append(el("li", {}, el("button", { type: "button", onclick: () => { saveLookup(f); pick(f); } },
-        el("span", { text: f.n }), el("br"), el("small", { text: `${Math.round(f.cal)} cal · ${fmt(f.pro)} g protein · ${fmt(f.sat)} g sat fat per 100 g` }))));
+        el("span", { text: f.n }), el("br"), el("small", { text: `${amt(f, "cal", " cal")} · ${amt(f, "pro", " g")} protein · ${V.isMissing(f, "sat") ? "sat fat not reported" : amt(f, "sat", " g") + " sat fat"} per 100 g` }))));
       box.replaceChildren(el("p", { text: "Pick the closest match. USDA values are per 100 g." }), list);
     } catch (e) {
       const msg = e.message === "rate" ? "USDA's shared demo key is out of searches for now. Add your own free key under Your goals, or try again later."

@@ -7,13 +7,19 @@
   const PROCESSED = /bacon|sausage|salami|pepperoni|\bham\b|hot dog|frankfurter|bologna|jerky|deli|cured|smoked|corned/i;
   const num = v => { const n = Number(v); return Number.isFinite(n) && n >= 0 ? n : 0; };
 
-  function makeFood(name, serving, v, extra) {
+  // Values a source didn't report are listed in `missing` (and stored as 0 only as a placeholder):
+  // the label shows them as "—" and the verdict leaves them out.
+  function makeFood(name, serving, v, extra = {}) {
     const f = { n: String(name).slice(0, 70), a: [], s: String(serving || "1 serving").slice(0, 50), c: "lookup", tags: [] };
     for (const k of V.NUM_KEYS) f[k] = Math.round(num(v[k]) * 10) / 10;
     f.sat = Math.min(f.sat, f.fat);
     f.add = Math.min(f.add, f.sug);
     if (PROCESSED.test(f.n)) f.tags.push("processed");
-    return Object.assign(f, extra);
+    Object.assign(f, extra);
+    f.missing = [...new Set(extra.missing || [])];
+    // Trans fat and cholesterol are routinely absent from non-US labels: shown as "—" but not worth a partial-data warning.
+    f.partial = f.missing.some(k => k !== "trans" && k !== "chol");
+    return f;
   }
 
   // USDA nutrient ids. Energy has three ids depending on data type; sugars has two.
@@ -37,13 +43,16 @@
       const id = ids.find(i => byId[i] != null);
       if (id != null) v[k] = byId[id]; else { v[k] = 0; if (k !== "add" && k !== "trans") missing.push(k); }
     }
+    // USDA rarely reports added sugar. For raw foods it's truly zero; for prepared foods with sugar it's unknown.
+    const desc = String(item.description || "");
+    if (byId[1235] == null && !/\braw\b/i.test(desc) && (missing.includes("sug") || v.sug >= 5)) missing.push("add");
     // No energy value but the macros are there: estimate calories with 4/4/9.
     let calEstimated = false;
     if (missing.includes("cal") && !missing.includes("pro") && !missing.includes("fat") && !missing.includes("carb")) {
       v.cal = 4 * v.pro + 4 * v.carb + 9 * v.fat; missing.splice(missing.indexOf("cal"), 1); calEstimated = true;
     }
     return makeFood(titleCase(String(item.description || "USDA food")), "100 g", v,
-      { src: "usda", fdcId: item.fdcId, dataType: item.dataType, missing, calEstimated, partial: missing.length > 0 });
+      { src: "usda", fdcId: item.fdcId, dataType: item.dataType, missing, calEstimated });
   }
 
   // One product from Open Food Facts /api/v2/product/{barcode}.json. Uses per-serving values when present, else per 100 g.
@@ -56,17 +65,17 @@
     const sodiumG = g("sodium") ?? (g("salt") != null ? g("salt") / 2.5 : undefined);
     const v = {
       cal: kcal, fat: g("fat"), sat: g("saturated-fat"), trans: g("trans-fat"),
-      chol: g("cholesterol") != null ? g("cholesterol") * 1000 : 0,
-      na: sodiumG != null ? sodiumG * 1000 : 0,
+      chol: g("cholesterol") != null ? g("cholesterol") * 1000 : undefined,
+      na: sodiumG != null ? sodiumG * 1000 : undefined,
       carb: g("carbohydrates"), fib: g("fiber"), sug: g("sugars"), add: g("added-sugars"), pro: g("proteins"),
     };
-    const core = [kcal, g("fat"), g("saturated-fat"), sodiumG, g("carbohydrates"), g("sugars"), g("proteins")];
-    const partial = core.some(x => x == null);
+    // Open Food Facts leaves out whatever the package label doesn't list (EU labels skip fiber, cholesterol, trans fat, added sugar).
+    const missing = V.NUM_KEYS.filter(k => v[k] == null || !Number.isFinite(Number(v[k])));
     const brand = String(p.brands || "").split(",")[0].trim();
     const product = p.product_name || p.generic_name || `Product ${code}`;
     const name = brand && !product.toLowerCase().startsWith(brand.toLowerCase()) ? `${brand} ${product}` : product;
     const serving = per === "_serving" ? (p.serving_size || "1 serving") : "100 g";
-    return makeFood(name, serving, v, { src: "off", code: String(code), partial });
+    return makeFood(name, serving, v, { src: "off", code: String(code), missing });
   }
 
   function usdaSearchUrl(query, key) {
