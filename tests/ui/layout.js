@@ -71,6 +71,36 @@ async function openFood(page, name) {
       ok(Math.abs(await page.$eval("#shelf", e => e.getBoundingClientRect().height) - shelfH) < 1, `${width}px: favorites shelf keeps its height`);
       await ctx.close();
     }
+    // 15. Phones: verdict above the label and above the fold; nothing wider than the screen.
+    for (const [width, height] of [[320, 568], [375, 667], [414, 896]]) {
+      const { ctx, page } = await newPage(browser, base, width, height);
+      const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      const states = {
+        "result": async () => openFood(page, "Ground beef 80/20"),
+        "long name": async () => openFood(page, "Bubble milk tea, regular sugar"),
+        "compare": async () => { await page.fill("#cmpq", "chicken breast"); await page.waitForSelector(".compare .suggest li"); await page.dispatchEvent(".compare .suggest li", "mousedown"); await page.waitForSelector(".ctable"); },
+        "barcode": async () => { await page.fill("#q", "3017620422003"); await page.press("#q", "Enter"); await page.waitForFunction(() => /Nutella/i.test(document.querySelector("#out h2")?.textContent || "")); },
+        "browse": async () => { await page.evaluate(() => { document.getElementById("browse").open = true; }); await page.waitForSelector("#blist .bitem"); },
+        "quiz": async () => { await page.evaluate(() => { document.getElementById("learn").open = true; }); },
+        "plate": async () => { await openFood(page, "Brown rice"); await page.click("text=Add 1 to plate"); await page.evaluate(() => { document.getElementById("plateBox").open = true; }); await page.click("#plateView"); await page.waitForFunction(() => document.querySelector("#out h2")?.textContent === "Your plate"); },
+      };
+      for (const [name, go] of Object.entries(states)) {
+        await go();
+        ok(await overflow() <= 0, `${width}px ${name}: no horizontal scroll (overflow ${await overflow()} px)`);
+      }
+      await openFood(page, "Ground beef 80/20");
+      await page.evaluate(() => window.scrollTo(0, 0));
+      const pos = await page.evaluate(() => {
+        const t = document.querySelector("#out .tag .verdict").getBoundingClientRect(), l = document.querySelector("#out .label").getBoundingClientRect();
+        return { tagTop: t.top, tagBottom: t.bottom, labelTop: l.top, vh: innerHeight };
+      });
+      ok(pos.tagTop < pos.labelTop, `${width}px: verdict comes before the label (${Math.round(pos.tagTop)} < ${Math.round(pos.labelTop)})`);
+      ok(pos.tagBottom <= pos.vh, `${width}px: verdict is above the fold (bottom ${Math.round(pos.tagBottom)} of ${pos.vh})`);
+      const shelf = await page.evaluate(() => { const s = document.getElementById("shelf"); return { h: s.getBoundingClientRect().height, scroll: s.scrollWidth > s.clientWidth, style: getComputedStyle(s).overflowX }; });
+      ok(shelf.h < 48 && shelf.style === "auto", `${width}px: recents and favorites stay on one scrolling row (${Math.round(shelf.h)} px tall)`);
+      await shot(page, `15-mobile-${width}`);
+      await ctx.close();
+    }
   } finally {
     await browser.close();
     srv.close();

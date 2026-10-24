@@ -236,11 +236,13 @@
       head.append(el("button", { class: "icon-btn", type: "button", onclick: () => { $("plateBox").open = true; $("plateBox").scrollIntoView({ behavior: "smooth", block: "start" }); } }, "Edit plate"));
     } else {
       const isFav = favs.includes(f.n), onList = glist.some(x => x.n === f.n);
-      head.append(
+      const actions = el("div", { class: "actions", role: "group", "aria-label": "Actions" });
+      head.append(actions);
+      actions.append(
         el("button", { class: "icon-btn", type: "button", "aria-pressed": isFav ? "true" : "false", onclick: () => toggleFav(f) }, svgIcon(isFav ? STAR_ON : STAR), stableLabel(isFav, "Save", "Saved")),
         el("button", { class: "icon-btn", type: "button", "aria-pressed": onList ? "true" : "false", onclick: () => toggleList(f) }, stableLabel(onList, "Add to list", "On grocery list")),
         el("button", { class: "icon-btn", type: "button", onclick: () => addToPlate(f, mult) }, `Add ${multLabel(mult)} to plate`));
-      if (PAGES) head.append(el("button", { class: "icon-btn", type: "button", onclick: () => copyLink(f) }, svgIcon(LINK), "Copy link"));
+      if (PAGES) actions.append(el("button", { class: "icon-btn", type: "button", onclick: () => copyLink(f) }, svgIcon(LINK), "Copy link"));
       seg = el("div", { class: "serving", role: "group", "aria-label": "Serving size" }, el("span", { class: "lbl", text: "Servings" }));
       for (const m of MULTS) seg.append(el("button", { class: "seg", type: "button", "aria-pressed": m === mult ? "true" : "false", text: multLabel(m), onclick: () => { mult = m; renderResult(current); } }));
     }

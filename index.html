@@ -86,6 +86,13 @@ button { font: inherit; color: inherit; }
 
 /* result */
 .result-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.result-head .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.icon-btn { white-space: nowrap; flex: none; }
+@media (max-width: 520px) {
+  /* Phones: the action buttons share one row that scrolls sideways, so the verdict stays above the fold. */
+  .result-head .actions { flex-wrap: nowrap; overflow-x: auto; width: 100%; scrollbar-width: none; padding-bottom: 2px; }
+  .result-head .actions::-webkit-scrollbar { display: none; }
+}
 .result-head h2 { font: 850 26px var(--font-display); font-stretch: 80%; margin: 0; text-wrap: balance; }
 .cat { font-size: 13px; color: var(--muted); }
 .icon-btn { display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; cursor: pointer; font-size: 13px; }
@@ -100,7 +107,13 @@ button { font: inherit; color: inherit; }
 .notice.closest { margin-bottom: 12px; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
 .notice.closest p { margin: 0; }
 .result { display: grid; grid-template-columns: minmax(0, 330px) minmax(0, 1fr); gap: 24px; align-items: start; margin-top: 14px; }
-@media (max-width: 760px) { .result { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 760px) {
+  .result { grid-template-columns: minmax(0, 1fr); }
+  /* Phones: the verdict comes first, then the label. .side's children join the .result grid so they can be reordered. */
+  .result > .side { display: contents; }
+  .result > .side > .tag { order: -1; }
+  .leftcol { max-width: none; }
+}
 .leftcol { display: grid; gap: 10px; min-width: 0; max-width: 330px; }
 .serving { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .serving .lbl { font-size: 13px; color: var(--muted); margin-right: 2px; }
