@@ -6,12 +6,25 @@
     "brands": "Nutella,Ferrero",
     "serving_size": "15 g",
     "serving_quantity": 15,
-    "categories_tags": ["en:breakfasts", "en:spreads", "en:sweet-spreads", "en:hazelnut-spreads", "en:chocolate-spreads", "en:cocoa-and-hazelnuts-spreads"],
+    "categories_tags": [
+      "en:breakfasts",
+      "en:spreads",
+      "en:sweet-spreads",
+      "en:confectionary-based-spreads",
+      "fr:goûter",
+      "fr:pates-a-tartiner"
+    ],
     "nutriments": {
-      "energy-kcal_100g": 539, "energy_100g": 2255,
-      "fat_100g": 30.9, "saturated-fat_100g": 10.6,
-      "carbohydrates_100g": 57.5, "sugars_100g": 56.3,
-      "proteins_100g": 6.3, "salt_100g": 0.107, "sodium_100g": 0.0428
-    }
+      "energy-kcal_100g": 539,
+      "energy_100g": 2255,
+      "fat_100g": 30.9,
+      "saturated-fat_100g": 10.6,
+      "carbohydrates_100g": 57.5,
+      "sugars_100g": 56.3,
+      "proteins_100g": 6.3,
+      "salt_100g": 0.107,
+      "sodium_100g": 0.0428
+    },
+    "_note_categories": "categories_tags as listed on world.openfoodfacts.org/product/3017620422003 (Oct 2026): no hazelnut-specific tag"
   }
 }

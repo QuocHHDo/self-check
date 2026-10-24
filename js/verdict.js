@@ -403,28 +403,70 @@
   const HINT_ONLY = new Set(["Cocoa powder, unsweetened", "Table salt", "Zero-calorie sweetener", "Monk fruit sweetener", "Stevia sweetener", "Erythritol", "Allulose", "Cooking spray", "Balsamic vinegar"]);
 
   // Open Food Facts category tags → our categories. First match wins, so specific tags come before broad ones.
+  // Swap groups narrower than a category, for packaged foods whose category alone suggests the wrong things
+  // (a hazelnut spread should swap with nut butters, not with almonds or popcorn).
+  const SWAP_GROUPS = {
+    spreads: { cat: "nuts", foods: ["Almond butter", "Peanut butter", "Powdered peanut butter", "Tahini"] },
+    cereal: { cat: "grains", foods: ["Oatmeal, rolled oats", "Toasted oat cereal, plain", "Shredded wheat", "Bran flakes", "Raisin bran"] },
+    soda: { cat: "drinks", foods: ["Sparkling water", "Diet soda", "Electrolyte drink, zero sugar", "Kombucha"] },
+  };
+  // Open Food Facts categories_tags → a swap group or one of our categories. Checked in order, so specific
+  // tags come before broad ones; a product matches the first rule any of its tags fits.
   const OFF_CATEGORY = [
     [/protein-bars|protein-powders|protein-shakes/, "protein"],
-    // Spreads (Nutella and friends) swap best with nut butters, not chips.
-    [/nut-butters|peanut-butters|hazelnut-spreads|chocolate-spreads|cocoa-and-hazelnuts-spreads|nuts|seeds/, "nuts"],
-    [/sweet-spreads|confectioneries|candies|chocolates|biscuits|cookies|cakes|ice-creams|desserts|sweet-snacks|chips-and-fries|crisps|popcorn|salty-snacks|snacks/, "snacks"],
+    [/hummus|salted-spreads/, "plant"],
+    [/jams|marmalades|fruit-spreads|honeys|syrups/, "condiments"],
+    // Nutella's tags are en:spreads, en:sweet-spreads, en:confectionary-based-spreads (no "hazelnut" tag).
+    [/nut-butters|peanut-butters|hazelnut|chocolate-spreads|cocoa-and-hazelnuts|sweet-spreads|confection[ae]ry-based-spreads|^en:spreads$/, "group:spreads"],
+    [/breakfast-cereals|cereal-flakes|mueslis|granolas/, "group:cereal"],
+    [/sodas|soft-drinks|carbonated-drinks|colas|energy-drinks/, "group:soda"],
+    [/nuts|seeds/, "nuts"],
+    [/confectioneries|candies|chocolates|biscuits|cookies|cakes|ice-creams|desserts|sweet-snacks|chips-and-fries|crisps|popcorn|salty-snacks|snacks/, "snacks"],
     [/plant-based-milks|dairies|milks|yogurts|cheeses|eggs/, "dairy"],
-    [/beverages|drinks|waters|juices|sodas|teas|coffees/, "drinks"],
+    [/beverages|drinks|waters|juices|teas|coffees/, "drinks"],
     [/fishes|seafood|fish-and-seafood/, "seafood"],
     [/meats|poultries|sausages|hams/, "meat"],
     [/legumes|beans|tofu|meat-analogues/, "plant"],
-    [/breads|cereals|pastas|rices|breakfast-cereals|flours|noodles/, "grains"],
+    [/breads|cereals|pastas|rices|flours|noodles/, "grains"],
     [/fruits/, "fruit"],
     [/vegetables/, "veg"],
-    [/sauces|condiments|dressings|oils|fats|spices|sweeteners|honeys|syrups/, "condiments"],
+    [/sauces|condiments|dressings|oils|fats|spices|sweeteners/, "condiments"],
     [/meals|pizzas|soups|sandwiches|prepared/, "prepared"],
   ];
-  // The category to look for swaps in. Built-ins have one; for a lookup, use its Open Food Facts tags, then the
-  // built-in foods whose names share the most words with it. null means no confident match, so no swaps are shown.
-  function swapCategory(f, foods) {
-    if (f.c && f.c !== "lookup" && f.c !== "plate") return f.c;
+  // USDA foodCategory (SR Legacy food groups like "Nut and Seed Products", or survey categories like "Soft drinks").
+  const USDA_CATEGORY = [
+    [/baby/i, null],
+    [/breakfast cereal|ready-to-eat cereal|oatmeal/i, "group:cereal"],
+    [/soft drink|soda/i, "group:soda"],
+    [/nut butter|peanut butter/i, "group:spreads"],
+    [/sausage|luncheon|poultry|chicken|turkey|beef|pork|lamb|veal|game|meat/i, "meat"],
+    [/finfish|shellfish|fish|seafood/i, "seafood"],
+    [/dairy|egg|milk|cheese|yogurt/i, "dairy"],
+    [/legume|bean/i, "plant"],
+    [/nut|seed/i, "nuts"],
+    [/fruit/i, "fruit"], // "Fruits and Fruit Juices": whole fruit unless the name says juice (checked above)
+    [/beverage|coffee|tea\b|juice|water/i, "drinks"],
+    [/vegetable|potato/i, "veg"],
+    [/sweets|snack|cookie|cake|candy|chips|crackers/i, "snacks"],
+    [/cereal grain|pasta|baked product|bread|rice|tortilla|grain/i, "grains"],
+    [/soup|meal|entree|fast food|restaurant|pizza|sandwich|mixed dish/i, "prepared"],
+    [/fats and oils|oil|spice|herb|sauce|gravy|condiment|dressing|sugar/i, "condiments"],
+  ];
+  const toTarget = (v, via) => !v ? null : v.startsWith("group:") ? { ...SWAP_GROUPS[v.slice(6)], group: v.slice(6), via } : { cat: v, via };
+
+  // Where to look for swaps. Built-ins use their category. A lookup uses its Open Food Facts tags or USDA food
+  // category, then the built-in foods whose names share the most words with it. null means no confident match,
+  // and then "Try instead" is hidden rather than filled with unrelated foods.
+  function swapTarget(f, foods) {
     if (f.c === "plate") return null;
-    for (const [re, c] of OFF_CATEGORY) if ((f.categories || []).some(tag => re.test(tag))) return c;
+    if (f.c && f.c !== "lookup") return { cat: f.c, via: "category" };
+    for (const [re, c] of OFF_CATEGORY) if ((f.categories || []).some(tag => re.test(tag))) return toTarget(c, "off");
+    if (f.foodCategory) {
+      if (/juice/i.test(f.n) && /fruit|vegetable|beverage/i.test(f.foodCategory)) return toTarget("drinks", "usda");
+      // "Baked Products" holds both bread and cookies; sweets swap with snacks, bread with grains.
+      if (/baked/i.test(f.foodCategory) && /cookie|cake|brownie|\bpie\b|pastr|doughnut|donut|muffin|danish|croissant|sweet roll/i.test(f.n)) return toTarget("snacks", "usda");
+      for (const [re, c] of USDA_CATEGORY) if (re.test(f.foodCategory)) return toTarget(c, "usda");
+    }
     const ft = new Set(tokens(f.n));
     if (!ft.size) return null;
     const best = {}; // category → most words any of its foods shares with the lookup's name
@@ -436,8 +478,9 @@
     }
     const ranked = Object.entries(best).sort((a, b) => b[1] - a[1]);
     // Ambiguous (a tie between categories) means we don't know, so show nothing rather than guess.
-    return ranked.length && (ranked.length === 1 || ranked[0][1] > ranked[1][1]) ? ranked[0][0] : null;
+    return ranked.length && (ranked.length === 1 || ranked[0][1] > ranked[1][1]) ? { cat: ranked[0][0], via: "name" } : null;
   }
+  const swapCategory = (f, foods) => (swapTarget(f, foods) || {}).cat || null;
 
   // Up to `max` better options from the same category, best verdict first ("Get it" before "In moderation"),
   // then hand-picked hints, name overlap and similar calories. Hand-picked hints are the only cross-category picks.
@@ -446,16 +489,19 @@
     const want = base.tier === "skip" ? 0 : RANK[base.tier];
     if (base.tier === "good" || base.tier === "fine") return [];
     const hints = SWAP_HINTS[f.n] || [];
-    const cat = swapCategory(f, foods);
+    const target = swapTarget(f, foods);
+    const cat = target && target.cat, only = target && target.foods ? new Set(target.foods) : null;
+    // Drink or not: from the name for built-ins, from the source's category for lookups ("Coca-Cola" has no drink word).
+    const fLiquid = target && (target.via === "off" || target.via === "usda") ? cat === "drinks" || LIQUID.test(f.n) : LIQUID.test(f.n);
     if (!cat && !hints.length) return [];
     const ft = new Set(tokens(f.n));
     const out = [];
     for (const g of foods) {
       if (g.n === f.n) continue;
       const hinted = hints.includes(g.n);
-      if (!hinted && g.c !== cat) continue;
+      if (!hinted && (only ? !only.has(g.n) : g.c !== cat)) continue;
       if (!hinted && ALCOHOL.test(g.n) && !ALCOHOL.test(f.n)) continue;
-      if (!hinted && LIQUID.test(g.n) !== LIQUID.test(f.n)) continue;
+      if (!hinted && !only && LIQUID.test(g.n) !== fLiquid) continue;
       if (!hinted && pureFat(g) !== pureFat(f)) continue;
       if (!hinted && HINT_ONLY.has(g.n)) continue;
       const a = assess(g, p);
@@ -540,5 +586,5 @@
   // The old slug dropped accented letters (Jalapeño → jalape-o); kept so links shared before still resolve.
   const legacySlug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-  return { NEGLIGIBLE_KCAL, RANK, DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, skipMatch, healthyFatSource, servingGrams, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, assessMeal, MEAL_SHARE, swapCategory, swapDiffs, meaningfulDiff, FDA_DV, POS_FLOOR, HEAVY_SHARE, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, legacySlug, foldAccents, fmt };
+  return { NEGLIGIBLE_KCAL, RANK, DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, skipMatch, healthyFatSource, servingGrams, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, assessMeal, MEAL_SHARE, swapCategory, swapTarget, SWAP_GROUPS, swapDiffs, meaningfulDiff, FDA_DV, POS_FLOOR, HEAVY_SHARE, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, legacySlug, foldAccents, fmt };
 });

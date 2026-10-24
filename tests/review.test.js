@@ -316,3 +316,35 @@ test("r2-2: plates keep added sugar unknown when an item doesn't report it", () 
   const mixed = V.combine([{ food: d, mult: 1 }, { food: food("Apple"), mult: 1 }]);
   assert.ok(mixed.atLeast.includes("add"));
 });
+
+// ---- Round 2, item 4: Try instead for lookups follows the source's own category ----
+test("r2-4: Nutella (live Open Food Facts tags) swaps with nut butters, never crackers or popcorn", () => {
+  const nut = S.fromOff("3017620422003", offNutella.product);
+  const swaps = V.findSwaps(nut, FOODS, P).map(s => s.food.n);
+  assert.ok(swaps.length > 0);
+  for (const n of swaps) assert.ok(V.SWAP_GROUPS.spreads.foods.includes(n), `${n} isn't a spread`);
+});
+
+test("r2-4: Open Food Facts cereal and soda tags map to matching built-ins", () => {
+  const base = { s: "1 serving", cal: 200, fat: 2, sat: 0.5, trans: 0, chol: 0, na: 200, carb: 44, fib: 1, sug: 16, add: 15, pro: 2, tags: [], missing: [] };
+  const cereal = S.makeFood("Frosted Choco Bombs", "1 cup", base, { src: "off", categories: ["en:plant-based-foods", "en:breakfast-cereals"] });
+  for (const s of V.findSwaps(cereal, FOODS, P)) assert.ok(V.SWAP_GROUPS.cereal.foods.includes(s.food.n), s.food.n);
+  const soda = S.makeFood("Coca-Cola", "1 can (355 ml)", { ...base, cal: 140, carb: 39, sug: 39, add: 39, fib: 0 }, { src: "off", categories: ["en:beverages", "en:carbonated-drinks", "en:sodas"] });
+  const ss = V.findSwaps(soda, FOODS, P).map(s => s.food.n);
+  assert.ok(ss.includes("Sparkling water") || ss.includes("Diet soda"), ss.join(", "));
+});
+
+test("r2-4: USDA foodCategory picks the category; no confident match hides Try instead", () => {
+  const usda = (desc, cat) => S.fromUsda({ fdcId: 1, description: desc, foodCategory: cat, foodNutrients: [
+    { nutrientId: 1008, unitName: "KCAL", value: 480 }, { nutrientId: 1004, unitName: "G", value: 24 }, { nutrientId: 1258, unitName: "G", value: 10 },
+    { nutrientId: 1005, unitName: "G", value: 62 }, { nutrientId: 2000, unitName: "G", value: 35 }, { nutrientId: 1003, unitName: "G", value: 5 }, { nutrientId: 1093, unitName: "MG", value: 300 }] });
+  assert.equal(V.swapTarget(usda("COOKIES, SHORTBREAD", "Baked Products"), FOODS).cat, "snacks");
+  assert.equal(V.swapTarget(usda("BREAD, WHITE, COMMERCIALLY PREPARED", "Baked Products"), FOODS).cat, "grains");
+  const candy = usda("CANDIES, FUDGE", "Sweets");
+  assert.ok(V.findSwaps(candy, FOODS, P).every(s => s.food.c === "snacks"));
+  assert.equal(V.swapTarget(usda("Durian, raw", "Fruits and Fruit Juices"), FOODS).cat, "fruit");
+  assert.equal(V.swapTarget(usda("Orange juice, raw", "Fruits and Fruit Juices"), FOODS).cat, "drinks");
+  const unknown = S.makeFood("Zorblax crunch", "1 serving", { cal: 300, sat: 6, add: 20, sug: 20, carb: 40 }, { src: "off", categories: ["en:plant-based-foods"] });
+  assert.equal(V.swapTarget(unknown, FOODS), null);
+  assert.deepEqual(V.findSwaps(unknown, FOODS, P), []);
+});
