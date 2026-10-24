@@ -1,0 +1,48 @@
+// Offline support: the app shell and food data are cached on first visit.
+// Same-origin files are served from the cache and refreshed in the background,
+// so the app opens instantly in a store with no signal and still picks up updates.
+const CACHE = "self-check-v2";
+const SHELL = [
+  "./",
+  "index.html",
+  "manifest.webmanifest",
+  "js/foods.js",
+  "js/verdict.js",
+  "js/sources.js",
+  "js/app.js",
+  "vendor/html5-qrcode.min.js",
+  "icons/icon-192.png",
+  "icons/icon-512.png",
+  "icons/apple-touch-icon.png",
+];
+
+self.addEventListener("install", event => {
+  event.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+});
+
+self.addEventListener("activate", event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener("fetch", event => {
+  const req = event.request;
+  if (req.method !== "GET") return;
+  const url = new URL(req.url);
+  const sameOrigin = url.origin === self.location.origin;
+  const isFont = url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com";
+  if (!sameOrigin && !isFont) return; // USDA and Open Food Facts calls always go to the network
+
+  event.respondWith(
+    caches.open(CACHE).then(async cache => {
+      const cached = await cache.match(req, { ignoreSearch: sameOrigin });
+      const network = fetch(req)
+        .then(res => { if (res && (res.ok || res.type === "opaque")) cache.put(req, res.clone()); return res; })
+        .catch(() => cached);
+      return cached || network;
+    })
+  );
+});

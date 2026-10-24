@@ -1,0 +1,28 @@
+name: USDA accuracy eval
+# Run from the Actions tab. Needs a repository secret named USDA_API_KEY
+# (free key: https://fdc.nal.usda.gov/api-key-signup.html).
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Optional: only foods whose name matches this text (e.g. beef)"
+        required: false
+        default: ""
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Compare built-in values with USDA
+        env:
+          USDA_API_KEY: ${{ secrets.USDA_API_KEY }}
+        run: node eval/compare-usda.mjs "${{ github.event.inputs.only }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usda-eval
+          path: |
+            eval/report.md
+            eval/results.json
