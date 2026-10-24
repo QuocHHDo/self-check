@@ -51,7 +51,7 @@ body {
 }
 [hidden] { display: none !important; }
 img { max-width: 100%; }
-.wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 22px; }
+.wrap { max-width: 980px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; }
 h1 { font-family: var(--font-display); font-weight: 850; font-stretch: 75%; font-size: clamp(30px, 6vw, 44px); line-height: 1; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
 .sub { color: var(--muted); margin: 6px 0 0; max-width: 62ch; }
 button { font: inherit; color: inherit; }
@@ -91,6 +91,12 @@ button { font: inherit; color: inherit; }
 .icon-btn { display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; cursor: pointer; font-size: 13px; }
 .icon-btn[aria-pressed="true"] { border-color: var(--mid); color: var(--mid); }
 .icon-btn svg { width: 16px; height: 16px; }
+.stable { display: inline-grid; }
+.stable > span { grid-area: 1 / 1; }
+.stable > .ghost { visibility: hidden; }
+.shelf { display: flex; flex-wrap: nowrap; gap: 16px; align-items: center; min-height: 40px; margin-top: 10px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+.shelf .chiprow { flex: none; flex-wrap: nowrap; margin-top: 0; }
+.shelf .chip { white-space: nowrap; }
 .result { display: grid; grid-template-columns: minmax(0, 330px) minmax(0, 1fr); gap: 24px; align-items: start; margin-top: 14px; }
 @media (max-width: 760px) { .result { grid-template-columns: minmax(0, 1fr); } }
 .leftcol { display: grid; gap: 10px; min-width: 0; max-width: 330px; }
@@ -273,9 +279,12 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
         <button class="btn small ghost" type="button" id="scanClose">Close</button>
       </form>
     </section>
-    <div class="chiprow" id="favRow" hidden><span class="lbl">Favorites</span></div>
-    <div class="chiprow" id="recentRow" hidden><span class="lbl">Recent</span></div>
-    <div class="chiprow" id="quickRow"><span class="lbl">Try</span></div>
+    <!-- One fixed-height, sideways-scrolling shelf: saving a favorite never pushes the result down. -->
+    <div class="shelf" id="shelf">
+      <div class="chiprow" id="favRow" hidden><span class="lbl">Favorites</span></div>
+      <div class="chiprow" id="recentRow" hidden><span class="lbl">Recent</span></div>
+      <div class="chiprow" id="quickRow"><span class="lbl">Try</span></div>
+    </div>
   </section>
 
   <section id="out" aria-live="polite" aria-label="Result"></section>

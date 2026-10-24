@@ -236,8 +236,8 @@
     } else {
       const isFav = favs.includes(f.n), onList = glist.some(x => x.n === f.n);
       head.append(
-        el("button", { class: "icon-btn", type: "button", "aria-pressed": isFav ? "true" : "false", onclick: () => toggleFav(f) }, svgIcon(isFav ? STAR_ON : STAR), isFav ? "Saved" : "Save"),
-        el("button", { class: "icon-btn", type: "button", "aria-pressed": onList ? "true" : "false", onclick: () => toggleList(f) }, onList ? "On grocery list" : "Add to list"),
+        el("button", { class: "icon-btn", type: "button", "aria-pressed": isFav ? "true" : "false", onclick: () => toggleFav(f) }, svgIcon(isFav ? STAR_ON : STAR), stableLabel(isFav, "Save", "Saved")),
+        el("button", { class: "icon-btn", type: "button", "aria-pressed": onList ? "true" : "false", onclick: () => toggleList(f) }, stableLabel(onList, "Add to list", "On grocery list")),
         el("button", { class: "icon-btn", type: "button", onclick: () => addToPlate(f, mult) }, `Add ${multLabel(mult)} to plate`));
       if (PAGES) head.append(el("button", { class: "icon-btn", type: "button", onclick: () => copyLink(f) }, svgIcon(LINK), "Copy link"));
       seg = el("div", { class: "serving", role: "group", "aria-label": "Serving size" }, el("span", { class: "lbl", text: "Servings" }));
@@ -283,6 +283,11 @@
     if (PAGES && !opts.noHash) { try { history.replaceState(null, "", "#" + V.slug(f.n)); } catch {} }
     if (opts.scroll) $("out").scrollIntoView({ behavior: "smooth", block: "start" });
   }
+
+  // A toggle label that's always as wide as its longer state, so pressing it never moves the buttons beside it.
+  const stableLabel = (on, off, onText) => el("span", { class: "stable" },
+    el("span", { text: off, "aria-hidden": on ? "true" : null, class: on ? "ghost" : null }),
+    el("span", { text: onText, "aria-hidden": on ? null : "true", class: on ? null : "ghost" }));
 
   // ---------- favorites, recents, share ----------
   function addRecent(f) { recents = [f.n, ...recents.filter(n => n !== f.n)].slice(0, 8); store.set("recents", recents); renderChips(); }
