@@ -42,13 +42,14 @@
   const isMissing = (f, k) => (f.missing || []).includes(k);
   const isLowerBound = (f, k) => (f.atLeast || []).includes(k);
   const known = (f, k) => !isMissing(f, k);
-  const SOURCE_WORD = { usda: "USDA", off: "Open Food Facts", claude: "The lookup" };
+  const SOURCE_WORD = { usda: "USDA", off: "Open Food Facts", claude: "the lookup" };
   const listWords = ks => { const w = ks.map(k => NUTRIENT_WORD[k]); return w.length <= 1 ? w.join("") : w.slice(0, -1).join(", ") + " or " + w.at(-1); };
   // "Partial data: USDA didn't report saturated fat or total sugars." (null when nothing is missing)
   function missingNote(f) {
     const order = k => NUM_KEYS.indexOf(k);
     const miss = (f.missing || []).filter(k => k !== "trans" && k !== "chol").sort((x, y) => order(x) - order(y)), low = [...(f.atLeast || [])].sort((x, y) => order(x) - order(y));
-    if (miss.length) return `Partial data: ${SOURCE_WORD[f.src] || "The source"} didn't report ${listWords(miss)}.`;
+    if (miss.length && f.c === "plate") return `Partial data: no item on this plate reports ${listWords(miss)}.`;
+    if (miss.length) return `Partial data: ${SOURCE_WORD[f.src] || "the source"} didn't report ${listWords(miss)}.`;
     if (low.length) return `Some items on this plate don't report ${listWords(low)}, so those totals are minimums ("at least").`;
     return null;
   }
@@ -157,7 +158,7 @@
       if (!hasNeg) r.push({ k: "warn", t: "Not much going for it yet: more protein, fiber or vegetables would make this a strong meal." }); }
     const unknownLimits = KEY_LIMITS.filter(k => isMissing(f, k) || isLowerBound(f, k));
     const note = missingNote(f);
-    if (note) r.push({ k: "warn", t: `${note} Those amounts are at least what's shown.` });
+    if (note) r.push({ k: "warn", t: (f.missing || []).some(k => KEY_LIMITS.includes(k) || k === "sug") ? `${note} They aren't counted either way.` : note });
     if (unknownLimits.length && tier === "good") {
       tier = "mid"; word = "In moderation"; why = "Looks good on what's known, but key data is missing.";
       r.push({ k: "warn", t: `Can't rate this meal "Get it" without ${listWords(unknownLimits)} for every item.` });
