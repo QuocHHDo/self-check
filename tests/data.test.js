@@ -48,7 +48,7 @@ test("names and aliases are unique", () => {
 });
 
 test("tags are known values", () => {
-  for (const f of FOODS) for (const t of f.tags) assert.ok(["processed", "spicy"].includes(t), `${f.n}: unknown tag ${t}`);
+  for (const f of FOODS) for (const t of f.tags) assert.ok(["processed", "spicy", "treat"].includes(t), `${f.n}: unknown tag ${t}`);
 });
 
 test("every swap hint points at a real food", () => {

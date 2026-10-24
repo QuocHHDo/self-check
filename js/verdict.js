@@ -64,6 +64,17 @@
     if (isMissing(f, "sat") || f.sat / f.fat > 0.25) return false;
     return OIL_NAME.test(f.n) || f.c === "nuts" || HEALTHY_FAT_NAME.test(f.n);
   }
+  // ---- calibration (whole foods, density, treats) ----
+  // Whole fruit and vegetables: their sugar comes with water, fiber and nutrients. Processed forms don't count.
+  const NOT_WHOLE = /dried|raisin|juice|smoothie|salad|mashed|fries|tots|hash|chips|slaw|sweetened|syrup|sauce|salsa|guacamole|pickle|kimchi|sauerkraut|fruit cup|applesauce/i;
+  const wholeProduce = f => (f.c === "fruit" || f.c === "veg") && !NOT_WHOLE.test(f.n) && !(f.tags || []).includes("treat")
+    && !isMissing(f, "add") && f.add < 1 && !isMissing(f, "na") && f.na < 140;
+  // Whole grains (name-based; built-in grains only).
+  const WHOLE_GRAIN = /whole wheat|whole grain|brown rice|wild rice|\boats?\b|oatmeal|quinoa|barley|bulgur|farro|sprouted|shredded wheat|bran\b|popcorn, air/i;
+  const wholeGrain = f => (f.c === "grains" || /popcorn, air/i.test(f.n)) && WHOLE_GRAIN.test(f.n) && !/instant oatmeal, flavored|granola|frosted/i.test(f.n);
+  // Liquid or dried sugar (juice, smoothies, dried fruit) is where natural sugar adds up fast.
+  const CONCENTRATED_SUGAR = /juice|smoothie|dried|raisin|lemonade|kombucha/i;
+
   // Grams in a serving string like "1 cup (240 g)" or "100 g", for energy density.
   function servingGrams(s) {
     const all = [...String(s || "").matchAll(/(\d+(?:\.\d+)?)\s*(g|ml)\b/g)];
@@ -110,7 +121,10 @@
 
     if (!K("fib")) { /* unknown fiber */ }
     else if (f.fib >= 3) { s += 2; r.push({ k: "pos", t: `Good fiber source: ${fmt(f.fib)} g keeps you full.` }); }
+    else if (f.fib >= 1.5 && K("cal") && f.cal > 0 && f.fib / f.cal * 100 >= 2.5) { s += 1; r.push({ k: "pos", t: `Fiber-dense: ${fmt(f.fib / f.cal * 100)} g per 100 calories.` }); }
     else if (f.fib >= 1.5) { s += 1; r.push({ k: "pos", t: `Some fiber: ${fmt(f.fib)} g.` }); }
+    if (wholeProduce(f)) { s += 2; r.push({ k: "pos", t: f.c === "fruit" ? "Whole fruit: its natural sugar comes with water, fiber and nutrients, and most people should eat more." : "A whole vegetable: most people should eat more of these." }); }
+    if (wholeGrain(f)) { s += 1; r.push({ k: "pos", t: "Whole grain: keeps the bran and germ that refined grains lose." }); }
 
     const grams = servingGrams(f.s) ? servingGrams(f.s) * (f.mult || 1) : null;
     const lowDensity = grams ? f.cal / grams <= 1.0 : false; // "volume" means low energy density, not just a small serving
@@ -135,7 +149,8 @@
     if (addShare >= 0.3) { s -= 2; r.push({ k: "neg", t: `High added sugar: ${fmt(f.add)} g is ${Math.round(addShare * 100)}% of your ${p.add} g daily limit.` }); }
     else if (addShare >= 0.15) { s -= 1; r.push({ k: "neg", t: `Some added sugar: ${fmt(f.add)} g (${Math.round(addShare * 100)}% of your limit).` }); }
 
-    if (K("sug") && K("add") && K("pro") && f.sug >= 25 && f.add < 10 && f.pro < 5) { s -= 1; r.push({ k: "neg", t: `${fmt(f.sug)} g of sugar in one serving. Even natural sugar adds up at this amount.` }); }
+    if (K("sug") && K("add") && K("pro") && CONCENTRATED_SUGAR.test(f.n) && f.sug >= 25 && f.add < 10 && f.pro < 5) { s -= 1; r.push({ k: "neg", t: `${fmt(f.sug)} g of sugar in one serving. Even natural sugar adds up at this amount.` }); }
+    if ((f.tags || []).includes("treat")) { s -= 1; r.push({ k: "neg", t: "A treat (dessert, candy or fried snack): best kept occasional, not a regular buy." }); }
     if ((f.tags || []).includes("processed")) { s -= 2; r.push({ k: "neg", t: "Processed meat, which is linked to higher heart and cancer risk." }); }
     const isPureFat = K("fat") && K("carb") && K("pro") && K("cal") && f.fat > 0 && f.carb < 0.5 && f.pro < 0.5 && f.fat * 9 >= 0.9 * f.cal;
     const unsaturatedOil = isPureFat && OIL_NAME.test(f.n) && K("sat") && f.sat / f.fat <= 0.25 && f.trans <= 0.2;

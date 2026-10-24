@@ -146,6 +146,37 @@ test("6: every verdict for every built-in food has a reason that supports it", (
 });
 
 test("6: negligible foods with nothing to flag are Fine, not In moderation", () => {
-  for (const n of ["Zero-calorie sweetener", "Allulose", "Erythritol", "Coffee, black", "Diet soda", "Garlic", "Balsamic vinegar", "Yellow mustard", "Cooking spray"]) assert.equal(V.assess(food(n), P).word, "Fine", n);
+  for (const n of ["Zero-calorie sweetener", "Allulose", "Erythritol", "Coffee, black", "Diet soda", "Balsamic vinegar", "Yellow mustard", "Cooking spray"]) assert.equal(V.assess(food(n), P).word, "Fine", n);
   for (const n of ["Sugar", "Ketchup", "Pickles"]) assert.equal(V.assess(food(n), P).word, "In moderation", n);
+});
+
+// ---- 7. Consistent thresholds: whole produce, whole grains, fiber density, treats ----
+test("7: whole fruit is rated consistently (natural sugar isn't penalized)", () => {
+  for (const n of ["Apple", "Banana", "Grapes", "Cherries", "Mango", "Pineapple", "Medjool dates"]) {
+    const a = V.assess(food(n), P);
+    assert.equal(a.word, "Get it", n);
+    assert.ok(!a.reasons.some(r => r.k === "neg" && /sugar/i.test(r.t)), `${n}: penalized for natural sugar`);
+  }
+  for (const n of ["Orange juice", "Raisins", "Dried figs", "Fruit smoothie, bottled"]) assert.equal(V.assess(food(n), P).word, "In moderation", n);
+});
+
+test("7: honey and cookies get the same kind of verdict; whole grains beat refined", () => {
+  assert.equal(V.assess(food("Honey"), P).word, "Limit it");
+  assert.equal(V.assess(food("Chocolate chip cookies"), P).word, "Limit it");
+  for (const n of ["Whole wheat bread", "Whole wheat pasta", "Brown rice"]) assert.equal(V.assess(food(n), P).word, "Get it", n);
+  for (const n of ["White bread", "Pasta", "White rice"]) assert.equal(V.assess(food(n), P).word, "In moderation", n);
+});
+
+test("7: treat tag adds a penalty with its own reason; never on whole foods", () => {
+  const cookie = V.assess(food("Chocolate chip cookies"), P);
+  assert.ok(cookie.reasons.some(r => r.k === "neg" && /treat/i.test(r.t)));
+  for (const f of FOODS) if (f.tags.includes("treat")) assert.ok(!["fruit", "veg"].includes(f.c) || /fries|tots|hash/i.test(f.n), `${f.n}: treat tag on produce`);
+  const untagged = { ...food("Chocolate chip cookies"), tags: [] };
+  assert.ok(V.assess(untagged, P).score > cookie.score);
+});
+
+test("7: dump script prints one CSV row per food", () => {
+  const out = require("node:child_process").execFileSync(process.execPath, [require("node:path").join(__dirname, "verdict-dump.js")]).toString().trim().split("\n");
+  assert.equal(out[0], "name,category,serving,calories,verdict,score,reasons");
+  assert.equal(out.length, FOODS.length + 1);
 });
