@@ -118,8 +118,56 @@
     return hi > 0 && d >= MEANINGFUL_REL * hi && d >= floorFor(k, share);
   }
 
+  // A plate is a meal, so it's judged against a meal's share of the day (a third of each daily goal and limit),
+  // not as if it were one food. It gets credit for protein, fiber and balance, and a flag when protein is low.
+  const MEAL_SHARE = 1 / 3;
+  const PROTEIN_CATS = new Set(["meat", "seafood", "plant", "dairy", "protein"]);
+  function assessMeal(f, p) {
+    const m = {}; for (const k of ["cal", "pro", "sat", "na", "add", "fib"]) m[k] = (p[k] || 0) * MEAL_SHARE;
+    const K = k => known(f, k), r = []; let s = 0;
+    const pct = (v, t) => Math.round(v / t * 100);
+    const items = f.items || [];
+    if (K("pro")) {
+      if (f.pro >= 0.8 * m.pro) { s += 2; r.push({ k: "pos", t: `Enough protein for a meal: ${fmt(f.pro)} g of the ${Math.round(m.pro)} g that's a third of your ${p.pro} g goal.` }); }
+      else if (f.pro >= 0.5 * m.pro) { s += 1; r.push({ k: "pos", t: `Some protein: ${fmt(f.pro)} g of about ${Math.round(m.pro)} g for this meal.` }); }
+      else { s -= 1; r.push({ k: "neg", t: `Low protein for a meal: ${fmt(f.pro)} g. A third of your ${p.pro} g goal is about ${Math.round(m.pro)} g.` }); }
+    }
+    if (K("fib") && f.fib >= 0.6 * m.fib) { s += 1; r.push({ k: "pos", t: `Good fiber for a meal: ${fmt(f.fib)} g of about ${Math.round(m.fib)} g.` }); }
+    const hasProtein = items.some(({ food, mult }) => PROTEIN_CATS.has(food.c) && (food.pro || 0) * (mult || 1) >= 7);
+    const hasProduce = items.some(({ food }) => food.c === "fruit" || food.c === "veg");
+    if (hasProtein && hasProduce) { s += 1; r.push({ k: "pos", t: "Balanced: a protein food plus fruit or vegetables." }); }
+    else if (items.length && !hasProduce) r.push({ k: "note", t: "No fruit or vegetables on this plate yet. Adding some is the easiest upgrade." });
+    const limit = (k, word, unit) => {
+      if (!K(k) || !m[k]) return;
+      const share = f[k] / m[k], amt = k === "na" ? Math.round(f[k]).toLocaleString("en-US") : fmt(f[k]);
+      if (share >= 1) { s -= 2; r.push({ k: "neg", t: `High ${word}: ${amt}${unit} is ${pct(f[k], m[k])}% of this meal's share (${pct(f[k], p[k])}% of your daily limit).` }); }
+      else if (share >= 0.7) { s -= 1; r.push({ k: "neg", t: `Getting high on ${word}: ${amt}${unit}, ${pct(f[k], m[k])}% of this meal's share.` }); }
+    };
+    limit("sat", "saturated fat", " g"); limit("na", "sodium", " mg"); limit("add", "added sugar", " g");
+    if ((f.tags || []).includes("processed")) { s -= 1; r.push({ k: "neg", t: "Includes processed meat, which is linked to higher heart and cancer risk." }); }
+    if (K("cal") && m.cal) {
+      if (f.cal > 1.5 * m.cal) { s -= 1; r.push({ k: "neg", t: `A big meal: ${Math.round(f.cal)} calories is ${pct(f.cal, p.cal)}% of your ${p.cal.toLocaleString("en-US")} for the day.` }); }
+      else if (f.cal < 0.5 * m.cal) r.push({ k: "note", t: `A light meal: ${Math.round(f.cal)} calories, well under a third of your day.` });
+    }
+    let tier, word, why;
+    const hasNeg = r.some(x => x.k === "neg");
+    if (s >= 2) { tier = "good"; word = "Get it"; why = "A strong meal for your goals."; }
+    else if (s <= -2) { tier = "bad"; word = "Limit it"; why = "This meal works against your goals as a regular thing."; }
+    else { tier = "mid"; word = "In moderation"; why = "An OK meal. See what would improve it below.";
+      if (!hasNeg) r.push({ k: "warn", t: "Not much going for it yet: more protein, fiber or vegetables would make this a strong meal." }); }
+    const unknownLimits = KEY_LIMITS.filter(k => isMissing(f, k) || isLowerBound(f, k));
+    const note = missingNote(f);
+    if (note) r.push({ k: "warn", t: `${note} Those amounts are at least what's shown.` });
+    if (unknownLimits.length && tier === "good") {
+      tier = "mid"; word = "In moderation"; why = "Looks good on what's known, but key data is missing.";
+      r.push({ k: "warn", t: `Can't rate this meal "Get it" without ${listWords(unknownLimits)} for every item.` });
+    }
+    return { tier, word, why, score: s, reasons: r, partial: !!note, spicy: !!p.mild && (f.tags || []).includes("spicy"), meal: true };
+  }
+
   // Score one serving against the viewer's goals. Returns tier, headline and reasons.
   function assess(f, p) {
+    if (f.c === "plate") return assessMeal(f, p);
     const skip = skipReason(f, p);
     if (skip) return { tier: "skip", word: "Skip", why: skip.why, score: null, reasons: [{ k: "note", t: skip.note }] };
 
@@ -225,18 +273,19 @@
   // What each label line means; rules of thumb use the viewer's own goals.
   function explain(k, f, p) {
     const share = (v, t) => Math.round(v / t * 100);
+    const it = f.c === "plate" ? "this meal" : "this serving";
     const E = {
-      cal: ["Calories", "ctx", "The energy in one serving.", `Your budget is ${p.cal.toLocaleString("en-US")} a day; this serving is ${share(f.cal, p.cal)}% of it.`],
+      cal: ["Calories", "ctx", f.c === "plate" ? "The energy in this meal." : "The energy in one serving.", `Your budget is ${p.cal.toLocaleString("en-US")} a day; ${it} is ${share(f.cal, p.cal)}% of it.`],
       fat: ["Total fat", "ctx", "All the fat combined. Not good or bad by itself.", "Look at saturated fat below it: that's the part that matters most."],
-      sat: ["Saturated fat", "low", "The fat in fatty meat, butter, cheese and cream. It's the biggest food driver of LDL (\"bad\") cholesterol.", `Your limit is ${p.sat} g a day; this serving is ${share(f.sat, p.sat)}% of it.`],
+      sat: ["Saturated fat", "low", "The fat in fatty meat, butter, cheese and cream. It's the biggest food driver of LDL (\"bad\") cholesterol.", `Your limit is ${p.sat} g a day; ${it} is ${share(f.sat, p.sat)}% of it.`],
       trans: ["Trans fat", "low", "Mostly from processed food; small amounts occur naturally in meat and dairy. It raises LDL more than any other fat.", "Keep it as close to zero as possible."],
       chol: ["Cholesterol", "ctx", "Cholesterol in the food itself, found only in animal foods.", "For most people it affects blood cholesterol much less than saturated fat does, so don't avoid eggs or shrimp for this alone."],
-      na: ["Sodium", "low", "Salt. Too much raises blood pressure and makes you hold water.", `Your limit is ${p.na.toLocaleString("en-US")} mg a day; this serving is ${share(f.na, p.na)}% of it. Over 20% DV per serving is salty.`],
+      na: ["Sodium", "low", "Salt. Too much raises blood pressure and makes you hold water.", `Your limit is ${p.na.toLocaleString("en-US")} mg a day; ${it} is ${share(f.na, p.na)}% of it. Over 20% DV per serving is salty.`],
       carb: ["Total carbohydrate", "ctx", "Starch, sugar and fiber combined: your main fuel.", "Judge the quality by the fiber and added-sugar lines beneath it."],
       fib: ["Dietary fiber", "more", "The part of plants you don't digest. It keeps you full, steadies blood sugar and lowers LDL a little.", `Your goal is ${p.fib} g a day; 3 g or more per serving is a good source.`],
       sug: ["Total sugars", "ctx", "Natural sugar (in fruit and milk) plus added sugar.", "Natural sugar is fine in whole foods. Check the added-sugar line instead."],
-      add: ["Added sugars", "low", "Sugar put in during processing: calories that don't keep you full.", `Your limit is ${p.add} g a day; this serving is ${share(f.add, p.add)}% of it.`],
-      pro: ["Protein", "more", "Builds and keeps muscle, and keeps you full longer than carbs or fat.", `Your goal is ${p.pro} g a day (about ${Math.round(p.pro / 4)} g per meal over four meals); this serving is ${share(f.pro, p.pro)}% of it.`],
+      add: ["Added sugars", "low", "Sugar put in during processing: calories that don't keep you full.", `Your limit is ${p.add} g a day; ${it} is ${share(f.add, p.add)}% of it.`],
+      pro: ["Protein", "more", "Builds and keeps muscle, and keeps you full longer than carbs or fat.", `Your goal is ${p.pro} g a day (about ${Math.round(p.pro / 4)} g per meal over four meals); ${it} is ${share(f.pro, p.pro)}% of it.`],
     };
     return E[k] || null;
   }
@@ -482,5 +531,5 @@
 
   const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-  return { NEGLIGIBLE_KCAL, RANK, DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, skipMatch, healthyFatSource, servingGrams, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, swapCategory, swapDiffs, meaningfulDiff, FDA_DV, POS_FLOOR, HEAVY_SHARE, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, fmt };
+  return { NEGLIGIBLE_KCAL, RANK, DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, skipMatch, healthyFatSource, servingGrams, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, assessMeal, MEAL_SHARE, swapCategory, swapDiffs, meaningfulDiff, FDA_DV, POS_FLOOR, HEAVY_SHARE, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, fmt };
 });

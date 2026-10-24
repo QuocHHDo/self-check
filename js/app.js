@@ -251,7 +251,7 @@
     if (f.src === "claude") src.append(el("b", { text: "Looked up by Claude. " }), "Typical values; check the package label.");
     else if (f.src === "usda") src.append(el("b", { text: "From USDA FoodData Central. " }), "Values per 100 g.");
     else if (f.src === "off") src.append(el("b", { text: "From Open Food Facts. " }), f.per100 ? "Values are per 100 g because the package has no serving size on file; use the servings buttons to match what you eat." : "Values per the package's serving. Crowd-sourced; check the label.");
-    else if (isPlate) src.append("The sum of every item at the servings you chose.");
+    else if (isPlate) src.append("The sum of every item at the servings you chose. Judged as one meal: against a third of your daily goals and limits.");
     else src.append("Typical values for this serving. Brands vary.");
 
     const missingNote = V.missingNote(scaled);

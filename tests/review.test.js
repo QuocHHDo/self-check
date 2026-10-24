@@ -241,3 +241,39 @@ test("8: the calorie warning is relative to your day and says so", () => {
     if (has) assert.ok(f.cal >= V.HEAVY_SHARE * P.cal, f.n);
   }
 });
+
+// ---- 9. Plates are judged as a meal ----
+const plate = (...items) => V.combine(items.map(([n, mult]) => ({ food: food(n), mult: mult || 1 })));
+test("9: a plate is scored against a third of the day, flags low protein and credits balance", () => {
+  const good = V.assess(plate(["Chicken breast, grilled"], ["Brown rice"], ["Broccoli"]), P);
+  assert.equal(good.word, "Get it");
+  assert.ok(good.reasons.some(r => r.k === "pos" && /Balanced/.test(r.t)));
+  assert.ok(good.reasons.some(r => /third of your/.test(r.t)));
+  const low = V.assess(plate(["White rice"], ["Broccoli"]), P);
+  assert.ok(low.reasons.some(r => r.k === "neg" && /Low protein for a meal/.test(r.t)));
+  const junk = V.assess(plate(["Cheeseburger, fast food"], ["French fries"], ["Soda"]), P);
+  assert.equal(junk.word, "Limit it");
+  assert.ok(junk.reasons.some(r => /this meal's share/.test(r.t)));
+});
+
+test("9: the same food as a plate uses meal targets, not single-food rules", () => {
+  // 1 cup of white rice alone is In moderation as a food; as a whole meal it's low in protein.
+  const a = V.assess(plate(["White rice"]), P);
+  assert.ok(a.meal);
+  assert.ok(!a.reasons.some(r => /in one serving/.test(r.t)), "no single-serving wording on a plate");
+});
+
+test("9: label explainers say 'this meal' for a plate", () => {
+  const pl = plate(["Chicken breast, grilled"], ["Brown rice"]);
+  for (const k of ["cal", "sat", "na", "add", "pro"]) {
+    const e = V.explain(k, pl, P);
+    assert.ok(/this meal/.test(e.join(" ")) && !/this serving/.test(e.join(" ")), k);
+  }
+});
+
+test("9: a plate of foods with missing data never claims Get it", () => {
+  const durian = S.fromUsda(require("./fixtures/usda-durian.json"));
+  const a = V.assess(V.combine([{ food: durian, mult: 3 }, { food: food("Chicken breast, grilled"), mult: 1 }, { food: food("Broccoli"), mult: 1 }]), P);
+  assert.notEqual(a.word, "Get it");
+  assert.ok(a.reasons.some(r => /don't report/.test(r.t)));
+});
