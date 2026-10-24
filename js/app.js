@@ -44,7 +44,8 @@
     return (V.isLowerBound(f, k) ? "≥" : "") + n + unit;
   }
   const dvText = (f, k) => (V.isMissing(f, k) ? "—" : (V.isLowerBound(f, k) ? "≥" : "") + pct(f[k], DV[k]));
-  const pill = a => el("span", { class: "vp " + a.tier, text: a.word });
+  const pill = a => a.spicy ? el("span", { class: "pills" }, el("span", { class: "vp " + a.tier, text: a.word }), el("span", { class: "vp spicy", text: "Spicy" }))
+    : el("span", { class: "vp " + a.tier, text: a.word });
   let toastTimer;
   function toast(msg) {
     let t = document.querySelector(".toast");
@@ -262,7 +263,7 @@
       el("div", { class: "result" },
         el("div", { class: "leftcol" }, seg, partial, label, box, src),
         el("div", { class: "side" },
-          el("div", { class: "tag " + a.tier }, el("div", { class: "for", text: isPlate ? "For you · whole meal" : "For you" }), el("div", { class: "verdict", text: a.word }), el("p", { class: "why", text: a.why }),
+          el("div", { class: "tag " + a.tier }, el("div", { class: "for", text: isPlate ? "For you · whole meal" : "For you" }), el("div", { class: "verdict", text: a.word }), a.spicy ? el("span", { class: "vp spicy flag", text: "Spicy" }) : null, el("p", { class: "why", text: a.why }),
             mult !== 1 ? el("p", { class: "per", text: "The verdict is for one standard serving; the label and bars show your amount." }) : null),
           renderBars(scaled),
           isPlate ? null : renderSwaps(f),

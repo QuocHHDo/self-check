@@ -18,11 +18,10 @@ test("anchor foods land where general nutrition guidance puts them", () => {
   }
 });
 
-test("skip list and mild preference override nutrition", () => {
+test("skip list overrides nutrition; mild preference does not", () => {
   assert.equal(word("Hummus", CUT), "Skip");
   assert.notEqual(word("Hummus", P), "Skip");
-  assert.equal(word("Sriracha", CUT), "Skip");
-  assert.notEqual(word("Sriracha", { ...CUT, mild: false }), "Skip");
+  assert.notEqual(word("Sriracha", CUT), "Skip", "mild preference flags, never skips");
   assert.equal(word("Chicken breast, grilled", { ...P, skip: "chicken" }), "Skip");
 });
 

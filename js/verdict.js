@@ -73,7 +73,6 @@
       const why = m.via === "name" ? `It's on your skip list: the name includes “${term.toLowerCase()}”.` : `It's on your skip list: it's also called “${m.alias}”, which includes “${term.toLowerCase()}”.`;
       return { why, note: "Nutrition is shown for reference. Edit your skip list under Your goals." };
     }
-    if (p.mild && (f.tags || []).includes("spicy")) return { why: "It's spicy, and you prefer mild food.", note: "Turn off the mild-food setting under Your goals to judge it on nutrition alone." };
     return null;
   }
 
@@ -136,8 +135,11 @@
       tier = "mid"; word = "In moderation"; why = "Looks good on what's known, but key data is missing.";
       r.push({ k: "warn", t: `Can't rate it "Get it" without ${listWords(unknownLimits)}: check the package label.` });
     }
+    // The mild-food preference flags spicy foods; it never changes the nutrition verdict. Only the skip list does that.
+    const spicy = !!p.mild && (f.tags || []).includes("spicy");
+    if (spicy) r.unshift({ k: "warn", t: "Spicy: you said you prefer mild food. The verdict is on nutrition alone." });
     if (!r.length) r.push({ k: "note", t: "Nothing stands out either way." });
-    return { tier, word, why, score: s, reasons: r, partial: !!note };
+    return { tier, word, why, score: s, reasons: r, partial: !!note, spicy };
   }
 
   // What each label line means; rules of thumb use the viewer's own goals.

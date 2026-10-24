@@ -66,3 +66,20 @@ test("2: the reason names the matching word", () => {
   const a = V.assess(food("Breakfast sandwich, sausage and egg"), { ...P, skip: "egg" });
   assert.match(a.why, /includes “egg”/);
 });
+
+// ---- 3. "Mild food" setting overrides the verdict instead of flagging ----
+test("3: mild preference flags spicy foods but keeps the nutrition verdict", () => {
+  for (const n of ["Kimchi", "Jalapeño", "Sriracha", "Buffalo sauce", "Pepper jack cheese", "Sweet chili sauce"]) {
+    const plain = V.assess(food(n), { ...P, mild: false }), mild = V.assess(food(n), { ...P, mild: true });
+    assert.equal(mild.word, plain.word, n);
+    assert.notEqual(mild.word, "Skip", n);
+    assert.equal(mild.spicy, true, n);
+    assert.ok(mild.reasons.some(r => r.k === "warn" && /Spicy/.test(r.t)), n);
+  }
+  assert.equal(V.assess(food("Broccoli"), { ...P, mild: true }).spicy, false);
+});
+
+test("3: only the explicit skip list produces Skip", () => {
+  const p = { ...P, mild: true, skip: "" };
+  for (const f of FOODS) assert.notEqual(V.assess(f, p).word, "Skip", f.n);
+});
