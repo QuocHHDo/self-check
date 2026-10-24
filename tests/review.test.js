@@ -46,3 +46,23 @@ test("1: Open Food Facts nutrients the label omits are missing too", () => {
 test("1: complete built-in foods are unaffected", () => {
   for (const f of FOODS) assert.equal(V.missingNote(f), null, f.n);
 });
+
+// ---- 2. Skip list uses substring matching ----
+test("2: skip list matches whole words with simple plurals", () => {
+  const p = { ...P, skip: "ramen, egg" };
+  for (const n of ["Eggs", "Egg whites", "Breakfast sandwich, sausage and egg", "Instant ramen"]) assert.equal(V.assess(food(n), p).word, "Skip", n);
+  for (const n of ["Eggplant", "Veggie burger", "Veggie straws", "Frozen mixed vegetables", "Frozen waffles"]) assert.notEqual(V.assess(food(n), p).word, "Skip", n);
+});
+
+test("2: plural terms and multi-word terms", () => {
+  assert.equal(V.assess(food("Eggs"), { ...P, skip: "eggs" }).word, "Skip");
+  assert.equal(V.assess(food("Egg whites"), { ...P, skip: "eggs" }).word, "Skip");
+  assert.equal(V.assess(food("Ground beef 80/20"), { ...P, skip: "ground beef" }).word, "Skip");
+  assert.notEqual(V.assess(food("Beef jerky"), { ...P, skip: "ground beef" }).word, "Skip");
+  assert.equal(V.assess(food("Blueberries"), { ...P, skip: "blueberry" }).word, "Skip");
+});
+
+test("2: the reason names the matching word", () => {
+  const a = V.assess(food("Breakfast sandwich, sausage and egg"), { ...P, skip: "egg" });
+  assert.match(a.why, /includes “egg”/);
+});

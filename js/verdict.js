@@ -54,11 +54,25 @@
   // Generic starting goals (roughly FDA Daily Values on a 2,000-calorie diet).
   const DEFAULT_PROFILE = { cal: 2000, pro: 100, sat: 20, na: 2300, add: 50, fib: 28, skip: "", mild: false };
 
+  // Skip-list matching on whole words with simple plurals: "egg" matches "Eggs" and "Breakfast sandwich, sausage and egg",
+  // not "Eggplant" or "Veggie burger". Multi-word terms ("ground beef") must appear as that word sequence.
+  const stemWord = w => w.replace(/'s$/, "").replace(/ies$/, "y").replace(/(s|x|z|ch|sh)es$/, "$1").replace(/([^s])s$/, "$1");
+  const words = s => String(s).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean).map(stemWord);
+  const hasPhrase = (hay, needle) => needle.length > 0 && hay.some((_, i) => needle.every((w, j) => hay[i + j] === w));
+  function skipMatch(f, term) {
+    const t = words(term);
+    if (hasPhrase(words(f.n), t)) return { term, via: "name" };
+    const alias = (f.a || []).find(a => hasPhrase(words(a), t));
+    return alias ? { term, via: "alias", alias } : null;
+  }
   function skipReason(f, p) {
-    const lname = f.n.toLowerCase();
-    const list = String(p.skip || "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
-    const hit = list.find(s => lname.includes(s) || (f.a || []).some(a => a.toLowerCase().includes(s)));
-    if (hit) return { why: `It's on your skip list (${hit}).`, note: "Nutrition is shown for reference. Edit your skip list under Your goals." };
+    const list = String(p.skip || "").split(",").map(s => s.trim()).filter(Boolean);
+    for (const term of list) {
+      const m = skipMatch(f, term);
+      if (!m) continue;
+      const why = m.via === "name" ? `It's on your skip list: the name includes “${term.toLowerCase()}”.` : `It's on your skip list: it's also called “${m.alias}”, which includes “${term.toLowerCase()}”.`;
+      return { why, note: "Nutrition is shown for reference. Edit your skip list under Your goals." };
+    }
     if (p.mild && (f.tags || []).includes("spicy")) return { why: "It's spicy, and you prefer mild food.", note: "Turn off the mild-food setting under Your goals to judge it on nutrition alone." };
     return null;
   }
@@ -324,5 +338,5 @@
 
   const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-  return { DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, fmt };
+  return { DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, skipMatch, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, fmt };
 });
