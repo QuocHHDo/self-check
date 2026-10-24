@@ -52,7 +52,10 @@
 
     if (f.sug >= 25 && f.add < 10 && f.pro < 5) { s -= 1; r.push({ k: "neg", t: `${fmt(f.sug)} g of sugar in one serving. Even natural sugar adds up at this amount.` }); }
     if ((f.tags || []).includes("processed")) { s -= 2; r.push({ k: "neg", t: "Processed meat, which is linked to higher heart and cancer risk." }); }
-    if (f.cal >= 100 && f.pro < 2 && f.fib < 1) { s -= 1; r.push({ k: "neg", t: "Calories with little protein or fiber, so it won't keep you full." }); }
+    const isPureFat = f.fat > 0 && f.carb < 0.5 && f.pro < 0.5 && f.fat * 9 >= 0.9 * f.cal;
+    const unsaturatedOil = isPureFat && f.sat / f.fat <= 0.25 && f.trans <= 0.2;
+    if (unsaturatedOil) r.push({ k: "pos", t: "A cooking fat that's mostly unsaturated, which is better for cholesterol than butter, lard or coconut oil." });
+    else if (f.cal >= 100 && f.pro < 2 && f.fib < 1) { s -= 1; r.push({ k: "neg", t: "Calories with little protein or fiber, so it won't keep you full." }); }
     if (f.cal >= 300 && pd < 0.15) { s -= 1; r.push({ k: "neg", t: `Calorie-heavy: ${Math.round(f.cal)} cal is ${Math.round(f.cal / p.cal * 100)}% of your day without much protein.` }); }
 
     if (f.chol >= 150 && satShare < 0.15) r.push({ k: "note", t: `High in dietary cholesterol (${Math.round(f.chol)} mg), but low in saturated fat. For most people saturated fat raises blood cholesterol more.` });
@@ -117,9 +120,15 @@
     "Oat milk": ["Soy milk, unsweetened", "Almond milk, unsweetened"],
     "Sour cream": ["Greek yogurt, plain nonfat"],
     "Mayonnaise": ["Greek yogurt, plain nonfat"],
-    "Butter": ["Olive oil", "Avocado oil"],
-    "Coconut oil": ["Olive oil", "Avocado oil"],
-    "Ghee": ["Olive oil", "Avocado oil"],
+    "Butter": ["Extra virgin olive oil", "Avocado oil"],
+    "Coconut oil": ["Extra virgin olive oil", "Avocado oil"],
+    "Ghee": ["Extra virgin olive oil", "Avocado oil"],
+    "Lard": ["Extra virgin olive oil", "Avocado oil"],
+    "Beef tallow": ["Extra virgin olive oil", "Avocado oil"],
+    "Bacon grease": ["Extra virgin olive oil", "Avocado oil"],
+    "Vegetable shortening": ["Canola oil", "Avocado oil"],
+    "Palm oil": ["Canola oil", "Extra virgin olive oil"],
+    "MCT oil": ["Extra virgin olive oil", "Avocado oil"],
     "Ranch dressing": ["Balsamic vinaigrette", "Salsa, mild"],
     "Caesar dressing": ["Balsamic vinaigrette", "Salsa, mild"],
     "BBQ sauce": ["Salsa, mild", "Yellow mustard"],
@@ -167,6 +176,8 @@
   const tokens = s => s.toLowerCase().split(/[^a-z]+/).filter(w => w.length > 2 && !STOP.has(w));
   const ALCOHOL = /beer|wine|liquor|hard seltzer|margarita/i;
   const LIQUID = /milk|kefir|juice|shake|smoothie|latte|coffee|tea\b|soda|water|drink|beer|wine|lemonade|kombucha|liquor|seltzer|margarita|chocolate, from mix/i;
+  // Cooking fats only swap with other cooking fats.
+  const pureFat = g => g.fat > 0 && g.carb < 0.5 && g.pro < 0.5 && g.fat * 9 >= 0.9 * g.cal;
 
   // Up to `max` better options for a food, ranked by hand-picked hints, then category, name overlap and similar calories.
   function findSwaps(f, foods, p, max = 3) {
@@ -181,6 +192,7 @@
       const hinted = hints.includes(g.n);
       if (!hinted && ALCOHOL.test(g.n) && !ALCOHOL.test(f.n)) continue;
       if (!hinted && LIQUID.test(g.n) !== LIQUID.test(f.n)) continue;
+      if (!hinted && pureFat(g) !== pureFat(f)) continue;
       const a = assess(g, p);
       if (a.tier === "skip" || RANK[a.tier] <= want) continue;
       let score = 0;
