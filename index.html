@@ -205,7 +205,7 @@ details.profile summary .muted { font-weight: 400; font-size: 13.5px; }
 <div class="wrap">
   <header>
     <h1>Should I Buy It?</h1>
-    <p class="sub">Type a food to see its nutrition label and whether it fits your goals.</p>
+    <p class="sub">Type a food to see its nutrition label and whether it fits your goals. <span id="foodCount"></span></p>
   </header>
 
   <div class="search">
@@ -294,6 +294,179 @@ const FOODS = [
   F("Frozen pepperoni pizza", ["pizza", "frozen pizza"], "¼ of a 12-inch pizza (130 g)", 380, 18, 8, 0, 35, 800, 39, 2, 5, 3, 15),
   F("Vanilla ice cream", ["ice cream"], "⅔ cup (95 g)", 200, 11, 7, 0.3, 45, 70, 23, 0, 21, 16, 3),
   F("Sriracha", ["hot sauce", "chili sauce"], "1 tsp (5 g)", 5, 0, 0, 0, 0, 100, 1, 0, 1, 1, 0, ["spicy"]),
+
+  // fruit
+  F("Strawberries", ["strawberry"], "1 cup halves (152 g)", 49, 0.5, 0, 0, 0, 2, 11.7, 3, 7.4, 0, 1),
+  F("Grapes", ["grape"], "1 cup (151 g)", 104, 0.2, 0.1, 0, 0, 3, 27.3, 1.4, 23.4, 0, 1.1),
+  F("Orange", ["oranges", "navel orange"], "1 medium (131 g)", 62, 0.2, 0, 0, 0, 0, 15.4, 3.1, 12.2, 0, 1.2),
+  F("Watermelon", [], "1 cup diced (152 g)", 46, 0.2, 0, 0, 0, 2, 11.5, 0.6, 9.4, 0, 0.9),
+  F("Pineapple", [], "1 cup chunks (165 g)", 82, 0.2, 0, 0, 0, 2, 21.6, 2.3, 16.3, 0, 0.9),
+  F("Mango", ["mangoes"], "1 cup pieces (165 g)", 99, 0.6, 0.1, 0, 0, 2, 24.7, 2.6, 22.5, 0, 1.4),
+  F("Raspberries", ["raspberry"], "1 cup (123 g)", 64, 0.8, 0, 0, 0, 1, 14.7, 8, 5.4, 0, 1.5),
+  F("Pear", ["pears"], "1 medium (178 g)", 101, 0.3, 0, 0, 0, 2, 27, 5.5, 17, 0, 0.6),
+  F("Peach", ["peaches"], "1 medium (150 g)", 59, 0.4, 0, 0, 0, 0, 14.3, 2.3, 12.6, 0, 1.4),
+  F("Cantaloupe", ["melon"], "1 cup diced (160 g)", 54, 0.3, 0.1, 0, 0, 26, 13, 1.4, 12.6, 0, 1.3),
+  F("Kiwi", ["kiwifruit"], "1 medium (69 g)", 42, 0.4, 0, 0, 0, 2, 10.1, 2.1, 6.2, 0, 0.8),
+  F("Raisins", [], "¼ cup (40 g)", 120, 0.2, 0, 0, 0, 4, 32, 1.5, 24, 0, 1.2),
+  F("Dried cranberries, sweetened", ["craisins", "dried cranberries"], "¼ cup (40 g)", 123, 0.5, 0, 0, 0, 2, 33, 2, 29, 26, 0),
+
+  // vegetables
+  F("Carrots", ["carrot", "baby carrots"], "1 cup chopped (128 g)", 52, 0.3, 0, 0, 0, 88, 12.3, 3.6, 6.1, 0, 1.2),
+  F("Bell pepper", ["red pepper", "green pepper", "peppers"], "1 medium (119 g)", 31, 0.4, 0, 0, 0, 5, 7.2, 2.5, 5, 0, 1.2),
+  F("Cucumber", ["cucumbers"], "1 cup sliced (119 g)", 18, 0.1, 0, 0, 0, 2, 4.3, 0.6, 2, 0, 0.8),
+  F("Tomato", ["tomatoes"], "1 medium (123 g)", 22, 0.2, 0, 0, 0, 6, 4.8, 1.5, 3.2, 0, 1.1),
+  F("Romaine lettuce", ["lettuce", "salad greens", "romaine"], "2 cups shredded (94 g)", 16, 0.3, 0, 0, 0, 8, 3.1, 2, 1.1, 0, 1.2),
+  F("Cauliflower", [], "1 cup chopped (107 g)", 27, 0.3, 0.1, 0, 0, 32, 5.3, 2.1, 2, 0, 2.1),
+  F("Green beans", ["string beans"], "1 cup (100 g)", 31, 0.2, 0, 0, 0, 6, 7, 2.7, 3.3, 0, 1.8),
+  F("Asparagus", [], "1 cup (134 g)", 27, 0.2, 0, 0, 0, 3, 5.2, 2.8, 2.5, 0, 2.9),
+  F("Brussels sprouts", ["brussel sprouts"], "1 cup (88 g)", 38, 0.3, 0.1, 0, 0, 22, 7.9, 3.3, 1.9, 0, 3),
+  F("Zucchini", ["squash"], "1 cup chopped (124 g)", 21, 0.4, 0.1, 0, 0, 10, 3.9, 1.2, 3.1, 0, 1.5),
+  F("Kale", [], "2 cups raw (42 g)", 20, 0.6, 0.1, 0, 0, 18, 3.7, 1.7, 0.4, 0, 1.8),
+  F("Mushrooms", ["mushroom"], "1 cup sliced (70 g)", 15, 0.2, 0, 0, 0, 4, 2.3, 0.7, 1.4, 0, 2.2),
+  F("Onion", ["onions"], "1 medium (110 g)", 44, 0.1, 0, 0, 0, 4, 10.3, 1.9, 4.7, 0, 1.2),
+  F("Corn", ["sweet corn", "corn on the cob"], "1 medium ear (90 g kernels)", 88, 1.4, 0.2, 0, 0, 15, 19, 2.1, 6.4, 0, 3.3),
+  F("Green peas, frozen", ["peas"], "½ cup cooked (80 g)", 62, 0.2, 0, 0, 0, 58, 11.4, 4.4, 4.5, 0, 4.1),
+  F("Frozen mixed vegetables", ["mixed veggies", "frozen vegetables"], "⅔ cup (91 g)", 50, 0, 0, 0, 0, 35, 10, 3, 3, 0, 2),
+  F("Edamame", ["soybeans"], "½ cup shelled (75 g)", 94, 4, 0.5, 0, 0, 5, 7, 4, 1.7, 0, 9),
+  F("Jalapeño", ["jalapeno", "chili pepper"], "1 pepper (14 g)", 4, 0.1, 0, 0, 0, 0, 0.9, 0.4, 0.6, 0, 0.1, ["spicy"]),
+  F("Salsa, mild", ["salsa"], "2 tbsp (32 g)", 10, 0, 0, 0, 0, 230, 2, 0.5, 1, 0, 0.5),
+  F("Guacamole", ["guac"], "2 tbsp (30 g)", 50, 4.5, 0.7, 0, 0, 115, 3, 2, 0, 0, 1),
+  F("Pickles", ["pickle", "dill pickle"], "1 spear (35 g)", 4, 0.1, 0, 0, 0, 280, 0.8, 0.4, 0.4, 0, 0.2),
+  F("Kimchi", [], "½ cup (75 g)", 11, 0.4, 0, 0, 0, 375, 1.8, 1.2, 0.8, 0, 0.8, ["spicy"]),
+
+  // meat, poultry, seafood
+  F("Chicken thigh, skinless", ["chicken thigh", "thighs"], "4 oz cooked (113 g)", 200, 9.3, 2.6, 0.1, 135, 100, 0, 0, 0, 0, 28),
+  F("Chicken wings", ["wings", "buffalo wings"], "4 oz cooked, with skin (113 g)", 328, 22, 6.2, 0.2, 95, 93, 0, 0, 0, 0, 30),
+  F("Chicken nuggets, frozen", ["nuggets", "chicken nuggets", "chicken tenders"], "5 pieces (85 g)", 230, 14, 3, 0, 35, 430, 13, 1, 1, 0, 13),
+  F("Ground chicken", [], "4 oz raw (113 g)", 160, 9, 2.5, 0.1, 95, 70, 0, 0, 0, 0, 20),
+  F("Turkey breast, roasted", ["turkey breast"], "4 oz cooked (113 g)", 153, 0.8, 0.2, 0, 90, 60, 0, 0, 0, 0, 34),
+  F("Ground beef 90/10", ["90/10 beef"], "4 oz raw (113 g)", 200, 11, 4.5, 0.7, 75, 75, 0, 0, 0, 0, 22.6),
+  F("Ground beef 85/15", ["85/15 beef"], "4 oz raw (113 g)", 243, 17, 6.6, 1, 77, 75, 0, 0, 0, 0, 21),
+  F("Flank steak", ["flank"], "4 oz cooked (113 g)", 217, 9, 3.7, 0.4, 90, 63, 0, 0, 0, 0, 32),
+  F("Ground pork", [], "4 oz raw (113 g)", 297, 24, 9, 0.2, 82, 63, 0, 0, 0, 0, 19),
+  F("Pork chop, boneless", ["pork chop", "pork chops"], "4 oz cooked (113 g)", 210, 7.9, 2.6, 0, 90, 70, 0, 0, 0, 0, 33),
+  F("Lamb chop", ["lamb"], "4 oz cooked (113 g)", 330, 24, 10, 1.3, 110, 80, 0, 0, 0, 0, 27),
+  F("Deli ham", ["ham", "sliced ham"], "2 oz (56 g)", 60, 1.5, 0.5, 0, 25, 550, 2, 0, 1, 1, 10, ["processed"]),
+  F("Pork breakfast sausage", ["sausage", "breakfast sausage", "sausage links"], "2 links cooked (48 g)", 160, 14, 4.8, 0, 40, 380, 1, 0, 0, 0, 8, ["processed"]),
+  F("Pepperoni", [], "1 oz, about 15 slices (28 g)", 141, 12.5, 5, 0, 33, 490, 0.3, 0, 0, 0, 6, ["processed"]),
+  F("Beef jerky", ["jerky"], "1 oz (28 g)", 80, 1, 0.5, 0, 20, 590, 6, 0, 6, 5, 11, ["processed"]),
+  F("Turkey bacon", [], "2 slices (28 g)", 60, 4, 1, 0, 25, 320, 0, 0, 0, 0, 4.5, ["processed"]),
+  F("Tilapia", [], "4 oz cooked (113 g)", 145, 3, 1, 0, 64, 63, 0, 0, 0, 0, 30),
+  F("Cod", ["white fish"], "4 oz cooked (113 g)", 119, 1, 0.2, 0, 62, 88, 0, 0, 0, 0, 26),
+  F("Salmon, canned", ["canned salmon"], "3 oz drained (85 g)", 117, 4.3, 1, 0, 70, 320, 0, 0, 0, 0, 20),
+  F("Sardines, canned", ["sardines"], "1 can drained (92 g)", 191, 10.5, 1.4, 0, 131, 282, 0, 0, 0, 0, 22.6),
+  F("Fish sticks, frozen", ["fish sticks", "breaded fish"], "6 sticks (105 g)", 250, 12, 2.5, 0, 30, 450, 23, 1, 2, 1, 11),
+
+  // beans
+  F("Chickpeas, canned", ["chickpeas", "garbanzo beans"], "½ cup drained (130 g)", 120, 2, 0.2, 0, 0, 280, 20, 6, 1, 0, 6),
+  F("Pinto beans, canned", ["pinto beans"], "½ cup drained (130 g)", 110, 1, 0.2, 0, 0, 330, 20, 6, 0, 0, 6),
+  F("Kidney beans, canned", ["kidney beans", "red beans"], "½ cup drained (130 g)", 110, 0.5, 0.1, 0, 0, 340, 19, 6, 1, 0, 7),
+  F("Refried beans", [], "½ cup (126 g)", 120, 1.5, 0.5, 0, 0, 520, 20, 6, 1, 0, 7),
+  F("Baked beans", [], "½ cup (130 g)", 140, 0.5, 0.1, 0, 0, 550, 29, 5, 12, 10, 6),
+
+  // dairy and milk alternatives
+  F("2% milk", ["reduced fat milk", "2 percent milk"], "1 cup (244 g)", 122, 4.8, 3.1, 0, 20, 115, 12, 0, 12, 0, 8.1),
+  F("Chocolate milk, low-fat", ["chocolate milk"], "1 cup (250 g)", 158, 2.5, 1.5, 0, 12, 150, 26, 1, 24, 12, 8),
+  F("Almond milk, unsweetened", ["almond milk"], "1 cup (240 ml)", 30, 2.5, 0, 0, 0, 170, 1, 0.5, 0, 0, 1),
+  F("Oat milk", ["oatmilk"], "1 cup (240 ml)", 120, 5, 0.5, 0, 0, 100, 16, 2, 7, 7, 3),
+  F("Soy milk, unsweetened", ["soy milk", "soymilk"], "1 cup (240 ml)", 80, 4, 0.5, 0, 0, 85, 4, 2, 1, 0, 7),
+  F("Kefir, plain low-fat", ["kefir"], "1 cup (240 ml)", 110, 2, 1.5, 0, 10, 125, 12, 0, 10, 0, 11),
+  F("Skyr, plain nonfat", ["skyr", "icelandic yogurt", "siggis"], "1 container (150 g)", 90, 0, 0, 0, 5, 65, 6, 0, 4, 0, 16),
+  F("Greek yogurt, plain whole milk", ["whole milk greek yogurt", "full fat greek yogurt"], "1 container (170 g)", 160, 8.5, 6, 0.3, 25, 60, 6, 0, 6, 0, 16),
+  F("Mozzarella, part-skim", ["mozzarella"], "1 oz (28 g)", 72, 4.5, 2.9, 0, 18, 175, 0.8, 0, 0.3, 0, 6.9),
+  F("String cheese", ["cheese stick"], "1 stick (28 g)", 80, 6, 3.5, 0, 15, 200, 1, 0, 0, 0, 7),
+  F("Swiss cheese", ["swiss"], "1 oz (28 g)", 111, 8.8, 5.2, 0.3, 26, 54, 0.4, 0, 0.4, 0, 7.6),
+  F("Parmesan, grated", ["parmesan", "parm"], "2 tbsp (10 g)", 42, 2.8, 1.7, 0, 9, 150, 0.3, 0, 0, 0, 3.8),
+  F("Cream cheese", [], "2 tbsp (29 g)", 99, 9.8, 5.7, 0.3, 29, 91, 1.6, 0, 1.1, 0, 1.8),
+  F("Sour cream", [], "2 tbsp (24 g)", 47, 4.6, 2.7, 0, 13, 8, 1.1, 0, 0.8, 0, 0.6),
+  F("Heavy cream", ["whipping cream"], "1 tbsp (15 g)", 51, 5.4, 3.4, 0.2, 17, 4, 0.4, 0, 0.4, 0, 0.4),
+  F("Half and half", ["half & half"], "2 tbsp (30 g)", 39, 3.5, 2, 0, 11, 12, 1.3, 0, 1.2, 0, 0.9),
+  F("Coffee creamer, flavored", ["creamer", "coffee creamer"], "1 tbsp (15 ml)", 35, 1.5, 0.5, 0, 0, 5, 5, 0, 5, 5, 0),
+
+  // grains, bread, cereal
+  F("Quinoa", [], "1 cup cooked (185 g)", 222, 3.6, 0.4, 0, 0, 13, 39.4, 5.2, 1.6, 0, 8.1),
+  F("Whole wheat pasta", ["wheat pasta", "whole grain pasta"], "1 cup cooked (140 g)", 174, 0.8, 0.1, 0, 0, 4, 37, 6.3, 1.1, 0, 7.5),
+  F("Flour tortilla", ["tortilla", "wrap"], "1 medium, 8 in (49 g)", 146, 3.6, 1, 0, 0, 330, 25, 1, 1, 1, 4),
+  F("Corn tortillas", ["corn tortilla"], "2 small (52 g)", 114, 1.5, 0.2, 0, 0, 24, 23.4, 3.2, 0.5, 0, 2.9),
+  F("Bagel, plain", ["bagel"], "1 medium (105 g)", 270, 1.5, 0.4, 0, 0, 430, 54, 2.3, 5, 4, 10.5),
+  F("English muffin, whole wheat", ["english muffin"], "1 muffin (66 g)", 134, 1.4, 0.2, 0, 0, 240, 27, 4.4, 3, 2, 5.8),
+  F("Sourdough bread", ["sourdough"], "1 slice (50 g)", 136, 0.9, 0.2, 0, 0, 300, 26, 1.1, 1.2, 0, 5.4),
+  F("Pita, whole wheat", ["pita", "pita bread"], "1 pita, 6.5 in (64 g)", 170, 1.7, 0.3, 0, 0, 340, 35, 4.7, 0.5, 0, 6.3),
+  F("Croissant", [], "1 medium (57 g)", 231, 12, 6.6, 0.2, 38, 240, 26, 1.5, 6.4, 5, 4.7),
+  F("Granola", [], "½ cup (60 g)", 260, 10, 1.5, 0, 0, 40, 39, 4, 14, 13, 7),
+  F("Toasted oat cereal, plain", ["cheerios", "oat cereal"], "1½ cups (39 g)", 140, 2.5, 0.5, 0, 0, 190, 29, 4, 2, 2, 5),
+  F("Rice cakes", ["rice cake"], "1 plain cake (9 g)", 35, 0.3, 0, 0, 0, 29, 7.3, 0.4, 0.1, 0, 0.7),
+  F("Frozen waffles", ["waffles", "eggo"], "2 waffles (70 g)", 180, 6, 1.5, 0, 15, 380, 28, 1, 3, 3, 4),
+
+  // nuts, seeds, spreads
+  F("Cashews", ["cashew"], "1 oz (28 g)", 157, 12.4, 2.2, 0, 0, 3, 8.6, 0.9, 1.7, 0, 5.2),
+  F("Walnuts", ["walnut"], "1 oz (28 g)", 185, 18.5, 1.7, 0, 0, 1, 3.9, 1.9, 0.7, 0, 4.3),
+  F("Peanuts, dry roasted", ["peanuts", "peanut"], "1 oz, salted (28 g)", 166, 14.1, 2, 0, 0, 230, 6, 2.3, 1.2, 0, 6.7),
+  F("Pistachios", ["pistachio"], "1 oz, salted (28 g)", 159, 12.8, 1.6, 0, 0, 120, 7.7, 3, 2.2, 0, 5.7),
+  F("Mixed nuts", ["nut mix"], "1 oz, salted (28 g)", 170, 15, 2.2, 0, 0, 110, 7, 2.5, 1.3, 0, 5),
+  F("Sunflower seeds", [], "1 oz shelled (28 g)", 165, 14.1, 1.5, 0, 0, 1, 6.8, 3.1, 0.8, 0, 5.5),
+  F("Chia seeds", ["chia"], "2 tbsp (28 g)", 138, 8.7, 0.9, 0, 0, 5, 12, 9.8, 0, 0, 4.7),
+  F("Almond butter", [], "2 tbsp (32 g)", 196, 17.8, 1.3, 0, 0, 70, 6, 3.3, 1.4, 0, 6.7),
+  F("Trail mix", [], "¼ cup (37 g)", 175, 11, 2.5, 0, 0, 40, 16, 2, 11, 5, 5),
+
+  // snacks and sweets
+  F("Protein bar", ["protein bars"], "1 bar (60 g)", 210, 8, 3.5, 0, 5, 200, 24, 8, 6, 5, 20),
+  F("Granola bar, chewy", ["granola bar", "cereal bar"], "1 bar (24 g)", 100, 3, 1, 0, 0, 65, 18, 1, 7, 7, 1),
+  F("Popcorn, air-popped", ["popcorn", "plain popcorn"], "3 cups (24 g)", 93, 1.1, 0.2, 0, 0, 2, 18.6, 3.6, 0.2, 0, 3),
+  F("Microwave popcorn, butter", ["butter popcorn", "microwave popcorn"], "3 cups popped (30 g)", 160, 10, 4.5, 0, 0, 290, 16, 3, 0, 0, 2),
+  F("Potato chips", ["chips", "crisps"], "1 oz (28 g)", 152, 9.8, 1.3, 0, 0, 148, 15, 1.2, 0.1, 0, 1.9),
+  F("Tortilla chips", [], "1 oz, about 10 chips (28 g)", 140, 7, 1, 0, 0, 115, 18, 1.5, 0, 0, 2),
+  F("Pretzels", ["pretzel"], "1 oz (28 g)", 108, 0.8, 0.2, 0, 0, 350, 22.5, 0.9, 0.8, 0.5, 2.9),
+  F("Saltine crackers", ["saltines", "crackers"], "5 crackers (15 g)", 63, 1.3, 0.3, 0, 0, 143, 11, 0.4, 0.2, 0, 1.4),
+  F("Whole grain crackers", ["triscuit", "wheat crackers"], "6 crackers (28 g)", 120, 4, 0.5, 0, 0, 140, 20, 3, 0, 0, 3),
+  F("Dark chocolate, 70%", ["dark chocolate"], "1 oz (28 g)", 170, 12, 7, 0, 1, 6, 13, 3, 7, 7, 2.2),
+  F("Milk chocolate bar", ["chocolate bar", "chocolate", "candy bar"], "1 bar (44 g)", 235, 13, 8, 0, 10, 35, 26, 1.5, 23, 23, 3.4),
+  F("Chocolate chip cookies", ["cookies", "cookie"], "3 cookies (34 g)", 160, 8, 2.5, 0, 0, 110, 22, 1, 11, 11, 2),
+  F("Glazed donut", ["donut", "doughnut"], "1 medium (64 g)", 260, 14, 6, 0.2, 5, 230, 31, 1, 12, 12, 3),
+  F("Blueberry muffin", ["muffin"], "1 store muffin (113 g)", 380, 19, 3.5, 0, 45, 340, 51, 1, 28, 26, 5),
+
+  // drinks
+  F("Coffee, black", ["coffee", "black coffee", "americano"], "8 fl oz (240 ml)", 2, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0.3),
+  F("Latte, whole milk", ["latte", "cafe latte"], "16 fl oz (475 ml)", 190, 7, 4.5, 0, 30, 150, 19, 0, 17, 0, 12),
+  F("Sweet tea", ["iced tea", "sweetened tea"], "12 fl oz (355 ml)", 120, 0, 0, 0, 0, 10, 32, 0, 31, 31, 0),
+  F("Sports drink", ["gatorade", "powerade"], "20 fl oz bottle (590 ml)", 140, 0, 0, 0, 0, 270, 36, 0, 34, 34, 0),
+  F("Energy drink", ["monster", "red bull"], "16 fl oz can (473 ml)", 210, 0, 0, 0, 0, 370, 54, 0, 54, 54, 0),
+  F("Diet soda", ["diet coke", "coke zero", "zero sugar soda"], "12 fl oz can (355 ml)", 0, 0, 0, 0, 0, 40, 0, 0, 0, 0, 0),
+  F("Apple juice", [], "1 cup (248 g)", 114, 0.3, 0.1, 0, 0, 10, 28, 0.5, 24, 0, 0.2),
+  F("Coconut water", [], "1 cup (240 ml)", 45, 0, 0, 0, 0, 60, 11, 0, 10, 0, 0.5),
+  F("Protein shake, ready-to-drink", ["protein drink", "premier protein", "fairlife shake"], "11 fl oz bottle (325 ml)", 160, 3, 1, 0, 20, 220, 5, 1, 1, 0, 30),
+  F("Beer", ["regular beer", "lager"], "12 fl oz (355 ml)", 153, 0, 0, 0, 0, 14, 12.6, 0, 0, 0, 1.6),
+  F("Light beer", ["lite beer"], "12 fl oz (355 ml)", 103, 0, 0, 0, 0, 14, 5.8, 0, 0, 0, 0.9),
+  F("Red wine", ["wine"], "5 fl oz (148 ml)", 125, 0, 0, 0, 0, 6, 3.8, 0, 0.9, 0, 0.1),
+
+  // frozen, prepared, fast food
+  F("Frozen bean and cheese burrito", ["burrito", "frozen burrito"], "1 burrito (142 g)", 330, 9, 3.5, 0, 10, 640, 49, 5, 2, 1, 12),
+  F("Frozen chicken and rice bowl", ["frozen meal", "tv dinner", "lean cuisine"], "1 tray (280 g)", 300, 7, 2, 0, 35, 600, 40, 4, 6, 3, 18),
+  F("Mac and cheese, boxed", ["mac and cheese", "macaroni and cheese", "kraft dinner"], "1 cup prepared (200 g)", 350, 13, 4, 0, 15, 700, 48, 2, 7, 0, 10),
+  F("Chicken noodle soup, canned", ["chicken noodle soup", "canned soup"], "1 cup (245 g)", 60, 2, 0.5, 0, 15, 890, 8, 1, 1, 0, 3),
+  F("Tomato soup, canned", ["tomato soup"], "1 cup prepared (245 g)", 90, 0, 0, 0, 0, 480, 20, 1, 12, 8, 2),
+  F("French fries", ["fries"], "1 medium fast-food order (117 g)", 320, 15, 2, 0, 0, 260, 43, 4, 0, 0, 5),
+  F("Cheeseburger, fast food", ["cheeseburger", "burger"], "1 burger (119 g)", 300, 13, 6, 0.5, 40, 720, 33, 2, 7, 6, 15),
+  F("Cheese pizza, restaurant", ["pizza slice", "cheese pizza"], "1 slice of a 14-inch pizza (107 g)", 285, 10, 4.8, 0.3, 18, 640, 36, 2.5, 3.8, 1, 12),
+  F("California roll", ["sushi", "sushi roll"], "6 pieces (150 g)", 250, 7, 1, 0, 10, 430, 38, 3, 6, 5, 7),
+  F("Marinara sauce", ["pasta sauce", "spaghetti sauce", "tomato sauce"], "½ cup (125 g)", 70, 2, 0.3, 0, 0, 470, 11, 2, 6, 3, 2),
+  F("Alfredo sauce, jarred", ["alfredo"], "¼ cup (61 g)", 110, 10, 5, 0, 25, 350, 3, 0, 1, 0, 1),
+
+  // condiments and fats
+  F("Mayonnaise", ["mayo"], "1 tbsp (14 g)", 94, 10.3, 1.6, 0, 6, 88, 0.1, 0, 0.1, 0, 0.1),
+  F("Ketchup", ["catsup"], "1 tbsp (17 g)", 20, 0, 0, 0, 0, 160, 5, 0, 4, 4, 0),
+  F("Yellow mustard", ["mustard"], "1 tsp (5 g)", 3, 0.2, 0, 0, 0, 57, 0.3, 0.2, 0.1, 0, 0.2),
+  F("Ranch dressing", ["ranch"], "2 tbsp (30 g)", 140, 14, 2.5, 0, 10, 270, 2, 0, 1, 1, 0),
+  F("Italian dressing", [], "2 tbsp (30 g)", 70, 6, 1, 0, 0, 450, 3, 0, 2, 2, 0),
+  F("Balsamic vinaigrette", ["vinaigrette", "salad dressing"], "2 tbsp (30 g)", 90, 8, 1, 0, 0, 300, 4, 0, 3, 3, 0),
+  F("BBQ sauce", ["barbecue sauce"], "2 tbsp (36 g)", 70, 0, 0, 0, 0, 350, 17, 0, 15, 14, 0),
+  F("Soy sauce", ["shoyu"], "1 tbsp (16 g)", 9, 0, 0, 0, 0, 900, 1, 0.1, 0.1, 0, 1.3),
+  F("Honey", [], "1 tbsp (21 g)", 64, 0, 0, 0, 0, 1, 17.3, 0, 17.2, 17.2, 0.1),
+  F("Maple syrup", ["syrup", "pancake syrup"], "1 tbsp (20 g)", 52, 0, 0, 0, 0, 2, 13.4, 0, 12.1, 12, 0),
+  F("Jam", ["jelly", "preserves"], "1 tbsp (20 g)", 56, 0, 0, 0, 0, 6, 13.8, 0.2, 9.7, 9, 0.1),
+  F("Coconut oil", [], "1 tbsp (14 g)", 121, 13.5, 11.2, 0, 0, 0, 0, 0, 0, 0, 0),
+  F("Canola oil", ["vegetable oil", "cooking oil"], "1 tbsp (14 g)", 124, 14, 1, 0, 0, 0, 0, 0, 0, 0, 0),
+  F("Margarine spread", ["margarine", "butter spread"], "1 tbsp (14 g)", 80, 9, 2.5, 0, 0, 85, 0, 0, 0, 0, 0),
 ];
 const DV = { fat: 78, sat: 20, chol: 300, na: 2300, carb: 275, fib: 28, add: 50, pro: 50 };
 
@@ -325,8 +498,8 @@ function assess(f) {
   if (f.fib >= 3) { s += 2; r.push({ k: "pos", t: `Good fiber source: ${fmt(f.fib)} g keeps you full.` }); }
   else if (f.fib >= 1.5) { s += 1; r.push({ k: "pos", t: `Some fiber: ${fmt(f.fib)} g.` }); }
 
-  if (f.cal > 0 && f.cal <= 60 && f.fib >= 1.5) { s += 2; r.push({ k: "pos", t: "Lots of food volume for very few calories." }); }
-  if (f.fat >= 5 && f.sat / f.fat <= 0.2) { s += 1; r.push({ k: "pos", t: "Its fat is mostly the unsaturated kind, which is better for cholesterol." }); }
+  if (f.cal > 0 && f.cal <= 60 && (f.fib >= 1 || f.pro >= 1.5)) { s += 2; r.push({ k: "pos", t: "Lots of food volume for very few calories." }); }
+  if (f.fat >= 5 && f.fat * 9 >= 0.5 * f.cal && f.sat / f.fat <= 0.25) { s += 1; r.push({ k: "pos", t: "Its fat is mostly the unsaturated kind, which is better for cholesterol." }); }
 
   const satShare = f.sat / p.sat;
   if (satShare >= 0.3) { s -= 2; r.push({ k: "neg", t: `High saturated fat: ${fmt(f.sat)} g is ${Math.round(satShare * 100)}% of your ${p.sat} g daily limit in one serving.` }); }
@@ -337,15 +510,16 @@ function assess(f) {
   if (naShare >= 0.35) { s -= 2; r.push({ k: "neg", t: `Very salty: ${Math.round(f.na).toLocaleString()} mg sodium is ${Math.round(naShare * 100)}% of your daily limit.` }); }
   else if (naShare >= 0.2) { s -= 1; r.push({ k: "neg", t: `Salty: ${Math.round(f.na)} mg sodium (${Math.round(naShare * 100)}% of your limit).` }); }
 
-  if (f.add >= 20) { s -= 2; r.push({ k: "neg", t: `${fmt(f.add)} g added sugar, more than half your ${p.add} g limit.` }); }
-  else if (f.add >= 10) { s -= 1; r.push({ k: "neg", t: `${fmt(f.add)} g added sugar.` }); }
+  const addShare = p.add > 0 ? f.add / p.add : 0;
+  if (addShare >= 0.3) { s -= 2; r.push({ k: "neg", t: `High added sugar: ${fmt(f.add)} g is ${Math.round(addShare * 100)}% of your ${p.add} g daily limit.` }); }
+  else if (addShare >= 0.15) { s -= 1; r.push({ k: "neg", t: `Some added sugar: ${fmt(f.add)} g (${Math.round(addShare * 100)}% of your limit).` }); }
 
   if ((f.tags || []).includes("processed")) { s -= 2; r.push({ k: "neg", t: "Processed meat, which is linked to higher heart and cancer risk." }); }
   if (f.cal >= 100 && f.pro < 2 && f.fib < 1) { s -= 1; r.push({ k: "neg", t: "Calories with little protein or fiber, so it won't keep you full." }); }
   if (f.cal >= 300 && pd < 0.15) { s -= 1; r.push({ k: "neg", t: `Calorie-heavy: ${f.cal} cal is ${Math.round(f.cal / p.cal * 100)}% of your day without much protein.` }); }
 
   if (f.chol >= 150 && satShare < 0.15) r.push({ k: "note", t: `High in dietary cholesterol (${f.chol} mg), but low in saturated fat. For most people saturated fat raises blood cholesterol more.` });
-  if (f.fat >= 10 && f.cal >= 100 && f.sat / f.fat <= 0.2) r.push({ k: "note", t: `Healthy fats are still calorie-dense: ${f.cal} cal per serving, so portion size matters on ${p.cal.toLocaleString()} cal a day.` });
+  if (f.fat >= 10 && f.cal >= 100 && f.sat / f.fat <= 0.25) r.push({ k: "note", t: `Healthy fats are still calorie-dense: ${f.cal} cal per serving, so portion size matters on ${p.cal.toLocaleString()} cal a day.` });
 
   let tier, word, why;
   if (s >= 2) { tier = "good"; word = "Get it"; why = "A strong fit for your goals."; }
@@ -620,6 +794,8 @@ function readProfile() {
 document.querySelectorAll(".pgrid input").forEach(i => i.addEventListener("change", readProfile));
 syncProfileUI();
 if (!savedProfile) $("profile").open = true;
+
+$("foodCount").textContent = `${FOODS.length} common foods built in.`;
 
 // open on a real example
 pick(FOODS[0]);
