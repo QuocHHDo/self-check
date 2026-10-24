@@ -274,7 +274,7 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
     <ul class="suggest" id="suggest" role="listbox" hidden></ul>
     <section class="scan" id="scan" hidden aria-label="Barcode scanner">
       <div id="reader"></div>
-      <p class="muted" id="scanMsg" style="margin:0">Point your camera at the barcode.</p>
+      <p class="muted" id="scanMsg" style="margin:0" role="status" aria-live="polite">Point your camera at the barcode.</p>
       <form class="scan-row" id="codeForm" autocomplete="off">
         <input id="code" inputmode="numeric" pattern="[0-9]*" placeholder="Or type the barcode number" aria-label="Barcode number">
         <button class="btn small" type="submit">Look up</button>

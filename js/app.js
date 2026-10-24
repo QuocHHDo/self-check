@@ -587,50 +587,96 @@
     }
   }
 
+  // Resolves or rejects like `promise`, but rejects with a "timeout" error after `ms` instead of hanging forever.
+  const withTimeout = (promise, ms) => new Promise((ok, fail) => {
+    const t = setTimeout(() => fail(Object.assign(new Error("timeout"), { name: "TimeoutError" })), ms);
+    promise.then(v => { clearTimeout(t); ok(v); }, e => { clearTimeout(t); fail(e); });
+  });
+  const LOOKUP_MS = CFG.lookupTimeoutMs || 15000, CAMERA_MS = CFG.cameraTimeoutMs || 10000;
+
   async function barcodeLookup(code) {
     const clean = String(code).replace(/\D/g, "");
     if (clean.length < 8) { toast("That doesn't look like a full barcode."); return; }
     const box = el("div", { class: "notice" }); $("out").replaceChildren(box);
     busy(box, `Looking up barcode ${clean}…`);
+    const byName = el("button", { class: "btn small ghost", type: "button", text: "Search by name", onclick: () => { $("q").focus(); $("q").select(); } });
+    const retry = el("button", { class: "btn small ghost", type: "button", text: "Try again", onclick: () => barcodeLookup(clean) });
     try {
-      const res = await fetch(S.offProductUrl(clean));
+      const res = await withTimeout(fetch(S.offProductUrl(clean)), LOOKUP_MS);
+      // Open Food Facts answers an unknown barcode with 404 and status 0; other errors mean it's having trouble.
+      if (!res.ok && res.status !== 404) throw Object.assign(new Error("http"), { name: "HttpError", status: res.status });
       const data = await res.json();
       if (data.status !== 1 || !data.product) {
-        box.replaceChildren(el("p", { text: `Open Food Facts doesn't have barcode ${clean} yet.` }), el("p", { class: "muted", text: "Search the food by name instead." }));
+        box.replaceChildren(el("p", { text: `Open Food Facts doesn't have barcode ${clean} yet.` }), el("p", { class: "muted", text: "Check the number, or search the food by name." }), byName);
         return;
       }
       const f = S.fromOff(clean, data.product);
-      if (!(f.cal > 0 || f.pro > 0 || f.carb > 0)) { box.replaceChildren(el("p", { text: `Found “${f.n}”, but it has no nutrition data. Search it by name instead.` })); return; }
+      if (!(f.cal > 0 || f.pro > 0 || f.carb > 0)) { box.replaceChildren(el("p", { text: `Found “${f.n}”, but it has no nutrition data. Search it by name instead.` }), byName); return; }
       saveLookup(f); pick(f);
-    } catch {
-      box.replaceChildren(el("p", { text: navigator.onLine === false ? "You're offline. Barcode lookup needs a connection." : "The barcode lookup didn't go through. Try again in a moment." }));
+    } catch (e) {
+      const msg = navigator.onLine === false ? "You're offline. Barcode lookup needs a connection."
+        : e.name === "TimeoutError" ? "Open Food Facts took too long to answer. Try again in a moment."
+        : e.name === "HttpError" ? `Open Food Facts is having trouble right now (error ${e.status}). Try again in a moment.`
+        : "The barcode lookup didn't go through. Check your connection and try again.";
+      box.replaceChildren(el("p", { text: msg }), el("div", { class: "chiprow", style: "margin:0" }, retry, byName));
     }
   }
 
   // Camera scanning with the bundled html5-qrcode library, loaded only when needed.
-  let scanner = null;
+  // Every step has a way out: no camera API, a denied or unanswered permission prompt, a busy camera, or a
+  // scanner script that won't load all end in a clear message with the typed-barcode box focused.
+  let scanner = null, scanTry = 0;
   function loadScript(src) {
-    return new Promise((ok, fail) => { if (window.Html5Qrcode) return ok(); const s = el("script", { src }); s.onload = ok; s.onerror = fail; document.head.append(s); });
+    return new Promise((ok, fail) => { if (window.Html5Qrcode) return ok(); const s = el("script", { src }); s.onload = ok; s.onerror = () => fail(Object.assign(new Error("script"), { name: "ScriptError" })); document.head.append(s); });
+  }
+  function cameraMessage(e) {
+    switch (e && e.name) {
+      case "NoCameraApi": return "This browser can't use the camera here (it needs a secure https page). Type the barcode number below.";
+      case "NotAllowedError": case "PermissionDeniedError": case "SecurityError": return "Camera permission was blocked. Allow it in your browser's site settings, or type the barcode number below.";
+      case "NotFoundError": case "OverconstrainedError": case "DevicesNotFoundError": return "No camera was found. Type the barcode number below.";
+      case "NotReadableError": case "TrackStartError": return "The camera is busy in another app. Close it and tap Scan barcode again, or type the number below.";
+      case "TimeoutError": return "The camera didn't start (the permission prompt may still be waiting, or the camera is busy). Tap Scan barcode to try again, or type the number below.";
+      case "ScriptError": return "The scanner couldn't load (are you offline?). Type the barcode number below.";
+      default: return "The camera couldn't start. Type the barcode number below.";
+    }
+  }
+  function scanFailed(e) {
+    scanTry++;
+    $("scanMsg").textContent = cameraMessage(e);
+    $("scanBtn").removeAttribute("aria-busy");
+    const s = scanner; scanner = null;
+    try { if (s) { if (s.isScanning) s.stop().catch(() => {}); s.clear(); } } catch {}
+    $("code").focus();
   }
   async function openScan() {
+    const attempt = ++scanTry;
     $("scan").hidden = false; $("scanMsg").textContent = "Starting the camera…";
+    $("scanBtn").setAttribute("aria-busy", "true");
+    if (!window.isSecureContext || !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) return scanFailed({ name: "NoCameraApi" });
     try {
-      await loadScript("vendor/html5-qrcode.min.js");
-      const lib = window.__Html5QrcodeLibrary__ || {};
-      const F = window.Html5QrcodeSupportedFormats || lib.Html5QrcodeSupportedFormats;
-      const Scanner = window.Html5Qrcode || lib.Html5Qrcode;
-      scanner = new Scanner("reader", { verbose: false, formatsToSupport: [F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E], experimentalFeatures: { useBarCodeDetectorIfSupported: true } });
-      await scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: (w, h) => ({ width: Math.min(300, w * 0.85), height: Math.min(140, h * 0.5) }) },
-        async decoded => { await closeScan(); barcodeLookup(decoded); }, () => {});
+      await withTimeout((async () => {
+        await loadScript("vendor/html5-qrcode.min.js");
+        const lib = window.__Html5QrcodeLibrary__ || {};
+        const F = window.Html5QrcodeSupportedFormats || lib.Html5QrcodeSupportedFormats;
+        const Scanner = window.Html5Qrcode || lib.Html5Qrcode;
+        const sc = new Scanner("reader", { verbose: false, formatsToSupport: [F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E], experimentalFeatures: { useBarCodeDetectorIfSupported: true } });
+        scanner = sc;
+        await sc.start({ facingMode: "environment" }, { fps: 10, qrbox: (w, h) => ({ width: Math.min(300, w * 0.85), height: Math.min(140, h * 0.5) }) },
+          async decoded => { await closeScan(); barcodeLookup(decoded); }, () => {});
+        // Started after we gave up (timeout) or the panel was closed: turn the camera back off.
+        if (attempt !== scanTry) { try { await sc.stop(); sc.clear(); } catch {} }
+      })(), CAMERA_MS);
+      if (attempt !== scanTry) return; // closed or restarted meanwhile
+      $("scanBtn").removeAttribute("aria-busy");
       $("scanMsg").textContent = "Point your camera at the barcode.";
     } catch (e) {
-      $("scanMsg").textContent = "The camera isn't available here (it needs permission and a secure connection). Type the barcode number instead.";
-      $("code").focus();
+      if (attempt === scanTry) scanFailed(e);
     }
   }
   async function closeScan() {
+    scanTry++;
     try { if (scanner) { if (scanner.isScanning) await scanner.stop(); scanner.clear(); } } catch {}
-    scanner = null; $("scan").hidden = true;
+    scanner = null; $("scan").hidden = true; $("scanBtn").removeAttribute("aria-busy");
   }
 
   // Claude lookup (Claude version only), via the page's `sample` capability.

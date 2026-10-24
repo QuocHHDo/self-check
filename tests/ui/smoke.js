@@ -9,8 +9,9 @@ const usdaFixture = JSON.parse(read("tests/fixtures/usda-search.json"));
 let html = read("index.html").replace(/<script src="[^"]+"><\/script>/g, "").replace(/<link [^>]*>/g, "");
 html = html.replace('window.SELF_CHECK_CONFIG = { mode: "pages" };', MODE === "claude"
   ? 'window.SELF_CHECK_CONFIG = { mode: "claude", profile: { cal: 1850, pro: 140, sat: 13, na: 2300, add: 36, fib: 30, skip: "hummus", mild: true } };'
-  : 'window.SELF_CHECK_CONFIG = { mode: "pages" };');
+  : 'window.SELF_CHECK_CONFIG = { mode: "pages", cameraTimeoutMs: 60, lookupTimeoutMs: 80 };');
 const errors = [];
+let offMode = "ok";
 const dom = new JSDOM(html, { runScripts: "outside-only", url: "https://quochhdo.github.io/self-check/", pretendToBeVisual: true });
 const w = dom.window;
 w.console.error = (...a) => errors.push(a.join(" "));
@@ -19,6 +20,9 @@ w.HTMLElement.prototype.scrollIntoView = () => {};
 w.fetch = async url => {
   url = String(url);
   if (url.includes("api.nal.usda.gov")) return { ok: true, status: 200, json: async () => usdaFixture };
+  if (url.includes("openfoodfacts.org") && offMode === "missing") return { ok: false, status: 404, json: async () => ({ status: 0, status_verbose: "product not found" }) };
+  if (url.includes("openfoodfacts.org") && offMode === "error") return { ok: false, status: 503, json: async () => ({}) };
+  if (url.includes("openfoodfacts.org") && offMode === "hang") return new Promise(() => {});
   if (url.includes("openfoodfacts.org")) return { ok: true, status: 200, json: async () => ({ status: 1, product: { product_name: "Protein Bar Chocolate", brands: "TestCo", serving_size: "1 bar (60 g)",
     nutriments: { "energy-kcal_serving": 200, "fat_serving": 7, "saturated-fat_serving": 3, "carbohydrates_serving": 22, "sugars_serving": 2, "fiber_serving": 9, "proteins_serving": 20, "sodium_serving": 0.2 } } }) };
   throw new Error("unexpected fetch " + url);
@@ -102,6 +106,28 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
     $("#q").value = "0123456789012"; submit("#form"); await tick(10);
     ok(text("#out h2") === "TestCo Protein Bar Chocolate" && /Open Food Facts/.test(text(".src")), `barcode lookup shows the product (${text("#out h2")})`);
     ok(text(".label .serv span:last-child") === "1 bar (60 g)", "barcode product uses per-serving values");
+    // 14. Barcode and camera failures always end in a message, never a stuck spinner.
+    for (const [mode, re] of [["missing", /doesn't have barcode/], ["error", /having trouble right now \(error 503\)/], ["hang", /took too long/]]) {
+      offMode = mode; $("#q").value = "0123456789013"; submit("#form"); await tick(mode === "hang" ? 200 : 10);
+      ok(re.test(text("#out .notice")) && !$("#out .thinking"), `barcode ${mode}: ${text("#out .notice")}`);
+    }
+    offMode = "ok";
+    click($("#scanBtn")); await tick(5);
+    ok(/needs a secure https page/.test(text("#scanMsg")) && w.document.activeElement === $("#code"), `no camera API: message and focus on typed barcode (${text("#scanMsg")})`);
+    await (async () => {
+      Object.defineProperty(w.navigator, "mediaDevices", { value: { getUserMedia: async () => ({}) }, configurable: true });
+      Object.defineProperty(w, "isSecureContext", { value: true, configurable: true });
+      w.Html5QrcodeSupportedFormats = { EAN_13: 1, EAN_8: 2, UPC_A: 3, UPC_E: 4 };
+      let behavior = "deny";
+      w.Html5Qrcode = class { constructor() { this.isScanning = false; } clear() {} async stop() {}
+        start() { return behavior === "deny" ? Promise.reject(Object.assign(new Error("denied"), { name: "NotAllowedError" })) : new Promise(() => {}); } };
+      click($("#scanClose")); await tick(2); click($("#scanBtn")); await tick(5);
+      ok(/permission was blocked/.test(text("#scanMsg")) && w.document.activeElement === $("#code"), `camera denied: message and focus (${text("#scanMsg")})`);
+      behavior = "hang"; click($("#scanClose")); await tick(2); click($("#scanBtn")); await tick(150);
+      ok(/didn't start/.test(text("#scanMsg")) && !$("#scanBtn").hasAttribute("aria-busy"), `camera hang: times out with a message (${text("#scanMsg")})`);
+      click($("#scanClose")); await tick(2);
+      delete w.Html5Qrcode; delete w.navigator.mediaDevices;
+    })();
     w.location.hash = "#salmon"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(5);
     ok(text("#out h2") === "Salmon", "#salmon link opens Salmon");
   } else {
