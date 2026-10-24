@@ -13,9 +13,9 @@ const texts = a => a.reasons.map(r => r.t).join(" | ");
 // ---- 1. Missing nutrient data is shown and scored as 0 ----
 test("1: USDA record missing sat fat and sugars marks them missing, not zero", () => {
   const d = S.fromUsda(durianItem);
-  assert.deepEqual([...d.missing].sort(), ["sat", "sug"]);
+  assert.deepEqual([...d.missing].sort(), ["add", "sat", "sug"]);
   assert.equal(d.partial, true);
-  assert.equal(V.missingNote(d), "Partial data: USDA didn't report saturated fat or total sugars.");
+  assert.equal(V.missingNote(d), "Partial data: USDA didn't report saturated fat, total sugars or added sugar.");
 });
 
 test("1: verdict skips missing nutrients, says so, and won't call partial data a Get it", () => {
@@ -276,4 +276,43 @@ test("9: a plate of foods with missing data never claims Get it", () => {
   const a = V.assess(V.combine([{ food: durian, mult: 3 }, { food: food("Chicken breast, grilled"), mult: 1 }, { food: food("Broccoli"), mult: 1 }]), P);
   assert.notEqual(a.word, "Get it");
   assert.ok(a.reasons.some(r => /don't report/.test(r.t)));
+});
+
+// ---- Round 2, item 2: added sugar is unknown unless the source reports it ----
+test("r2-2: USDA records without nutrient 1235 have unknown added sugar, never 0", () => {
+  const d = S.fromUsda(durianItem);
+  assert.ok(d.missing.includes("add"), "durian: added sugar missing");
+  const cookie = S.fromUsda({ fdcId: 9, description: "COOKIES, CHOCOLATE CHIP, COMMERCIALLY PREPARED", dataType: "SR Legacy", foodNutrients: [
+    { nutrientId: 1008, unitName: "KCAL", value: 488 }, { nutrientId: 1003, unitName: "G", value: 5 }, { nutrientId: 1004, unitName: "G", value: 24 },
+    { nutrientId: 1258, unitName: "G", value: 8 }, { nutrientId: 1005, unitName: "G", value: 64 }, { nutrientId: 2000, unitName: "G", value: 32 },
+    { nutrientId: 1079, unitName: "G", value: 2 }, { nutrientId: 1093, unitName: "MG", value: 350 }] });
+  assert.ok(cookie.missing.includes("add") && !cookie.addLikelyZero);
+  const a = V.assess(cookie, P);
+  assert.ok(!a.reasons.some(r => /added sugar:/i.test(r.t) && r.k === "neg"), "unknown added sugar isn't scored");
+  const reported = S.fromUsda({ fdcId: 10, description: "X", foodNutrients: [{ nutrientId: 1008, unitName: "KCAL", value: 100 }, { nutrientId: 2000, unitName: "G", value: 10 }, { nutrientId: 1235, unitName: "G", value: 6 }] });
+  assert.ok(!reported.missing.includes("add")); assert.equal(reported.add, 6);
+});
+
+test("r2-2: a raw USDA food with unknown added sugar can still be Get it", () => {
+  const avo = S.fromUsda(require("./fixtures/usda-search.json").foods[0]);
+  assert.ok(avo.missing.includes("add") && avo.addLikelyZero);
+  assert.equal(V.assess(avo, P).word, "Get it");
+});
+
+test("r2-2: Open Food Facts without sugars, or without added sugars, leaves added sugar unknown", () => {
+  const noSugars = S.fromOff("1", { product_name: "A", serving_size: "30 g", serving_quantity: 30, nutriments: { "energy-kcal_100g": 400, "fat_100g": 10, "added-sugars_100g": 5 } });
+  assert.ok(noSugars.missing.includes("sug") && noSugars.missing.includes("add"), "no sugars → added unknown too");
+  const noAdded = S.fromOff("2", { product_name: "B", serving_size: "30 g", serving_quantity: 30, nutriments: { "energy-kcal_100g": 400, "sugars_100g": 20 } });
+  assert.ok(noAdded.missing.includes("add"));
+  // Nutella's label lists added sugar per 100 g only; it's scaled to the 15 g serving instead of dropped.
+  const nut = S.fromOff("3017620422003", { ...offNutella.product, nutriments: { ...offNutella.product.nutriments, "energy-kcal_serving": 80, "sugars_serving": 8.4, "added-sugars_100g": 52.13 } });
+  assert.ok(!nut.missing.includes("add")); assert.equal(nut.add, 7.8);
+});
+
+test("r2-2: plates keep added sugar unknown when an item doesn't report it", () => {
+  const d = S.fromUsda(durianItem);
+  const pl = V.combine([{ food: d, mult: 1 }]);
+  assert.ok(pl.missing.includes("add"));
+  const mixed = V.combine([{ food: d, mult: 1 }, { food: food("Apple"), mult: 1 }]);
+  assert.ok(mixed.atLeast.includes("add"));
 });

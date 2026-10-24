@@ -135,6 +135,9 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
     const fresh = usdaFixture.foods[1];
     w.location.hash = "#usda-" + fresh.fdcId; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(10);
     ok(text("#out h2").toLowerCase() === fresh.description.toLowerCase() && /From USDA/.test(text(".src")), `#usda-<id> fetches a food this browser hasn't seen (${text("#out h2")})`);
+    const addRow = $$(".label [data-k]").find(r => r.dataset.k === "add");
+    ok(addRow && /—/.test(addRow.textContent) && !/0\s?g/.test(addRow.textContent), `unreported added sugar shows "—" on the label (${addRow && addRow.textContent})`);
+    ok(/Added sugar\s*not reported/.test(text(".bars")), `and "not reported" on the bar (${text(".bars").slice(-40)})`);
     offMode = "ok"; w.location.hash = "#off-0123456789099"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(10);
     ok(/Open Food Facts/.test(text(".src")), `#off-<code> opens the product (${text("#out h2")})`);
     // Accented names: the folded slug and the old one both open Jalapeño; an unknown link never opens another food.

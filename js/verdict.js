@@ -42,6 +42,9 @@
   const isMissing = (f, k) => (f.missing || []).includes(k);
   const isLowerBound = (f, k) => (f.atLeast || []).includes(k);
   const known = (f, k) => !isMissing(f, k);
+  // A daily-limit nutrient whose amount we can't vouch for. Unknown added sugar on a raw or nearly sugar-free food
+  // doesn't count: there's no room for much of it.
+  const unknownLimit = (f, k) => (isMissing(f, k) || isLowerBound(f, k)) && !(k === "add" && f.addLikelyZero);
   const SOURCE_WORD = { usda: "USDA", off: "Open Food Facts", claude: "the lookup" };
   const listWords = ks => { const w = ks.map(k => NUTRIENT_WORD[k]); return w.length <= 1 ? w.join("") : w.slice(0, -1).join(", ") + " or " + w.at(-1); };
   // "Partial data: USDA didn't report saturated fat or total sugars." (null when nothing is missing)
@@ -156,7 +159,7 @@
     else if (s <= -2) { tier = "bad"; word = "Limit it"; why = "This meal works against your goals as a regular thing."; }
     else { tier = "mid"; word = "In moderation"; why = "An OK meal. See what would improve it below.";
       if (!hasNeg) r.push({ k: "warn", t: "Not much going for it yet: more protein, fiber or vegetables would make this a strong meal." }); }
-    const unknownLimits = KEY_LIMITS.filter(k => isMissing(f, k) || isLowerBound(f, k));
+    const unknownLimits = KEY_LIMITS.filter(k => unknownLimit(f, k));
     const note = missingNote(f);
     if (note) r.push({ k: "warn", t: (f.missing || []).some(k => KEY_LIMITS.includes(k) || k === "sug") ? `${note} They aren't counted either way.` : note });
     if (unknownLimits.length && tier === "good") {
@@ -258,7 +261,7 @@
     }
 
     // Unknown or lower-bound limiting nutrients: say so, and never call it a "Get it" on incomplete data.
-    const unknownLimits = KEY_LIMITS.filter(k => isMissing(f, k) || isLowerBound(f, k));
+    const unknownLimits = KEY_LIMITS.filter(k => unknownLimit(f, k));
     const note = missingNote(f);
     if (note) r.push({ k: "warn", t: `${note} ${unknownLimits.length ? "Those aren't counted either way." : "They aren't counted either way."}` });
     if (unknownLimits.length && (tier === "good" || tier === "fine")) {
@@ -527,6 +530,7 @@
       const lacking = items.filter(({ food }) => isMissing(food, k)).length;
       if (lacking === items.length && items.length) out.missing.push(k); else if (lacking) out.atLeast.push(k);
     }
+    out.addLikelyZero = items.every(({ food }) => !isMissing(food, "add") || food.addLikelyZero);
     return out;
   }
 

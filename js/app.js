@@ -19,6 +19,11 @@
   let profile = { ...V.DEFAULT_PROFILE, ...(CFG.profile || {}), ...(savedProfile || {}) };
   // Barcode products saved before serving sizes were read correctly (no `missing` list) are dropped; rescanning refreshes them.
   let lookups = store.get("lookups", []).filter(f => f && f.n && typeof f.cal === "number" && !(f.src === "off" && !Array.isArray(f.missing)));
+  // Lookups saved before added sugar was tracked as "unknown" stored it as 0; re-check them with the current rule.
+  for (const f of lookups) if ((f.src === "usda" || f.src === "off") && f.addLikelyZero === undefined) {
+    f.missing = Array.isArray(f.missing) ? f.missing : [];
+    S.settleAddedSugar(f, f.src === "off" ? !f.missing.includes("add") : f.add > 0, /\braw\b/i.test(f.n));
+  }
   let recents = store.get("recents", []);
   let favs = store.get("favorites", []);
   const allFoods = () => [...FOODS, ...lookups];

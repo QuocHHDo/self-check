@@ -9,6 +9,16 @@
 
   // Values a source didn't report are listed in `missing` (and stored as 0 only as a placeholder):
   // the label shows them as "—" and the verdict leaves them out.
+  // Added sugar counts as known only when the source reports it, and never when total sugars are unknown;
+  // otherwise it's shown as "—" and left out of the verdict. A raw food, or one with under 1 g of total sugar, can't be
+  // hiding added sugar, so for those the unknown value doesn't block a "Get it" (addLikelyZero).
+  function settleAddedSugar(f, reported, raw) {
+    if (!reported || f.missing.includes("sug")) { if (!f.missing.includes("add")) f.missing.push("add"); f.add = 0; }
+    f.addLikelyZero = f.missing.includes("add") && (!!raw || (!f.missing.includes("sug") && f.sug < 1));
+    f.partial = f.missing.some(k => k !== "trans" && k !== "chol");
+    return f;
+  }
+
   function makeFood(name, serving, v, extra = {}) {
     const f = { n: String(name).slice(0, 70), a: [], s: String(serving || "1 serving").slice(0, 50), c: "lookup", tags: [] };
     for (const k of V.NUM_KEYS) f[k] = Math.round(num(v[k]) * 10) / 10;
@@ -45,16 +55,17 @@
       const id = ids.find(i => byId[i] != null);
       if (id != null) v[k] = byId[id]; else { v[k] = 0; if (k !== "add" && k !== "trans") missing.push(k); }
     }
-    // USDA rarely reports added sugar. For raw foods it's truly zero; for prepared foods with sugar it's unknown.
     const desc = String(item.description || "");
-    if (byId[1235] == null && !/\braw\b/i.test(desc) && (missing.includes("sug") || v.sug >= 5)) missing.push("add");
     // No energy value but the macros are there: estimate calories with 4/4/9.
     let calEstimated = false;
     if (missing.includes("cal") && !missing.includes("pro") && !missing.includes("fat") && !missing.includes("carb")) {
       v.cal = 4 * v.pro + 4 * v.carb + 9 * v.fat; missing.splice(missing.indexOf("cal"), 1); calEstimated = true;
     }
-    return makeFood(titleCase(String(item.description || "USDA food")), "100 g", v,
-      { src: "usda", fdcId: item.fdcId, dataType: item.dataType, missing, calEstimated });
+    const cat = item.foodCategory && typeof item.foodCategory === "object" ? item.foodCategory.description : item.foodCategory;
+    const f = makeFood(titleCase(String(item.description || "USDA food")), "100 g", v,
+      { src: "usda", fdcId: item.fdcId, dataType: item.dataType, missing, calEstimated, foodCategory: cat ? String(cat) : undefined });
+    // SR Legacy, Foundation and Survey records almost never report added sugar (nutrient 1235).
+    return settleAddedSugar(f, byId[1235] != null, /\braw\b/i.test(desc));
   }
 
   // One product from Open Food Facts /api/v2/product/{barcode}.json, per the package's serving:
@@ -74,7 +85,10 @@
     const qty = hasServing ? null : servingQuantity(p);
     const factor = hasServing ? 1 : qty ? qty / 100 : 1;
     const per = hasServing ? "_serving" : "_100g";
-    const g = k => (n[k + per] != null && Number.isFinite(Number(n[k + per])) ? Number(n[k + per]) * factor : undefined);
+    const val = k => (n[k] != null && n[k] !== "" && Number.isFinite(Number(n[k])) ? Number(n[k]) : undefined);
+    // Per-serving value; when only that line is missing on a per-serving label, scale its per-100 g value.
+    const g = k => val(k + per) != null ? val(k + per) * factor
+      : hasServing && val(k + "_100g") != null && servingQuantity(p) ? val(k + "_100g") * servingQuantity(p) / 100 : undefined;
     const kcal = g("energy-kcal") ?? (g("energy") != null ? g("energy") / 4.184 : undefined);
     const sodiumG = g("sodium") ?? (g("salt") != null ? g("salt") / 2.5 : undefined);
     const v = {
@@ -89,7 +103,8 @@
     const product = p.product_name || p.generic_name || `Product ${code}`;
     const name = brand && !product.toLowerCase().startsWith(brand.toLowerCase()) ? `${brand} ${product}` : product;
     const serving = hasServing ? (p.serving_size || "1 serving") : qty ? (p.serving_size && /\d/.test(p.serving_size) ? p.serving_size : `${qty} g`) : "100 g (no serving size on file)";
-    return makeFood(name, serving, v, { src: "off", code: String(code), missing, per100: !hasServing && !qty, categories: (p.categories_tags || []).slice(0, 30) });
+    const f = makeFood(name, serving, v, { src: "off", code: String(code), missing, per100: !hasServing && !qty, categories: (p.categories_tags || []).slice(0, 30) });
+    return settleAddedSugar(f, v.add != null, false);
   }
 
   function usdaSearchUrl(query, key) {
@@ -135,5 +150,5 @@ If "${text}" is not a food, reply {"found":false}.`;
     return f;
   }
 
-  return { PROCESSED, makeFood, fromUsda, fromOff, usdaSearchUrl, usdaFoodUrl, linkId, parseLinkId, titleCase, offProductUrl, claudePrompt, parseJsonReply, fromClaude };
+  return { PROCESSED, makeFood, settleAddedSugar, fromUsda, fromOff, usdaSearchUrl, usdaFoodUrl, linkId, parseLinkId, titleCase, offProductUrl, claudePrompt, parseJsonReply, fromClaude };
 });
