@@ -203,6 +203,10 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
 .blist { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px; }
 .bitem { display: flex; justify-content: space-between; align-items: center; gap: 8px; text-align: left; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; cursor: pointer; }
 .bitem:hover { border-color: var(--accent); }
+.bitem .bright { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.bitem .score { font: 600 12px var(--font-body); color: var(--muted); font-variant-numeric: tabular-nums; min-width: 2.2em; text-align: right; }
+.blist.ranked { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.bitem .rank { font: 600 12px var(--font-body); color: var(--muted); font-variant-numeric: tabular-nums; margin-right: 6px; }
 .pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
 .pgrid label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
 .pgrid input[type="number"], .pgrid input[type="text"] { font: 500 15px var(--font-body); color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; min-width: 0; }
@@ -247,6 +251,8 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
     <summary><span>Browse all foods</span><span class="muted" id="browseCount"></span></summary>
     <div class="inner">
       <div class="chiprow" id="cats" style="margin:0"></div>
+      <div class="chiprow" id="bsort" style="margin:0" role="group" aria-label="Sort foods"></div>
+      <p class="fine" id="bsortNote" hidden>Ranked per serving by the same score behind each verdict (lower is less healthy), then by how much of your saturated fat, sodium and added-sugar limits one serving uses.</p>
       <div class="blist" id="blist"></div>
     </div>
   </details>

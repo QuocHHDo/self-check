@@ -268,14 +268,32 @@
 
   // ---------- browse ----------
   let browseCat = "all";
+  let browseSort = store.get("browseSort", "az");
+  const SORTS = [{ id: "az", label: "A–Z" }, { id: "worst", label: "Least healthy first" }, { id: "best", label: "Healthiest first" }];
   function renderBrowse() {
     const cats = $("cats");
     cats.replaceChildren();
     const opts = [{ id: "all", label: "All" }, ...CATEGORIES, ...(lookups.length ? [{ id: "lookup", label: "Looked up" }] : [])];
     for (const c of opts) cats.append(el("button", { class: "chip" + (c.id === browseCat ? " on" : ""), type: "button", "aria-pressed": c.id === browseCat ? "true" : "false", text: c.label, onclick: () => { browseCat = c.id; renderBrowse(); } }));
-    const foods = allFoods().filter(f => browseCat === "all" || f.c === browseCat).slice().sort((x, y) => x.n.localeCompare(y.n));
+    const sorts = $("bsort");
+    sorts.replaceChildren(el("span", { class: "lbl", text: "Sort" }));
+    for (const s of SORTS) sorts.append(el("button", { class: "chip" + (s.id === browseSort ? " on" : ""), type: "button", "aria-pressed": s.id === browseSort ? "true" : "false", text: s.label, onclick: () => { browseSort = s.id; store.set("browseSort", s.id); renderBrowse(); } }));
+    const ranked = browseSort !== "az";
+    $("bsortNote").hidden = !ranked;
+
+    const rows = allFoods().filter(f => browseCat === "all" || f.c === browseCat).map(f => ({ f, v: V.assess(f, profile), h: V.health(f, profile) }));
+    if (browseSort === "az") rows.sort((x, y) => x.f.n.localeCompare(y.f.n));
+    else {
+      const dir = browseSort === "worst" ? 1 : -1;
+      rows.sort((x, y) => dir * (x.h.score - y.h.score) || dir * (y.h.harm - x.h.harm) || x.f.n.localeCompare(y.f.n));
+    }
     const list = $("blist");
-    list.replaceChildren(...foods.map(f => el("button", { class: "bitem", type: "button", onclick: () => pick(f, { scroll: true }) }, el("span", { text: f.n }), pill(V.assess(f, profile)))));
+    list.classList.toggle("ranked", ranked);
+    list.replaceChildren(...rows.map((r, i) => {
+      const name = el("span", {}, ranked ? el("span", { class: "rank", text: `${i + 1}.` }) : null, r.f.n);
+      const right = el("span", { class: "bright" }, ranked ? el("span", { class: "score", title: "Health score per serving (higher is better)", text: (r.h.score > 0 ? "+" : "") + r.h.score }) : null, pill(r.v));
+      return el("button", { class: "bitem", type: "button", onclick: () => pick(r.f, { scroll: true }) }, name, right);
+    }));
     $("browseCount").textContent = `${allFoods().length} foods`;
   }
 

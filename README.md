@@ -6,7 +6,7 @@ Live at **https://quochhdo.github.io/self-check/**. It installs to your phone's 
 
 ## Features
 
-- **375 built-in foods** across 13 categories, with search, aliases, and browse-by-category.
+- **394 built-in foods** across 13 categories, with search, aliases, and browse-by-category sorted A–Z, least healthy first, or healthiest first.
 - **Nutrition label** in FDA format; tap any line to see what it means and how it compares with your daily target.
 - **Personal verdict** scored against your calorie, protein, saturated fat, sodium, added sugar and fiber goals, plus a skip list and a mild-food preference.
 - **Healthier swaps** for anything that isn't a "Get it," with the difference spelled out (e.g. "5.3 g less saturated fat").

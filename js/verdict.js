@@ -137,6 +137,9 @@
     "Sweet tea": ["Sparkling water", "Diet soda"],
     "Lemonade": ["Sparkling water", "Diet soda"],
     "Sports drink": ["Electrolyte drink, zero sugar"],
+    "Bubble milk tea, regular sugar": ["Latte, whole milk", "Kombucha", "Sparkling water"],
+    "Bubble milk tea, half sugar": ["Latte, whole milk", "Kombucha", "Sparkling water"],
+    "Thai iced tea": ["Latte, whole milk", "Kombucha", "Sparkling water"],
     "Energy drink": ["Coffee, black"],
     "Orange juice": ["Orange", "Clementine"],
     "Apple juice": ["Apple", "Applesauce, unsweetened"],
@@ -208,7 +211,15 @@
     return out.sort((x, y) => y.score - x.score).slice(0, max);
   }
 
+  // For sorting by healthiness: the verdict score (ignoring skip list and spice preference, which aren't about
+  // nutrition), then a tiebreaker for how much of the daily saturated fat, sodium and added-sugar limits one serving uses.
+  function health(f, p) {
+    const score = assess(f, { ...p, skip: "", mild: false }).score;
+    const harm = f.sat / p.sat + f.na / p.na + (p.add > 0 ? f.add / p.add : 0) + ((f.tags || []).includes("processed") ? 0.3 : 0);
+    return { score, harm };
+  }
+
   const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-  return { DEFAULT_PROFILE, NUM_KEYS, assess, explain, scale, findSwaps, SWAP_HINTS, slug, fmt };
+  return { DEFAULT_PROFILE, NUM_KEYS, assess, explain, scale, findSwaps, health, SWAP_HINTS, slug, fmt };
 });

@@ -69,6 +69,14 @@ test("swaps never suggest alcohol for a non-alcoholic drink, or a drink for a so
   assert.ok(!V.findSwaps(food("Eggs"), FOODS, P).some(s => /milk/i.test(s.food.n)));
 });
 
+test("health ranking puts treats and processed food at the bottom and produce at the top", () => {
+  const ranked = FOODS.map(f => ({ f, h: V.health(f, P) })).sort((x, y) => (x.h.score - y.h.score) || (y.h.harm - x.h.harm));
+  const bottom = ranked.slice(0, 30).map(r => r.f.n), top = ranked.slice(-30).map(r => r.f.n);
+  for (const n of ["Hot dog, beef", "Bubble milk tea, regular sugar", "Vanilla milkshake"]) assert.ok(bottom.includes(n), `${n} should rank among the least healthy`);
+  for (const n of ["Brussels sprouts", "Raspberries"]) assert.ok(top.includes(n), `${n} should rank among the healthiest`);
+  assert.ok(V.health(food("Hummus"), CUT).score !== null, "skip list doesn't remove a food from the ranking");
+});
+
 test("foods rated Get it have no swaps", () => {
   assert.deepEqual(V.findSwaps(food("Broccoli"), FOODS, P), []);
 });
