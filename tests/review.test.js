@@ -83,3 +83,28 @@ test("3: only the explicit skip list produces Skip", () => {
   const p = { ...P, mild: true, skip: "" };
   for (const f of FOODS) assert.notEqual(V.assess(f, p).word, "Skip", f.n);
 });
+
+// ---- 4. Wrong reason text applied to the wrong foods ----
+const has = (n, re) => V.assess(food(n), P).reasons.some(r => re.test(r.t));
+test("4: 'healthy fats' reasons only for nuts, seeds, fatty fish, avocado, olives and oils", () => {
+  for (const n of ["Cheese puffs", "French fries", "Chicken nuggets, frozen", "Fish sticks, frozen", "Ranch dressing", "Coleslaw", "Potato salad", "Orange chicken", "Blueberry muffin", "Caesar salad", "Chicken salad, deli", "Peanut butter sandwich crackers"]) {
+    assert.ok(!has(n, /Healthy fats are still/), `${n}: calorie-dense healthy-fat note`);
+    assert.ok(!has(n, /mostly the unsaturated/), `${n}: unsaturated-fat bonus`);
+  }
+  for (const n of ["Avocado", "Almonds", "Walnuts", "Salmon", "Extra virgin olive oil"]) assert.ok(has(n, /Healthy fats are still/), n);
+  assert.ok(has("Almonds", /mostly the unsaturated/));
+});
+
+test("4: 'cooking fat' only for oils and sprays; 'food volume' only for low energy density", () => {
+  assert.ok(!has("Mayonnaise", /cooking fat/));
+  assert.ok(has("Canola oil", /cooking fat/));
+  assert.ok(!has("Dried figs", /food volume/));
+  assert.ok(has("Broccoli", /food volume/));
+});
+
+test("4: trans fat wording only claims a natural source for meat and dairy", () => {
+  const f = { ...food("Ground beef 80/20") };
+  assert.ok(V.assess(f, P).reasons.some(r => /naturally/.test(r.t)));
+  const shortening = { ...food("Vegetable shortening"), trans: 1.5 };
+  assert.ok(!V.assess(shortening, P).reasons.some(r => /naturally/.test(r.t)));
+});

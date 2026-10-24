@@ -51,6 +51,23 @@
     return null;
   }
 
+  // ---- reason scoping ----
+  // Foods whose fat is genuinely the healthy, mostly-unsaturated kind: nuts and seeds, fatty fish, avocado, olives and
+  // liquid oils. Fried or breaded foods, desserts and dressings don't qualify even when their frying oil is unsaturated.
+  const HEALTHY_FAT_NAME = /\b(avocados?|guacamole|olives?|almonds?|walnuts?|pecans?|cashews?|pistachios?|peanuts?|hazelnuts?|macadamias?|nuts|seeds?|tahini|flaxseed|chia|hemp|salmon|sardines?|trout|mackerel|herring|anchov(y|ies))\b/i;
+  const NOT_HEALTHY_FAT = /fried|breaded|nugget|stick|chips?|crackers?|cookies?|candy|cups?|spread|sauce|dressing|bar\b|muffin|pastry|pie\b/i;
+  const OIL_NAME = /\boil\b|cooking spray/i;
+  function healthyFatSource(f) {
+    if (!(f.fat > 0) || (f.tags || []).includes("processed") || NOT_HEALTHY_FAT.test(f.n)) return false;
+    if (isMissing(f, "sat") || f.sat / f.fat > 0.25) return false;
+    return OIL_NAME.test(f.n) || f.c === "nuts" || HEALTHY_FAT_NAME.test(f.n);
+  }
+  // Grams in a serving string like "1 cup (240 g)" or "100 g", for energy density.
+  function servingGrams(s) {
+    const all = [...String(s || "").matchAll(/(\d+(?:\.\d+)?)\s*(g|ml)\b/g)];
+    return all.length ? Number(all[all.length - 1][1]) : null;
+  }
+
   // Generic starting goals (roughly FDA Daily Values on a 2,000-calorie diet).
   const DEFAULT_PROFILE = { cal: 2000, pro: 100, sat: 20, na: 2300, add: 50, fib: 28, skip: "", mild: false };
 
@@ -93,13 +110,20 @@
     else if (f.fib >= 3) { s += 2; r.push({ k: "pos", t: `Good fiber source: ${fmt(f.fib)} g keeps you full.` }); }
     else if (f.fib >= 1.5) { s += 1; r.push({ k: "pos", t: `Some fiber: ${fmt(f.fib)} g.` }); }
 
-    if (["cal", "fat", "sat", "add", "na", "fib"].every(K) && f.cal >= 5 && f.cal <= 65 && f.fat < 3 && f.sat < 1 && f.add === 0 && f.na < 250 && f.fib >= 0.5) { s += 2; r.push({ k: "pos", t: "Lots of food volume for very few calories." }); }
-    if (K("fat") && K("sat") && K("cal") && f.fat >= 5 && f.fat * 9 >= 0.5 * f.cal && f.sat / f.fat <= 0.25 && (f.pro >= 3 || f.fib >= 2)) { s += 1; r.push({ k: "pos", t: "Its fat is mostly the unsaturated kind, which is better for cholesterol." }); }
+    const grams = servingGrams(f.s) ? servingGrams(f.s) * (f.mult || 1) : null;
+    const lowDensity = grams ? f.cal / grams <= 1.0 : false; // "volume" means low energy density, not just a small serving
+    if (["cal", "fat", "sat", "add", "na", "fib"].every(K) && lowDensity && f.cal >= 5 && f.cal <= 65 && f.fat < 3 && f.sat < 1 && f.add === 0 && f.na < 250 && f.fib >= 0.5) { s += 2; r.push({ k: "pos", t: "Lots of food volume for very few calories." }); }
+    const goodFat = healthyFatSource(f);
+    if (goodFat && K("cal") && f.fat >= 5 && f.fat * 9 >= 0.5 * f.cal && !OIL_NAME.test(f.n) && (f.pro >= 3 || f.fib >= 2)) { s += 1; r.push({ k: "pos", t: "Its fat is mostly the unsaturated kind, which is better for cholesterol." }); }
 
     const satShare = K("sat") ? f.sat / p.sat : 0;
     if (satShare >= 0.3) { s -= 2; r.push({ k: "neg", t: `High saturated fat: ${fmt(f.sat)} g is ${Math.round(satShare * 100)}% of your ${p.sat} g daily limit in one serving.` }); }
     else if (satShare >= 0.15) { s -= 1; r.push({ k: "neg", t: `Moderate saturated fat: ${fmt(f.sat)} g (${Math.round(satShare * 100)}% of your limit).` }); }
-    if (K("trans") && f.trans > 0.5) { s -= 1; r.push({ k: "neg", t: `Contains ${fmt(f.trans)} g trans fat (naturally occurring in red meat and dairy).` }); }
+    if (K("trans") && f.trans > 0.5) {
+      s -= 1;
+      const natural = f.c === "meat" || f.c === "dairy";
+      r.push({ k: "neg", t: `Contains ${fmt(f.trans)} g trans fat${natural ? " (the kind that occurs naturally in red meat and dairy)" : ", the type of fat that raises LDL the most"}.` });
+    }
 
     const naShare = K("na") ? f.na / p.na : 0;
     if (naShare >= 0.35) { s -= 2; r.push({ k: "neg", t: `Very salty: ${Math.round(f.na).toLocaleString("en-US")} mg sodium is ${Math.round(naShare * 100)}% of your daily limit.` }); }
@@ -112,7 +136,7 @@
     if (K("sug") && K("add") && K("pro") && f.sug >= 25 && f.add < 10 && f.pro < 5) { s -= 1; r.push({ k: "neg", t: `${fmt(f.sug)} g of sugar in one serving. Even natural sugar adds up at this amount.` }); }
     if ((f.tags || []).includes("processed")) { s -= 2; r.push({ k: "neg", t: "Processed meat, which is linked to higher heart and cancer risk." }); }
     const isPureFat = K("fat") && K("carb") && K("pro") && K("cal") && f.fat > 0 && f.carb < 0.5 && f.pro < 0.5 && f.fat * 9 >= 0.9 * f.cal;
-    const unsaturatedOil = isPureFat && K("sat") && f.sat / f.fat <= 0.25 && f.trans <= 0.2;
+    const unsaturatedOil = isPureFat && OIL_NAME.test(f.n) && K("sat") && f.sat / f.fat <= 0.25 && f.trans <= 0.2;
     if (unsaturatedOil) r.push({ k: "pos", t: "A cooking fat that's mostly unsaturated, which is better for cholesterol than butter, lard or coconut oil." });
     else if (K("cal") && K("pro") && K("fib") && f.cal >= 100 && f.pro < 2 && f.fib < 1) { s -= 1; r.push({ k: "neg", t: "Calories with little protein or fiber, so it won't keep you full." }); }
     if (K("cal") && K("pro") && f.cal >= 300 && pd < 0.15) { s -= 1; r.push({ k: "neg", t: `Calorie-heavy: ${Math.round(f.cal)} cal is ${Math.round(f.cal / p.cal * 100)}% of your day without much protein.` }); }
@@ -120,7 +144,7 @@
     if (NOTES[f.n]) r.push({ k: "note", t: NOTES[f.n] });
 
     if (K("chol") && K("sat") && f.chol >= 150 && satShare < 0.15) r.push({ k: "note", t: `High in dietary cholesterol (${Math.round(f.chol)} mg), but low in saturated fat. For most people saturated fat raises blood cholesterol more.` });
-    if (K("fat") && K("sat") && f.fat >= 10 && f.cal >= 100 && f.sat / f.fat <= 0.25) r.push({ k: "note", t: `Healthy fats are still calorie-dense: ${Math.round(f.cal)} cal per serving, so portion size matters on ${p.cal.toLocaleString("en-US")} cal a day.` });
+    if (goodFat && f.fat >= 10 && f.cal >= 100) r.push({ k: "note", t: `Healthy fats are still calorie-dense: ${Math.round(f.cal)} cal per serving, so portion size matters on ${p.cal.toLocaleString("en-US")} cal a day.` });
 
     let tier, word, why;
     if (s >= 2) { tier = "good"; word = "Get it"; why = "A strong fit for your goals."; }
@@ -340,5 +364,5 @@
 
   const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-  return { DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, skipMatch, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, fmt };
+  return { DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, skipMatch, healthyFatSource, servingGrams, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, fmt };
 });
