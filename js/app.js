@@ -153,17 +153,17 @@
   }
 
   // ---------- swaps ----------
+  // Differences are per serving when servings have similar calories, otherwise per 100 calories, so a big
+  // serving can't win just by being big. Only differences of at least 10% of the Daily Value are listed.
   function swapReason(f, g) {
-    const bits = [];
-    const d = (k, more, unit, word) => {
-      if (V.isMissing(f, k) || V.isMissing(g, k)) return;
-      const diff = g[k] - f[k];
-      if (more ? diff >= 2 : diff <= -(k === "na" ? 100 : 1.5)) bits.push(`${fmt(Math.abs(diff))}${unit} ${more ? "more" : "less"} ${word}`);
-    };
-    d("sat", false, " g", "saturated fat"); d("add", false, " g", "added sugar"); d("na", false, " mg", "sodium");
-    d("pro", true, " g", "protein"); d("fib", true, " g", "fiber");
-    if (!bits.length && g.cal < f.cal - 40) bits.push(`${Math.round(f.cal - g.cal)} fewer calories`);
-    return bits.slice(0, 2).join(" · ") || "Scores better for your goals";
+    const { bits, kinds, basis } = V.swapDiffs(f, g);
+    const parts = [...kinds];
+    if (bits.length) {
+      const t = bits.join(" · ");
+      parts.push(t[0].toUpperCase() + t.slice(1) + (basis === "kcal" ? ` per 100 calories (serving: ${g.s})` : ` per serving (${g.s} vs ${f.s})`));
+      return parts.join(" · ");
+    }
+    return `${parts.length ? parts.join(" · ") : "Rated higher for your goals"} (${g.s})`;
   }
   function renderSwaps(f) {
     const swaps = V.findSwaps(f, allFoods(), profile, 3);
@@ -172,7 +172,7 @@
     for (const s of swaps) {
       list.append(el("button", { class: "swap", type: "button", onclick: () => pick(s.food) },
         el("span", { class: "sn", text: s.food.n }), pill(s.verdict),
-        el("span", { class: "sd", text: `${swapReason(f, s.food)} per serving (${s.food.s})` })));
+        el("span", { class: "sd", text: swapReason(f, s.food) })));
     }
     return el("section", { class: "panel" }, el("h3", { text: "Try instead" }), list);
   }
@@ -208,12 +208,13 @@
       for (const [label, k, unit, dir] of CMP_ROWS) {
         const x = a[k], y = b[k];
         const unknown = V.isMissing(a, k) || V.isMissing(b, k) || V.isLowerBound(a, k) || V.isLowerBound(b, k);
-        const win = !unknown && dir && Math.abs(x - y) > 0.05 * Math.max(x, y, 1) ? ((dir === "more") === (x > y) ? 0 : 1) : -1;
+        // Highlight only a meaningful difference: at least 10% apart and at least 5% of the Daily Value.
+        const win = !unknown && dir && V.meaningfulDiff(k, x, y) ? ((dir === "more") === (x > y) ? 0 : 1) : -1;
         const cell = (food, i) => el("td", { class: win === i ? "win" : null, text: amt(food, k, unit) });
         tbody.append(el("tr", {}, el("td", { text: label }), cell(a, 0), cell(b, 1)));
       }
       sec.append(el("div", { class: "ctable-wrap" }, el("table", { class: "ctable" }, thead, tbody)),
-        el("p", { class: "legend", text: a.s === "100 calories" ? "Green marks the better amount for your goals. Per 100 calories shows nutrient density: what you get for the same calories." : "Green marks the better amount for your goals. Servings differ, so compare against how much you'd actually eat, or switch to per 100 calories." }),
+        el("p", { class: "legend", text: a.s === "100 calories" ? "Green marks a meaningful difference (at least 10% apart and 5% of the daily value). Per 100 calories shows nutrient density: what you get for the same calories." : "Green marks a meaningful difference (at least 10% apart and 5% of the daily value). Servings differ, so compare against how much you'd actually eat, or switch to per 100 calories." }),
         el("div", {}, el("button", { class: "btn small ghost", type: "button", text: "Clear comparison", onclick: () => { compareWith = null; renderResult(current); } })));
     }
     return sec;

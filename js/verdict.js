@@ -106,6 +106,18 @@
     return null;
   }
 
+  // FDA Daily Values (2,000-calorie label). Positives need 10% DV; a Compare highlight needs 5% DV.
+  const FDA_DV = { cal: 2000, fat: 78, sat: 20, chol: 300, na: 2300, carb: 275, fib: 28, add: 50, pro: 50, sug: 50 };
+  const POS_FLOOR = { pro: 5, fib: 2.8 };
+  const HEAVY_SHARE = 0.2;
+  const MEANINGFUL_REL = 0.1;
+  const floorFor = (k, share) => (FDA_DV[k] || 0) * share;
+  // A difference worth pointing out: at least 10% relative and above a per-nutrient floor (share of the Daily Value).
+  function meaningfulDiff(k, x, y, share = 0.05) {
+    const d = Math.abs(x - y), hi = Math.max(Math.abs(x), Math.abs(y));
+    return hi > 0 && d >= MEANINGFUL_REL * hi && d >= floorFor(k, share);
+  }
+
   // Score one serving against the viewer's goals. Returns tier, headline and reasons.
   function assess(f, p) {
     const skip = skipReason(f, p);
@@ -116,15 +128,14 @@
     const K = k => known(f, k);
     const pd = K("cal") && K("pro") && f.cal > 0 ? (f.pro * 4) / f.cal : 0;
     if (!K("pro")) { /* unknown protein: no protein credit */ }
-    else if (f.pro >= 5 && pd >= 0.4) { s += 2; r.push({ k: "pos", t: `High protein for the calories: ${fmt(f.pro)} g, about ${Math.round(f.pro / p.pro * 100)}% of your ${p.pro} g goal.` }); }
-    else if (f.pro >= 5 && pd >= 0.2) { s += 1; r.push({ k: "pos", t: `Decent protein: ${fmt(f.pro)} g per serving.` }); }
+    else if (f.pro >= POS_FLOOR.pro && pd >= 0.4) { s += 2; r.push({ k: "pos", t: `High protein for the calories: ${fmt(f.pro)} g, about ${Math.round(f.pro / p.pro * 100)}% of your ${p.pro} g goal.` }); }
+    else if (f.pro >= POS_FLOOR.pro && pd >= 0.2) { s += 1; r.push({ k: "pos", t: `Decent protein: ${fmt(f.pro)} g per serving.` }); }
 
     if (!K("fib")) { /* unknown fiber */ }
-    else if (f.fib >= 3) { s += 2; r.push({ k: "pos", t: `Good fiber source: ${fmt(f.fib)} g keeps you full.` }); }
-    else if (f.fib >= 1.5 && K("cal") && f.cal > 0 && f.fib / f.cal * 100 >= 2.5) { s += 1; r.push({ k: "pos", t: `Fiber-dense: ${fmt(f.fib / f.cal * 100)} g per 100 calories.` }); }
-    else if (f.fib >= 1.5) { s += 1; r.push({ k: "pos", t: `Some fiber: ${fmt(f.fib)} g.` }); }
+    // A positive needs at least 10% of the Daily Value (FDA's "good source" bar), so 1.5 g of fiber no longer counts.
+    else if (f.fib >= POS_FLOOR.fib) { s += 2; r.push({ k: "pos", t: `Good fiber source: ${fmt(f.fib)} g (${Math.round(f.fib / FDA_DV.fib * 100)}% of the daily value) keeps you full.` }); }
     if (wholeProduce(f)) { s += 2; r.push({ k: "pos", t: f.c === "fruit" ? "Whole fruit: its natural sugar comes with water, fiber and nutrients, and most people should eat more." : "A whole vegetable: most people should eat more of these." }); }
-    if (wholeGrain(f)) { s += 1; r.push({ k: "pos", t: "Whole grain: keeps the bran and germ that refined grains lose." }); }
+    if (wholeGrain(f)) { s += 2; r.push({ k: "pos", t: "Whole grain: keeps the bran and germ that refined grains lose." }); }
 
     const grams = servingGrams(f.s) ? servingGrams(f.s) * (f.mult || 1) : null;
     const lowDensity = grams ? f.cal / grams <= 1.0 : false; // "volume" means low energy density, not just a small serving
@@ -156,7 +167,8 @@
     const unsaturatedOil = isPureFat && OIL_NAME.test(f.n) && K("sat") && f.sat / f.fat <= 0.25 && f.trans <= 0.2;
     if (unsaturatedOil) r.push({ k: "pos", t: "A cooking fat that's mostly unsaturated, which is better for cholesterol than butter, lard or coconut oil." });
     else if (K("cal") && K("pro") && K("fib") && f.cal >= 100 && f.pro < 2 && f.fib < 1) { s -= 1; r.push({ k: "neg", t: "Calories with little protein or fiber, so it won't keep you full." }); }
-    if (K("cal") && K("pro") && f.cal >= 300 && pd < 0.15) { s -= 1; r.push({ k: "neg", t: `Calorie-heavy: ${Math.round(f.cal)} cal is ${Math.round(f.cal / p.cal * 100)}% of your day without much protein.` }); }
+    // A big share of the day's calories in one serving, with little protein to show for it.
+    if (K("cal") && K("pro") && f.cal >= HEAVY_SHARE * p.cal && pd < 0.15) { s -= 1; r.push({ k: "neg", t: `A big share of your day: ${Math.round(f.cal)} calories (${Math.round(f.cal / p.cal * 100)}% of your ${p.cal.toLocaleString("en-US")}) in one serving, with only ${fmt(f.pro)} g protein.` }); }
     if (EVIDENCE[f.n]) { s += 1; r.push({ k: "pos", t: EVIDENCE[f.n] }); }
     if (NOTES[f.n]) r.push({ k: "note", t: NOTES[f.n] });
 
@@ -324,6 +336,7 @@
     "Nacho cheese tortilla chips": ["Popcorn, air-popped", "Whole grain crackers"],
     "Pepperoni pizza, restaurant": ["Chicken taco", "Grilled chicken sandwich", "Chicken burrito bowl"],
     "Cheese pizza, restaurant": ["Chicken taco", "Grilled chicken sandwich", "Chicken burrito bowl"],
+    "Chocolate hazelnut spread": ["Almond butter", "Powdered peanut butter", "Peanut butter"],
     "Frozen pepperoni pizza": ["Frozen chicken and rice bowl", "Chicken taco"],
   };
 
@@ -336,17 +349,58 @@
   // Pantry staples that score well but aren't a real substitute for most things; only suggested when hand-picked.
   const HINT_ONLY = new Set(["Cocoa powder, unsweetened", "Table salt", "Zero-calorie sweetener", "Monk fruit sweetener", "Stevia sweetener", "Erythritol", "Allulose", "Cooking spray", "Balsamic vinegar"]);
 
-  // Up to `max` better options for a food, ranked by hand-picked hints, then category, name overlap and similar calories.
+  // Open Food Facts category tags → our categories. First match wins, so specific tags come before broad ones.
+  const OFF_CATEGORY = [
+    [/protein-bars|protein-powders|protein-shakes/, "protein"],
+    // Spreads (Nutella and friends) swap best with nut butters, not chips.
+    [/nut-butters|peanut-butters|hazelnut-spreads|chocolate-spreads|cocoa-and-hazelnuts-spreads|nuts|seeds/, "nuts"],
+    [/sweet-spreads|confectioneries|candies|chocolates|biscuits|cookies|cakes|ice-creams|desserts|sweet-snacks|chips-and-fries|crisps|popcorn|salty-snacks|snacks/, "snacks"],
+    [/plant-based-milks|dairies|milks|yogurts|cheeses|eggs/, "dairy"],
+    [/beverages|drinks|waters|juices|sodas|teas|coffees/, "drinks"],
+    [/fishes|seafood|fish-and-seafood/, "seafood"],
+    [/meats|poultries|sausages|hams/, "meat"],
+    [/legumes|beans|tofu|meat-analogues/, "plant"],
+    [/breads|cereals|pastas|rices|breakfast-cereals|flours|noodles/, "grains"],
+    [/fruits/, "fruit"],
+    [/vegetables/, "veg"],
+    [/sauces|condiments|dressings|oils|fats|spices|sweeteners|honeys|syrups/, "condiments"],
+    [/meals|pizzas|soups|sandwiches|prepared/, "prepared"],
+  ];
+  // The category to look for swaps in. Built-ins have one; for a lookup, use its Open Food Facts tags, then the
+  // built-in foods whose names share the most words with it. null means no confident match, so no swaps are shown.
+  function swapCategory(f, foods) {
+    if (f.c && f.c !== "lookup" && f.c !== "plate") return f.c;
+    if (f.c === "plate") return null;
+    for (const [re, c] of OFF_CATEGORY) if ((f.categories || []).some(tag => re.test(tag))) return c;
+    const ft = new Set(tokens(f.n));
+    if (!ft.size) return null;
+    const best = {}; // category → most words any of its foods shares with the lookup's name
+    for (const g of foods) {
+      if (!g.c || g.c === "lookup") continue;
+      const n = new Set([...tokens(g.n), ...(g.a || []).flatMap(tokens)]);
+      const hit = [...ft].filter(t => n.has(t)).length;
+      if (hit) best[g.c] = Math.max(best[g.c] || 0, hit);
+    }
+    const ranked = Object.entries(best).sort((a, b) => b[1] - a[1]);
+    // Ambiguous (a tie between categories) means we don't know, so show nothing rather than guess.
+    return ranked.length && (ranked.length === 1 || ranked[0][1] > ranked[1][1]) ? ranked[0][0] : null;
+  }
+
+  // Up to `max` better options from the same category, best verdict first ("Get it" before "In moderation"),
+  // then hand-picked hints, name overlap and similar calories. Hand-picked hints are the only cross-category picks.
   function findSwaps(f, foods, p, max = 3) {
     const base = assess(f, p);
     const want = base.tier === "skip" ? 0 : RANK[base.tier];
     if (base.tier === "good" || base.tier === "fine") return [];
     const hints = SWAP_HINTS[f.n] || [];
+    const cat = swapCategory(f, foods);
+    if (!cat && !hints.length) return [];
     const ft = new Set(tokens(f.n));
     const out = [];
     for (const g of foods) {
       if (g.n === f.n) continue;
       const hinted = hints.includes(g.n);
+      if (!hinted && g.c !== cat) continue;
       if (!hinted && ALCOHOL.test(g.n) && !ALCOHOL.test(f.n)) continue;
       if (!hinted && LIQUID.test(g.n) !== LIQUID.test(f.n)) continue;
       if (!hinted && pureFat(g) !== pureFat(f)) continue;
@@ -356,16 +410,36 @@
       let score = 0;
       const hi = hints.indexOf(g.n);
       if (hi >= 0) score += 100 - hi;
-      if (g.c && g.c === f.c) score += 20;
+      if (g.c === cat) score += 20;
       score += 8 * tokens(g.n).filter(t => ft.has(t)).length;
       if (score < 20) continue;
       score -= 4 * Math.abs(Math.log((g.cal + 20) / (f.cal + 20)));
-      score += a.tier === "good" ? 3 : 0;
       out.push({ food: g, verdict: a, score, hinted });
     }
     // Hand-picked swaps stand alone when any of them apply; the generic search only fills in when there are none.
     const picked = out.filter(o => o.hinted);
-    return (picked.length ? picked : out).sort((x, y) => y.score - x.score).slice(0, max);
+    return (picked.length ? picked : out).sort((x, y) => RANK[y.verdict.tier] - RANK[x.verdict.tier] || y.score - x.score).slice(0, max);
+  }
+
+  // Why a swap is better, in a fair unit: per serving when the two servings have similar calories, otherwise
+  // per 100 calories. Only differences of at least 10% of the Daily Value are mentioned.
+  function swapDiffs(f, g) {
+    const similar = f.cal > 0 && g.cal > 0 && Math.max(f.cal, g.cal) / Math.min(f.cal, g.cal) <= 1.25;
+    const perKcal = !similar && f.cal >= KCAL_MIN && g.cal >= KCAL_MIN;
+    const a = perKcal ? per100kcal(f) : f, b = perKcal ? per100kcal(g) : g;
+    const bits = [];
+    const d = (k, more, unit, word) => {
+      if (isMissing(f, k) || isMissing(g, k)) return;
+      const diff = b[k] - a[k];
+      if ((more ? diff > 0 : diff < 0) && meaningfulDiff(k, a[k], b[k], 0.1)) bits.push(`${k === "na" ? Math.round(Math.abs(diff)) : fmt(Math.abs(diff))}${unit} ${more ? "more" : "less"} ${word}`);
+    };
+    d("sat", false, " g", "saturated fat"); d("add", false, " g", "added sugar"); d("na", false, " mg", "sodium");
+    d("pro", true, " g", "protein"); d("fib", true, " g", "fiber");
+    if (!bits.length && !perKcal && g.cal < f.cal - 40) bits.push(`${Math.round(f.cal - g.cal)} fewer calories`);
+    const kinds = [];
+    if (wholeGrain(g) && !wholeGrain(f)) kinds.push("Whole grain");
+    if (wholeProduce(g) && !wholeProduce(f)) kinds.push(g.c === "fruit" ? "Whole fruit" : "A whole vegetable");
+    return { bits: bits.slice(0, 2), kinds, basis: perKcal ? "kcal" : "serving" };
   }
 
   // For sorting by healthiness: the verdict score (ignoring skip list and spice preference, which aren't about
@@ -408,5 +482,5 @@
 
   const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-  return { NEGLIGIBLE_KCAL, RANK, DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, skipMatch, healthyFatSource, servingGrams, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, fmt };
+  return { NEGLIGIBLE_KCAL, RANK, DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, skipMatch, healthyFatSource, servingGrams, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, swapCategory, swapDiffs, meaningfulDiff, FDA_DV, POS_FLOOR, HEAVY_SHARE, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, fmt };
 });

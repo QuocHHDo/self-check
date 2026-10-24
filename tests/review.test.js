@@ -180,3 +180,64 @@ test("7: dump script prints one CSV row per food", () => {
   assert.equal(out[0], "name,category,serving,calories,verdict,score,reasons");
   assert.equal(out.length, FOODS.length + 1);
 });
+
+// ---- 8. Try instead / Compare ----
+const offNutella = require("./fixtures/off-nutella.json");
+test("8: swaps come from the same category (hand-picked hints excepted) and list Get it first", () => {
+  for (const f of FOODS) {
+    const swaps = V.findSwaps(f, FOODS, P);
+    const hints = V.SWAP_HINTS[f.n] || [];
+    for (const s of swaps) assert.ok(s.food.c === f.c || hints.includes(s.food.n), `${f.n} -> ${s.food.n} crosses categories`);
+    for (let i = 1; i < swaps.length; i++) assert.ok(V.RANK[swaps[i - 1].verdict.tier] >= V.RANK[swaps[i].verdict.tier], `${f.n}: swaps out of order`);
+  }
+});
+
+test("8: lookups map to a category through Open Food Facts tags or the name; no match hides swaps", () => {
+  const nut = S.fromOff("3017620422003", offNutella.product);
+  assert.equal(V.swapCategory(nut, FOODS), "nuts");
+  assert.ok(V.findSwaps(nut, FOODS, P).every(s => s.food.c === "nuts"));
+  assert.equal(V.swapCategory({ n: "Kirkland protein bar", c: "lookup" }, FOODS), "protein");
+  const unknown = { ...food("Instant ramen"), n: "Zorblax crunch", c: "lookup" };
+  assert.equal(V.swapCategory(unknown, FOODS), null);
+  assert.deepEqual(V.findSwaps(unknown, FOODS, P), []);
+});
+
+test("8: swap reasons use per-100-calorie amounts when servings differ, and skip tiny differences", () => {
+  const d = V.swapDiffs(food("Croissant"), food("English muffin, whole wheat"));
+  assert.equal(d.basis, "kcal");
+  assert.ok(d.kinds.includes("Whole grain"));
+  // Under 10% of the Daily Value is never offered as a reason.
+  const floors = { sat: 2, add: 5, na: 230, pro: 5, fib: 2.8 };
+  for (const f of FOODS) for (const s of V.findSwaps(f, FOODS, P)) {
+    for (const b of V.swapDiffs(f, s.food).bits) {
+      const m = b.match(/^([\d.]+) (g|mg) (?:less|more) (saturated fat|added sugar|sodium|protein|fiber)/);
+      if (!m) continue;
+      const k = { "saturated fat": "sat", "added sugar": "add", sodium: "na", protein: "pro", fiber: "fib" }[m[3]];
+      assert.ok(Number(m[1]) >= floors[k] - 0.05, `${f.n} -> ${s.food.n}: "${b}" is under 10% DV`);
+    }
+  }
+});
+
+test("8: Compare highlights only meaningful differences", () => {
+  assert.equal(V.meaningfulDiff("pro", 20, 21), false);   // 5% apart
+  assert.equal(V.meaningfulDiff("sat", 0.2, 0.5), false); // relative but tiny (under 1 g)
+  assert.equal(V.meaningfulDiff("na", 300, 500), true);
+  assert.equal(V.meaningfulDiff("fib", 1, 4), true);
+});
+
+test("8: no positive reason below 10% of the Daily Value", () => {
+  for (const f of FOODS) for (const r of V.assess(f, P).reasons) {
+    if (r.k !== "pos") continue;
+    if (/fiber/i.test(r.t) && !/Whole/.test(r.t)) assert.ok(f.fib >= 2.8, `${f.n}: "${r.t}"`);
+    if (/protein/i.test(r.t)) assert.ok(f.pro >= 5, `${f.n}: "${r.t}"`);
+  }
+});
+
+test("8: the calorie warning is relative to your day and says so", () => {
+  const big = V.assess(food("Instant ramen"), { ...P, cal: 1500 }).reasons.find(r => /big share of your day/.test(r.t));
+  assert.ok(big && /% of your 1,500\)/.test(big.t), "warning mentions the daily calories");
+  for (const f of FOODS) {
+    const has = V.assess(f, P).reasons.some(r => /big share of your day/.test(r.t));
+    if (has) assert.ok(f.cal >= V.HEAVY_SHARE * P.cal, f.n);
+  }
+});

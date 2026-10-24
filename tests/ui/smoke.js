@@ -47,8 +47,9 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
   $("#q").value = "Ground beef 80/20"; submit("#form");
   ok(text("#out h2") === "Ground beef 80/20" && text(".tag .verdict") === "Limit it", "exact search shows result and verdict");
   const swaps = $$(".swap .sn").map(e => e.textContent);
-  ok(swaps[0] === "Ground beef 93/7", `swaps lead with 93/7 (${swaps.join(", ")})`);
-  ok(/less saturated fat/.test(text(".swap .sd")), `swap explains the difference (${text(".swap .sd")})`);
+  const swapWords = $$(".swap .vp").map(e => e.textContent), RANKW = { "Get it": 2, "In moderation": 1 };
+  ok(swaps.some(n => /93\/7/.test(n)) && swapWords.every((v, i) => !i || RANKW[swapWords[i - 1]] >= RANKW[v]), `swaps include 93/7 and list Get it first (${swaps.map((n, i) => n + ": " + swapWords[i]).join(", ")})`);
+  ok(/(more protein|less saturated fat).* per 100 calories/.test(text(".swap .sd")), `swap explains the difference per 100 calories (${text(".swap .sd")})`);
 
   click(btn("2", $(".serving")));
   ok(text(".label .cal .v") === String(Math.round(287 * 2)), `2 servings doubles calories (${text(".label .cal .v")})`);
@@ -62,13 +63,14 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
   li.dispatchEvent(new w.MouseEvent("mousedown", { bubbles: true }));
   ok($$(".ctable tbody tr").length === 10 && $$(".ctable td.win").length > 0, "compare table renders with winners marked");
 
+  const firstSwap = w.SelfCheckData.FOODS.find(f => f.n === swaps[0]);
   click($$(".swap")[0]);
-  ok(text("#out h2") === "Ground beef 93/7", "clicking a swap opens it");
-  ok(text(".label .cal .v") === "170", "serving resets to 1 on a new food");
+  ok(text("#out h2") === firstSwap.n, "clicking a swap opens it");
+  ok(text(".label .cal .v") === String(Math.round(firstSwap.cal)), "serving resets to 1 on a new food");
 
   click(btn("Save", $("#out")));
-  ok(!$("#favRow").hidden && /93\/7/.test(text("#favRow")), "saving adds a favorite chip");
-  ok(!$("#recentRow").hidden || /93\/7/.test(text("#favRow")), "recents/favorites rows render");
+  ok(!$("#favRow").hidden && text("#favRow").includes(firstSwap.n.split(",")[0]), `saving adds a favorite chip (${text("#favRow")})`);
+  ok(!$("#recentRow").hidden || text("#favRow").includes(firstSwap.n), "recents/favorites rows render");
 
   $("#browse").open = true; await tick(5);
   click(btn("Seafood", $("#cats")));

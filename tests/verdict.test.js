@@ -55,7 +55,8 @@ test("scale multiplies every amount and keeps the original intact", () => {
 
 test("swaps are better than the original and prefer hand-picked options", () => {
   const swaps = V.findSwaps(food("Ground beef 80/20"), FOODS, P);
-  assert.equal(swaps[0].food.n, "Ground beef 93/7");
+  // All three are hand-picked; "Get it" picks come before the "In moderation" one.
+  assert.deepEqual(swaps.map(s => s.food.n), ["Ground turkey 93/7", "Chicken breast, grilled", "Ground beef 93/7"]);
   const rank = { bad: 0, mid: 1, fine: 1.5, good: 2 };
   for (const n of ["Ground beef 80/20", "Soda", "Ranch dressing", "Eggs", "Bagel, plain", "Croissant"]) {
     const base = V.assess(food(n), P);
