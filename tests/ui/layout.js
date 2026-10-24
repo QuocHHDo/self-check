@@ -69,6 +69,18 @@ async function openFood(page, name) {
       const shelfH = await page.$eval("#shelf", e => e.getBoundingClientRect().height);
       for (const n of ["Avocado", "Eggs", "Shrimp", "Oatmeal, rolled oats", "Instant ramen"]) { await openFood(page, n); await page.click("#out .result-head .icon-btn[aria-pressed]"); }
       ok(Math.abs(await page.$eval("#shelf", e => e.getBoundingClientRect().height) - shelfH) < 1, `${width}px: favorites shelf keeps its height`);
+      // Goal validation: -500 then Tab leaves one consistent state, and the row of inputs doesn't shift.
+      await page.evaluate(() => { document.getElementById("profile").open = true; });
+      const goalBoxes = () => page.$$eval(".pgrid input[type=number]", els => { const t0 = document.querySelector(".pgrid").getBoundingClientRect().top; return els.map(e => { const r = e.getBoundingClientRect(); return [Math.round(r.top - t0), Math.round(r.height)]; }); });
+      const g0 = await goalBoxes();
+      await page.fill("#p-cal", "-500"); await page.press("#p-cal", "Tab"); await page.waitForTimeout(50);
+      const st = await page.evaluate(() => ({ v: document.getElementById("p-cal").value, inv: document.getElementById("p-cal").getAttribute("aria-invalid"), msg: document.getElementById("p-cal-err").textContent }));
+      ok(st.v === "-500" && st.inv === "true" && /Still using 2,000/.test(st.msg), `${width}px: -500 + Tab keeps the typed value with its error (${st.v} · ${st.msg})`);
+      const g1 = await goalBoxes();
+      ok(JSON.stringify(g0) === JSON.stringify(g1), `${width}px: goal inputs keep their size and position with an error showing (${JSON.stringify(g0)} → ${JSON.stringify(g1)})`);
+      await page.locator("#p-cal").scrollIntoViewIfNeeded(); await shot(page, `r2-6-goal-error-${width}`);
+      await page.fill("#p-cal", "2000"); await page.press("#p-cal", "Tab");
+      await page.evaluate(() => { document.getElementById("profile").open = false; });
       await ctx.close();
     }
     // 15. Phones: verdict above the label and above the fold; nothing wider than the screen.

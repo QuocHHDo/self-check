@@ -754,7 +754,8 @@
   // ---------- goals ----------
   const PF = { cal: "p-cal", pro: "p-pro", sat: "p-sat", na: "p-na", add: "p-add", fib: "p-fib" };
   function syncProfileUI() {
-    for (const [k, id] of Object.entries(PF)) if (document.activeElement !== $(id) || $(id).getAttribute("aria-invalid") !== "true") $(id).value = profile[k];
+    // A field showing an error keeps what the user typed until they fix it; only valid fields are refreshed.
+    for (const [k, id] of Object.entries(PF)) if ($(id).getAttribute("aria-invalid") !== "true") $(id).value = profile[k];
     $("p-skip").value = profile.skip || ""; $("p-mild").checked = !!profile.mild; $("p-usda").value = profile.usdaKey || "";
     $("profSummary").textContent = `${profile.cal.toLocaleString("en-US")} cal · ${profile.pro} g protein · ≤${profile.sat} g sat fat`;
   }
@@ -810,15 +811,20 @@
   }
 
   // ---------- goal inputs: inline validation ----------
+  // One state only: an invalid value stays in the field, marked, with a message saying what's still in use.
+  // Nothing is saved until it's fixed. Every goal field reserves a line for the message, so the row never shifts.
+  const goalKey = input => Object.keys(PF).find(k => PF[k] === input.id);
   function checkGoal(input) {
     const raw = input.value.trim(), v = Number(raw), min = Number(input.min), max = Number(input.max);
     const fmtN = n => n.toLocaleString("en-US");
-    const msg = raw === "" ? `Enter a number from ${fmtN(min)} to ${fmtN(max)}.`
+    const problem = raw === "" ? `Enter a number from ${fmtN(min)} to ${fmtN(max)}.`
       : !Number.isFinite(v) ? "That isn't a number."
       : v < min || v > max ? `Use a number from ${fmtN(min)} to ${fmtN(max)}.` : "";
+    const k = goalKey(input);
+    const msg = problem && k ? `${problem} Still using ${fmtN(profile[k])}.` : problem;
     let err = input.parentElement.querySelector(".err");
-    if (!err) { err = el("span", { class: "err", id: input.id + "-err", role: "alert" }); input.after(err); }
-    err.textContent = msg; err.hidden = !msg;
+    if (!err) { err = el("span", { class: "err", id: input.id + "-err", "aria-live": "polite" }); input.after(err); }
+    err.textContent = msg;
     input.setAttribute("aria-invalid", msg ? "true" : "false");
     if (msg) input.setAttribute("aria-describedby", err.id); else input.removeAttribute("aria-describedby");
     return !msg;
@@ -850,6 +856,7 @@
     document.querySelectorAll("#profile input").forEach(i => i.addEventListener("change", readProfile));
     Object.values(PF).forEach(id => $(id).addEventListener("input", () => checkGoal($(id))));
     syncProfileUI();
+    Object.values(PF).forEach(id => checkGoal($(id))); // creates each field's (empty) message line
     if (!savedProfile && !CFG.profile) $("profile").open = true;
     renderChips(); renderBrowse(); renderList(); renderPlate(); renderQuiz();
     $("learnReset").addEventListener("click", () => { learn = { asked: 0, correct: 0, streak: 0, missed: [] }; store.set("learn", learn); quizQ = null; renderQuiz(); });

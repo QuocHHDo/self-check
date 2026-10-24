@@ -208,12 +208,18 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
   type("#cmpq", "salmon"); $(".compare .suggest li").dispatchEvent(new w.MouseEvent("mousedown", { bubbles: true }));
   ok((text(".compare").match(/Compare/g) || []).length === 1 + (text(".compare").match(/Compare with/g) || []).length, `"Compare" appears once as a heading (${text(".compare").slice(0, 60)})`);
   const cal = $("#p-cal"), before = cal.value;
-  cal.value = "50"; cal.dispatchEvent(new w.Event("input", { bubbles: true }));
-  ok(cal.getAttribute("aria-invalid") === "true" && /800 to 6,000/.test(text("#p-cal-err")), `invalid goal shows an inline message (${text("#p-cal-err")})`);
-  cal.dispatchEvent(new w.Event("change", { bubbles: true }));
-  ok(JSON.parse(w.localStorage.getItem("selfcheck.profile") || w.localStorage.getItem("profile") || "{}").cal !== 50, "invalid goal isn't saved");
-  cal.value = before; cal.dispatchEvent(new w.Event("input", { bubbles: true }));
-  ok(cal.getAttribute("aria-invalid") === "false" && $("#p-cal-err").hidden, "fixing it clears the message");
+  // -500 then leaving the field: one consistent state (the typed value stays, marked invalid, nothing saved).
+  const heights = () => ["p-cal", "p-pro", "p-sat"].map(id => Math.round($("#" + id).getBoundingClientRect().height) + ":" + $("#" + id).parentElement.children.length).join(",");
+  const h0 = heights();
+  cal.value = "-500"; cal.dispatchEvent(new w.Event("input", { bubbles: true })); cal.dispatchEvent(new w.Event("change", { bubbles: true })); cal.blur();
+  ok(cal.value === "-500" && cal.getAttribute("aria-invalid") === "true" && text("#p-cal-err") === `Use a number from 800 to 6,000. Still using ${Number(before).toLocaleString("en-US")}.`, `-500 stays in the field with its error (${cal.value}: ${text("#p-cal-err")})`);
+  ok(JSON.parse(w.localStorage.getItem("profile") || "{}").cal !== -500 && text("#profSummary").startsWith(Number(before).toLocaleString("en-US") + " cal"), `invalid goal isn't saved (${text("#profSummary")})`);
+  ok(heights() === h0, `every goal field reserves its message line, so nothing shifts (${h0} → ${heights()})`);
+  $("#p-pro").value = "120"; $("#p-pro").dispatchEvent(new w.Event("change", { bubbles: true }));
+  ok(cal.value === "-500" && cal.getAttribute("aria-invalid") === "true", "saving another goal doesn't overwrite the invalid field");
+  cal.value = before; cal.dispatchEvent(new w.Event("input", { bubbles: true })); cal.dispatchEvent(new w.Event("change", { bubbles: true }));
+  ok(cal.getAttribute("aria-invalid") === "false" && text("#p-cal-err") === "", "fixing it clears the message");
+  $("#p-pro").value = "100"; $("#p-pro").dispatchEvent(new w.Event("change", { bubbles: true }));
   for (const n of ["Apple", "Banana", "Orange", "Pear", "Kiwi", "Mango", "Lemon", "Greek yogurt, plain nonfat", "Greek yogurt, vanilla"]) { $("#q").value = n; submit("#form"); }
   const recentChips = $$("#recentRow .chip").map(c => c.textContent);
   ok(recentChips.length <= 6, `recents show at most 6 (${recentChips.length})`);
