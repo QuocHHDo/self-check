@@ -87,10 +87,14 @@ button { font: inherit; color: inherit; }
 .result-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .result-head .actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .icon-btn { white-space: nowrap; flex: none; }
+.lbl-short { display: none; }
 @media (max-width: 520px) {
-  /* Phones: the action buttons share one row that scrolls sideways, so the verdict stays above the fold. */
-  .result-head .actions { flex-wrap: nowrap; overflow-x: auto; width: 100%; scrollbar-width: none; padding-bottom: 2px; }
-  .result-head .actions::-webkit-scrollbar { display: none; }
+  /* Phones: shorter labels (Copy link becomes its icon) so every action is visible; the row wraps if it must. */
+  .result-head .actions { width: 100%; gap: 6px; }
+  .result-head .icon-btn { padding: 5px 10px; }
+  .lbl-long { display: none; }
+  .lbl-short { display: inline-grid; }
+  .icon-only .lbl-short { display: none; }
 }
 .result-head h2 { font: 850 26px var(--font-display); font-stretch: 80%; margin: 0; text-wrap: balance; }
 .cat { font-size: 13px; color: var(--muted); }
@@ -100,7 +104,12 @@ button { font: inherit; color: inherit; }
 .stable { display: inline-grid; }
 .stable > span { grid-area: 1 / 1; }
 .stable > .ghost { visibility: hidden; }
-.shelf { display: flex; flex-wrap: nowrap; gap: 16px; align-items: center; min-height: 40px; margin-top: 10px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+.shelf { display: flex; flex-wrap: nowrap; gap: 16px; align-items: center; min-height: 40px; margin-top: 10px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.shelf::-webkit-scrollbar { display: none; }
+/* Edge fades show there's more to scroll; set by JS from the scroll position. */
+.shelf.fade-end { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent); }
+.shelf.fade-start { -webkit-mask-image: linear-gradient(to right, transparent, #000 36px); mask-image: linear-gradient(to right, transparent, #000 36px); }
+.shelf.fade-start.fade-end { -webkit-mask-image: linear-gradient(to right, transparent, #000 36px, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(to right, transparent, #000 36px, #000 calc(100% - 36px), transparent); }
 .shelf .chiprow { flex: none; flex-wrap: nowrap; margin-top: 0; }
 .shelf .chip { white-space: nowrap; }
 .notice.closest { margin-bottom: 12px; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }

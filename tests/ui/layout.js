@@ -82,7 +82,7 @@ async function openFood(page, name) {
         "barcode": async () => { await page.fill("#q", "3017620422003"); await page.press("#q", "Enter"); await page.waitForFunction(() => /Nutella/i.test(document.querySelector("#out h2")?.textContent || "")); },
         "browse": async () => { await page.evaluate(() => { document.getElementById("browse").open = true; }); await page.waitForSelector("#blist .bitem"); },
         "quiz": async () => { await page.evaluate(() => { document.getElementById("learn").open = true; }); },
-        "plate": async () => { await openFood(page, "Brown rice"); await page.click("text=Add 1 to plate"); await page.evaluate(() => { document.getElementById("plateBox").open = true; }); await page.click("#plateView"); await page.waitForFunction(() => document.querySelector("#out h2")?.textContent === "Your plate"); },
+        "plate": async () => { await openFood(page, "Brown rice"); await page.click("#out .actions button:nth-child(3)"); await page.evaluate(() => { document.getElementById("plateBox").open = true; }); await page.click("#plateView"); await page.waitForFunction(() => document.querySelector("#out h2")?.textContent === "Your plate"); },
       };
       for (const [name, go] of Object.entries(states)) {
         await go();
@@ -98,6 +98,21 @@ async function openFood(page, name) {
       ok(pos.tagBottom <= pos.vh, `${width}px: verdict is above the fold (bottom ${Math.round(pos.tagBottom)} of ${pos.vh})`);
       const shelf = await page.evaluate(() => { const s = document.getElementById("shelf"); return { h: s.getBoundingClientRect().height, scroll: s.scrollWidth > s.clientWidth, style: getComputedStyle(s).overflowX }; });
       ok(shelf.h < 48 && shelf.style === "auto", `${width}px: recents and favorites stay on one scrolling row (${Math.round(shelf.h)} px tall)`);
+      // Every action button is fully on screen, with no sideways scroller hiding one.
+      const acts = await page.evaluate(() => {
+        const row = document.querySelector("#out .result-head .actions"), W = document.documentElement.clientWidth;
+        return { scroll: row.scrollWidth - row.clientWidth, off: [...row.querySelectorAll("button")].filter(b => { const r = b.getBoundingClientRect(); return r.left < 0 || r.right > W || r.width === 0; }).map(b => b.getAttribute("aria-label") || b.textContent), n: row.querySelectorAll("button").length,
+          copyName: (row.querySelector("[aria-label='Copy link']") || {}).getAttribute ? "Copy link" : null };
+      });
+      ok(acts.scroll <= 0 && acts.off.length === 0 && acts.n === 4 && acts.copyName, `${width}px: all ${acts.n} action buttons visible without scrolling (off-screen: ${acts.off.join(", ") || "none"})`);
+      // The chip shelf hides its scrollbar and fades the edge when there's more to scroll.
+      for (const n of ["Avocado", "Eggs", "Shrimp", "Salmon", "Oatmeal, rolled oats", "Instant ramen", "Brown rice"]) await openFood(page, n);
+      await page.waitForTimeout(50);
+      const sh2 = await page.evaluate(() => { const s = document.getElementById("shelf"); return { over: s.scrollWidth > s.clientWidth, sb: s.offsetHeight - s.clientHeight, fade: s.classList.contains("fade-end") }; });
+      ok(sh2.over && sh2.sb === 0 && sh2.fade, `${width}px: shelf scrollbar hidden (${sh2.sb} px) and right edge fades`);
+      await page.$eval("#shelf", s => { s.scrollLeft = s.scrollWidth; s.dispatchEvent(new Event("scroll")); }); await page.waitForTimeout(50);
+      ok(await page.$eval("#shelf", s => s.classList.contains("fade-start") && !s.classList.contains("fade-end")), `${width}px: scrolled to the end, only the left edge fades`);
+      await openFood(page, "Ground beef 80/20"); await page.evaluate(() => window.scrollTo(0, 0));
       await shot(page, `15-mobile-${width}`);
       await ctx.close();
     }

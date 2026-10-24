@@ -245,9 +245,11 @@
       head.append(actions);
       actions.append(
         el("button", { class: "icon-btn", type: "button", "aria-pressed": isFav ? "true" : "false", onclick: () => toggleFav(f) }, svgIcon(isFav ? STAR_ON : STAR), stableLabel(isFav, "Save", "Saved")),
-        el("button", { class: "icon-btn", type: "button", "aria-pressed": onList ? "true" : "false", onclick: () => toggleList(f) }, stableLabel(onList, "Add to list", "On grocery list")),
-        el("button", { class: "icon-btn", type: "button", onclick: () => addToPlate(f, mult) }, `Add ${multLabel(mult)} to plate`));
-      if (PAGES) actions.append(el("button", { class: "icon-btn", type: "button", onclick: () => copyLink(f) }, svgIcon(LINK), "Copy link"));
+        el("button", { class: "icon-btn", type: "button", "aria-pressed": onList ? "true" : "false", onclick: () => toggleList(f) },
+          el("span", { class: "lbl-long" }, stableLabel(onList, "Add to list", "On grocery list")), el("span", { class: "lbl-short" }, stableLabel(onList, "+ List", "On list"))),
+        el("button", { class: "icon-btn", type: "button", onclick: () => addToPlate(f, mult) },
+          el("span", { class: "lbl-long", text: `Add ${multLabel(mult)} to plate` }), el("span", { class: "lbl-short", text: `+ ${multLabel(mult)} to plate` })));
+      if (PAGES) actions.append(el("button", { class: "icon-btn icon-only", type: "button", "aria-label": "Copy link", title: "Copy link", onclick: () => copyLink(f) }, svgIcon(LINK), el("span", { class: "lbl-long", text: "Copy link" })));
       seg = el("div", { class: "serving", role: "group", "aria-label": "Serving size" }, el("span", { class: "lbl", text: "Servings" }));
       for (const m of MULTS) seg.append(el("button", { class: "seg", type: "button", "aria-pressed": m === mult ? "true" : "false", text: multLabel(m), onclick: () => { mult = m; renderResult(current); } }));
     }
@@ -334,7 +336,15 @@
     row.hidden = !foods.length;
   }
   const QUICK = ["Avocado", "Ground beef 80/20", "Chicken breast, grilled", "Greek yogurt, plain nonfat", "Eggs", "Oatmeal, rolled oats", "Shrimp", "Instant ramen"];
+  // Fade the shelf's edges only where there's more to scroll.
+  function shelfFade() {
+    const sh = $("shelf"); if (!sh) return;
+    const more = sh.scrollWidth - sh.clientWidth;
+    sh.classList.toggle("fade-start", more > 1 && sh.scrollLeft > 1);
+    sh.classList.toggle("fade-end", more > 1 && sh.scrollLeft < more - 1);
+  }
   function renderChips() {
+    requestAnimationFrame(shelfFade);
     chipRow("favRow", favs);
     chipRow("recentRow", recents.filter(n => !favs.includes(n) && byName(n)).slice(0, RECENTS_SHOW));
     chipRow("quickRow", QUICK);
@@ -821,6 +831,8 @@
     $("scanBtn").hidden = !PAGES; $("usdaKeyWrap").hidden = !PAGES;
 
     attachSuggest($("q"), $("suggest"), f => pick(f));
+    $("shelf").addEventListener("scroll", shelfFade, { passive: true });
+    window.addEventListener("resize", shelfFade);
     $("form").addEventListener("submit", e => {
       e.preventDefault();
       const text = $("q").value.trim(); if (!text) return;
