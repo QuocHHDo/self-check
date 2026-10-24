@@ -31,28 +31,49 @@ export function servingGrams(s) {
 // ---- name matching ----
 // Plural-insensitive tokens, without filler words.
 const STOP = new Set(["and", "the", "for", "nfs", "not", "further", "specified", "includes", "all", "type", "types", "style"]);
-const stem = w => w.replace(/ies$/, "y").replace(/(ch|sh|x|o)es$/, "$1").replace(/s$/, "");
-export const tokens = s => String(s).toLowerCase().split(/[^a-z]+/).filter(w => w.length > 2 && !STOP.has(w)).map(stem);
+const stem = w => w.replace(/ies$/, "y").replace(/ie$/, "y").replace(/(ch|sh|x|o)es$/, "$1").replace(/s$/, "");
+export const tokens = s => String(s).toLowerCase().replace(/flour tortilla/g, "tortilla").split(/[^a-z]+/).filter(w => w.length > 2 && !STOP.has(w)).map(stem);
 // Words that make a different food when the built-in name doesn't have them ("Broccoli" vs "Fried broccoli").
 const CHANGERS = new Set(["fried", "creamed", "cream", "casserole", "bread", "dip", "salad", "pickled", "nectar", "powder", "dehydrated",
   "oil", "juice", "soup", "sauce", "cake", "pie", "cookie", "sandwich", "bit", "chip", "stick", "battered", "breaded", "dried", "canned",
   "frozen", "sweetened", "smoothie", "muffin", "stuffed", "babyfood", "baby", "puree", "flavored", "chocolate", "syrup", "jam",
   "concentrate", "added", "glazed", "candied", "alcoholic", "beer", "infant", "formula", "toddler", "pudding", "dessert", "fritter",
   "dumpling", "spread", "mix", "dressing", "gravy", "stew", "omelet", "scrambled", "with", "made", "imitation", "substitute",
-  "curry", "cocktail", "butter", "pastry", "vodka", "palm", "lomi", "crumb", "nugget"].map(stem));
+  "curry", "cocktail", "butter", "pastry", "vodka", "palm", "lomi", "crumb", "nugget",
+  "glutinous", "seeded", "chanterelle", "rose", "leather"].map(stem));
+// Other foods' names: a USDA description that names a food the built-in name doesn't ("Tomatoes, grape" for "Grapes",
+// "Cheese, ricotta, whole milk" for "Whole milk") is a different food. Built from the app's own food names,
+// minus words that only describe a food.
+const MODIFIERS = new Set(["raw", "cooked", "white", "whole", "red", "green", "black", "yellow", "brown", "plain", "low", "fat", "light", "regular",
+  "sweet", "fresh", "large", "small", "medium", "mixed", "baked", "grilled", "roasted", "boneless", "skinless", "lean", "extra", "reduced",
+  "sodium", "free", "nonfat", "unsweetened", "original", "classic", "store", "restaurant", "fast", "food", "bottled", "instant", "refrigerated",
+  "ready", "drink", "style", "half", "part", "skim", "grade", "virgin", "pure", "zero", "diet", "hard", "soft", "dark", "deli", "sliced",
+  "shredded", "grated", "ground", "fried", "breakfast", "spread", "juice", "sauce", "oil", "cream", "milk", "chicken", "beef", "pork", "turkey",
+  // USDA category words and common descriptors ("Fish, salmon", "Cheese, brie", "Cereal, bran flakes")
+  "fish", "cheese", "dry", "meat", "salt", "from", "cereal", "nut", "snack", "snap", "cabbage", "potato", "rotisserie", "seed", "grain", "based",
+  "wheat", "california", "squash", "new", "firm", "flake", "french", "pearled", "english", "calorie", "fruit", "corn", "tea", "vegetable", "pasta",
+  "sweetener", "bar", "beverage", "bean", "cookie", "onion", "egg", "spaghetti", "salsa", "tortilla", "sugar", "cinnamon", "bun", "brisket",
+  "italian", "vanilla", "tofu", "soup", "dip", "bread", "roll", "pizza", "taco", "sandwich", "salad"].map(stem));
+const FOOD_WORDS = new Set(FOODS.flatMap(f => tokens(f.n)).filter(w => !MODIFIERS.has(w)));
+FOOD_WORDS.add(stem("bagel")); FOOD_WORDS.add(stem("whiskey")); FOOD_WORDS.add(stem("vinegar")); FOOD_WORDS.add(stem("stuffing"));
+FOOD_WORDS.add(stem("flour")); FOOD_WORDS.add(stem("peel")); FOOD_WORDS.add(stem("bison")); FOOD_WORDS.add(stem("game")); FOOD_WORDS.add(stem("condensed"));
 // A flavored or sweetened food matched to a plain or unsweetened record (or the reverse) is a different food.
 const FLAVORED = /\b(flavored|sweetened|vanilla|chocolate|honey)\b/i, PLAIN = /\b(plain|unsweetened)\b/i;
 const COOKED = /\b(cooked|baked|boiled|grilled|roasted|steamed|braised|broiled|fried|microwaved)\b/i;
 
 // How sure we are that a USDA description is the same food: share of the built-in name's words it covers,
 // minus a large penalty per changing word the built-in name lacks and a small one per other extra word.
+export function matchDebug(name, description) {
+  const want = new Set(tokens(name));
+  return [...new Set(tokens(description).filter(w => !want.has(w) && (CHANGERS.has(w) || FOOD_WORDS.has(w))))];
+}
 export function matchConfidence(name, description) {
   const want = tokens(name), have = tokens(description);
   if (!want.length) return 0;
   const haveSet = new Set(have), wantSet = new Set(want);
   const coverage = want.filter(w => haveSet.has(w)).length / want.length;
   const extras = [...new Set(have.filter(w => !wantSet.has(w)))];
-  let changers = extras.filter(w => CHANGERS.has(w)).length;
+  let changers = extras.filter(w => CHANGERS.has(w) || FOOD_WORDS.has(w)).length;
   if ((FLAVORED.test(name) && PLAIN.test(description) && !PLAIN.test(name)) || (PLAIN.test(name) && FLAVORED.test(description) && !FLAVORED.test(name))) changers += 1;
   const others = Math.min(0.15, 0.03 * (extras.length - changers));
   // Squared coverage: missing one of three words ("artichoke hearts" vs "hearts of palm") costs more than linearly.
@@ -71,7 +92,7 @@ export function rankCandidates(food, candidates) {
     if (item.dataType === "Foundation") score += 0.08; else if (item.dataType === "SR Legacy") score += 0.06;
     const raw = /\braw\b/i.test(desc);
     if (!cooked && raw && (produce || /\braw\b/i.test(ours))) score += 0.1;
-    if (cooked && raw) score -= 0.15;
+    if (cooked && (raw || /\b(dry|unprepared|uncooked|condensed)\b/i.test(desc))) score -= 0.3;
     if (cooked) { const w = ours.match(COOKED)[1].toLowerCase(); if (new RegExp(`\\b${w}\\b`, "i").test(desc)) score += 0.1; }
     return { item, confidence, score };
   }).sort((a, b) => b.score - a.score);

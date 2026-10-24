@@ -37,7 +37,7 @@ Each serving gets a point score from about a dozen rules measured against your g
 ## Testing
 
 ```sh
-npm test            # 38 unit tests: data integrity, verdict rules, swaps, API conversions, quiz, evals (no dependencies)
+npm test            # 41 unit tests: data integrity, verdict rules, swaps, API conversions, quiz, evals (no dependencies)
 npm install && npm run test:ui   # click-through test of every feature in both versions + axe accessibility check
 npm run snapshot    # after an intentional rule or data change: rewrite the verdict snapshot, then review the diff
 ```
@@ -55,7 +55,28 @@ The built-in values were written by Claude from general nutrition knowledge, not
 
 The USDA eval also writes `eval/suggested-values.json`: confident matches that differ by more than 25%, with USDA's numbers scaled to the serving, for a person to review (raw vs cooked, brand vs generic) before updating `js/foods.js`. When USDA's top search result is the wrong food, pin the right record in `eval/usda-map.json`.
 
-**Status:** neither eval has been run yet; results will be added here.
+### Results: built-in values vs USDA (October 24, 2026)
+
+439 of 449 foods were searched; 304 had a USDA record the matcher trusts as the same food. Within that set:
+
+| Nutrient | Median error | Within 10% | Within 25% |
+| --- | --- | --- | --- |
+| Calories | 3% | 71% | 90% |
+| Protein | 4% | 66% | 87% |
+| Total fat | 4% | 68% | 82% |
+| Saturated fat | 6% | 62% | 76% |
+| Carbs | 3% | 68% | 85% |
+| Fiber | 3% | 61% | 78% |
+| Sugars | 5% | 58% | 76% |
+| Sodium | 6% | 61% | 79% |
+
+**Verdicts agree for 89% of foods (271 of 304)** when USDA's numbers replace the built-in ones.
+
+A manual review of every food flagged at more than 25% off found that most gaps are not errors: about 50 were still the wrong USDA record (now caught by the matcher), and about 100 were different products (salted vs unsalted nuts, USDA survey records that assume salt or fat added in cooking, brand-specific items like jerky or protein shakes). Three were genuine errors and were corrected: roasted turkey breast (fat), molasses (sugar) and catfish (sodium).
+
+**What the first runs taught about the eval itself.** The first run's numbers were wrong for three reasons, all since fixed and covered by tests: USDA's API intermittently rejected about half of all requests (now retried); the top search result was taken as the match, so "Broccoli" was compared with fried broccoli (now 25 candidates are ranked, with penalties for words that make it a different food and a preference for basic raw or cooked records matching the serving); and nutrients missing from a record counted as zero, so olive oil appeared to have no fat (now unknown). Some correct matches are still rejected (fig bars are filed under "Cookies") and some variant mismatches still pass (soft vs hard pretzels), so flagged foods get a human review before any data change.
+
+The Claude lookup eval has not been run (it needs a paid API key).
 
 ## Project layout
 
