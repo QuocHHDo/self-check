@@ -30,3 +30,14 @@ test("12: exact names, aliases and single strong matches still open directly", (
   }
 });
 
+test("13: a query that only contains a food's name is a labeled closest match, not a silent swap", () => {
+  const r = Q.resolve("kirkland protein bar", FOODS);
+  assert.equal(r.kind, "closest");
+  assert.equal(r.food.n, "Protein bar");
+  assert.equal(Q.resolve("organic baby spinach", FOODS).kind, "closest");
+  // Every built-in name and alias still opens itself.
+  for (const f of FOODS) {
+    const r2 = Q.resolve(f.n, FOODS);
+    assert.ok(r2.kind === "open" && r2.food.n === f.n, `${f.n} → ${r2.kind} ${r2.food && r2.food.n}`);
+  }
+});

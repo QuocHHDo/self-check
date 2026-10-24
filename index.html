@@ -97,6 +97,8 @@ button { font: inherit; color: inherit; }
 .shelf { display: flex; flex-wrap: nowrap; gap: 16px; align-items: center; min-height: 40px; margin-top: 10px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
 .shelf .chiprow { flex: none; flex-wrap: nowrap; margin-top: 0; }
 .shelf .chip { white-space: nowrap; }
+.notice.closest { margin-bottom: 12px; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.notice.closest p { margin: 0; }
 .result { display: grid; grid-template-columns: minmax(0, 330px) minmax(0, 1fr); gap: 24px; align-items: start; margin-top: 14px; }
 @media (max-width: 760px) { .result { grid-template-columns: minmax(0, 1fr); } }
 .leftcol { display: grid; gap: 10px; min-width: 0; max-width: 330px; }

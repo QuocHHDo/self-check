@@ -262,6 +262,7 @@
     for (const r of a.reasons) reasons.append(el("li", { class: r.k }, el("span", { class: "ic", "aria-hidden": "true", text: ICON[r.k] || "i" }), el("span", { text: r.t })));
 
     $("out").replaceChildren(...[
+      closestBanner(f),
       head,
       el("div", { class: "result" },
         el("div", { class: "leftcol" }, seg, partial, label, box, src),
@@ -276,9 +277,20 @@
     ].filter(Boolean));
   }
 
+  // When Enter found only a loose match ("kirkland protein bar" → Protein bar), say so above the result.
+  let closestFor = null;
+  function closestBanner(f) {
+    if (!closestFor || closestFor.n !== f.n) return null;
+    const text = closestFor.text;
+    const box = el("div", { class: "notice closest", role: "status" }, el("p", {}, "Showing closest match: ", el("strong", { text: f.n }), ". It's not exactly what you typed."));
+    if (PAGES) box.append(el("button", { class: "btn small ghost", type: "button", text: `Search USDA for “${text}” instead`, onclick: () => usdaSearch(text, box) }));
+    else if (sampleState !== "none") box.append(el("button", { class: "btn small ghost", type: "button", text: `Look up “${text}” with Claude instead`, onclick: () => claudeLookup(text, box) }));
+    return box;
+  }
   function pick(f, opts = {}) {
     if (current && (current.n !== f.n || current.c === "plate")) { mult = 1; explainKey = null; if (compareWith && compareWith.n === f.n) compareWith = null; }
-    $("q").value = f.n; $("suggest").hidden = true;
+    closestFor = opts.closest ? { n: f.n, text: opts.closest } : null;
+    $("q").value = opts.closest || f.n; $("suggest").hidden = true;
     renderResult(f);
     if (!opts.noRecent) addRecent(f);
     if (PAGES && !opts.noHash) { try { history.replaceState(null, "", "#" + V.slug(f.n)); } catch {} }
@@ -528,6 +540,7 @@
   }
 
   function offerLookup(text, near, typo) {
+    closestFor = null;
     const box = el("div", { class: "notice" }, el("p", { text: typo ? `No exact match for “${text}”.` : `“${text}” isn't in the built-in list.` }));
     if (near.length) {
       const p = el("p", { class: "muted" }, near.length > 1 && !typo ? "Did you mean one of these? " : "Did you mean ");
@@ -673,7 +686,7 @@
       if (/^\d{8,14}$/.test(text) && PAGES) return barcodeLookup(text);
       const r = Q.resolve(text, allFoods());
       if (r.kind === "open") return pick(r.food);
-      if (r.kind === "closest") return pick(r.food);
+      if (r.kind === "closest") return pick(r.food, { closest: text });
       offerLookup(text, r.near, r.typo);
     });
     $("scanBtn").addEventListener("click", () => ($("scan").hidden ? openScan() : closeScan()));
