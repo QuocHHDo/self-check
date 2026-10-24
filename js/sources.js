@@ -64,5 +64,33 @@
   }
   const offProductUrl = code => `https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,generic_name,brands,nutriments,serving_size`;
 
-  return { PROCESSED, makeFood, fromUsda, fromOff, usdaSearchUrl, offProductUrl };
+
+  // The exact prompt the Claude version uses to look up a food; the Claude-vs-USDA eval sends the same text.
+  function claudePrompt(text) {
+    return `Give typical nutrition facts for one common US serving of the food "${text}" as bought at a grocery store.
+Reply with only a JSON object in this shape:
+{"found":true,"name":"Title Case food name","serving":"1 cup (240 g)","cal":0,"fat":0,"sat":0,"trans":0,"chol":0,"na":0,"carb":0,"fib":0,"sug":0,"add":0,"pro":0,"spicy":false,"processedMeat":false}
+Units: cal in kcal; chol and na in milligrams; every other number in grams. Use typical USDA FoodData Central values; for a branded or variable product, use a typical mid-range version. "add" is added sugars only. "spicy" is true only if the food is inherently hot. "processedMeat" is true for cured, smoked or deli meats.
+If "${text}" is not a food, reply {"found":false}.`;
+  }
+
+  // Pull the JSON object out of a model reply that may have text or a code fence around it.
+  function parseJsonReply(reply) {
+    const s = String(reply || "");
+    const fence = s.match(/```(?:json)?\s*([\s\S]*?)```/);
+    const body = fence ? fence[1] : s;
+    const i = body.indexOf("{"), j = body.lastIndexOf("}");
+    if (i < 0 || j <= i) throw new Error("no JSON object in reply");
+    return JSON.parse(body.slice(i, j + 1));
+  }
+
+  // A Claude lookup reply (the JSON shape asked for in claudePrompt) as an app food.
+  function fromClaude(d, query) {
+    if (!d || d.found === false || !d.name) return null;
+    const f = makeFood(d.name, d.serving, d, { src: "claude", a: query ? [String(query).toLowerCase()] : [] });
+    f.tags = [...(d.spicy ? ["spicy"] : []), ...(d.processedMeat ? ["processed"] : [])];
+    return f;
+  }
+
+  return { PROCESSED, makeFood, fromUsda, fromOff, usdaSearchUrl, offProductUrl, claudePrompt, parseJsonReply, fromClaude };
 });

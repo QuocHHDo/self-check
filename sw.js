@@ -1,7 +1,8 @@
 // Offline support: the app shell and food data are cached on first visit.
 // Same-origin files are served from the cache and refreshed in the background,
 // so the app opens instantly in a store with no signal and still picks up updates.
-const CACHE = "self-check-v6";
+// The barcode library (375 KB) is not precached: scanning needs a connection anyway, and it is cached on first use.
+const CACHE = "self-check-v8";
 const SHELL = [
   "./",
   "index.html",
@@ -9,8 +10,8 @@ const SHELL = [
   "js/foods.js",
   "js/verdict.js",
   "js/sources.js",
+  "js/learn.js",
   "js/app.js",
-  "vendor/html5-qrcode.min.js",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/apple-touch-icon.png",

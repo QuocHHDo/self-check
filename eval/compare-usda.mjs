@@ -59,6 +59,33 @@ export function compareFood(f, usdaFood) {
   };
 }
 
+export function loadPinned() {
+  const mapFile = path.join(HERE, "usda-map.json");
+  return fs.existsSync(mapFile) ? JSON.parse(fs.readFileSync(mapFile, "utf8")) : {};
+}
+
+// The USDA record for a food name: the pinned fdcId from eval/usda-map.json if any, else the top search result.
+export async function fetchUsda(name, key, pinned = {}) {
+  if (pinned[name]) {
+    const res = await fetch(`https://api.nal.usda.gov/fdc/v1/food/${pinned[name]}?api_key=${encodeURIComponent(key)}`);
+    if (res.status === 429) throw new Error("rate limited");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+  const query = name.replace(/\(.*?\)/g, "").replace(/,/g, " ");
+  const res = await fetch(S.usdaSearchUrl(query, key).replace("pageSize=8", "pageSize=3"));
+  if (res.status === 429) throw new Error("rate limited");
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return ((await res.json()).foods || [])[0] || null;
+}
+
+// Confident matches that are far off, with USDA's numbers scaled to the serving, for a person to review and apply.
+export function suggestions(results, threshold = 0.25) {
+  return results.filter(r => r.confidence >= 0.5 && r.maxError > threshold)
+    .sort((a, b) => b.maxError - a.maxError)
+    .map(r => ({ name: r.name, serving: r.serving, grams: r.grams, usdaRecord: `${r.usdaName} (${r.fdcId})`, maxError: Math.round(r.maxError * 100) / 100, current: r.built, usda: r.usda }));
+}
+
 const median = xs => { const s = [...xs].sort((a, b) => a - b); const m = s.length >> 1; return s.length ? (s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2) : NaN; };
 const pctf = x => `${Math.round(x * 100)}%`;
 
@@ -90,6 +117,8 @@ export function buildReport(results, skipped) {
     lines.push("", "## Uncertain name matches (excluded above)", "", "Pin the right record in eval/usda-map.json and rerun.", "", "| Food | Top USDA result |", "| --- | --- |");
     for (const r of weak) lines.push(`| ${r.name} | ${r.usdaName} (${r.fdcId}) |`);
   }
+  const fix = results.filter(r => r.confidence >= 0.5 && r.maxError > 0.25).length;
+  lines.push("", "## Next step", "", `${fix} confident matches differ by more than 25% on at least one nutrient. Their USDA numbers, scaled to each serving, are in eval/suggested-values.json. Review each one (raw vs cooked, brand vs generic) before updating js/foods.js, then run \`npm run snapshot\` and review the verdict changes.`);
   if (skipped.length) lines.push("", "## Skipped", "", skipped.map(s => `- ${s.name}: ${s.reason}`).join("\n"));
   return lines.join("\n") + "\n";
 }
@@ -97,26 +126,14 @@ export function buildReport(results, skipped) {
 async function main() {
   const key = process.env.USDA_API_KEY;
   if (!key) { console.error("Set USDA_API_KEY (free at https://fdc.nal.usda.gov/api-key-signup.html). The demo key's rate limit is too low for a full run."); process.exit(1); }
-  const mapFile = path.join(HERE, "usda-map.json");
-  const pinned = fs.existsSync(mapFile) ? JSON.parse(fs.readFileSync(mapFile, "utf8")) : {};
+  const pinned = loadPinned();
   const only = process.argv[2] ? new RegExp(process.argv[2], "i") : null;
   const results = [], skipped = [];
   for (const f of FOODS) {
     if (only && !only.test(f.n)) continue;
     if (!servingGrams(f.s)) { skipped.push({ name: f.n, reason: "serving has no gram weight" }); continue; }
     try {
-      let item;
-      if (pinned[f.n]) {
-        const res = await fetch(`https://api.nal.usda.gov/fdc/v1/food/${pinned[f.n]}?api_key=${encodeURIComponent(key)}`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        item = await res.json();
-      } else {
-        const query = f.n.replace(/\(.*?\)/g, "").replace(/,/g, " ");
-        const res = await fetch(S.usdaSearchUrl(query, key).replace("pageSize=8", "pageSize=3"));
-        if (res.status === 429) throw new Error("rate limited");
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        item = ((await res.json()).foods || [])[0];
-      }
+      const item = await fetchUsda(f.n, key, pinned);
       if (!item) { skipped.push({ name: f.n, reason: "no USDA result" }); continue; }
       const r = compareFood(f, S.fromUsda(item));
       if (r) results.push(r);
@@ -131,6 +148,9 @@ async function main() {
   const report = buildReport(results, skipped);
   fs.writeFileSync(path.join(HERE, "report.md"), report);
   fs.writeFileSync(path.join(HERE, "results.json"), JSON.stringify({ results, skipped }, null, 2));
+  const sugg = suggestions(results);
+  fs.writeFileSync(path.join(HERE, "suggested-values.json"), JSON.stringify(sugg, null, 2) + "\n");
+  console.log(`${sugg.length} foods differ from USDA by more than 25%; review eval/suggested-values.json before changing js/foods.js.`);
   if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, report);
   console.log(report.split("\n").slice(0, 20).join("\n"));
 }

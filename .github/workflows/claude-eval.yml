@@ -1,0 +1,32 @@
+name: Claude lookup eval
+# Run from the Actions tab. Needs repository secrets ANTHROPIC_API_KEY and USDA_API_KEY.
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "How many foods to ask Claude about (spread across the list)"
+        required: false
+        default: "60"
+      model:
+        description: "Claude model id"
+        required: false
+        default: "claude-sonnet-5-5"
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Score Claude lookups against USDA
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          USDA_API_KEY: ${{ secrets.USDA_API_KEY }}
+        run: node eval/claude-vs-usda.mjs --limit "${{ github.event.inputs.limit }}" --model "${{ github.event.inputs.model }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: claude-eval
+          path: |
+            eval/claude-report.md
+            eval/claude-results.json

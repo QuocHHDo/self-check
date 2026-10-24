@@ -1,3 +1,4 @@
 node_modules/
 eval/results.json
+eval/claude-results.json
 .DS_Store

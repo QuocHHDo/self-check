@@ -253,13 +253,38 @@
 
   // For sorting by healthiness: the verdict score (ignoring skip list and spice preference, which aren't about
   // nutrition), then a tiebreaker for how much of the daily saturated fat, sodium and added-sugar limits one serving uses.
-  function health(f, p) {
-    const score = assess(f, { ...p, skip: "", mild: false }).score;
-    const harm = f.sat / p.sat + f.na / p.na + (p.add > 0 ? f.add / p.add : 0) + ((f.tags || []).includes("processed") ? 0.3 : 0);
-    return { score, harm };
+  // basis "kcal" scores 100 calories' worth of the food (nutrient density) instead of one serving.
+  // Foods under 25 calories per serving (condiments, spices, diet drinks) keep their per-serving score:
+  // scaling a teaspoon of hot sauce up to 100 calories says nothing useful.
+  function health(f, p, basis = "serving") {
+    const g = basis === "kcal" ? (per100kcal(f) || f) : f;
+    const score = assess(g, { ...p, skip: "", mild: false }).score;
+    const harm = g.sat / p.sat + g.na / p.na + (p.add > 0 ? g.add / p.add : 0) + ((g.tags || []).includes("processed") ? 0.3 : 0);
+    return { score, harm, scaled: g !== f };
+  }
+
+  const KCAL_MIN = 25;
+  // 100 calories' worth of a food, or null when a serving has too few calories to scale meaningfully.
+  function per100kcal(f) {
+    if (!(f.cal >= KCAL_MIN)) return null;
+    const g = scale(f, 100 / f.cal);
+    g.s = "100 calories";
+    return g;
+  }
+
+  // Several foods at chosen servings, added up into one meal ("plate").
+  function combine(items, name = "Your plate") {
+    const out = { n: name, a: [], s: `${items.length} item${items.length === 1 ? "" : "s"}`, c: "plate", tags: [], items };
+    for (const k of NUM_KEYS) out[k] = 0;
+    for (const { food, mult } of items) {
+      for (const k of NUM_KEYS) out[k] += (food[k] || 0) * (mult || 1);
+      for (const t of food.tags || []) if (!out.tags.includes(t)) out.tags.push(t);
+    }
+    for (const k of NUM_KEYS) out[k] = Math.round(out[k] * 10) / 10;
+    return out;
   }
 
   const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-  return { DEFAULT_PROFILE, NUM_KEYS, assess, explain, scale, findSwaps, health, SWAP_HINTS, EVIDENCE, NOTES, slug, fmt };
+  return { DEFAULT_PROFILE, NUM_KEYS, assess, explain, scale, findSwaps, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, fmt };
 });

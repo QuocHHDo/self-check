@@ -20,7 +20,7 @@
 :root {
   --paper: #f5f6f1; --surface: #ffffff; --ink: #161813; --muted: #5b6157; --line: #d8dccf;
   --accent: #2c6a3d; --accent-soft: #e2eedf;
-  --good: #2c7a44; --good-soft: #dff0e2; --mid: #a8701a; --mid-soft: #f6ead2; --bad: #b23a2f; --bad-soft: #f6dfdb;
+  --good: #2b7742; --good-soft: #dff0e2; --mid: #8e5f16; --mid-soft: #f6ead2; --bad: #b23a2f; --bad-soft: #f6dfdb;
   --label-bg: #ffffff; --label-ink: #111111; --bar-track: #e7eae1;
   --font-display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
   --font-body: "Public Sans", "Helvetica Neue", Arial, sans-serif;
@@ -213,18 +213,42 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
 .pgrid .wide { grid-column: 1 / -1; }
 .pgrid .check { display: flex; align-items: center; gap: 8px; color: var(--ink); font-size: 14px; }
 .pgrid a { color: var(--accent); }
+/* grocery list, plate, quiz */
+.lgroup { display: grid; gap: 2px; }
+.lrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.lrow label, .lrow .pname { flex: 1 1 160px; min-width: 0; }
+.lrow.done label { text-decoration: line-through; color: var(--muted); }
+.lrow input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); }
+.lrow select { font: 500 14px var(--font-body); color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px; }
+.linkish { background: none; border: 0; color: var(--accent); cursor: pointer; font-size: 13.5px; padding: 4px 2px; text-decoration: underline; text-underline-offset: 2px; }
+.ptotal { margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-variant-numeric: tabular-nums; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.quiz { display: grid; gap: 10px; }
+.qtag { margin: 0; font: 700 11.5px var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--mid); }
+.qprompt { margin: 0; font: 800 19px var(--font-display); font-stretch: 85%; text-wrap: balance; }
+.qopts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
+.qopt { text-align: left; font: 600 15px var(--font-body); background: var(--paper); border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 14px; cursor: pointer; }
+.qopt:hover { border-color: var(--accent); }
+.qopt.right { background: var(--good-soft); border-color: var(--good); color: var(--good); }
+.qopt.wrong { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+.qopt[aria-disabled="true"] { cursor: default; }
+.qexplain { display: grid; gap: 6px; }
+.qexplain p { margin: 0; }
+.qres { font-weight: 700; }
+.qres.ok { color: var(--good); } .qres.no { color: var(--bad); }
+.icon-btn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
 .fine { font-size: 12.5px; color: var(--muted); max-width: 75ch; margin: 0; }
 .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 8px 14px; border-radius: 8px; font-size: 14px; z-index: 20; }
 </style>
 </head>
 <body>
-<div class="wrap">
+<main class="wrap">
   <header>
     <h1>Should I Buy It?</h1>
     <p class="sub">Search or scan a food to see its nutrition label and whether it fits your goals. <span id="foodCount"></span></p>
   </header>
 
-  <div class="search">
+  <section class="search" role="search" aria-label="Find a food">
     <form class="search-row" id="form" autocomplete="off">
       <input id="q" type="search" placeholder="Try avocado, ground beef, oatmeal…" aria-label="Search a food" aria-autocomplete="list" aria-controls="suggest">
       <button class="btn" type="submit">Check</button>
@@ -243,17 +267,49 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
     <div class="chiprow" id="favRow" hidden><span class="lbl">Favorites</span></div>
     <div class="chiprow" id="recentRow" hidden><span class="lbl">Recent</span></div>
     <div class="chiprow" id="quickRow"><span class="lbl">Try</span></div>
-  </div>
+  </section>
 
-  <main id="out" aria-live="polite"></main>
+  <section id="out" aria-live="polite" aria-label="Result"></section>
+
+  <details class="box" id="plateBox">
+    <summary><span>Plate builder</span><span class="muted" id="plateCount"></span></summary>
+    <div class="inner">
+      <div id="plateItems" class="lgroup"></div>
+      <div class="actions">
+        <button class="btn small" type="button" id="plateView">See the plate's verdict</button>
+        <button class="btn small ghost" type="button" id="plateClear">Clear plate</button>
+      </div>
+    </div>
+  </details>
+
+  <details class="box" id="glistBox">
+    <summary><span>Grocery list</span><span class="muted" id="glistCount"></span></summary>
+    <div class="inner">
+      <div id="glistItems" class="lgroup"></div>
+      <div class="actions">
+        <button class="btn small" type="button" id="glistCopy">Copy list</button>
+        <button class="btn small ghost" type="button" id="glistClear">Clear checked</button>
+        <button class="btn small ghost" type="button" id="glistFavs">Add my “Get it” favorites</button>
+      </div>
+    </div>
+  </details>
 
   <details class="box" id="browse">
     <summary><span>Browse all foods</span><span class="muted" id="browseCount"></span></summary>
     <div class="inner">
       <div class="chiprow" id="cats" style="margin:0"></div>
       <div class="chiprow" id="bsort" style="margin:0" role="group" aria-label="Sort foods"></div>
+      <div class="chiprow" id="bbasis" style="margin:0" role="group" aria-label="Ranking basis" hidden></div>
       <p class="fine" id="bsortNote" hidden>Ranked per serving by the same score behind each verdict (lower is less healthy), then by how much of your saturated fat, sodium and added-sugar limits one serving uses.</p>
       <div class="blist" id="blist"></div>
+    </div>
+  </details>
+
+  <details class="box" id="learn">
+    <summary><span>Learn: quick quiz</span><span class="muted" id="learnScore"></span></summary>
+    <div class="inner">
+      <div id="quiz" class="quiz"></div>
+      <div><button class="linkish" type="button" id="learnReset">Reset quiz progress</button></div>
     </div>
   </details>
 
@@ -277,13 +333,14 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
     </div>
   </details>
 
-  <p class="fine">Built-in values are approximate typical figures for a standard serving; packaged foods vary by brand, so the label on the package wins. USDA results come from USDA FoodData Central; scanned products come from Open Food Facts, a crowd-sourced database that can be incomplete. The label's % Daily Value uses standard FDA values; the bars and verdict use your goals. General nutrition guidance, not medical advice.</p>
-</div>
+  <footer><p class="fine">Built-in values are approximate typical figures for a standard serving; packaged foods vary by brand, so the label on the package wins. USDA results come from USDA FoodData Central; scanned products come from Open Food Facts, a crowd-sourced database that can be incomplete. The label's % Daily Value uses standard FDA values; the bars and verdict use your goals. General nutrition guidance, not medical advice.</p></footer>
+</main>
 
 <script>window.SELF_CHECK_CONFIG = { mode: "pages" };</script>
 <script src="js/foods.js"></script>
 <script src="js/verdict.js"></script>
 <script src="js/sources.js"></script>
+<script src="js/learn.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

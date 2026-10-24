@@ -50,7 +50,9 @@
   const LINK = '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>';
 
   // ---------- state ----------
-  let current = null, mult = 1, explainKey = null, compareWith = null;
+  let current = null, mult = 1, explainKey = null, compareWith = null, cmpBasis = "serving";
+  let glist = store.get("grocery", []).filter(x => x && x.n);
+  let plate = store.get("plate", []).filter(x => x && x.n);
 
   // ---------- nutrition label ----------
   function labelRow(name, amt, dvKey, val, cls = "", bold = true, k = dvKey) {
@@ -127,7 +129,7 @@
       wrap.append(el("div", { class: "bar", title: `${r.n}: ${fmt(r.v)}${r.u} of your ${r.t.toLocaleString("en-US")}${r.u} ${r.goal ? "goal" : r.neutral ? "budget" : "limit"}` },
         el("span", { class: "name", text: r.n }), el("div", { class: "track" }, el("div", { class: "fill " + cls, style: `width:${Math.min(100, share * 100).toFixed(1)}%` })), val));
     }
-    const what = f.mult && f.mult !== 1 ? `${fmt(f.mult)} servings` : "One serving";
+    const what = f.c === "plate" ? "This meal" : f.mult && f.mult !== 1 ? `${fmt(f.mult)} servings` : "One serving";
     return el("section", { class: "panel" }, el("h3", { text: `${what}, as a share of your day` }), wrap,
       el("p", { class: "legend", text: "Green bars are goals to reach. Amber and red show how much of a daily limit this uses." }));
   }
@@ -170,11 +172,19 @@
     sec.append(row, list);
     attachSuggest(input, list, g => { compareWith = g; renderResult(current); });
     if (compareWith && compareWith.n !== f.n) {
-      const a = V.scale(f, mult), b = compareWith;
-      const va = V.assess(f, profile), vb = V.assess(b, profile);
-      const thead = el("thead", {}, el("tr", {}, el("th", { text: "Per serving" }),
-        el("th", {}, f.n, el("span", { class: "sv", text: servingText(a) }), pill(va)),
-        el("th", {}, b.n, el("span", { class: "sv", text: b.s }), pill(vb))));
+      let a = V.scale(f, mult), b = compareWith, note = "";
+      if (cmpBasis === "kcal") {
+        const a2 = V.per100kcal(f), b2 = V.per100kcal(compareWith);
+        if (a2 && b2) { a = a2; b = b2; } else note = `One of these has under ${V.KCAL_MIN} calories per serving, so it's shown per serving instead.`;
+      }
+      const va = V.assess(f, profile), vb = V.assess(compareWith, profile);
+      const basisRow = el("div", { class: "chiprow", style: "margin:0", role: "group", "aria-label": "Compare basis" }, el("span", { class: "lbl", text: "Compare" }),
+        ...[["serving", "Per serving"], ["kcal", "Per 100 calories"]].map(([id, label]) => el("button", { class: "chip" + (cmpBasis === id ? " on" : ""), type: "button", "aria-pressed": cmpBasis === id ? "true" : "false", text: label, onclick: () => { cmpBasis = id; renderResult(current); } })));
+      sec.append(basisRow);
+      if (note) sec.append(el("p", { class: "legend", text: note }));
+      const thead = el("thead", {}, el("tr", {}, el("th", { text: a.s === "100 calories" ? "Per 100 calories" : "Per serving" }),
+        el("th", {}, f.n, el("span", { class: "sv", text: a.s === "100 calories" ? "100 calories" : servingText(a) }), pill(va)),
+        el("th", {}, compareWith.n, el("span", { class: "sv", text: b.s }), pill(vb))));
       const tbody = el("tbody");
       for (const [label, k, unit, dir] of CMP_ROWS) {
         const x = a[k], y = b[k];
@@ -183,25 +193,35 @@
         tbody.append(el("tr", {}, el("td", { text: label }), cell(x, 0), cell(y, 1)));
       }
       sec.append(el("div", { class: "ctable-wrap" }, el("table", { class: "ctable" }, thead, tbody)),
-        el("p", { class: "legend", text: "Green marks the better amount for your goals. Servings differ, so compare against how much you'd actually eat." }),
+        el("p", { class: "legend", text: a.s === "100 calories" ? "Green marks the better amount for your goals. Per 100 calories shows nutrient density: what you get for the same calories." : "Green marks the better amount for your goals. Servings differ, so compare against how much you'd actually eat, or switch to per 100 calories." }),
         el("div", {}, el("button", { class: "btn small ghost", type: "button", text: "Clear comparison", onclick: () => { compareWith = null; renderResult(current); } })));
     }
     return sec;
   }
 
   // ---------- result ----------
+  const MULTS = [0.5, 1, 1.5, 2, 3];
+  const multLabel = m => (m === 0.5 ? "½" : m === 1.5 ? "1½" : String(m));
   function renderResult(f) {
     current = f;
+    const isPlate = f.c === "plate";
+    if (isPlate) mult = 1;
     const scaled = V.scale(f, mult);
     const a = V.assess(f, profile);
-    const isFav = favs.includes(f.n);
-    const star = el("button", { class: "icon-btn", type: "button", "aria-pressed": isFav ? "true" : "false", onclick: () => toggleFav(f) },
-      svgIcon(isFav ? STAR_ON : STAR), isFav ? "Saved" : "Save");
-    const head = el("div", { class: "result-head" }, el("h2", { text: f.n }), el("span", { class: "cat", text: CAT_LABEL[f.c] || "" }), star);
-    if (PAGES) head.append(el("button", { class: "icon-btn", type: "button", onclick: () => copyLink(f) }, svgIcon(LINK), "Copy link"));
-
-    const seg = el("div", { class: "serving", role: "group", "aria-label": "Serving size" }, el("span", { class: "lbl", text: "Servings" }));
-    for (const m of [0.5, 1, 1.5, 2, 3]) seg.append(el("button", { class: "seg", type: "button", "aria-pressed": m === mult ? "true" : "false", text: m === 0.5 ? "½" : m === 1.5 ? "1½" : String(m), onclick: () => { mult = m; renderResult(current); } }));
+    const head = el("div", { class: "result-head" }, el("h2", { text: f.n }), el("span", { class: "cat", text: isPlate ? f.s : CAT_LABEL[f.c] || "" }));
+    let seg = null;
+    if (isPlate) {
+      head.append(el("button", { class: "icon-btn", type: "button", onclick: () => { $("plateBox").open = true; $("plateBox").scrollIntoView({ behavior: "smooth", block: "start" }); } }, "Edit plate"));
+    } else {
+      const isFav = favs.includes(f.n), onList = glist.some(x => x.n === f.n);
+      head.append(
+        el("button", { class: "icon-btn", type: "button", "aria-pressed": isFav ? "true" : "false", onclick: () => toggleFav(f) }, svgIcon(isFav ? STAR_ON : STAR), isFav ? "Saved" : "Save"),
+        el("button", { class: "icon-btn", type: "button", "aria-pressed": onList ? "true" : "false", onclick: () => toggleList(f) }, onList ? "On grocery list" : "Add to list"),
+        el("button", { class: "icon-btn", type: "button", onclick: () => addToPlate(f, mult) }, `Add ${multLabel(mult)} to plate`));
+      if (PAGES) head.append(el("button", { class: "icon-btn", type: "button", onclick: () => copyLink(f) }, svgIcon(LINK), "Copy link"));
+      seg = el("div", { class: "serving", role: "group", "aria-label": "Serving size" }, el("span", { class: "lbl", text: "Servings" }));
+      for (const m of MULTS) seg.append(el("button", { class: "seg", type: "button", "aria-pressed": m === mult ? "true" : "false", text: multLabel(m), onclick: () => { mult = m; renderResult(current); } }));
+    }
 
     const label = renderLabel(scaled);
     const box = el("div", { class: "explain", "aria-live": "polite" });
@@ -210,6 +230,7 @@
     if (f.src === "claude") src.append(el("b", { text: "Looked up by Claude. " }), "Typical values; check the package label.");
     else if (f.src === "usda") src.append(el("b", { text: "From USDA FoodData Central. " }), "Values per 100 g.");
     else if (f.src === "off") src.append(el("b", { text: "From Open Food Facts. " }), f.partial ? "Some values were missing and show as 0; check the package." : "Crowd-sourced; check the package label.");
+    else if (isPlate) src.append("The sum of every item at the servings you chose.");
     else src.append("Typical values for this serving. Brands vary.");
 
     const reasons = el("ul", { class: "reasons" });
@@ -220,18 +241,18 @@
       el("div", { class: "result" },
         el("div", { class: "leftcol" }, seg, label, box, src),
         el("div", { class: "side" },
-          el("div", { class: "tag " + a.tier }, el("div", { class: "for", text: "For you" }), el("div", { class: "verdict", text: a.word }), el("p", { class: "why", text: a.why }),
+          el("div", { class: "tag " + a.tier }, el("div", { class: "for", text: isPlate ? "For you · whole meal" : "For you" }), el("div", { class: "verdict", text: a.word }), el("p", { class: "why", text: a.why }),
             mult !== 1 ? el("p", { class: "per", text: "The verdict is for one standard serving; the label and bars show your amount." }) : null),
           renderBars(scaled),
-          renderSwaps(f),
+          isPlate ? null : renderSwaps(f),
           el("section", { class: "panel" }, el("h3", { text: "Why" }), reasons),
-          renderCompare(f)
+          isPlate ? null : renderCompare(f)
         ))
     );
   }
 
   function pick(f, opts = {}) {
-    if (current && current.n !== f.n) { mult = 1; explainKey = null; if (compareWith && compareWith.n === f.n) compareWith = null; }
+    if (current && (current.n !== f.n || current.c === "plate")) { mult = 1; explainKey = null; if (compareWith && compareWith.n === f.n) compareWith = null; }
     $("q").value = f.n; $("suggest").hidden = true;
     renderResult(f);
     if (!opts.noRecent) addRecent(f);
@@ -266,11 +287,143 @@
     $("quickRow").hidden = recents.length + favs.length >= 3;
   }
 
+  // ---------- grocery list ----------
+  function saveList() { store.set("grocery", glist); renderList(); }
+  function toggleList(f) {
+    const had = glist.some(x => x.n === f.n);
+    glist = had ? glist.filter(x => x.n !== f.n) : [...glist, { n: f.n, done: false }];
+    saveList();
+    if (current && current.c !== "plate") renderResult(current);
+    toast(had ? "Removed from grocery list" : "Added to grocery list");
+  }
+  function renderList() {
+    const box = $("glistItems");
+    box.replaceChildren();
+    const open = glist.filter(x => !x.done).length;
+    $("glistCount").textContent = glist.length ? `${open} to buy${glist.length > open ? ` · ${glist.length - open} done` : ""}` : "empty";
+    if (!glist.length) box.append(el("p", { class: "muted", text: "Choose “Add to list” on any food, or add your “Get it” favorites below." }));
+    for (const item of [...glist].sort((x, y) => Number(x.done) - Number(y.done))) {
+      const f = byName(item.n);
+      const id = "g-" + V.slug(item.n);
+      box.append(el("div", { class: "lrow" + (item.done ? " done" : "") },
+        el("input", { type: "checkbox", id, checked: item.done ? true : null, onchange: e => { item.done = e.target.checked; saveList(); } }),
+        el("label", { for: id, text: item.n }),
+        f ? pill(V.assess(f, profile)) : null,
+        f ? el("button", { class: "linkish", type: "button", text: "View", "aria-label": `View ${item.n}`, onclick: () => pick(f, { scroll: true }) }) : null,
+        el("button", { class: "linkish", type: "button", text: "Remove", "aria-label": `Remove ${item.n}`, onclick: () => { glist = glist.filter(x => x !== item); saveList(); if (current && current.c !== "plate") renderResult(current); } })));
+    }
+    $("glistCopy").disabled = !glist.length; $("glistClear").disabled = !glist.some(x => x.done);
+  }
+  async function copyList() {
+    const text = glist.filter(x => !x.done).map(x => `- ${x.n}`).join("\n");
+    try { await navigator.clipboard.writeText(text); toast("List copied"); } catch { toast("Couldn't copy here; select the list and copy it instead."); }
+  }
+  function addGoodFavorites() {
+    const add = favs.map(byName).filter(f => f && V.assess(f, profile).tier === "good" && !glist.some(x => x.n === f.n));
+    glist = [...glist, ...add.map(f => ({ n: f.n, done: false }))];
+    saveList();
+    toast(add.length ? `Added ${add.length} favorite${add.length === 1 ? "" : "s"}` : "No “Get it” favorites to add yet");
+  }
+
+  // ---------- plate builder ----------
+  function savePlate() { store.set("plate", plate); renderPlate(); }
+  function addToPlate(f, m) {
+    const ex = plate.find(x => x.n === f.n);
+    if (ex) ex.mult = m; else plate.push({ n: f.n, mult: m });
+    savePlate();
+    toast(`${f.n} is on your plate`);
+  }
+  function plateFood() {
+    const items = plate.map(x => ({ food: byName(x.n), mult: x.mult })).filter(x => x.food);
+    return items.length ? V.combine(items) : null;
+  }
+  function showPlate() {
+    const pf = plateFood();
+    if (!pf) return;
+    explainKey = null;
+    renderResult(pf);
+    $("out").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function afterPlateChange() {
+    savePlate();
+    if (current && current.c === "plate") { const pf = plateFood(); if (pf) renderResult(pf); else pick(FOODS[0], { noRecent: true, noHash: true }); }
+  }
+  function renderPlate() {
+    const box = $("plateItems");
+    box.replaceChildren();
+    const pf = plateFood();
+    $("plateCount").textContent = pf ? `${pf.s} · ${Math.round(pf.cal)} cal` : "empty";
+    $("plateView").disabled = !pf; $("plateClear").disabled = !pf;
+    if (!pf) { box.append(el("p", { class: "muted", text: "Build a meal: open any food, pick the servings, and choose “Add to plate”." })); return; }
+    for (const item of plate) {
+      const f = byName(item.n);
+      if (!f) continue;
+      const sel = el("select", { "aria-label": `Servings of ${item.n}`, onchange: e => { item.mult = Number(e.target.value); afterPlateChange(); } },
+        ...MULTS.map(m => el("option", { value: String(m), selected: m === item.mult ? true : null, text: `${multLabel(m)} serving${m === 1 ? "" : "s"}` })));
+      box.append(el("div", { class: "lrow" },
+        el("span", { class: "pname" }, item.n, el("small", { class: "muted", text: ` · ${f.s}` })),
+        sel,
+        el("button", { class: "linkish", type: "button", text: "Remove", "aria-label": `Remove ${item.n} from plate`, onclick: () => { plate = plate.filter(x => x !== item); afterPlateChange(); } })));
+    }
+    box.append(el("p", { class: "ptotal" }, `Total: ${Math.round(pf.cal)} cal · ${fmt(pf.pro)} g protein · ${fmt(pf.sat)} g saturated fat · ${Math.round(pf.na).toLocaleString("en-US")} mg sodium `, pill(V.assess(pf, profile))));
+  }
+
+  // ---------- learn mode ----------
+  const L = window.SelfCheckLearn;
+  let learn = { asked: 0, correct: 0, streak: 0, missed: [], ...store.get("learn", {}) };
+  let quizQ = null, quizChosen = null;
+  function nextQuestion() {
+    const due = L.dueReview(learn);
+    const review = due && L.fromId(due.id, FOODS, profile);
+    quizQ = review || L.makeQuestion(FOODS, profile, Math.random);
+    quizQ.review = !!review;
+    quizChosen = null;
+    renderQuiz();
+    const first = document.querySelector("#quiz .qopt");
+    if (first) first.focus();
+  }
+  function answerQuiz(i) {
+    if (quizChosen !== null) return;
+    quizChosen = i;
+    learn = L.recordAnswer(learn, quizQ, i === quizQ.answer);
+    store.set("learn", learn);
+    renderQuiz();
+    const next = $("quizNext");
+    if (next) next.focus();
+  }
+  function renderQuiz() {
+    $("learnScore").textContent = learn.asked ? `${learn.correct} of ${learn.asked} right${learn.streak > 1 ? ` · ${learn.streak} in a row` : ""}${learn.missed.length ? ` · ${learn.missed.length} to review` : ""}` : "";
+    const box = $("quiz");
+    if (!quizQ) {
+      box.replaceChildren(el("p", { class: "muted", text: "Quick questions built from these foods and your goals. Missed ones come back later so they stick." }),
+        el("div", {}, el("button", { class: "btn small", type: "button", text: "Start", onclick: nextQuestion })));
+      return;
+    }
+    const done = quizChosen !== null;
+    const opts = el("div", { class: "qopts", role: "group", "aria-label": "Answers" }, ...quizQ.options.map((o, i) => el("button", {
+      class: "qopt" + (done ? (i === quizQ.answer ? " right" : i === quizChosen ? " wrong" : "") : ""),
+      type: "button", "aria-disabled": done ? "true" : null, text: o, onclick: () => answerQuiz(i) })));
+    const parts = [quizQ.review ? el("p", { class: "qtag", text: "Review: you missed this one earlier" }) : null, el("p", { class: "qprompt", text: quizQ.prompt }), opts];
+    if (done) {
+      const right = quizChosen === quizQ.answer;
+      parts.push(el("div", { class: "qexplain", "aria-live": "polite" },
+        el("p", { class: "qres " + (right ? "ok" : "no"), text: right ? "Correct." : `Not quite. The answer is ${quizQ.options[quizQ.answer]}.` }),
+        el("p", { text: quizQ.explain }),
+        quizQ.principle ? el("p", { class: "muted", text: quizQ.principle }) : null,
+        el("div", { class: "actions" }, el("button", { class: "btn small", type: "button", id: "quizNext", text: "Next question", onclick: nextQuestion }),
+          ...quizQ.foods.map(f => el("button", { class: "btn small ghost", type: "button", text: `Open ${f.n}`, onclick: () => pick(f, { scroll: true }) })))));
+    }
+    box.replaceChildren(...parts);
+  }
+
   // ---------- browse ----------
   let browseCat = "all";
   let browseSort = store.get("browseSort", "az");
+  let browseBasis = store.get("browseBasis", "serving");
   const SORTS = [{ id: "az", label: "A–Z" }, { id: "worst", label: "Least healthy first" }, { id: "best", label: "Healthiest first" }];
   function renderBrowse() {
+    $("browseCount").textContent = `${allFoods().length} foods`;
+    if (!$("browse").open) return; // built when the panel is opened
     const cats = $("cats");
     cats.replaceChildren();
     const opts = [{ id: "all", label: "All" }, ...CATEGORIES, ...(lookups.length ? [{ id: "lookup", label: "Looked up" }] : [])];
@@ -280,8 +433,15 @@
     for (const s of SORTS) sorts.append(el("button", { class: "chip" + (s.id === browseSort ? " on" : ""), type: "button", "aria-pressed": s.id === browseSort ? "true" : "false", text: s.label, onclick: () => { browseSort = s.id; store.set("browseSort", s.id); renderBrowse(); } }));
     const ranked = browseSort !== "az";
     $("bsortNote").hidden = !ranked;
+    const basis = $("bbasis");
+    basis.hidden = !ranked;
+    basis.replaceChildren(el("span", { class: "lbl", text: "Basis" }), ...[["serving", "Per serving"], ["kcal", "Per 100 calories"]].map(([id, label]) =>
+      el("button", { class: "chip" + (browseBasis === id ? " on" : ""), type: "button", "aria-pressed": browseBasis === id ? "true" : "false", text: label, onclick: () => { browseBasis = id; store.set("browseBasis", id); renderBrowse(); } })));
+    $("bsortNote").textContent = browseBasis === "kcal"
+      ? `Ranked by nutrient density: 100 calories' worth of each food, scored by the same rules as the verdict (lower is less healthy). Foods under ${V.KCAL_MIN} calories per serving keep their per-serving score.`
+      : "Ranked per serving by the same score behind each verdict (lower is less healthy), then by how much of your saturated fat, sodium and added-sugar limits one serving uses.";
 
-    const rows = allFoods().filter(f => browseCat === "all" || f.c === browseCat).map(f => ({ f, v: V.assess(f, profile), h: V.health(f, profile) }));
+    const rows = allFoods().filter(f => browseCat === "all" || f.c === browseCat).map(f => ({ f, v: V.assess(f, profile), h: V.health(f, profile, browseBasis) }));
     if (browseSort === "az") rows.sort((x, y) => x.f.n.localeCompare(y.f.n));
     else {
       const dir = browseSort === "worst" ? 1 : -1;
@@ -291,7 +451,7 @@
     list.classList.toggle("ranked", ranked);
     list.replaceChildren(...rows.map((r, i) => {
       const name = el("span", {}, ranked ? el("span", { class: "rank", text: `${i + 1}.` }) : null, r.f.n);
-      const right = el("span", { class: "bright" }, ranked ? el("span", { class: "score", title: "Health score per serving (higher is better)", text: (r.h.score > 0 ? "+" : "") + r.h.score }) : null, pill(r.v));
+      const right = el("span", { class: "bright" }, ranked ? el("span", { class: "score", title: browseBasis === "kcal" && r.h.scaled ? "Health score per 100 calories (higher is better)" : "Health score per serving (higher is better)", text: (r.h.score > 0 ? "+" : "") + r.h.score }) : null, pill(r.v));
       return el("button", { class: "bitem", type: "button", onclick: () => pick(r.f, { scroll: true }) }, name, right);
     }));
     $("browseCount").textContent = `${allFoods().length} foods`;
@@ -448,16 +608,11 @@
   async function claudeLookup(text, box) {
     if (!sampleFn) return;
     busy(box, `Looking up ${text}…`);
-    const prompt = `Give typical nutrition facts for one common US serving of the food "${text}" as bought at a grocery store.
-Reply with only a JSON object in this shape:
-{"found":true,"name":"Title Case food name","serving":"1 cup (240 g)","cal":0,"fat":0,"sat":0,"trans":0,"chol":0,"na":0,"carb":0,"fib":0,"sug":0,"add":0,"pro":0,"spicy":false,"processedMeat":false}
-Units: cal in kcal; chol and na in milligrams; every other number in grams. Use typical USDA FoodData Central values; for a branded or variable product, use a typical mid-range version. "add" is added sugars only. "spicy" is true only if the food is inherently hot. "processedMeat" is true for cured, smoked or deli meats.
-If "${text}" is not a food, reply {"found":false}.`;
+    const prompt = S.claudePrompt(text);
     try {
       const d = await sampleFn.json(prompt, { modelTier: "default", cache: { gcTime: 86400000 } });
       if (!d || d.found === false || !d.name) { box.replaceChildren(el("p", { text: `Claude didn't recognize “${text}” as a food. Try a more common name.` })); return; }
-      const f = S.makeFood(d.name, d.serving, d, { src: "claude", a: [text.toLowerCase()] });
-      f.tags = [...(d.spicy ? ["spicy"] : []), ...(d.processedMeat ? ["processed"] : [])];
+      const f = S.fromClaude(d, text);
       saveLookup(f); pick(f);
     } catch (e) {
       const msg = { not_granted: "Claude lookups weren't allowed for this page, so only built-in foods work.", sampling_disabled: "Claude isn't available for this account.",
@@ -479,7 +634,7 @@ If "${text}" is not a food, reply {"found":false}.`;
   function readProfile() {
     for (const [k, id] of Object.entries(PF)) { const v = Number($(id).value); if (Number.isFinite(v) && v > 0) profile[k] = v; }
     profile.skip = $("p-skip").value; profile.mild = $("p-mild").checked; profile.usdaKey = $("p-usda").value.trim();
-    store.set("profile", profile); syncProfileUI(); renderBrowse(); renderChips();
+    store.set("profile", profile); syncProfileUI(); renderBrowse(); renderChips(); renderList(); renderPlate();
     if (current) renderResult(current);
   }
 
@@ -507,7 +662,14 @@ If "${text}" is not a food, reply {"found":false}.`;
     document.querySelectorAll("#profile input").forEach(i => i.addEventListener("change", readProfile));
     syncProfileUI();
     if (!savedProfile && !CFG.profile) $("profile").open = true;
-    renderChips(); renderBrowse();
+    renderChips(); renderBrowse(); renderList(); renderPlate(); renderQuiz();
+    $("learnReset").addEventListener("click", () => { learn = { asked: 0, correct: 0, streak: 0, missed: [] }; store.set("learn", learn); quizQ = null; renderQuiz(); });
+    $("browse").addEventListener("toggle", () => { if ($("browse").open) renderBrowse(); });
+    $("glistCopy").addEventListener("click", copyList);
+    $("glistClear").addEventListener("click", () => { glist = glist.filter(x => !x.done); saveList(); });
+    $("glistFavs").addEventListener("click", addGoodFavorites);
+    $("plateView").addEventListener("click", showPlate);
+    $("plateClear").addEventListener("click", () => { plate = []; afterPlateChange(); });
 
     const fromHash = PAGES && location.hash.length > 1 ? allFoods().find(f => V.slug(f.n) === decodeURIComponent(location.hash.slice(1))) : null;
     const startFood = fromHash || (recents.length && byName(recents[0])) || FOODS[0];
