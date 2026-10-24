@@ -53,7 +53,7 @@ test("Open Food Facts product uses per-serving values and converts grams of sodi
 
 test("Open Food Facts falls back to per-100 g values and estimates sodium from salt", () => {
   const f = S.fromOff("4000000000000", { product_name: "Mystery Crackers", nutriments: { "energy-kcal_100g": 450, "fat_100g": 15, "carbohydrates_100g": 70, "proteins_100g": 9, "salt_100g": 2 } });
-  assert.equal(f.s, "100 g");
+  assert.equal(f.s, "100 g (no serving size on file)");
   assert.equal(f.na, 800);
   assert.equal(f.partial, true);
 });

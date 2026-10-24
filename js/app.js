@@ -16,7 +16,8 @@
   };
   const savedProfile = store.get("profile", null);
   let profile = { ...V.DEFAULT_PROFILE, ...(CFG.profile || {}), ...(savedProfile || {}) };
-  let lookups = store.get("lookups", []).filter(f => f && f.n && typeof f.cal === "number");
+  // Barcode products saved before serving sizes were read correctly (no `missing` list) are dropped; rescanning refreshes them.
+  let lookups = store.get("lookups", []).filter(f => f && f.n && typeof f.cal === "number" && !(f.src === "off" && !Array.isArray(f.missing)));
   let recents = store.get("recents", []);
   let favs = store.get("favorites", []);
   const allFoods = () => [...FOODS, ...lookups];
@@ -248,7 +249,7 @@
     const src = el("p", { class: "src" });
     if (f.src === "claude") src.append(el("b", { text: "Looked up by Claude. " }), "Typical values; check the package label.");
     else if (f.src === "usda") src.append(el("b", { text: "From USDA FoodData Central. " }), "Values per 100 g.");
-    else if (f.src === "off") src.append(el("b", { text: "From Open Food Facts. " }), "Crowd-sourced; check the package label.");
+    else if (f.src === "off") src.append(el("b", { text: "From Open Food Facts. " }), f.per100 ? "Values are per 100 g because the package has no serving size on file; use the servings buttons to match what you eat." : "Values per the package's serving. Crowd-sourced; check the label.");
     else if (isPlate) src.append("The sum of every item at the servings you chose.");
     else src.append("Typical values for this serving. Brands vary.");
 

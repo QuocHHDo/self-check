@@ -108,3 +108,25 @@ test("4: trans fat wording only claims a natural source for meat and dairy", () 
   const shortening = { ...food("Vegetable shortening"), trans: 1.5 };
   assert.ok(!V.assess(shortening, P).reasons.some(r => /naturally/.test(r.t)));
 });
+
+// ---- 5. Barcode products use per-100 g as "1 serving" ----
+const nutella = require("./fixtures/off-nutella.json");
+test("5: Open Food Facts per-100 g values are scaled to the package serving", () => {
+  const f = S.fromOff(nutella.code, nutella.product);
+  assert.equal(f.s, "15 g");
+  assert.equal(f.cal, Math.round(539 * 0.15 * 10) / 10);
+  assert.equal(f.sat, Math.round(10.6 * 0.15 * 10) / 10);
+  assert.equal(f.na, Math.round(42.8 * 0.15 * 10) / 10);
+  assert.equal(f.per100, false);
+  const two = V.scale(f, 2);
+  assert.equal(Math.round(two.cal), Math.round(539 * 0.3));
+});
+
+test("5: label's own per-serving values win; no serving size falls back to labeled per 100 g", () => {
+  const withServing = S.fromOff("1", { product_name: "X", serving_size: "1 bar (40 g)", serving_quantity: 40, nutriments: { "energy-kcal_serving": 190, "energy-kcal_100g": 475, "fat_serving": 8, "proteins_serving": 10 } });
+  assert.equal(withServing.cal, 190); assert.equal(withServing.s, "1 bar (40 g)");
+  const none = S.fromOff("2", { product_name: "Y", nutriments: { "energy-kcal_100g": 400, "fat_100g": 10 } });
+  assert.equal(none.cal, 400); assert.equal(none.s, "100 g (no serving size on file)"); assert.equal(none.per100, true);
+  const fromText = S.fromOff("3", { product_name: "Z", serving_size: "2 cookies (28 g)", nutriments: { "energy-kcal_100g": 500 } });
+  assert.equal(fromText.cal, 140);
+});

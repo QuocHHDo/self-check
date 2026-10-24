@@ -55,12 +55,24 @@
       { src: "usda", fdcId: item.fdcId, dataType: item.dataType, missing, calEstimated });
   }
 
-  // One product from Open Food Facts /api/v2/product/{barcode}.json. Uses per-serving values when present, else per 100 g.
+  // One product from Open Food Facts /api/v2/product/{barcode}.json, per the package's serving:
+  //  1. the label's own per-serving values (*_serving) when present;
+  //  2. else per-100 g values scaled to serving_quantity (grams) when the serving size is known;
+  //  3. else per 100 g, labeled "100 g (no serving size on file)".
   // Open Food Facts stores sodium and cholesterol in grams.
+  function servingQuantity(p) {
+    const q = Number(p.serving_quantity);
+    if (Number.isFinite(q) && q > 0) return q; // grams, or ml for drinks (treated as grams)
+    const m = String(p.serving_size || "").match(/(\d+(?:[.,]\d+)?)\s*(g|ml)\b/i);
+    return m ? Number(m[1].replace(",", ".")) : null;
+  }
   function fromOff(code, p) {
     const n = p.nutriments || {};
-    const per = n["energy-kcal_serving"] != null ? "_serving" : "_100g";
-    const g = k => (n[k + per] != null ? Number(n[k + per]) : undefined);
+    const hasServing = n["energy-kcal_serving"] != null || n["energy_serving"] != null;
+    const qty = hasServing ? null : servingQuantity(p);
+    const factor = hasServing ? 1 : qty ? qty / 100 : 1;
+    const per = hasServing ? "_serving" : "_100g";
+    const g = k => (n[k + per] != null && Number.isFinite(Number(n[k + per])) ? Number(n[k + per]) * factor : undefined);
     const kcal = g("energy-kcal") ?? (g("energy") != null ? g("energy") / 4.184 : undefined);
     const sodiumG = g("sodium") ?? (g("salt") != null ? g("salt") / 2.5 : undefined);
     const v = {
@@ -74,14 +86,14 @@
     const brand = String(p.brands || "").split(",")[0].trim();
     const product = p.product_name || p.generic_name || `Product ${code}`;
     const name = brand && !product.toLowerCase().startsWith(brand.toLowerCase()) ? `${brand} ${product}` : product;
-    const serving = per === "_serving" ? (p.serving_size || "1 serving") : "100 g";
-    return makeFood(name, serving, v, { src: "off", code: String(code), missing });
+    const serving = hasServing ? (p.serving_size || "1 serving") : qty ? (p.serving_size && /\d/.test(p.serving_size) ? p.serving_size : `${qty} g`) : "100 g (no serving size on file)";
+    return makeFood(name, serving, v, { src: "off", code: String(code), missing, per100: !hasServing && !qty, categories: (p.categories_tags || []).slice(0, 30) });
   }
 
   function usdaSearchUrl(query, key) {
     return "https://api.nal.usda.gov/fdc/v1/foods/search?" + new URLSearchParams({ query, dataType: "Foundation,SR Legacy,Survey (FNDDS)", pageSize: "8", api_key: key || "DEMO_KEY" });
   }
-  const offProductUrl = code => `https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,generic_name,brands,nutriments,serving_size`;
+  const offProductUrl = code => `https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,generic_name,brands,nutriments,serving_size,serving_quantity,serving_quantity_unit,categories_tags`;
 
 
   // The exact prompt the Claude version uses to look up a food; the Claude-vs-USDA eval sends the same text.
