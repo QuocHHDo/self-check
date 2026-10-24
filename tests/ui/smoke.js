@@ -49,6 +49,10 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
   ok($("#scanBtn").hidden === (MODE !== "pages"), `scan button ${MODE === "pages" ? "shown" : "hidden"}`);
 
   type("#q", "80/20"); ok($$("#suggest li").length > 0, "typing shows suggestions");
+  const esc = () => { const ev = new w.KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }); $("#q").dispatchEvent(ev); return ev.defaultPrevented; };
+  const firstEsc = esc();
+  ok(firstEsc && $("#suggest").hidden && $("#q").value === "80/20", "first Escape closes suggestions and keeps the text");
+  ok(!esc(), "second Escape is left to the browser (clears the search box)");
   $("#q").value = "Ground beef 80/20"; submit("#form");
   ok(text("#out h2") === "Ground beef 80/20" && text(".tag .verdict") === "Limit it", "exact search shows result and verdict");
   $("#q").value = "chiken brest"; submit("#form");
@@ -141,6 +145,8 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
       delete w.Html5Qrcode; delete w.navigator.mediaDevices;
     })();
     ok(/449 common foods built in \+ \d+ looked up\./.test(text("#foodCount")), `count includes lookups (${text("#foodCount")})`);
+    const nLook = text("#foodCount").match(/\+ (\d+) looked up/)[1];
+    ok(text("#browseCount") === `449 foods + ${nLook} looked up`, `Browse count matches the header (${text("#browseCount")})`);
     // Shared links to looked-up foods: re-fetched when this browser doesn't have them.
     // foods[1] was listed but never opened, so this browser has no copy and must fetch it.
     const fresh = usdaFixture.foods[1];

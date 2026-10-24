@@ -487,7 +487,7 @@
   let browseBasis = store.get("browseBasis", "serving");
   const SORTS = [{ id: "az", label: "A–Z" }, { id: "worst", label: "Least healthy first" }, { id: "best", label: "Healthiest first" }];
   function renderBrowse() {
-    $("browseCount").textContent = `${allFoods().length} foods`;
+    $("browseCount").textContent = foodCountText();
     if (!$("browse").open) return; // built when the panel is opened
     const cats = $("cats");
     cats.replaceChildren();
@@ -519,7 +519,7 @@
       const right = el("span", { class: "bright" }, ranked ? el("span", { class: "score", title: browseBasis === "kcal" && r.h.scaled ? "Health score per 100 calories (higher is better)" : "Health score per serving (higher is better)", text: (r.h.score > 0 ? "+" : "") + r.h.score }) : null, pill(r.v));
       return el("button", { class: "bitem", type: "button", onclick: () => pick(r.f, { scroll: true }) }, name, right);
     }));
-    $("browseCount").textContent = `${allFoods().length} foods`;
+    $("browseCount").textContent = foodCountText();
   }
 
   // ---------- search ----------
@@ -542,7 +542,9 @@
     });
     input.addEventListener("blur", () => setTimeout(close, 120));
     input.addEventListener("keydown", e => {
-      if (e.key === "Escape") return close();
+      // Escape closes open suggestions and keeps the text; a type="search" box would otherwise clear the whole query.
+      // With nothing open, Escape does the browser's usual clear.
+      if (e.key === "Escape") { if (!list.hidden) { e.preventDefault(); close(); } return; }
       if (list.hidden || !sugg.length) return;
       if (e.key === "ArrowDown" || e.key === "ArrowUp") {
         e.preventDefault(); sel = (sel + (e.key === "ArrowDown" ? 1 : -1) + sugg.length) % sugg.length;
@@ -554,6 +556,8 @@
   }
 
   // ---------- lookups for foods that aren't built in ----------
+  // Same numbers in the header and the Browse panel: built-ins + looked-up foods.
+  const foodCountText = () => `${FOODS.length} foods` + (lookups.length ? ` + ${lookups.length} looked up` : "");
   function updateCount() {
     $("foodCount").textContent = `${FOODS.length} common foods built in` + (lookups.length ? ` + ${lookups.length} looked up.` : ".");
   }
