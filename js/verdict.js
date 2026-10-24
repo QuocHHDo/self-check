@@ -19,6 +19,17 @@
     "Almonds": NUTS, "Walnuts": NUTS, "Pistachios": NUTS, "Mixed nuts": NUTS,
   };
 
+  // Notes that don't change the score: context the label can't show.
+  const ERYTHRITOL = "Most of these products are largely erythritol. A 2023 study linked high blood levels of erythritol to more heart attacks and strokes; it was observational and needs confirming, but it's a reason not to rely on large amounts.";
+  const NOTES = {
+    "Monk fruit sweetener": "Pure monk fruit extract is very sweet, so most packaged versions are mostly erythritol; check the ingredients. " + ERYTHRITOL.replace("Most of these products are largely erythritol. ", ""),
+    "Stevia sweetener": "Packet stevia (like Truvia) is mostly erythritol. " + ERYTHRITOL.replace("Most of these products are largely erythritol. ", ""),
+    "Erythritol": ERYTHRITOL.replace("Most of these products are largely erythritol. ", ""),
+    "Allulose": "Allulose is a rare sugar that barely affects blood sugar; the FDA lets labels leave it out of sugar and added-sugar counts.",
+    "Coconut sugar": "Coconut sugar is still sugar: it counts as added sugar the same as table sugar.",
+    "Table salt": "Most sodium in a typical diet comes from packaged and restaurant food, not the salt shaker.",
+  };
+
   // Generic starting goals (roughly FDA Daily Values on a 2,000-calorie diet).
   const DEFAULT_PROFILE = { cal: 2000, pro: 100, sat: 20, na: 2300, add: 50, fib: 28, skip: "", mild: false };
 
@@ -69,6 +80,7 @@
     else if (f.cal >= 100 && f.pro < 2 && f.fib < 1) { s -= 1; r.push({ k: "neg", t: "Calories with little protein or fiber, so it won't keep you full." }); }
     if (f.cal >= 300 && pd < 0.15) { s -= 1; r.push({ k: "neg", t: `Calorie-heavy: ${Math.round(f.cal)} cal is ${Math.round(f.cal / p.cal * 100)}% of your day without much protein.` }); }
     if (EVIDENCE[f.n]) { s += 1; r.push({ k: "pos", t: EVIDENCE[f.n] }); }
+    if (NOTES[f.n]) r.push({ k: "note", t: NOTES[f.n] });
 
     if (f.chol >= 150 && satShare < 0.15) r.push({ k: "note", t: `High in dietary cholesterol (${Math.round(f.chol)} mg), but low in saturated fat. For most people saturated fat raises blood cholesterol more.` });
     if (f.fat >= 10 && f.cal >= 100 && f.sat / f.fat <= 0.25) r.push({ k: "note", t: `Healthy fats are still calorie-dense: ${Math.round(f.cal)} cal per serving, so portion size matters on ${p.cal.toLocaleString("en-US")} cal a day.` });
@@ -182,9 +194,20 @@
     "Glazed donut": ["English muffin, whole wheat", "Oatmeal, rolled oats"],
     "Toaster pastry": ["English muffin, whole wheat", "Oatmeal, rolled oats"],
     "Cheddar cheese": ["Cottage cheese 2%", "Mozzarella, part-skim"],
-    "Honey": ["Zero-calorie sweetener"],
-    "Maple syrup": ["Zero-calorie sweetener"],
-    "Agave syrup": ["Zero-calorie sweetener"],
+    "Honey": ["Monk fruit sweetener", "Zero-calorie sweetener"],
+    "Maple syrup": ["Monk fruit sweetener", "Zero-calorie sweetener"],
+    "Agave syrup": ["Monk fruit sweetener", "Zero-calorie sweetener"],
+    "Soy sauce": ["Low-sodium soy sauce"],
+    "Molasses": ["Monk fruit sweetener", "Coconut sugar"],
+    "Spam": ["Canned chicken breast", "Tuna, canned in water"],
+    "Egg bites, bacon and cheese": ["Egg whites", "Greek yogurt, plain nonfat"],
+    "Pumpkin spice latte": ["Latte, whole milk", "Cold brew coffee"],
+    "Iced caramel macchiato": ["Latte, whole milk", "Cold brew coffee"],
+    "Cheese puffs": ["Popcorn, air-popped", "Whole grain crackers"],
+    "Nacho cheese tortilla chips": ["Popcorn, air-popped", "Whole grain crackers"],
+    "Pepperoni pizza, restaurant": ["Chicken taco", "Grilled chicken sandwich", "Chicken burrito bowl"],
+    "Cheese pizza, restaurant": ["Chicken taco", "Grilled chicken sandwich", "Chicken burrito bowl"],
+    "Frozen pepperoni pizza": ["Frozen chicken and rice bowl", "Chicken taco"],
   };
 
   const STOP = new Set(["canned", "frozen", "plain", "fresh", "cooked", "whole", "low", "fat", "sweetened", "unsweetened", "flavored", "with", "and", "the", "store", "fast", "food", "restaurant", "deli", "raw"]);
@@ -193,6 +216,8 @@
   const LIQUID = /milk|kefir|juice|shake|smoothie|latte|coffee|tea\b|soda|water|drink|beer|wine|lemonade|kombucha|liquor|seltzer|margarita|chocolate, from mix/i;
   // Cooking fats only swap with other cooking fats.
   const pureFat = g => g.fat > 0 && g.carb < 0.5 && g.pro < 0.5 && g.fat * 9 >= 0.9 * g.cal;
+  // Pantry staples that score well but aren't a real substitute for most things; only suggested when hand-picked.
+  const HINT_ONLY = new Set(["Cocoa powder, unsweetened", "Table salt", "Zero-calorie sweetener", "Monk fruit sweetener", "Stevia sweetener", "Erythritol", "Allulose", "Cooking spray", "Balsamic vinegar"]);
 
   // Up to `max` better options for a food, ranked by hand-picked hints, then category, name overlap and similar calories.
   function findSwaps(f, foods, p, max = 3) {
@@ -208,6 +233,7 @@
       if (!hinted && ALCOHOL.test(g.n) && !ALCOHOL.test(f.n)) continue;
       if (!hinted && LIQUID.test(g.n) !== LIQUID.test(f.n)) continue;
       if (!hinted && pureFat(g) !== pureFat(f)) continue;
+      if (!hinted && HINT_ONLY.has(g.n)) continue;
       const a = assess(g, p);
       if (a.tier === "skip" || RANK[a.tier] <= want) continue;
       let score = 0;
@@ -218,9 +244,11 @@
       if (score < 20) continue;
       score -= 4 * Math.abs(Math.log((g.cal + 20) / (f.cal + 20)));
       score += a.tier === "good" ? 3 : 0;
-      out.push({ food: g, verdict: a, score });
+      out.push({ food: g, verdict: a, score, hinted });
     }
-    return out.sort((x, y) => y.score - x.score).slice(0, max);
+    // Hand-picked swaps stand alone when any of them apply; the generic search only fills in when there are none.
+    const picked = out.filter(o => o.hinted);
+    return (picked.length ? picked : out).sort((x, y) => y.score - x.score).slice(0, max);
   }
 
   // For sorting by healthiness: the verdict score (ignoring skip list and spice preference, which aren't about
@@ -233,5 +261,5 @@
 
   const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-  return { DEFAULT_PROFILE, NUM_KEYS, assess, explain, scale, findSwaps, health, SWAP_HINTS, EVIDENCE, slug, fmt };
+  return { DEFAULT_PROFILE, NUM_KEYS, assess, explain, scale, findSwaps, health, SWAP_HINTS, EVIDENCE, NOTES, slug, fmt };
 });
