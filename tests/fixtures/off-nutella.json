@@ -27,6 +27,9 @@
       "added-sugars_100g": 52.13,
       "added-sugars": 52.13
     },
-    "_note_categories": "categories_tags as listed on world.openfoodfacts.org/product/3017620422003 (Oct 2026): no hazelnut-specific tag"
+    "_note_categories": "categories_tags as listed on world.openfoodfacts.org/product/3017620422003 (Oct 2026): no hazelnut-specific tag",
+    "additives_tags": [],
+    "nova_group": 3,
+    "_note_additives": "additives (none) and NOVA 3 as shown on world.openfoodfacts.org/product/3017620422003 (Oct 2026)"
   }
 }

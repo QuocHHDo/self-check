@@ -103,7 +103,12 @@
     const product = p.product_name || p.generic_name || `Product ${code}`;
     const name = brand && !product.toLowerCase().startsWith(brand.toLowerCase()) ? `${brand} ${product}` : product;
     const serving = hasServing ? (p.serving_size || "1 serving") : qty ? (p.serving_size && /\d/.test(p.serving_size) ? p.serving_size : `${qty} g`) : "100 g (no serving size on file)";
-    const f = makeFood(name, serving, v, { src: "off", code: String(code), missing, per100: !hasServing && !qty, categories: (p.categories_tags || []).slice(0, 30) });
+    const ingredients = String(p.ingredients_text_en || p.ingredients_text || "").trim().slice(0, 1500);
+    const f = makeFood(name, serving, v, { src: "off", code: String(code), missing, per100: !hasServing && !qty, categories: (p.categories_tags || []).slice(0, 30),
+      // Additives and processing level, when Open Food Facts has analyzed the ingredient list.
+      additives: Array.isArray(p.additives_tags) ? p.additives_tags.slice(0, 40).map(String) : undefined,
+      nova: [1, 2, 3, 4].includes(Number(p.nova_group)) ? Number(p.nova_group) : undefined,
+      ingredients: ingredients || undefined });
     return settleAddedSugar(f, v.add != null, false);
   }
 
@@ -120,7 +125,7 @@
     if ((m = id.match(/^off-(\d{8,14})$/))) return { kind: "off", code: m[1] };
     return id ? { kind: "slug", slug: id } : null;
   }
-  const offProductUrl = code => `https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,generic_name,brands,nutriments,serving_size,serving_quantity,serving_quantity_unit,categories_tags`;
+  const offProductUrl = code => `https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,generic_name,brands,nutriments,serving_size,serving_quantity,serving_quantity_unit,categories_tags,additives_tags,nova_group,ingredients_text,ingredients_text_en`;
 
 
   // The exact prompt the Claude version uses to look up a food; the Claude-vs-USDA eval sends the same text.

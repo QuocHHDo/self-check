@@ -183,6 +183,35 @@
     return el("section", { class: "panel" }, el("h3", { text: "Try instead" }), list);
   }
 
+  // ---------- additives (scanned products) ----------
+  // Every additive with what it does; a few flagged with a sourced reason; the NOVA processing level.
+  function renderAdditives(f) {
+    const info = window.SelfCheckAdditives && window.SelfCheckAdditives.analyze(f);
+    if (!info) return null;
+    const sec = el("section", { class: "panel additives" }, el("h3", { text: "Additives & processing" }));
+    if (info.novaInfo) sec.append(el("div", { class: "nova n" + info.nova },
+      el("span", { class: "nova-badge", text: `NOVA ${info.nova}` }),
+      el("span", {}, el("b", { text: info.novaInfo[0] + ". " }), info.novaInfo[1])));
+    if (info.known) {
+      if (!info.items.length) sec.append(el("p", { class: "muted", text: "No additives listed." }));
+      else {
+        const list = el("ul", { class: "addlist" });
+        for (const a of info.items) {
+          const li = el("li", { class: a.flag ? "flagged" : null },
+            el("span", { class: "acode", text: a.code || "—" }),
+            el("span", { class: "abody" }, el("span", { class: "aname", text: a.name }), a.fn ? el("span", { class: "afn", text: ` · ${a.fn}` }) : null,
+              a.flag ? el("span", { class: "aflag" }, a.flag.t, a.flag.src ? " " : null, a.flag.src ? el("a", { href: a.flag.src, target: "_blank", rel: "noopener", text: "Source" }) : null) : null,
+              a.efsaHigh ? el("span", { class: "aefsa", text: "EFSA's safety review found some people may exceed the acceptable daily intake." }) : null));
+          list.append(li);
+        }
+        sec.append(list);
+      }
+    }
+    if (f.ingredients) sec.append(el("details", { class: "ingr" }, el("summary", { text: "Ingredients" }), el("p", { text: f.ingredients })));
+    sec.append(el("p", { class: "legend", text: "From Open Food Facts. Additives approved in the US and EU are judged safe at normal amounts; only ones with a documented concern are flagged. Add any you avoid to your skip list (for example “sucralose” or “E407”)." }));
+    return sec;
+  }
+
   // ---------- compare ----------
   const CMP_ROWS = [
     ["Calories", "cal", "", null], ["Protein", "pro", " g", "more"], ["Fiber", "fib", " g", "more"],
@@ -281,6 +310,7 @@
           renderBars(scaled),
           isPlate ? null : renderSwaps(f),
           el("section", { class: "panel" }, el("h3", { text: "Why" }), reasons),
+          isPlate ? null : renderAdditives(f),
           isPlate ? null : renderCompare(f)
         ))
     ].filter(Boolean));
@@ -640,7 +670,8 @@
         return;
       }
       const f = S.fromOff(clean, data.product);
-      if (!(f.cal > 0 || f.pro > 0 || f.carb > 0)) { box.replaceChildren(el("p", { text: `Found “${f.n}”, but it has no nutrition data. Search it by name instead.` }), byName); return; }
+      // "No nutrition data" means nothing was reported, not that everything is zero (diet soda, water).
+      if (["cal", "fat", "carb", "pro"].every(k => V.isMissing(f, k))) { box.replaceChildren(el("p", { text: `Found “${f.n}”, but it has no nutrition data. Search it by name instead.` }), byName); return; }
       saveLookup(f); pick(f);
     } catch (e) {
       const msg = navigator.onLine === false ? "You're offline. Barcode lookup needs a connection."

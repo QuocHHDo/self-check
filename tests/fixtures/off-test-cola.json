@@ -1,0 +1,38 @@
+{
+  "code": "0000000000017",
+  "status": 1,
+  "product": {
+    "_note": "Made-up test product, not a real record",
+    "product_name": "Test Diet Cola",
+    "brands": "TestCo",
+    "serving_size": "1 can (355 ml)",
+    "serving_quantity": 355,
+    "nutriments": {
+      "energy-kcal_serving": 0,
+      "fat_serving": 0,
+      "saturated-fat_serving": 0,
+      "carbohydrates_serving": 0,
+      "sugars_serving": 0,
+      "added-sugars_serving": 0,
+      "fiber_serving": 0,
+      "proteins_serving": 0,
+      "sodium_serving": 0.04
+    },
+    "additives_tags": [
+      "en:e150d",
+      "en:e338",
+      "en:e951",
+      "en:e950",
+      "en:e211",
+      "en:e330"
+    ],
+    "nova_group": 4,
+    "ingredients_text": "Carbonated water, caramel color, phosphoric acid, aspartame, potassium benzoate, natural flavors, citric acid, acesulfame potassium, caffeine.",
+    "categories_tags": [
+      "en:beverages",
+      "en:carbonated-drinks",
+      "en:sodas",
+      "en:diet-sodas"
+    ]
+  }
+}

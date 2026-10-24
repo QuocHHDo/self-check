@@ -1,9 +1,9 @@
 // Scoring rules, label-line explanations, serving scaling and swap suggestions.
 // Pure functions: no DOM, so the same file runs in the browser and in Node tests.
 (function (root, factory) {
-  const api = factory();
-  if (typeof module === "object" && module.exports) module.exports = api; else root.SelfCheckVerdict = api;
-})(typeof self !== "undefined" ? self : this, function () {
+  if (typeof module === "object" && module.exports) module.exports = factory(require("./additives.js"));
+  else root.SelfCheckVerdict = factory(root.SelfCheckAdditives);
+})(typeof self !== "undefined" ? self : this, function (ADD) {
   const fmt = n => (Math.round(n * 10) / 10).toString();
   const NUM_KEYS = ["cal", "fat", "sat", "trans", "chol", "na", "carb", "fib", "sug", "add", "pro"];
   const RANK = { bad: 0, mid: 1, fine: 1.5, good: 2 };
@@ -103,7 +103,12 @@
     const list = String(p.skip || "").split(",").map(s => s.trim()).filter(Boolean);
     for (const term of list) {
       const m = skipMatch(f, term);
-      if (!m) continue;
+      if (!m) {
+        // The skip list also covers additives on scanned products: "sucralose", "carrageenan", "E407".
+        const a = ADD && ADD.skipAdditive(f, term.toLowerCase());
+        if (a) return { why: `It's on your skip list: it contains ${a.name.toLowerCase()}${a.code ? ` (${a.code})` : ""}.`, note: "Nutrition is shown for reference. Edit your skip list under Your goals." };
+        continue;
+      }
       const why = m.via === "name" ? `It's on your skip list: the name includes “${term.toLowerCase()}”.` : `It's on your skip list: it's also called “${m.alias}”, which includes “${term.toLowerCase()}”.`;
       return { why, note: "Nutrition is shown for reference. Edit your skip list under Your goals." };
     }
@@ -249,7 +254,7 @@
         r.push({ k: "warn", t: `Only ${Math.round(f.cal)} calories, but ${flags.join(" and ")}. Easy to use more than one serving.` });
       } else {
         tier = "fine"; word = "Fine"; why = "No real impact either way.";
-        r.push({ k: "note", t: `Only ${Math.round(f.cal)} calories and nothing to flag, so it barely affects your day.` });
+        r.push({ k: "note", t: `${f.cal < 0.5 ? "No calories" : `Only ${Math.round(f.cal)} calories`} and nothing to flag, so it barely affects your day.` });
       }
     }
     else if (hasPos) {
@@ -258,6 +263,17 @@
     } else {
       tier = "mid"; word = "In moderation"; why = "Fine sometimes. See the tradeoffs below.";
       r.push({ k: "warn", t: K("cal") ? `Not much fiber or protein for its ${Math.round(f.cal)} calories, so it won't do much to keep you full.` : "Calories weren't reported, so there's not enough to judge it well." });
+    }
+
+    // Additives (scanned products only). Flagged ones get a "!" line; one a regulator has removed from food keeps
+    // the product from being a top pick. Processing level is a note: nutrition still decides the verdict.
+    const adds = ADD ? ADD.analyze(f) : null;
+    if (adds) {
+      for (const a of adds.flagged) r.push({ k: "warn", t: `${a.name}${a.code ? ` (${a.code})` : ""}: ${a.flag.t}` });
+      if (adds.removed && (tier === "good" || tier === "fine")) {
+        tier = "mid"; word = "In moderation"; why = "Fine on nutrition, but it contains an additive regulators have removed from food.";
+      }
+      if (adds.nova === 4) r.push({ k: "note", t: "Ultra-processed (NOVA 4): made mostly from industrial ingredients and additives. Shown for information; the verdict is on nutrition." });
     }
 
     // Unknown or lower-bound limiting nutrients: say so, and never call it a "Get it" on incomplete data.

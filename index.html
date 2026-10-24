@@ -286,6 +286,20 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
 .pgrid label { align-content: start; }
 .pgrid .err { color: var(--bad); font-size: 12px; font-weight: 600; line-height: 1.3; min-height: 2.6em; }
 .pgrid input[aria-invalid="true"] { border-color: var(--bad); }
+.additives .nova { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; margin-bottom: 10px; }
+.nova-badge { flex: none; font: 700 12px var(--font-display); letter-spacing: .06em; padding: 3px 8px; border-radius: 6px; background: var(--good-soft); color: var(--good); }
+.nova.n3 .nova-badge { background: var(--mid-soft); color: var(--mid); }
+.nova.n4 .nova-badge { background: var(--bad-soft); color: var(--bad); }
+.addlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.addlist li { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 8px; font-size: 14px; padding: 6px 8px; border-radius: 8px; }
+.addlist li.flagged { background: var(--mid-soft); }
+.addlist .acode { font: 600 12.5px var(--font-display); color: var(--muted); padding-top: 1px; }
+.addlist .aname { font-weight: 600; }
+.addlist .afn, .addlist .aefsa { color: var(--muted); }
+.addlist .aflag, .addlist .aefsa { display: block; font-size: 13px; margin-top: 2px; }
+.addlist .aflag a { color: var(--accent); }
+.additives .ingr { margin-top: 10px; font-size: 13px; color: var(--muted); }
+.additives .ingr summary { cursor: pointer; color: var(--ink); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -373,7 +387,7 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
         <label>Sodium limit (mg)<input id="p-na" type="number" min="500" max="5000" step="50"></label>
         <label>Added sugar limit (g)<input id="p-add" type="number" min="0" max="100"></label>
         <label>Fiber goal (g)<input id="p-fib" type="number" min="10" max="70"></label>
-        <label class="wide">Foods you skip (comma separated)<input id="p-skip" type="text"></label>
+        <label class="wide">Foods or additives you skip (comma separated)<input id="p-skip" type="text"></label>
         <label class="check wide"><input id="p-mild" type="checkbox"> I prefer mild food (flag spicy items)</label>
         <label class="wide" id="usdaKeyWrap" hidden>USDA API key (optional; the shared demo key allows only a few searches an hour)
           <input id="p-usda" type="text" placeholder="DEMO_KEY" autocomplete="off" spellcheck="false">
@@ -388,6 +402,8 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
 
 <script>window.SELF_CHECK_CONFIG = { mode: "pages" };</script>
 <script src="js/foods.js"></script>
+<script src="js/additives-data.js"></script>
+<script src="js/additives.js"></script>
 <script src="js/verdict.js"></script>
 <script src="js/sources.js"></script>
 <script src="js/search.js"></script>

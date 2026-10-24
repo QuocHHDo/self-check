@@ -1,0 +1,33 @@
+{
+  "code": "0000000000024",
+  "status": 1,
+  "product": {
+    "_note": "Made-up test product, not a real record",
+    "product_name": "Test Sugar Hearts",
+    "brands": "TestCo",
+    "serving_size": "1 piece (5 g)",
+    "serving_quantity": 5,
+    "nutriments": {
+      "energy-kcal_serving": 20,
+      "fat_serving": 0.3,
+      "saturated-fat_serving": 0.2,
+      "carbohydrates_serving": 4.5,
+      "sugars_serving": 0.5,
+      "added-sugars_serving": 0.5,
+      "fiber_serving": 0,
+      "proteins_serving": 0,
+      "sodium_serving": 0.005
+    },
+    "additives_tags": [
+      "en:e171",
+      "en:e127",
+      "en:e322i"
+    ],
+    "nova_group": 4,
+    "ingredients_text": "Sugar alcohols, partially hydrogenated soybean oil, soy lecithin, titanium dioxide (color), red 3.",
+    "categories_tags": [
+      "en:confectioneries",
+      "en:candies"
+    ]
+  }
+}

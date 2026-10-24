@@ -21,6 +21,8 @@ w.fetch = async url => {
   url = String(url);
   if (url.includes("/fdc/v1/food/")) { const id = Number(url.match(/food\/(\d+)/)[1]); return { ok: true, status: 200, json: async () => usdaFixture.foods.find(f => f.fdcId === id) }; }
   if (url.includes("api.nal.usda.gov")) return { ok: true, status: 200, json: async () => usdaFixture };
+  if (url.includes("openfoodfacts.org") && (offMode === "cola" || offMode === "candy")) return { ok: true, status: 200, json: async () => JSON.parse(read(`tests/fixtures/off-test-${offMode}.json`)) };
+  if (url.includes("openfoodfacts.org") && offMode === "empty") return { ok: true, status: 200, json: async () => ({ status: 1, product: { product_name: "Mystery Box", nutriments: {} } }) };
   if (url.includes("openfoodfacts.org") && offMode === "missing") return { ok: false, status: 404, json: async () => ({ status: 0, status_verbose: "product not found" }) };
   if (url.includes("openfoodfacts.org") && offMode === "error") return { ok: false, status: 503, json: async () => ({}) };
   if (url.includes("openfoodfacts.org") && offMode === "hang") return new Promise(() => {});
@@ -111,6 +113,17 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
     $("#q").value = "0123456789012"; submit("#form"); await tick(10);
     ok(text("#out h2") === "TestCo Protein Bar Chocolate" && /Open Food Facts/.test(text(".src")), `barcode lookup shows the product (${text("#out h2")})`);
     ok(text(".label .serv span:last-child") === "1 bar (60 g)", "barcode product uses per-serving values");
+    // Additives panel: listed with functions, NOVA badge, flagged ones with sources; skip list covers additives.
+    offMode = "cola"; $("#q").value = "0000000000017"; submit("#form"); await tick(10);
+    ok(/NOVA 4/.test(text(".additives .nova")) && $$(".additives .addlist li").length === 6 && /E951Aspartame · sweetener/.test(text(".additives")), `additives panel lists the cola's 6 additives (${text(".additives").slice(0, 120)})`);
+    ok(!$(".additives li.flagged"), "ordinary additives aren't flagged");
+    offMode = "candy"; $("#q").value = "0000000000024"; submit("#form"); await tick(10);
+    ok($$(".additives li.flagged").length === 3 && $$(".additives li.flagged a").length === 3 && text(".tag .verdict") === "In moderation", `removed additives flagged with sources; verdict ${text(".tag .verdict")}`);
+    offMode = "empty"; $("#q").value = "0000000000031"; submit("#form"); await tick(10);
+    ok(/has no nutrition data/.test(text("#out .notice")), "a product with no nutrition values at all still says so (zero-calorie products don't)");
+    offMode = "ok";
+    $("#q").value = "Avocado"; submit("#form");
+    ok(!$(".additives"), "no additives panel for built-in foods");
     // 14. Barcode and camera failures always end in a message, never a stuck spinner.
     for (const [mode, re] of [["missing", /doesn't have barcode/], ["error", /having trouble right now \(error 503\)/], ["hang", /took too long/]]) {
       offMode = mode; $("#q").value = "0123456789013"; submit("#form"); await tick(mode === "hang" ? 200 : 10);
