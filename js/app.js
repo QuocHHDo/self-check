@@ -284,14 +284,14 @@
   function closestBanner(f) {
     if (!closestFor || closestFor.n !== f.n) return null;
     const text = closestFor.text;
-    const box = el("div", { class: "notice closest", role: "status" }, el("p", {}, "Showing closest match: ", el("strong", { text: f.n }), ". It's not exactly what you typed."));
+    const box = el("div", { class: "notice closest", role: "status" }, el("p", {}, closestFor.link ? `No food matches the link #${closestFor.link} exactly. ` : "", "Showing closest match: ", el("strong", { text: f.n }), closestFor.link ? "." : ". It's not exactly what you typed."));
     if (PAGES) box.append(el("button", { class: "btn small ghost", type: "button", text: `Search USDA for “${text}” instead`, onclick: () => usdaSearch(text, box) }));
     else if (sampleState !== "none") box.append(el("button", { class: "btn small ghost", type: "button", text: `Look up “${text}” with Claude instead`, onclick: () => claudeLookup(text, box) }));
     return box;
   }
   function pick(f, opts = {}) {
     if (current && (current.n !== f.n || current.c === "plate")) { mult = 1; explainKey = null; if (compareWith && compareWith.n === f.n) compareWith = null; }
-    closestFor = opts.closest ? { n: f.n, text: opts.closest } : null;
+    closestFor = opts.closest ? { n: f.n, text: opts.closest, link: opts.fromLink } : null;
     $("q").value = opts.closest || f.n; $("suggest").hidden = true;
     renderResult(f);
     if (!opts.noRecent) addRecent(f);
@@ -549,9 +549,9 @@
     updateCount(); renderBrowse();
   }
 
-  function offerLookup(text, near, typo) {
+  function offerLookup(text, near, typo, link) {
     closestFor = null;
-    const box = el("div", { class: "notice" }, el("p", { text: typo ? `No exact match for “${text}”.` : `“${text}” isn't in the built-in list.` }));
+    const box = el("div", { class: "notice" }, el("p", { text: link ? `No food matches the link #${link}.` : typo ? `No exact match for “${text}”.` : `“${text}” isn't in the built-in list.` }));
     if (near.length) {
       const p = el("p", { class: "muted" }, near.length > 1 && !typo ? "Did you mean one of these? " : "Did you mean ");
       near.forEach(f => p.append(el("button", { class: "chip", type: "button", text: f.n, onclick: () => pick(f) }), " "));
@@ -737,9 +737,19 @@
     if (!link) return false;
     const already = f => current && f.n === current.n;
     if (link.kind === "slug") {
-      const f = allFoods().find(x => V.slug(x.n) === link.slug);
-      if (f && !already(f)) pick(f, { noHash: true, noRecent: first });
-      return !!f;
+      const foods = allFoods();
+      const f = foods.find(x => V.slug(x.n) === link.slug) || foods.find(x => V.legacySlug(x.n) === link.slug);
+      if (f) {
+        if (V.slug(f.n) !== link.slug) { try { history.replaceState(null, "", "#" + V.slug(f.n)); } catch {} } // old #jalape-o → #jalapeno
+        if (!already(f)) pick(f, { noHash: true, noRecent: first });
+        return true;
+      }
+      // No food has this exact link. Never open a different food silently: label a close match, or say it wasn't found.
+      const text = link.slug.replace(/-+/g, " ").trim();
+      const r = Q.resolve(text, foods);
+      if (r.kind === "open" || r.kind === "closest") pick(r.food, { closest: text, fromLink: link.slug, noHash: true, noRecent: true });
+      else offerLookup(text, r.near, r.typo, link.slug);
+      return true;
     }
     const cached = lookups.find(x => link.kind === "usda" ? x.src === "usda" && x.fdcId === link.id : x.src === "off" && x.code === link.code);
     if (cached) { if (!already(cached)) pick(cached, { noHash: true, noRecent: first }); return true; }

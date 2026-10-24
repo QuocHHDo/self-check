@@ -137,6 +137,13 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
     ok(text("#out h2").toLowerCase() === fresh.description.toLowerCase() && /From USDA/.test(text(".src")), `#usda-<id> fetches a food this browser hasn't seen (${text("#out h2")})`);
     offMode = "ok"; w.location.hash = "#off-0123456789099"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(10);
     ok(/Open Food Facts/.test(text(".src")), `#off-<code> opens the product (${text("#out h2")})`);
+    // Accented names: the folded slug and the old one both open Jalapeño; an unknown link never opens another food.
+    const go = async h => { w.location.hash = h; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(5); };
+    await go("#jalapeno"); ok(text("#out h2") === "Jalapeño" && !$("#out .notice"), `#jalapeno opens Jalapeño (${text("#out h2")})`);
+    await go("#kimchi"); await go("#jalape-o"); ok(text("#out h2") === "Jalapeño" && w.location.hash === "#jalapeno", `legacy #jalape-o opens Jalapeño and updates the link (${w.location.hash})`);
+    await go("#jalapenos"); ok(!$("#out h2") && /No food matches the link #jalapenos/.test(text("#out .notice")) && /Did you mean Jalapeño/.test(text("#out .notice")), `typo'd link offers Did you mean instead of opening a food (${text("#out .notice")})`);
+    await go("#greek-yogurt"); ok(text("#out h2").startsWith("Greek yogurt") && /No food matches the link #greek-yogurt exactly/.test(text("#out .notice.closest")), `loose link opens the closest food with the banner (${text("#out .notice")})`);
+    await go("#zzqqx"); ok(/No food matches the link #zzqqx/.test(text("#out .notice")) && !$("#out h2"), `unknown link shows a not-found card (${text("#out .notice")})`);
     w.location.hash = "#salmon"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(5);
     ok(text("#out h2") === "Salmon", "#salmon link opens Salmon");
   } else {

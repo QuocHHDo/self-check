@@ -530,7 +530,11 @@
     return out;
   }
 
-  const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  // URL-safe ids. Accents are folded first (Jalapeño → jalapeno), so links stay ASCII and easy to type.
+  const foldAccents = s => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const slug = s => foldAccents(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  // The old slug dropped accented letters (Jalapeño → jalape-o); kept so links shared before still resolve.
+  const legacySlug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-  return { NEGLIGIBLE_KCAL, RANK, DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, skipMatch, healthyFatSource, servingGrams, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, assessMeal, MEAL_SHARE, swapCategory, swapDiffs, meaningfulDiff, FDA_DV, POS_FLOOR, HEAVY_SHARE, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, fmt };
+  return { NEGLIGIBLE_KCAL, RANK, DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, skipMatch, healthyFatSource, servingGrams, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, assessMeal, MEAL_SHARE, swapCategory, swapDiffs, meaningfulDiff, FDA_DV, POS_FLOOR, HEAVY_SHARE, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, legacySlug, foldAccents, fmt };
 });

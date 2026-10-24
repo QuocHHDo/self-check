@@ -63,3 +63,19 @@ test("there are at least 300 foods across all categories", () => {
   assert.ok(FOODS.length >= 300);
   for (const c of CATEGORIES) assert.ok(FOODS.some(f => f.c === c.id), `empty category ${c.id}`);
 });
+
+test("slugs are unique, ASCII-only, and round-trip to the same food", () => {
+  const { slug, legacySlug } = require("../js/verdict.js");
+  const seen = new Map();
+  for (const f of FOODS) {
+    const s = slug(f.n);
+    assert.match(s, /^[a-z0-9]+(-[a-z0-9]+)*$/, `${f.n}: slug "${s}" isn't plain ASCII`);
+    assert.ok(!seen.has(s), `${f.n} and ${seen.get(s)} share the slug ${s}`);
+    seen.set(s, f.n);
+  }
+  for (const f of FOODS) assert.equal(FOODS.find(g => slug(g.n) === slug(f.n)).n, f.n, `${f.n} doesn't round-trip`);
+  assert.equal(slug("Jalapeño"), "jalapeno");
+  assert.equal(legacySlug("Jalapeño"), "jalape-o"); // old links keep working
+  // No legacy slug collides with a different food's current slug.
+  for (const f of FOODS) { const owner = seen.get(legacySlug(f.n)); assert.ok(!owner || owner === f.n, `legacy ${legacySlug(f.n)} points at ${owner}`); }
+});
