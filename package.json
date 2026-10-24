@@ -4,7 +4,7 @@
   "private": true,
   "description": "Should I Buy It? \u2014 search or scan a food to see its nutrition label and whether it fits your goals.",
   "scripts": {
-    "test": "node --test \"tests/*.test.js\"",
+    "test": "node tests/run.js",
     "snapshot": "node tests/update-snapshot.js",
     "eval": "node eval/compare-usda.mjs",
     "eval:claude": "node eval/claude-vs-usda.mjs",
