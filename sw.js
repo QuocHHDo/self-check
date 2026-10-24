@@ -10,6 +10,7 @@ const SHELL = [
   "js/foods.js",
   "js/verdict.js",
   "js/sources.js",
+  "js/search.js",
   "js/learn.js",
   "js/app.js",
   "icons/icon-192.png",

@@ -46,6 +46,9 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
   type("#q", "80/20"); ok($$("#suggest li").length > 0, "typing shows suggestions");
   $("#q").value = "Ground beef 80/20"; submit("#form");
   ok(text("#out h2") === "Ground beef 80/20" && text(".tag .verdict") === "Limit it", "exact search shows result and verdict");
+  $("#q").value = "chiken brest"; submit("#form");
+  ok(/Did you mean/.test(text("#out")) && $$("#out .notice .chip").some(b => b.textContent === "Chicken breast, grilled"), `typo offers Did you mean (${text("#out .notice")})`);
+  $("#q").value = "Ground beef 80/20"; submit("#form");
   const swaps = $$(".swap .sn").map(e => e.textContent);
   const swapWords = $$(".swap .vp").map(e => e.textContent), RANKW = { "Get it": 2, "In moderation": 1 };
   ok(swaps.some(n => /93\/7/.test(n)) && swapWords.every((v, i) => !i || RANKW[swapWords[i - 1]] >= RANKW[v]), `swaps include 93/7 and list Get it first (${swaps.map((n, i) => n + ": " + swapWords[i]).join(", ")})`);

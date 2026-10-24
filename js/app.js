@@ -4,6 +4,7 @@
   const { FOODS, CATEGORIES, DV } = window.SelfCheckData;
   const V = window.SelfCheckVerdict;
   const S = window.SelfCheckSources;
+  const Q = window.SelfCheckSearch;
   const CFG = Object.assign({ mode: "pages" }, window.SELF_CHECK_CONFIG || {});
   const PAGES = CFG.mode === "pages";
   const CAT_LABEL = Object.fromEntries(CATEGORIES.map(c => [c.id, c.label]));
@@ -260,7 +261,7 @@
     const reasons = el("ul", { class: "reasons" });
     for (const r of a.reasons) reasons.append(el("li", { class: r.k }, el("span", { class: "ic", "aria-hidden": "true", text: ICON[r.k] || "i" }), el("span", { text: r.t })));
 
-    $("out").replaceChildren(
+    $("out").replaceChildren(...[
       head,
       el("div", { class: "result" },
         el("div", { class: "leftcol" }, seg, partial, label, box, src),
@@ -272,7 +273,7 @@
           el("section", { class: "panel" }, el("h3", { text: "Why" }), reasons),
           isPlate ? null : renderCompare(f)
         ))
-    );
+    ].filter(Boolean));
   }
 
   function pick(f, opts = {}) {
@@ -488,24 +489,8 @@
   }
 
   // ---------- search ----------
-  const norm = s => s.toLowerCase().replace(/[^a-z0-9/ ]/g, "").trim();
-  function match(q) {
-    const nq = norm(q); if (!nq) return [];
-    const scored = [];
-    for (const f of allFoods()) {
-      let best = 0;
-      for (const n of [f.n, ...(f.a || [])].map(norm)) {
-        if (n === nq) best = Math.max(best, 100);
-        else if (n.startsWith(nq)) best = Math.max(best, 80);
-        else if (n.split(" ").some(w => w.startsWith(nq))) best = Math.max(best, 60);
-        else if (n.includes(nq)) best = Math.max(best, 40);
-        else if (nq.length > 3 && nq.includes(n)) best = Math.max(best, 30);
-      }
-      if (best) scored.push({ f, best });
-    }
-    return scored.sort((x, y) => y.best - x.best || x.f.n.length - y.f.n.length).map(x => x.f);
-  }
-  const isExact = (f, text) => [f.n, ...(f.a || [])].map(norm).includes(norm(text));
+  // Matching lives in search.js (exact, prefix, word, contains, and typo-tolerant).
+  const match = q => Q.match(q, allFoods()).map(x => x.f);
 
   function attachSuggest(input, list, onPick) {
     let sel = -1, sugg = [];
@@ -542,10 +527,10 @@
     renderBrowse();
   }
 
-  function offerLookup(text, near) {
-    const box = el("div", { class: "notice" }, el("p", { text: `“${text}” isn't in the built-in list.` }));
+  function offerLookup(text, near, typo) {
+    const box = el("div", { class: "notice" }, el("p", { text: typo ? `No exact match for “${text}”.` : `“${text}” isn't in the built-in list.` }));
     if (near.length) {
-      const p = el("p", { class: "muted" }, "Did you mean ");
+      const p = el("p", { class: "muted" }, near.length > 1 && !typo ? "Did you mean one of these? " : "Did you mean ");
       near.forEach(f => p.append(el("button", { class: "chip", type: "button", text: f.n, onclick: () => pick(f) }), " "));
       box.append(p);
     }
@@ -686,10 +671,10 @@
       const text = $("q").value.trim(); if (!text) return;
       $("suggest").hidden = true;
       if (/^\d{8,14}$/.test(text) && PAGES) return barcodeLookup(text);
-      const m = match(text);
-      if (m.length && isExact(m[0], text)) return pick(m[0]);
-      if (m.length === 1) return pick(m[0]);
-      offerLookup(text, m.slice(0, 4));
+      const r = Q.resolve(text, allFoods());
+      if (r.kind === "open") return pick(r.food);
+      if (r.kind === "closest") return pick(r.food);
+      offerLookup(text, r.near, r.typo);
     });
     $("scanBtn").addEventListener("click", () => ($("scan").hidden ? openScan() : closeScan()));
     $("scanClose").addEventListener("click", closeScan);
