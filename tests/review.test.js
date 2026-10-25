@@ -348,3 +348,15 @@ test("r2-4: USDA foodCategory picks the category; no confident match hides Try i
   assert.equal(V.swapTarget(unknown, FOODS), null);
   assert.deepEqual(V.findSwaps(unknown, FOODS, P), []);
 });
+
+// ---- Unknown added sugar only holds back "Get it" when it could matter ----
+test("missing added sugar can't block Get it when total sugars are too low to cost a point", () => {
+  const mk = (sug, add) => S.settleAddedSugar(S.makeFood("Test", "2 oz (56 g)", { cal: 200, fat: 1, sat: 0, na: 0, carb: 42, fib: 3, sug, pro: 7 }, { missing: add === undefined ? ["add"] : [] }), add !== undefined, false);
+  assert.equal(V.assess(mk(1), P).tier, "good", "1 g total sugar: even all added is under the first cutoff (7.5 g)");
+  assert.equal(V.assess(mk(7), P).tier, "good");
+  assert.equal(V.assess(mk(8), P).tier, "mid", "8 g could be 16% of the limit, so it still blocks");
+  assert.match(texts(V.assess(mk(8), P)), /without added sugar/);
+  assert.equal(V.assess(mk(1), { ...P, add: 0 }).tier, "mid", "a zero limit means any added sugar matters");
+  const juice = S.settleAddedSugar(S.makeFood("Test juice", "8 fl oz", { cal: 110, sug: 22, carb: 26, pro: 2 }, { missing: ["add"] }), false, false);
+  assert.notEqual(V.assess(juice, P).tier, "good");
+});

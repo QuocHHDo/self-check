@@ -18,7 +18,7 @@ const EXPECT = {
   "great value large white eggs 12 count": "In moderation", "great value shredded mozzarella": "In moderation", "chobani greek yogurt": "Get it",
   "great value salted butter": "Limit it", "great value ground beef 80/20": "Limit it", "tyson chicken nuggets": "In moderation",
   "oscar mayer bacon": "Limit it", "great value deli turkey": "In moderation", "great value tilapia fillets": "Get it",
-  "barilla spaghetti": "In moderation", "great value extra virgin olive oil": "In moderation", "heinz ketchup": "In moderation",
+  "barilla spaghetti": "Get it", "great value extra virgin olive oil": "In moderation", "heinz ketchup": "In moderation",
   "great value white bread": "In moderation", "mission flour tortillas": "In moderation",
   "gatorade lemon lime": "barcode", "bodyarmor sports drink": "barcode", "monster energy zero ultra": "barcode", "great value chunk light tuna": "barcode",
   "great value long grain white rice": "barcode", "campbells chicken noodle soup": "barcode", "great value black beans": "barcode",

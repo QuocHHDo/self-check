@@ -44,7 +44,16 @@
   const known = (f, k) => !isMissing(f, k);
   // A daily-limit nutrient whose amount we can't vouch for. Unknown added sugar on a raw or nearly sugar-free food
   // doesn't count: there's no room for much of it.
-  const unknownLimit = (f, k) => (isMissing(f, k) || isLowerBound(f, k)) && !(k === "add" && f.addLikelyZero);
+  // An unknown limit blocks "Get it" unless it can't matter. Added sugar can't when total sugars are known and below
+  // the point where added sugar starts to cost a point (15% of the daily limit for a serving; for a meal, 70% of
+  // its third): even if every gram were added, the verdict would be the same.
+  const unknownLimit = (f, k, p, meal) => {
+    if (!(isMissing(f, k) || isLowerBound(f, k))) return false;
+    if (k !== "add") return true;
+    if (f.addLikelyZero) return false;
+    const cut = p && p.add > 0 ? p.add * (meal ? MEAL_CUT.limit[0] * MEAL_SHARE : CUT.add[0]) : 0;
+    return !(cut > 0 && known(f, "sug") && !isLowerBound(f, "sug") && f.sug < cut);
+  };
   const SOURCE_WORD = { usda: "USDA", off: "Open Food Facts", claude: "the lookup", walmart: "Walmart's nutrition panel" };
   const listWords = ks => { const w = ks.map(k => NUTRIENT_WORD[k]); return w.length <= 1 ? w.join("") : w.slice(0, -1).join(", ") + " or " + w.at(-1); };
   // "Partial data: USDA didn't report saturated fat or total sugars." (null when nothing is missing)
@@ -179,7 +188,7 @@
       why = `Strong on protein and balance, but over this meal's share of ${listWords(over)}.`;
       r.push({ k: "warn", t: `Can't be "Get it" while it goes over this meal's share of ${listWords(over)}. A smaller portion or a leaner swap would fix that.` });
     }
-    const unknownLimits = KEY_LIMITS.filter(k => unknownLimit(f, k));
+    const unknownLimits = KEY_LIMITS.filter(k => unknownLimit(f, k, p, true));
     const note = missingNote(f);
     if (note) r.push({ k: "warn", t: (f.missing || []).some(k => KEY_LIMITS.includes(k) || k === "sug") ? `${note} They aren't counted either way.` : note });
     if (unknownLimits.length && tier === "good") {
@@ -292,7 +301,7 @@
     }
 
     // Unknown or lower-bound limiting nutrients: say so, and never call it a "Get it" on incomplete data.
-    const unknownLimits = KEY_LIMITS.filter(k => unknownLimit(f, k));
+    const unknownLimits = KEY_LIMITS.filter(k => unknownLimit(f, k, p));
     const note = missingNote(f);
     if (note) r.push({ k: "warn", t: `${note} ${unknownLimits.length ? "Those aren't counted either way." : "They aren't counted either way."}` });
     if (unknownLimits.length && (tier === "good" || tier === "fine")) {
