@@ -1,0 +1,4832 @@
+{
+ "when": "2026-10-25T02:52:31.129Z",
+ "brands": {
+  "Great Value": {
+   "totalHitsWithOwnerFilter": 0,
+   "totalHitsPlain": 8301,
+   "owners": [
+    "Wal-Mart Stores, Inc.",
+    "GREAT VALUE",
+    "Axelsson & Johnson Fish Co., Inc.",
+    "",
+    "Wal-Mart Stores Inc.",
+    "Grunland Allgauer Kasewerke Gmbh"
+   ],
+   "brandNames": [
+    "GREAT VALUE",
+    null,
+    "Great Value"
+   ],
+   "sample": [
+    {
+     "fdcId": 2008921,
+     "description": "GREAT VALUE, LEMONADE",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "GREAT VALUE",
+     "gtinUpc": "078742378213",
+     "servingSize": 50,
+     "servingSizeUnit": "g",
+     "household": "3 Tbsp",
+     "published": "2021-10-28"
+    },
+    {
+     "fdcId": 2048200,
+     "description": "GREAT VALUE, ALMONDS, SMOKE",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "GREAT VALUE",
+     "gtinUpc": "078742096810",
+     "servingSize": 31,
+     "servingSizeUnit": "g",
+     "household": "0.25 cup",
+     "published": "2021-10-28"
+    },
+    {
+     "fdcId": 407399,
+     "description": "GREAT VALUE, BLACK TEA",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "gtinUpc": "078742352077",
+     "servingSize": 2.2,
+     "servingSizeUnit": "g",
+     "household": "1 TEA BAG",
+     "published": "2019-04-01"
+    },
+    {
+     "fdcId": 2008956,
+     "description": "GREAT VALUE, CRESCENT ROLL",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "GREAT VALUE",
+     "gtinUpc": "078742102986",
+     "servingSize": 28,
+     "servingSizeUnit": "g",
+     "household": "1 ROLL",
+     "published": "2021-10-28"
+    },
+    {
+     "fdcId": 400575,
+     "description": "GREAT VALUE, GREEN TEA",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "gtinUpc": "078742013169",
+     "servingSize": 1.77,
+     "servingSizeUnit": "g",
+     "household": "1 TEA BAG",
+     "published": "2019-04-01"
+    },
+    {
+     "fdcId": 2083360,
+     "description": "GREAT VALUE, SUGAR COOKIES",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "GREAT VALUE",
+     "gtinUpc": "078742090689",
+     "servingSize": 29,
+     "servingSizeUnit": "g",
+     "household": "0.5 INCH SLICE, 1 COOKIE, ABOUT",
+     "published": "2021-10-28"
+    },
+    {
+     "fdcId": 358251,
+     "description": "GREAT VALUE, CINNAMON WAFFLES, CINNAMON",
+     "brandOwner": "GREAT VALUE",
+     "gtinUpc": "1964737963047",
+     "servingSize": 70,
+     "servingSizeUnit": "g",
+     "household": "2 WAFFLES",
+     "published": "2019-04-01"
+    },
+    {
+     "fdcId": 2013810,
+     "description": "GREAT VALUE, AU GRATIN POTATOES",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "GREAT VALUE",
+     "gtinUpc": "078742013220",
+     "servingSize": 28,
+     "servingSizeUnit": "g",
+     "household": "0.5 cup",
+     "published": "2021-10-28"
+    }
+   ]
+  },
+  "Equate": {
+   "totalHitsWithOwnerFilter": 0,
+   "totalHitsPlain": 90,
+   "owners": [
+    "Revive Brands",
+    "Wal-Mart Stores, Inc."
+   ],
+   "brandNames": [
+    "REVIVE KOMBUCHA",
+    "EQUATE"
+   ],
+   "sample": [
+    {
+     "fdcId": 1923903,
+     "description": "UP BEAT COFFEE BREW",
+     "brandOwner": "Revive Brands",
+     "brandName": "REVIVE KOMBUCHA",
+     "gtinUpc": "817992020127",
+     "servingSize": 236.60000610351562,
+     "servingSizeUnit": "ml",
+     "household": "8 OZA",
+     "published": "2021-07-29"
+    },
+    {
+     "fdcId": 2276458,
+     "description": "BANANA FLAVORED HIGH PERFORMANCE PROTEIN SHAKE, BANANA",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "EQUATE",
+     "gtinUpc": "681131285773",
+     "servingSize": 325,
+     "servingSizeUnit": "ml",
+     "household": "1 bottle",
+     "published": "2022-05-23"
+    },
+    {
+     "fdcId": 1990884,
+     "description": "BANANA ORIGINAL NUTRITIONAL SHAKE, BANANA",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "EQUATE",
+     "gtinUpc": "681131280778",
+     "servingSize": 237,
+     "servingSizeUnit": "ml",
+     "household": "1 bottle",
+     "published": "2021-07-29"
+    },
+    {
+     "fdcId": 1990895,
+     "description": "BANANA PLUS NUTRITIONAL SHAKE, BANANA",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "EQUATE",
+     "gtinUpc": "681131022873",
+     "servingSize": 237,
+     "servingSizeUnit": "ml",
+     "household": "1 bottle",
+     "published": "2021-07-29"
+    },
+    {
+     "fdcId": 2470446,
+     "description": "BLUEBERRIES & CREAM HIGH PERFORMANCE PROTEIN SHAKE, BLUEBERRIES & CREAM",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "EQUATE",
+     "gtinUpc": "681131285780",
+     "servingSize": 325,
+     "servingSizeUnit": "ml",
+     "household": "1 bottle",
+     "published": "2023-02-16"
+    },
+    {
+     "fdcId": 2485014,
+     "description": "CAFE LATTE FLAVORED HIGH PERFORMANCE PROTEIN SHAKES, CAFE LATTE",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "EQUATE",
+     "gtinUpc": "681131406956",
+     "servingSize": 325,
+     "servingSizeUnit": "ml",
+     "household": "1 unit",
+     "published": "2023-02-16"
+    },
+    {
+     "fdcId": 2550835,
+     "description": "CARAMEL CHOCOLATE NUT ROLL SNACK BARS, CARAMEL CHOCOLATE NUT ROLL",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "EQUATE",
+     "gtinUpc": "681131386906",
+     "servingSize": 44,
+     "servingSizeUnit": "GRM",
+     "household": "1 bar",
+     "published": "2023-05-25"
+    },
+    {
+     "fdcId": 2550832,
+     "description": "CARAMEL CHOCOLATE PEANUT NOUGAT SNACK BARS, CARAMEL CHOCOLATE PEANUT NOUGAT",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "EQUATE",
+     "gtinUpc": "681131285988",
+     "servingSize": 44,
+     "servingSizeUnit": "GRM",
+     "household": "1 bar",
+     "published": "2023-05-25"
+    }
+   ]
+  },
+  "Marketside": {
+   "totalHitsWithOwnerFilter": 0,
+   "totalHitsPlain": 1077,
+   "owners": [
+    "Wal-Mart Stores, Inc.",
+    "MARKETSIDE"
+   ],
+   "brandNames": [
+    "MARKETSIDE",
+    null
+   ],
+   "sample": [
+    {
+     "fdcId": 2009015,
+     "description": "MARKETSIDE, BALSAMIC VINAIGRETTE",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "MARKETSIDE",
+     "gtinUpc": "681131070317",
+     "servingSize": 30,
+     "servingSizeUnit": "g",
+     "household": "2 Tbsp",
+     "published": "2021-10-28"
+    },
+    {
+     "fdcId": 2077996,
+     "description": "MARKETSIDE, GREEK DRESSING",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "MARKETSIDE",
+     "gtinUpc": "681131074292",
+     "servingSize": 30,
+     "servingSizeUnit": "ml",
+     "household": "2 Tbsp",
+     "published": "2021-10-28"
+    },
+    {
+     "fdcId": 2057609,
+     "description": "MARKETSIDE, HEAVENLY CHOCOLATE",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "MARKETSIDE",
+     "gtinUpc": "681131124607",
+     "servingSize": 231,
+     "servingSizeUnit": "g",
+     "household": "1 SLICE",
+     "published": "2021-10-28"
+    },
+    {
+     "fdcId": 2051193,
+     "description": "MARKETSIDE, ISLAND GREEN",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "MARKETSIDE",
+     "gtinUpc": "681131090810",
+     "servingSize": 240,
+     "servingSizeUnit": "ml",
+     "household": "8 OZA",
+     "published": "2021-10-28"
+    },
+    {
+     "fdcId": 2078037,
+     "description": "MARKETSIDE, ITALIAN DRESSING",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "MARKETSIDE",
+     "gtinUpc": "681131074353",
+     "servingSize": 30,
+     "servingSizeUnit": "ml",
+     "household": "2 Tbsp",
+     "published": "2021-10-28"
+    },
+    {
+     "fdcId": 2286834,
+     "description": "MARKETSIDE, BUTTERMILK RANCH DIP",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "MARKETSIDE",
+     "gtinUpc": "681131094672",
+     "servingSize": 29,
+     "servingSizeUnit": "g",
+     "household": "2 Tbsp",
+     "published": "2022-05-23"
+    },
+    {
+     "fdcId": 2033683,
+     "description": "MARKETSIDE, BUTTERMILK RANCH DRESSING",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "MARKETSIDE",
+     "gtinUpc": "681131070355",
+     "servingSize": 30,
+     "servingSizeUnit": "g",
+     "household": "2 Tbsp",
+     "published": "2021-10-28"
+    },
+    {
+     "fdcId": 2033371,
+     "description": "MARKETSIDE, COLE SLAW DRESSING",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "MARKETSIDE",
+     "gtinUpc": "681131070294",
+     "servingSize": 30,
+     "servingSizeUnit": "g",
+     "household": "2 Tbsp",
+     "published": "2021-10-28"
+    }
+   ]
+  },
+  "Sam's Choice": {
+   "totalHitsWithOwnerFilter": 0,
+   "totalHitsPlain": 5322,
+   "owners": [
+    "Wal-Mart Stores, Inc.",
+    "Sweet Sam's Baking Company",
+    "Sam Mills USA LLC ",
+    "Rich Products Corporation",
+    "Brent & Sam's Cookies, Inc.",
+    "F & S Produce Co., Inc.",
+    "Genji, Inc."
+   ],
+   "brandNames": [
+    "SAM'S CHOICE",
+    "SWEET SAM'S",
+    "SAM MILLS",
+    "SAM'S",
+    "BRENT & SAM'S",
+    "DIET SAM'S COLA",
+    "MAISUSHI"
+   ],
+   "sample": [
+    {
+     "fdcId": 1904618,
+     "description": "SAM'S CHOICE, TZATZIKI DRESSING",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "SAM'S CHOICE",
+     "gtinUpc": "078742085067",
+     "servingSize": 30,
+     "servingSizeUnit": "ml",
+     "household": "2 Tbsp",
+     "published": "2021-07-29"
+    },
+    {
+     "fdcId": 1904705,
+     "description": "SAM'S CHOICE, BACON VINAIGRETTE DRESSING",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "SAM'S CHOICE",
+     "gtinUpc": "078742085111",
+     "servingSize": 30,
+     "servingSizeUnit": "ml",
+     "household": "2 Tbsp",
+     "published": "2021-07-29"
+    },
+    {
+     "fdcId": 2050934,
+     "description": "SAM'S CHOICE, BELGIAN CHOCOLATE ASSORTMENT",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "SAM'S CHOICE",
+     "gtinUpc": "078742111124",
+     "servingSize": 42,
+     "servingSizeUnit": "g",
+     "household": "3 PIECES",
+     "published": "2021-10-28"
+    },
+    {
+     "fdcId": 1904724,
+     "description": "SAM'S CHOICE, JALAPENO RANCH DRESSING",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "SAM'S CHOICE",
+     "gtinUpc": "078742085081",
+     "servingSize": 30,
+     "servingSizeUnit": "ml",
+     "household": "2 Tbsp",
+     "published": "2021-07-29"
+    },
+    {
+     "fdcId": 1860684,
+     "description": "SAM'S CHOICE, ORGANIC DICED TOMATOES",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "SAM'S CHOICE",
+     "gtinUpc": "078742030555",
+     "servingSize": 120,
+     "servingSizeUnit": "g",
+     "household": "0.5 cup",
+     "published": "2021-07-29"
+    },
+    {
+     "fdcId": 1904616,
+     "description": "SAM'S CHOICE, SRIRACHA RANCH DRESSING",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "SAM'S CHOICE",
+     "gtinUpc": "078742085128",
+     "servingSize": 30,
+     "servingSizeUnit": "ml",
+     "household": "2 Tbsp",
+     "published": "2021-07-29"
+    },
+    {
+     "fdcId": 2086137,
+     "description": "SAM'S CHOICE, CHICKEN & WILD RICE SOUP",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "SAM'S CHOICE",
+     "gtinUpc": "078742123585",
+     "servingSize": 240,
+     "servingSizeUnit": "ml",
+     "household": "1 cup",
+     "published": "2021-10-28"
+    },
+    {
+     "fdcId": 1904696,
+     "description": "SAM'S CHOICE, CREAMY RED PASTA SAUCE",
+     "brandOwner": "Wal-Mart Stores, Inc.",
+     "brandName": "SAM'S CHOICE",
+     "gtinUpc": "078742056876",
+     "servingSize": 125,
+     "servingSizeUnit": "g",
+     "household": "0.5 cup",
+     "published": "2021-07-29"
+    }
+   ]
+  },
+  "bettergoods": {
+   "totalHitsWithOwnerFilter": 0,
+   "totalHitsPlain": 0,
+   "owners": [],
+   "brandNames": [],
+   "sample": []
+  }
+ },
+ "upcTests": [
+  {
+   "fdcId": 2008921,
+   "description": "GREAT VALUE, LEMONADE",
+   "brandOwner": "Wal-Mart Stores, Inc.",
+   "brandName": "GREAT VALUE",
+   "gtinUpc": "078742378213",
+   "servingSize": 50,
+   "servingSizeUnit": "g",
+   "household": "3 Tbsp",
+   "published": "2021-10-28",
+   "results": {
+    "asListed": {
+     "query": "078742378213",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "078742378213"
+    },
+    "upc12": {
+     "query": "078742378213",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "078742378213"
+    },
+    "ean13": {
+     "query": "0078742378213",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "gtin14": {
+     "query": "00078742378213",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    }
+   }
+  },
+  {
+   "fdcId": 2048200,
+   "description": "GREAT VALUE, ALMONDS, SMOKE",
+   "brandOwner": "Wal-Mart Stores, Inc.",
+   "brandName": "GREAT VALUE",
+   "gtinUpc": "078742096810",
+   "servingSize": 31,
+   "servingSizeUnit": "g",
+   "household": "0.25 cup",
+   "published": "2021-10-28",
+   "results": {
+    "asListed": {
+     "query": "078742096810",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "078742096810"
+    },
+    "upc12": {
+     "query": "078742096810",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "078742096810"
+    },
+    "ean13": {
+     "query": "0078742096810",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "gtin14": {
+     "query": "00078742096810",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    }
+   }
+  },
+  {
+   "fdcId": 407399,
+   "description": "GREAT VALUE, BLACK TEA",
+   "brandOwner": "Wal-Mart Stores, Inc.",
+   "gtinUpc": "078742352077",
+   "servingSize": 2.2,
+   "servingSizeUnit": "g",
+   "household": "1 TEA BAG",
+   "published": "2019-04-01",
+   "results": {
+    "asListed": {
+     "query": "078742352077",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "078742352077"
+    },
+    "upc12": {
+     "query": "078742352077",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "078742352077"
+    },
+    "ean13": {
+     "query": "0078742352077",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "gtin14": {
+     "query": "00078742352077",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    }
+   }
+  },
+  {
+   "fdcId": 2008956,
+   "description": "GREAT VALUE, CRESCENT ROLL",
+   "brandOwner": "Wal-Mart Stores, Inc.",
+   "brandName": "GREAT VALUE",
+   "gtinUpc": "078742102986",
+   "servingSize": 28,
+   "servingSizeUnit": "g",
+   "household": "1 ROLL",
+   "published": "2021-10-28",
+   "results": {
+    "asListed": {
+     "query": "078742102986",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "078742102986"
+    },
+    "upc12": {
+     "query": "078742102986",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "078742102986"
+    },
+    "ean13": {
+     "query": "0078742102986",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "gtin14": {
+     "query": "00078742102986",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    }
+   }
+  },
+  {
+   "fdcId": 400575,
+   "description": "GREAT VALUE, GREEN TEA",
+   "brandOwner": "Wal-Mart Stores, Inc.",
+   "gtinUpc": "078742013169",
+   "servingSize": 1.77,
+   "servingSizeUnit": "g",
+   "household": "1 TEA BAG",
+   "published": "2019-04-01",
+   "results": {
+    "asListed": {
+     "query": "078742013169",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "078742013169"
+    },
+    "upc12": {
+     "query": "078742013169",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "078742013169"
+    },
+    "ean13": {
+     "query": "0078742013169",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "gtin14": {
+     "query": "00078742013169",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    }
+   }
+  },
+  {
+   "fdcId": 2083360,
+   "description": "GREAT VALUE, SUGAR COOKIES",
+   "brandOwner": "Wal-Mart Stores, Inc.",
+   "brandName": "GREAT VALUE",
+   "gtinUpc": "078742090689",
+   "servingSize": 29,
+   "servingSizeUnit": "g",
+   "household": "0.5 INCH SLICE, 1 COOKIE, ABOUT",
+   "published": "2021-10-28",
+   "results": {
+    "asListed": {
+     "query": "078742090689",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "078742090689"
+    },
+    "upc12": {
+     "query": "078742090689",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "078742090689"
+    },
+    "ean13": {
+     "query": "0078742090689",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "gtin14": {
+     "query": "00078742090689",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    }
+   }
+  },
+  {
+   "fdcId": 358251,
+   "description": "GREAT VALUE, CINNAMON WAFFLES, CINNAMON",
+   "brandOwner": "GREAT VALUE",
+   "gtinUpc": "1964737963047",
+   "servingSize": 70,
+   "servingSizeUnit": "g",
+   "household": "2 WAFFLES",
+   "published": "2019-04-01",
+   "results": {
+    "asListed": {
+     "query": "1964737963047",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "1964737963047"
+    },
+    "upc12": {
+     "query": "1964737963047",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "1964737963047"
+    },
+    "ean13": {
+     "query": "1964737963047",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "1964737963047"
+    },
+    "gtin14": {
+     "query": "01964737963047",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    }
+   }
+  },
+  {
+   "fdcId": 2013810,
+   "description": "GREAT VALUE, AU GRATIN POTATOES",
+   "brandOwner": "Wal-Mart Stores, Inc.",
+   "brandName": "GREAT VALUE",
+   "gtinUpc": "078742013220",
+   "servingSize": 28,
+   "servingSizeUnit": "g",
+   "household": "0.5 cup",
+   "published": "2021-10-28",
+   "results": {
+    "asListed": {
+     "query": "078742013220",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "078742013220"
+    },
+    "upc12": {
+     "query": "078742013220",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "078742013220"
+    },
+    "ean13": {
+     "query": "0078742013220",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "gtin14": {
+     "query": "00078742013220",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    }
+   }
+  },
+  {
+   "fdcId": 1923903,
+   "description": "UP BEAT COFFEE BREW",
+   "brandOwner": "Revive Brands",
+   "brandName": "REVIVE KOMBUCHA",
+   "gtinUpc": "817992020127",
+   "servingSize": 236.60000610351562,
+   "servingSizeUnit": "ml",
+   "household": "8 OZA",
+   "published": "2021-07-29",
+   "results": {
+    "asListed": {
+     "query": "817992020127",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "817992020127"
+    },
+    "upc12": {
+     "query": "817992020127",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "817992020127"
+    },
+    "ean13": {
+     "query": "0817992020127",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "gtin14": {
+     "query": "00817992020127",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    }
+   }
+  },
+  {
+   "fdcId": 2276458,
+   "description": "BANANA FLAVORED HIGH PERFORMANCE PROTEIN SHAKE, BANANA",
+   "brandOwner": "Wal-Mart Stores, Inc.",
+   "brandName": "EQUATE",
+   "gtinUpc": "681131285773",
+   "servingSize": 325,
+   "servingSizeUnit": "ml",
+   "household": "1 bottle",
+   "published": "2022-05-23",
+   "results": {
+    "asListed": {
+     "query": "681131285773",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "681131285773"
+    },
+    "upc12": {
+     "query": "681131285773",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "681131285773"
+    },
+    "ean13": {
+     "query": "0681131285773",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "gtin14": {
+     "query": "00681131285773",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    }
+   }
+  },
+  {
+   "fdcId": 1990884,
+   "description": "BANANA ORIGINAL NUTRITIONAL SHAKE, BANANA",
+   "brandOwner": "Wal-Mart Stores, Inc.",
+   "brandName": "EQUATE",
+   "gtinUpc": "681131280778",
+   "servingSize": 237,
+   "servingSizeUnit": "ml",
+   "household": "1 bottle",
+   "published": "2021-07-29",
+   "results": {
+    "asListed": {
+     "query": "681131280778",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "681131280778"
+    },
+    "upc12": {
+     "query": "681131280778",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "681131280778"
+    },
+    "ean13": {
+     "query": "0681131280778",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "gtin14": {
+     "query": "00681131280778",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    }
+   }
+  },
+  {
+   "fdcId": 1990895,
+   "description": "BANANA PLUS NUTRITIONAL SHAKE, BANANA",
+   "brandOwner": "Wal-Mart Stores, Inc.",
+   "brandName": "EQUATE",
+   "gtinUpc": "681131022873",
+   "servingSize": 237,
+   "servingSizeUnit": "ml",
+   "household": "1 bottle",
+   "published": "2021-07-29",
+   "results": {
+    "asListed": {
+     "query": "681131022873",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "681131022873"
+    },
+    "upc12": {
+     "query": "681131022873",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "681131022873"
+    },
+    "ean13": {
+     "query": "0681131022873",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "gtin14": {
+     "query": "00681131022873",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    }
+   }
+  },
+  {
+   "fdcId": 2470446,
+   "description": "BLUEBERRIES & CREAM HIGH PERFORMANCE PROTEIN SHAKE, BLUEBERRIES & CREAM",
+   "brandOwner": "Wal-Mart Stores, Inc.",
+   "brandName": "EQUATE",
+   "gtinUpc": "681131285780",
+   "servingSize": 325,
+   "servingSizeUnit": "ml",
+   "household": "1 bottle",
+   "published": "2023-02-16",
+   "results": {
+    "asListed": {
+     "query": "681131285780",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "681131285780"
+    },
+    "upc12": {
+     "query": "681131285780",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "681131285780"
+    },
+    "ean13": {
+     "query": "0681131285780",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "gtin14": {
+     "query": "00681131285780",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    }
+   }
+  },
+  {
+   "fdcId": 2485014,
+   "description": "CAFE LATTE FLAVORED HIGH PERFORMANCE PROTEIN SHAKES, CAFE LATTE",
+   "brandOwner": "Wal-Mart Stores, Inc.",
+   "brandName": "EQUATE",
+   "gtinUpc": "681131406956",
+   "servingSize": 325,
+   "servingSizeUnit": "ml",
+   "household": "1 unit",
+   "published": "2023-02-16",
+   "results": {
+    "asListed": {
+     "query": "681131406956",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "681131406956"
+    },
+    "upc12": {
+     "query": "681131406956",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "681131406956"
+    },
+    "ean13": {
+     "query": "0681131406956",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "gtin14": {
+     "query": "00681131406956",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    }
+   }
+  },
+  {
+   "fdcId": 2193268,
+   "description": "COOKIES FILLED WITH NUTELLA HAZELNUT SPREAD BISCUITS, COOKIES FILLED WITH NUTELLA HAZELNUT SPREAD",
+   "brandOwner": "Ferrero U.S.A., Incorporated",
+   "gtinUpc": "009800830022",
+   "results": {
+    "asListed": {
+     "query": "009800830022",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "009800830022"
+    },
+    "upc12": {
+     "query": "009800830022",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "009800830022"
+    },
+    "ean13": {
+     "query": "0009800830022",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "gtin14": {
+     "query": "00009800830022",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    }
+   }
+  },
+  {
+   "fdcId": 2517161,
+   "description": "Cheerios Cereal",
+   "brandOwner": "General Mills",
+   "gtinUpc": "00016000275287",
+   "results": {
+    "asListed": {
+     "query": "00016000275287",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "00016000275287"
+    },
+    "upc12": {
+     "query": "016000275287",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "ean13": {
+     "query": "0016000275287",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "gtin14": {
+     "query": "00016000275287",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "00016000275287"
+    }
+   }
+  },
+  {
+   "fdcId": 2678649,
+   "description": "COCA-COLA, COLA",
+   "brandOwner": "Coca-Cola USA Operations",
+   "gtinUpc": "04963406",
+   "results": {
+    "asListed": {
+     "query": "04963406",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "04963406"
+    },
+    "upc12": {
+     "query": "000004963406",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "ean13": {
+     "query": "0000004963406",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "gtin14": {
+     "query": "00000004963406",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    }
+   }
+  },
+  {
+   "fdcId": 2503880,
+   "description": "SEA QUEST EGG HUNT, SEA QUEST",
+   "brandOwner": "Bee International, Inc.",
+   "gtinUpc": "073563004792",
+   "results": {
+    "asListed": {
+     "query": "073563004792",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "073563004792"
+    },
+    "upc12": {
+     "query": "073563004792",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "073563004792"
+    },
+    "ean13": {
+     "query": "0073563004792",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "gtin14": {
+     "query": "00073563004792",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    }
+   }
+  },
+  {
+   "fdcId": 1629973,
+   "description": "DORITOS, TORTILLA CHIPS, NACHO CHEESE, NACHO CHEESE",
+   "brandOwner": "Frito-Lay Company",
+   "gtinUpc": "028400335799",
+   "results": {
+    "asListed": {
+     "query": "028400335799",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "028400335799"
+    },
+    "upc12": {
+     "query": "028400335799",
+     "totalHits": 1,
+     "exactAt": 0,
+     "first": "028400335799"
+    },
+    "ean13": {
+     "query": "0028400335799",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    },
+    "gtin14": {
+     "query": "00028400335799",
+     "totalHits": 0,
+     "exactAt": -1,
+     "first": null
+    }
+   }
+  }
+ ],
+ "samples": [
+  {
+   "searchItem": {
+    "fdcId": 2008921,
+    "description": "GREAT VALUE, LEMONADE",
+    "dataType": "Branded",
+    "gtinUpc": "078742378213",
+    "publishedDate": "2021-10-28",
+    "brandOwner": "Wal-Mart Stores, Inc.",
+    "brandName": "GREAT VALUE",
+    "ingredients": "HIGH FRUCTOSE CORN SYRUP, WATER, CONCENTRATED LEMON JUICE, LEMON PULP, SUGAR SYRUP, LEMON OIL.",
+    "marketCountry": "United States",
+    "foodCategory": "Frozen Fruit & Fruit Juice Concentrates",
+    "modifiedDate": "2017-10-24",
+    "dataSource": "LI",
+    "servingSizeUnit": "g",
+    "servingSize": 50,
+    "householdServingFullText": "3 Tbsp",
+    "tradeChannels": [
+     "NO_TRADE_CHANNEL"
+    ],
+    "allHighlightFields": "<b>GTIN/UPC</b>: <em>078742378213</em>",
+    "score": -422.5959,
+    "microbes": [],
+    "foodNutrients": [
+     {
+      "nutrientId": 1003,
+      "nutrientName": "Protein",
+      "nutrientNumber": "203",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 600,
+      "indentLevel": 1,
+      "foodNutrientId": 24513973
+     },
+     {
+      "nutrientId": 1004,
+      "nutrientName": "Total lipid (fat)",
+      "nutrientNumber": "204",
+      "unitName": "G",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 800,
+      "indentLevel": 1,
+      "foodNutrientId": 24513974,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1005,
+      "nutrientName": "Carbohydrate, by difference",
+      "nutrientNumber": "205",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 56,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 1110,
+      "indentLevel": 2,
+      "foodNutrientId": 24513975,
+      "percentDailyValue": 9
+     },
+     {
+      "nutrientId": 1008,
+      "nutrientName": "Energy",
+      "nutrientNumber": "208",
+      "unitName": "KCAL",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 240,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 300,
+      "indentLevel": 1,
+      "foodNutrientId": 24513976
+     },
+     {
+      "nutrientId": 2000,
+      "nutrientName": "Total Sugars",
+      "nutrientNumber": "269",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 56,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 1510,
+      "indentLevel": 3,
+      "foodNutrientId": 24513977
+     },
+     {
+      "nutrientId": 1079,
+      "nutrientName": "Fiber, total dietary",
+      "nutrientNumber": "291",
+      "unitName": "G",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 1200,
+      "indentLevel": 3,
+      "foodNutrientId": 24513978,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1087,
+      "nutrientName": "Calcium, Ca",
+      "nutrientNumber": "301",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 5300,
+      "indentLevel": 1,
+      "foodNutrientId": 24513979,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1089,
+      "nutrientName": "Iron, Fe",
+      "nutrientNumber": "303",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 5400,
+      "indentLevel": 1,
+      "foodNutrientId": 24513980,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1092,
+      "nutrientName": "Potassium, K",
+      "nutrientNumber": "306",
+      "unitName": "MG",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 96,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 5700,
+      "indentLevel": 1,
+      "foodNutrientId": 24513981,
+      "percentDailyValue": 1
+     },
+     {
+      "nutrientId": 1093,
+      "nutrientName": "Sodium, Na",
+      "nutrientNumber": "307",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 5800,
+      "indentLevel": 1,
+      "foodNutrientId": 24513982,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1104,
+      "nutrientName": "Vitamin A, IU",
+      "nutrientNumber": "318",
+      "unitName": "IU",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 7500,
+      "indentLevel": 1,
+      "foodNutrientId": 24513983,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1162,
+      "nutrientName": "Vitamin C, total ascorbic acid",
+      "nutrientNumber": "401",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 18,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 6300,
+      "indentLevel": 1,
+      "foodNutrientId": 24513984,
+      "percentDailyValue": 15
+     },
+     {
+      "nutrientId": 1165,
+      "nutrientName": "Thiamin",
+      "nutrientNumber": "404",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 6400,
+      "indentLevel": 1,
+      "foodNutrientId": 24513985,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1253,
+      "nutrientName": "Cholesterol",
+      "nutrientNumber": "601",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 15700,
+      "indentLevel": 1,
+      "foodNutrientId": 24513986,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1257,
+      "nutrientName": "Fatty acids, total trans",
+      "nutrientNumber": "605",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 15400,
+      "indentLevel": 1,
+      "foodNutrientId": 24513987
+     },
+     {
+      "nutrientId": 1258,
+      "nutrientName": "Fatty acids, total saturated",
+      "nutrientNumber": "606",
+      "unitName": "G",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 9700,
+      "indentLevel": 1,
+      "foodNutrientId": 24513988,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1292,
+      "nutrientName": "Fatty acids, total monounsaturated",
+      "nutrientNumber": "645",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 11400,
+      "indentLevel": 1,
+      "foodNutrientId": 24513989
+     },
+     {
+      "nutrientId": 1293,
+      "nutrientName": "Fatty acids, total polyunsaturated",
+      "nutrientNumber": "646",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 12900,
+      "indentLevel": 1,
+      "foodNutrientId": 24513990
+     }
+    ],
+    "finalFoodInputFoods": [],
+    "foodMeasures": [],
+    "foodAttributes": [],
+    "foodAttributeTypes": [],
+    "foodVersionIds": []
+   },
+   "detail": {
+    "discontinuedDate": "",
+    "foodComponents": [],
+    "foodAttributes": [
+     {
+      "id": 2200649,
+      "value": 9,
+      "name": "Added Package Weight",
+      "foodAttributeType": {
+       "id": 998,
+       "name": "Update Log",
+       "description": "Changes that were made to this food"
+      }
+     }
+    ],
+    "foodPortions": [],
+    "fdcId": 2008921,
+    "description": "GREAT VALUE, LEMONADE",
+    "publicationDate": "10/28/2021",
+    "foodNutrients": [
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1253,
+       "number": "601",
+       "name": "Cholesterol",
+       "rank": 15700,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24513986,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1005,
+       "number": "205",
+       "name": "Carbohydrate, by difference",
+       "rank": 1110,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24513975,
+      "amount": 56
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1293,
+       "number": "646",
+       "name": "Fatty acids, total polyunsaturated",
+       "rank": 12900,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24513990,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1008,
+       "number": "208",
+       "name": "Energy",
+       "rank": 300,
+       "unitName": "kcal"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24513976,
+      "amount": 240
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1162,
+       "number": "401",
+       "name": "Vitamin C, total ascorbic acid",
+       "rank": 6300,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24513984,
+      "amount": 18
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1257,
+       "number": "605",
+       "name": "Fatty acids, total trans",
+       "rank": 15400,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24513987,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1104,
+       "number": "318",
+       "name": "Vitamin A, IU",
+       "rank": 7500,
+       "unitName": "IU"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24513983,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1258,
+       "number": "606",
+       "name": "Fatty acids, total saturated",
+       "rank": 9700,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24513988,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1087,
+       "number": "301",
+       "name": "Calcium, Ca",
+       "rank": 5300,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24513979,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1093,
+       "number": "307",
+       "name": "Sodium, Na",
+       "rank": 5800,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24513982,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1165,
+       "number": "404",
+       "name": "Thiamin",
+       "rank": 6400,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24513985,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1092,
+       "number": "306",
+       "name": "Potassium, K",
+       "rank": 5700,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24513981,
+      "amount": 96
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1292,
+       "number": "645",
+       "name": "Fatty acids, total monounsaturated",
+       "rank": 11400,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24513989,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 2000,
+       "number": "269",
+       "name": "Total Sugars",
+       "rank": 1510,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24513977,
+      "amount": 56
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1089,
+       "number": "303",
+       "name": "Iron, Fe",
+       "rank": 5400,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24513980,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1079,
+       "number": "291",
+       "name": "Fiber, total dietary",
+       "rank": 1200,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24513978,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1004,
+       "number": "204",
+       "name": "Total lipid (fat)",
+       "rank": 800,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24513974,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1003,
+       "number": "203",
+       "name": "Protein",
+       "rank": 600,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24513973,
+      "amount": 0
+     }
+    ],
+    "dataType": "Branded",
+    "foodClass": "Branded",
+    "modifiedDate": "10/24/2017",
+    "availableDate": "10/24/2017",
+    "brandOwner": "Wal-Mart Stores, Inc.",
+    "brandName": "GREAT VALUE",
+    "dataSource": "LI",
+    "brandedFoodCategory": "Frozen Fruit & Fruit Juice Concentrates",
+    "gtinUpc": "078742378213",
+    "householdServingFullText": "3 Tbsp",
+    "ingredients": "HIGH FRUCTOSE CORN SYRUP, WATER, CONCENTRATED LEMON JUICE, LEMON PULP, SUGAR SYRUP, LEMON OIL.",
+    "marketCountry": "United States",
+    "servingSize": 50,
+    "servingSizeUnit": "g",
+    "foodUpdateLog": [
+     {
+      "discontinuedDate": "",
+      "foodAttributes": [],
+      "fdcId": 2008921,
+      "description": "GREAT VALUE, LEMONADE",
+      "publicationDate": "10/28/2021",
+      "dataType": "Branded",
+      "foodClass": "Branded",
+      "modifiedDate": "10/24/2017",
+      "availableDate": "10/24/2017",
+      "brandOwner": "Wal-Mart Stores, Inc.",
+      "brandName": "GREAT VALUE",
+      "dataSource": "LI",
+      "brandedFoodCategory": "Frozen Fruit & Fruit Juice Concentrates",
+      "gtinUpc": "078742378213",
+      "householdServingFullText": "3 Tbsp",
+      "ingredients": "HIGH FRUCTOSE CORN SYRUP, WATER, CONCENTRATED LEMON JUICE, LEMON PULP, SUGAR SYRUP, LEMON OIL.",
+      "marketCountry": "United States",
+      "servingSize": 50,
+      "servingSizeUnit": "g"
+     },
+     {
+      "discontinuedDate": "",
+      "foodAttributes": [],
+      "fdcId": 1464417,
+      "description": "GREAT VALUE, LEMONADE",
+      "publicationDate": "3/19/2021",
+      "dataType": "Branded",
+      "foodClass": "Branded",
+      "modifiedDate": "10/24/2017",
+      "availableDate": "10/24/2017",
+      "brandOwner": "Wal-Mart Stores, Inc.",
+      "brandName": "GREAT VALUE",
+      "dataSource": "LI",
+      "brandedFoodCategory": "Frozen Fruit & Fruit Juice Concentrates",
+      "gtinUpc": "078742378213",
+      "householdServingFullText": "3 Tbsp",
+      "ingredients": "HIGH FRUCTOSE CORN SYRUP, WATER, CONCENTRATED LEMON JUICE, LEMON PULP, SUGAR SYRUP, LEMON OIL.",
+      "marketCountry": "United States",
+      "servingSize": 50,
+      "servingSizeUnit": "g"
+     },
+     {
+      "discontinuedDate": "",
+      "foodAttributes": [],
+      "fdcId": 1172397,
+      "description": "GREAT VALUE, LEMONADE",
+      "publicationDate": "2/26/2021",
+      "dataType": "Branded",
+      "foodClass": "Branded",
+      "modifiedDate": "10/24/2017",
+      "availableDate": "10/24/2017",
+      "brandOwner": "Wal-Mart Stores, Inc.",
+      "brandName": "GREAT VALUE",
+      "subbrandName": "",
+      "dataSource": "LI",
+      "brandedFoodCategory": "Frozen Fruit & Fruit Juice Concentrates",
+      "gtinUpc": "078742378213",
+      "householdServingFullText": "3 Tbsp",
+      "ingredients": "HIGH FRUCTOSE CORN SYRUP, WATER, CONCENTRATED LEMON JUICE, LEMON PULP, SUGAR SYRUP, LEMON OIL.",
+      "marketCountry": "United States",
+      "servingSize": 50,
+      "servingSizeUnit": "g",
+      "packageWeight": "",
+      "notaSignificantSourceOf": ""
+     },
+     {
+      "discontinuedDate": "",
+      "foodAttributes": [],
+      "modifiedDate": "10/24/2017",
+      "availableDate": "10/24/2017",
+      "brandOwner": "Wal-Mart Stores, Inc.",
+      "dataSource": "LI",
+      "gpcCategoryGroup": "Frozen Fruit & Fruit Juice Concentrates",
+      "gtinUpc": "078742378213",
+      "householdServingFullText": "3 Tbsp",
+      "ingredients": "HIGH FRUCTOSE CORN SYRUP, WATER, CONCENTRATED LEMON JUICE, LEMON PULP, SUGAR SYRUP, LEMON OIL.",
+      "marketCountry": "United States",
+      "servingSize": 50,
+      "servingSizeUnit": "g",
+      "fdcId": 358213,
+      "description": "GREAT VALUE, LEMONADE",
+      "publicationDate": "4/1/2019",
+      "workingFoodId": 45005486,
+      "dataType": "Branded",
+      "foodClass": "Branded"
+     }
+    ],
+    "labelNutrients": {
+     "fat": {
+      "value": 0
+     },
+     "saturatedFat": {
+      "value": 0
+     },
+     "transFat": {
+      "value": 0
+     },
+     "cholesterol": {
+      "value": 0
+     },
+     "sodium": {
+      "value": 0
+     },
+     "carbohydrates": {
+      "value": 28
+     },
+     "fiber": {
+      "value": 0
+     },
+     "sugars": {
+      "value": 28
+     },
+     "protein": {
+      "value": 0
+     },
+     "calcium": {
+      "value": 0
+     },
+     "iron": {
+      "value": 0
+     },
+     "potassium": {
+      "value": 48
+     },
+     "calories": {
+      "value": 120
+     }
+    }
+   }
+  },
+  {
+   "searchItem": {
+    "fdcId": 2048200,
+    "description": "GREAT VALUE, ALMONDS, SMOKE",
+    "dataType": "Branded",
+    "gtinUpc": "078742096810",
+    "publishedDate": "2021-10-28",
+    "brandOwner": "Wal-Mart Stores, Inc.",
+    "brandName": "GREAT VALUE",
+    "ingredients": "ALMONDS. VEGETABLE OIL (PEANUT, COTTONSEED. SOYBEAN AND/OR SUNFLOWER SEED). CONTAINS LESS THAN 2% OF THE FOLLOWING: SALT, MALTODEXTRIN HYDROLYZED SOY PROTEIN, YEAST EXTRACT, BROWN SUGAR, NATURAL HICKORY SMOKE FLAVOR, NATURAL FLAVOR, LIPOLYZED BUTTER OIL (MILK).",
+    "marketCountry": "United States",
+    "foodCategory": "Popcorn, Peanuts, Seeds & Related Snacks",
+    "modifiedDate": "2017-07-14",
+    "dataSource": "LI",
+    "servingSizeUnit": "g",
+    "servingSize": 31,
+    "householdServingFullText": "0.25 cup",
+    "tradeChannels": [
+     "NO_TRADE_CHANNEL"
+    ],
+    "allHighlightFields": "<b>GTIN/UPC</b>: <em>078742096810</em>",
+    "score": -422.5959,
+    "microbes": [],
+    "foodNutrients": [
+     {
+      "nutrientId": 1003,
+      "nutrientName": "Protein",
+      "nutrientNumber": "203",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 19.4,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 600,
+      "indentLevel": 1,
+      "foodNutrientId": 24506342
+     },
+     {
+      "nutrientId": 1004,
+      "nutrientName": "Total lipid (fat)",
+      "nutrientNumber": "204",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 54.8,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 800,
+      "indentLevel": 1,
+      "foodNutrientId": 24506343,
+      "percentDailyValue": 26
+     },
+     {
+      "nutrientId": 1005,
+      "nutrientName": "Carbohydrate, by difference",
+      "nutrientNumber": "205",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 16.1,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 1110,
+      "indentLevel": 2,
+      "foodNutrientId": 24506344,
+      "percentDailyValue": 2
+     },
+     {
+      "nutrientId": 1008,
+      "nutrientName": "Energy",
+      "nutrientNumber": "208",
+      "unitName": "KCAL",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 613,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 300,
+      "indentLevel": 1,
+      "foodNutrientId": 24506345
+     },
+     {
+      "nutrientId": 2000,
+      "nutrientName": "Total Sugars",
+      "nutrientNumber": "269",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 3.23,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 1510,
+      "indentLevel": 3,
+      "foodNutrientId": 24506346
+     },
+     {
+      "nutrientId": 1079,
+      "nutrientName": "Fiber, total dietary",
+      "nutrientNumber": "291",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 9.7,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 1200,
+      "indentLevel": 3,
+      "foodNutrientId": 24506347,
+      "percentDailyValue": 12
+     },
+     {
+      "nutrientId": 1087,
+      "nutrientName": "Calcium, Ca",
+      "nutrientNumber": "301",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 258,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 5300,
+      "indentLevel": 1,
+      "foodNutrientId": 24506348,
+      "percentDailyValue": 8
+     },
+     {
+      "nutrientId": 1089,
+      "nutrientName": "Iron, Fe",
+      "nutrientNumber": "303",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 3.48,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 5400,
+      "indentLevel": 1,
+      "foodNutrientId": 24506349,
+      "percentDailyValue": 6
+     },
+     {
+      "nutrientId": 1092,
+      "nutrientName": "Potassium, K",
+      "nutrientNumber": "306",
+      "unitName": "MG",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 677,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 5700,
+      "indentLevel": 1,
+      "foodNutrientId": 24506350,
+      "percentDailyValue": 6
+     },
+     {
+      "nutrientId": 1093,
+      "nutrientName": "Sodium, Na",
+      "nutrientNumber": "307",
+      "unitName": "MG",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 484,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 5800,
+      "indentLevel": 1,
+      "foodNutrientId": 24506351,
+      "percentDailyValue": 6
+     },
+     {
+      "nutrientId": 1104,
+      "nutrientName": "Vitamin A, IU",
+      "nutrientNumber": "318",
+      "unitName": "IU",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 7500,
+      "indentLevel": 1,
+      "foodNutrientId": 24506352,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1162,
+      "nutrientName": "Vitamin C, total ascorbic acid",
+      "nutrientNumber": "401",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 6300,
+      "indentLevel": 1,
+      "foodNutrientId": 24506353,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1253,
+      "nutrientName": "Cholesterol",
+      "nutrientNumber": "601",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 15700,
+      "indentLevel": 1,
+      "foodNutrientId": 24506354,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1257,
+      "nutrientName": "Fatty acids, total trans",
+      "nutrientNumber": "605",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 15400,
+      "indentLevel": 1,
+      "foodNutrientId": 24506355
+     },
+     {
+      "nutrientId": 1258,
+      "nutrientName": "Fatty acids, total saturated",
+      "nutrientNumber": "606",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 4.84,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 9700,
+      "indentLevel": 1,
+      "foodNutrientId": 24506356,
+      "percentDailyValue": 7
+     },
+     {
+      "nutrientId": 1292,
+      "nutrientName": "Fatty acids, total monounsaturated",
+      "nutrientNumber": "645",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 35.5,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 11400,
+      "indentLevel": 1,
+      "foodNutrientId": 24506357
+     },
+     {
+      "nutrientId": 1293,
+      "nutrientName": "Fatty acids, total polyunsaturated",
+      "nutrientNumber": "646",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 12.9,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 12900,
+      "indentLevel": 1,
+      "foodNutrientId": 24506358
+     }
+    ],
+    "finalFoodInputFoods": [],
+    "foodMeasures": [],
+    "foodAttributes": [],
+    "foodAttributeTypes": [],
+    "foodVersionIds": []
+   },
+   "detail": {
+    "discontinuedDate": "",
+    "foodComponents": [],
+    "foodAttributes": [
+     {
+      "id": 2245725,
+      "value": 9,
+      "name": "Added Package Weight",
+      "foodAttributeType": {
+       "id": 998,
+       "name": "Update Log",
+       "description": "Changes that were made to this food"
+      }
+     }
+    ],
+    "foodPortions": [],
+    "fdcId": 2048200,
+    "description": "GREAT VALUE, ALMONDS, SMOKE",
+    "publicationDate": "10/28/2021",
+    "foodNutrients": [
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1257,
+       "number": "605",
+       "name": "Fatty acids, total trans",
+       "rank": 15400,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24506355,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1089,
+       "number": "303",
+       "name": "Iron, Fe",
+       "rank": 5400,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24506349,
+      "amount": 3.48
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1162,
+       "number": "401",
+       "name": "Vitamin C, total ascorbic acid",
+       "rank": 6300,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24506353,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1293,
+       "number": "646",
+       "name": "Fatty acids, total polyunsaturated",
+       "rank": 12900,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24506358,
+      "amount": 12.9
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1087,
+       "number": "301",
+       "name": "Calcium, Ca",
+       "rank": 5300,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24506348,
+      "amount": 258
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1104,
+       "number": "318",
+       "name": "Vitamin A, IU",
+       "rank": 7500,
+       "unitName": "IU"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24506352,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1005,
+       "number": "205",
+       "name": "Carbohydrate, by difference",
+       "rank": 1110,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24506344,
+      "amount": 16.13
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1093,
+       "number": "307",
+       "name": "Sodium, Na",
+       "rank": 5800,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24506351,
+      "amount": 484
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1079,
+       "number": "291",
+       "name": "Fiber, total dietary",
+       "rank": 1200,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24506347,
+      "amount": 9.7
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1092,
+       "number": "306",
+       "name": "Potassium, K",
+       "rank": 5700,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24506350,
+      "amount": 677
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1004,
+       "number": "204",
+       "name": "Total lipid (fat)",
+       "rank": 800,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24506343,
+      "amount": 54.84
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1003,
+       "number": "203",
+       "name": "Protein",
+       "rank": 600,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24506342,
+      "amount": 19.35
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 2000,
+       "number": "269",
+       "name": "Total Sugars",
+       "rank": 1510,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24506346,
+      "amount": 3.23
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1292,
+       "number": "645",
+       "name": "Fatty acids, total monounsaturated",
+       "rank": 11400,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24506357,
+      "amount": 35.48
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1258,
+       "number": "606",
+       "name": "Fatty acids, total saturated",
+       "rank": 9700,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24506356,
+      "amount": 4.84
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1008,
+       "number": "208",
+       "name": "Energy",
+       "rank": 300,
+       "unitName": "kcal"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24506345,
+      "amount": 613
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1253,
+       "number": "601",
+       "name": "Cholesterol",
+       "rank": 15700,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 24506354,
+      "amount": 0
+     }
+    ],
+    "dataType": "Branded",
+    "foodClass": "Branded",
+    "modifiedDate": "7/14/2017",
+    "availableDate": "7/14/2017",
+    "brandOwner": "Wal-Mart Stores, Inc.",
+    "brandName": "GREAT VALUE",
+    "dataSource": "LI",
+    "brandedFoodCategory": "Popcorn, Peanuts, Seeds & Related Snacks",
+    "gtinUpc": "078742096810",
+    "householdServingFullText": "0.25 cup",
+    "ingredients": "ALMONDS. VEGETABLE OIL (PEANUT, COTTONSEED. SOYBEAN AND/OR SUNFLOWER SEED). CONTAINS LESS THAN 2% OF THE FOLLOWING: SALT, MALTODEXTRIN HYDROLYZED SOY PROTEIN, YEAST EXTRACT, BROWN SUGAR, NATURAL HICKORY SMOKE FLAVOR, NATURAL FLAVOR, LIPOLYZED BUTTER OIL (MILK).",
+    "marketCountry": "United States",
+    "servingSize": 31,
+    "servingSizeUnit": "g",
+    "foodUpdateLog": [
+     {
+      "discontinuedDate": "",
+      "foodAttributes": [],
+      "fdcId": 2048200,
+      "description": "GREAT VALUE, ALMONDS, SMOKE",
+      "publicationDate": "10/28/2021",
+      "dataType": "Branded",
+      "foodClass": "Branded",
+      "modifiedDate": "7/14/2017",
+      "availableDate": "7/14/2017",
+      "brandOwner": "Wal-Mart Stores, Inc.",
+      "brandName": "GREAT VALUE",
+      "dataSource": "LI",
+      "brandedFoodCategory": "Popcorn, Peanuts, Seeds & Related Snacks",
+      "gtinUpc": "078742096810",
+      "householdServingFullText": "0.25 cup",
+      "ingredients": "ALMONDS. VEGETABLE OIL (PEANUT, COTTONSEED. SOYBEAN AND/OR SUNFLOWER SEED). CONTAINS LESS THAN 2% OF THE FOLLOWING: SALT, MALTODEXTRIN HYDROLYZED SOY PROTEIN, YEAST EXTRACT, BROWN SUGAR, NATURAL HICKORY SMOKE FLAVOR, NATURAL FLAVOR, LIPOLYZED BUTTER OIL (MILK).",
+      "marketCountry": "United States",
+      "servingSize": 31,
+      "servingSizeUnit": "g"
+     },
+     {
+      "discontinuedDate": "",
+      "foodAttributes": [],
+      "fdcId": 1527748,
+      "description": "GREAT VALUE, ALMONDS, SMOKE",
+      "publicationDate": "3/19/2021",
+      "dataType": "Branded",
+      "foodClass": "Branded",
+      "modifiedDate": "7/14/2017",
+      "availableDate": "7/14/2017",
+      "brandOwner": "Wal-Mart Stores, Inc.",
+      "brandName": "GREAT VALUE",
+      "dataSource": "LI",
+      "brandedFoodCategory": "Popcorn, Peanuts, Seeds & Related Snacks",
+      "gtinUpc": "078742096810",
+      "householdServingFullText": "0.25 cup",
+      "ingredients": "ALMONDS. VEGETABLE OIL (PEANUT, COTTONSEED. SOYBEAN AND/OR SUNFLOWER SEED). CONTAINS LESS THAN 2% OF THE FOLLOWING: SALT, MALTODEXTRIN HYDROLYZED SOY PROTEIN, YEAST EXTRACT, BROWN SUGAR, NATURAL HICKORY SMOKE FLAVOR, NATURAL FLAVOR, LIPOLYZED BUTTER OIL (MILK).",
+      "marketCountry": "United States",
+      "servingSize": 31,
+      "servingSizeUnit": "g"
+     },
+     {
+      "discontinuedDate": "",
+      "foodAttributes": [],
+      "fdcId": 1235685,
+      "description": "GREAT VALUE, ALMONDS, SMOKE",
+      "publicationDate": "2/26/2021",
+      "dataType": "Branded",
+      "foodClass": "Branded",
+      "modifiedDate": "7/14/2017",
+      "availableDate": "7/14/2017",
+      "brandOwner": "Wal-Mart Stores, Inc.",
+      "brandName": "GREAT VALUE",
+      "subbrandName": "",
+      "dataSource": "LI",
+      "brandedFoodCategory": "Popcorn, Peanuts, Seeds & Related Snacks",
+      "gtinUpc": "078742096810",
+      "householdServingFullText": "0.25 cup",
+      "ingredients": "ALMONDS. VEGETABLE OIL (PEANUT, COTTONSEED. SOYBEAN AND/OR SUNFLOWER SEED). CONTAINS LESS THAN 2% OF THE FOLLOWING: SALT, MALTODEXTRIN HYDROLYZED SOY PROTEIN, YEAST EXTRACT, BROWN SUGAR, NATURAL HICKORY SMOKE FLAVOR, NATURAL FLAVOR, LIPOLYZED BUTTER OIL (MILK).",
+      "marketCountry": "United States",
+      "servingSize": 31,
+      "servingSizeUnit": "g",
+      "packageWeight": "",
+      "notaSignificantSourceOf": ""
+     },
+     {
+      "discontinuedDate": "",
+      "foodAttributes": [],
+      "modifiedDate": "7/14/2017",
+      "availableDate": "7/14/2017",
+      "brandOwner": "Wal-Mart Stores, Inc.",
+      "dataSource": "LI",
+      "gpcCategoryGroup": "Popcorn, Peanuts, Seeds & Related Snacks",
+      "gtinUpc": "078742096810",
+      "householdServingFullText": "0.25 cup",
+      "ingredients": "ALMONDS. VEGETABLE OIL (PEANUT, COTTONSEED. SOYBEAN AND/OR SUNFLOWER SEED). CONTAINS LESS THAN 2% OF THE FOLLOWING: SALT, MALTODEXTRIN HYDROLYZED SOY PROTEIN, YEAST EXTRACT, BROWN SUGAR, NATURAL HICKORY SMOKE FLAVOR, NATURAL FLAVOR, LIPOLYZED BUTTER OIL (MILK).",
+      "marketCountry": "United States",
+      "servingSize": 31,
+      "servingSizeUnit": "g",
+      "fdcId": 428046,
+      "description": "GREAT VALUE, ALMONDS, SMOKE",
+      "publicationDate": "4/1/2019",
+      "workingFoodId": 45157792,
+      "dataType": "Branded",
+      "foodClass": "Branded"
+     }
+    ],
+    "labelNutrients": {
+     "fat": {
+      "value": 17
+     },
+     "saturatedFat": {
+      "value": 1.5
+     },
+     "transFat": {
+      "value": 0
+     },
+     "cholesterol": {
+      "value": 0
+     },
+     "sodium": {
+      "value": 150
+     },
+     "carbohydrates": {
+      "value": 5
+     },
+     "fiber": {
+      "value": 3.01
+     },
+     "sugars": {
+      "value": 1
+     },
+     "protein": {
+      "value": 6
+     },
+     "calcium": {
+      "value": 80
+     },
+     "iron": {
+      "value": 1.08
+     },
+     "potassium": {
+      "value": 210
+     },
+     "calories": {
+      "value": 190
+     }
+    }
+   }
+  },
+  {
+   "searchItem": {
+    "fdcId": 407399,
+    "description": "GREAT VALUE, BLACK TEA",
+    "dataType": "Branded",
+    "gtinUpc": "078742352077",
+    "publishedDate": "2019-04-01",
+    "brandOwner": "Wal-Mart Stores, Inc.",
+    "ingredients": "BLACK TEA.",
+    "marketCountry": "United States",
+    "foodCategory": "Tea Bags",
+    "modifiedDate": "2017-08-10",
+    "dataSource": "LI",
+    "servingSizeUnit": "g",
+    "servingSize": 2.2,
+    "householdServingFullText": "1 TEA BAG",
+    "tradeChannels": [
+     "NO_TRADE_CHANNEL"
+    ],
+    "allHighlightFields": "<b>GTIN/UPC</b>: <em>078742352077</em>",
+    "score": -422.5959,
+    "microbes": [],
+    "foodNutrients": [
+     {
+      "nutrientId": 1004,
+      "nutrientName": "Total lipid (fat)",
+      "nutrientNumber": "204",
+      "unitName": "G",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 800,
+      "indentLevel": 1,
+      "foodNutrientId": 2962030,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1005,
+      "nutrientName": "Carbohydrate, by difference",
+      "nutrientNumber": "205",
+      "unitName": "G",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 1110,
+      "indentLevel": 2,
+      "foodNutrientId": 2962031,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1079,
+      "nutrientName": "Fiber, total dietary",
+      "nutrientNumber": "291",
+      "unitName": "G",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 1200,
+      "indentLevel": 3,
+      "foodNutrientId": 2962032,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1087,
+      "nutrientName": "Calcium, Ca",
+      "nutrientNumber": "301",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 5300,
+      "indentLevel": 1,
+      "foodNutrientId": 2962033,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1089,
+      "nutrientName": "Iron, Fe",
+      "nutrientNumber": "303",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 5400,
+      "indentLevel": 1,
+      "foodNutrientId": 2962034,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1093,
+      "nutrientName": "Sodium, Na",
+      "nutrientNumber": "307",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 5800,
+      "indentLevel": 1,
+      "foodNutrientId": 2962035,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1104,
+      "nutrientName": "Vitamin A, IU",
+      "nutrientNumber": "318",
+      "unitName": "IU",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 7500,
+      "indentLevel": 1,
+      "foodNutrientId": 2962036,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1162,
+      "nutrientName": "Vitamin C, total ascorbic acid",
+      "nutrientNumber": "401",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 6300,
+      "indentLevel": 1,
+      "foodNutrientId": 2962037,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1253,
+      "nutrientName": "Cholesterol",
+      "nutrientNumber": "601",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 15700,
+      "indentLevel": 1,
+      "foodNutrientId": 2962038,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1258,
+      "nutrientName": "Fatty acids, total saturated",
+      "nutrientNumber": "606",
+      "unitName": "G",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 9700,
+      "indentLevel": 1,
+      "foodNutrientId": 2962039,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1003,
+      "nutrientName": "Protein",
+      "nutrientNumber": "203",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 600,
+      "indentLevel": 1,
+      "foodNutrientId": 4318250,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1008,
+      "nutrientName": "Energy",
+      "nutrientNumber": "208",
+      "unitName": "KCAL",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 300,
+      "indentLevel": 1,
+      "foodNutrientId": 4318251,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 2000,
+      "nutrientName": "Total Sugars",
+      "nutrientNumber": "269",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 1510,
+      "indentLevel": 3,
+      "foodNutrientId": 4318252,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1092,
+      "nutrientName": "Potassium, K",
+      "nutrientNumber": "306",
+      "unitName": "MG",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 1140,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 5700,
+      "indentLevel": 1,
+      "foodNutrientId": 4318253,
+      "percentDailyValue": 1
+     },
+     {
+      "nutrientId": 1257,
+      "nutrientName": "Fatty acids, total trans",
+      "nutrientNumber": "605",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 15400,
+      "indentLevel": 1,
+      "foodNutrientId": 4318254,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1292,
+      "nutrientName": "Fatty acids, total monounsaturated",
+      "nutrientNumber": "645",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 11400,
+      "indentLevel": 1,
+      "foodNutrientId": 4318255,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1293,
+      "nutrientName": "Fatty acids, total polyunsaturated",
+      "nutrientNumber": "646",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 12900,
+      "indentLevel": 1,
+      "foodNutrientId": 4318256,
+      "percentDailyValue": 0
+     }
+    ],
+    "finalFoodInputFoods": [],
+    "foodMeasures": [],
+    "foodAttributes": [],
+    "foodAttributeTypes": [],
+    "foodVersionIds": []
+   },
+   "detail": {
+    "discontinuedDate": "",
+    "foodComponents": [],
+    "foodAttributes": [],
+    "foodPortions": [],
+    "fdcId": 407399,
+    "description": "GREAT VALUE, BLACK TEA",
+    "publicationDate": "4/1/2019",
+    "foodNutrients": [
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1089,
+       "number": "303",
+       "name": "Iron, Fe",
+       "rank": 5400,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 2962034,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1093,
+       "number": "307",
+       "name": "Sodium, Na",
+       "rank": 5800,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 2962035,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1162,
+       "number": "401",
+       "name": "Vitamin C, total ascorbic acid",
+       "rank": 6300,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 2962037,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1087,
+       "number": "301",
+       "name": "Calcium, Ca",
+       "rank": 5300,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 2962033,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1004,
+       "number": "204",
+       "name": "Total lipid (fat)",
+       "rank": 800,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 2962030,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1258,
+       "number": "606",
+       "name": "Fatty acids, total saturated",
+       "rank": 9700,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 2962039,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1079,
+       "number": "291",
+       "name": "Fiber, total dietary",
+       "rank": 1200,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 2962032,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1005,
+       "number": "205",
+       "name": "Carbohydrate, by difference",
+       "rank": 1110,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 2962031,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1253,
+       "number": "601",
+       "name": "Cholesterol",
+       "rank": 15700,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 2962038,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1104,
+       "number": "318",
+       "name": "Vitamin A, IU",
+       "rank": 7500,
+       "unitName": "IU"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 2962036,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1003,
+       "number": "203",
+       "name": "Protein",
+       "rank": 600,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 4318250,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1292,
+       "number": "645",
+       "name": "Fatty acids, total monounsaturated",
+       "rank": 11400,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 4318255,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 2000,
+       "number": "269",
+       "name": "Total Sugars",
+       "rank": 1510,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 4318252,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1257,
+       "number": "605",
+       "name": "Fatty acids, total trans",
+       "rank": 15400,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 4318254,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1092,
+       "number": "306",
+       "name": "Potassium, K",
+       "rank": 5700,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 4318253,
+      "amount": 1136
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1008,
+       "number": "208",
+       "name": "Energy",
+       "rank": 300,
+       "unitName": "kcal"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 4318251,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1293,
+       "number": "646",
+       "name": "Fatty acids, total polyunsaturated",
+       "rank": 12900,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 4318256,
+      "amount": 0
+     }
+    ],
+    "dataType": "Branded",
+    "foodClass": "Branded",
+    "modifiedDate": "8/10/2017",
+    "availableDate": "8/10/2017",
+    "brandOwner": "Wal-Mart Stores, Inc.",
+    "dataSource": "LI",
+    "brandedFoodCategory": "Tea Bags",
+    "gtinUpc": "078742352077",
+    "householdServingFullText": "1 TEA BAG",
+    "ingredients": "BLACK TEA.",
+    "marketCountry": "United States",
+    "servingSize": 2.2,
+    "servingSizeUnit": "g",
+    "foodUpdateLog": [
+     {
+      "discontinuedDate": "",
+      "foodAttributes": [],
+      "fdcId": 407399,
+      "description": "GREAT VALUE, BLACK TEA",
+      "publicationDate": "4/1/2019",
+      "dataType": "Branded",
+      "foodClass": "Branded",
+      "modifiedDate": "8/10/2017",
+      "availableDate": "8/10/2017",
+      "brandOwner": "Wal-Mart Stores, Inc.",
+      "dataSource": "LI",
+      "brandedFoodCategory": "Tea Bags",
+      "gtinUpc": "078742352077",
+      "householdServingFullText": "1 TEA BAG",
+      "ingredients": "BLACK TEA.",
+      "marketCountry": "United States",
+      "servingSize": 2.2,
+      "servingSizeUnit": "g"
+     }
+    ],
+    "labelNutrients": {
+     "fat": {
+      "value": 0
+     },
+     "saturatedFat": {
+      "value": 0
+     },
+     "transFat": {
+      "value": 0
+     },
+     "cholesterol": {
+      "value": 0
+     },
+     "sodium": {
+      "value": 0
+     },
+     "carbohydrates": {
+      "value": 0
+     },
+     "fiber": {
+      "value": 0
+     },
+     "sugars": {
+      "value": 0
+     },
+     "protein": {
+      "value": 0
+     },
+     "calcium": {
+      "value": 0
+     },
+     "iron": {
+      "value": 0
+     },
+     "potassium": {
+      "value": 25
+     },
+     "calories": {
+      "value": 0
+     }
+    }
+   }
+  },
+  {
+   "searchItem": {
+    "fdcId": 2503880,
+    "description": "SEA QUEST EGG HUNT, SEA QUEST",
+    "dataType": "Branded",
+    "gtinUpc": "073563004792",
+    "publishedDate": "2023-03-16",
+    "brandOwner": "Bee International, Inc.",
+    "brandName": "BEE",
+    "subbrandName": "SMARTIES",
+    "ingredients": "DEXTROSE, CITRIC ACID, CALCIUM STEARATE, NATURAL AND ARTIFICIAL FLAVOR, RED 40 LAKE, YELLOW 5 LAKE, YELLOW 6 LAKE, BLUE 2 LAKE.",
+    "marketCountry": "United States",
+    "foodCategory": "Candy",
+    "modifiedDate": "2023-02-20",
+    "dataSource": "LI",
+    "packageWeight": "3.7 oz/105 g",
+    "servingSizeUnit": "GRM",
+    "servingSize": 4.5,
+    "householdServingFullText": "1 Roll",
+    "shortDescription": "",
+    "tradeChannels": [
+     "NO_TRADE_CHANNEL"
+    ],
+    "allHighlightFields": "<b>GTIN/UPC</b>: <em>073563004792</em>",
+    "score": -422.5959,
+    "microbes": [],
+    "foodNutrients": [
+     {
+      "nutrientId": 1003,
+      "nutrientName": "Protein",
+      "nutrientNumber": "203",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 600,
+      "indentLevel": 1,
+      "foodNutrientId": 31097889
+     },
+     {
+      "nutrientId": 1004,
+      "nutrientName": "Total lipid (fat)",
+      "nutrientNumber": "204",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 800,
+      "indentLevel": 1,
+      "foodNutrientId": 31097890,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1005,
+      "nutrientName": "Carbohydrate, by difference",
+      "nutrientNumber": "205",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 88.9,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 1110,
+      "indentLevel": 2,
+      "foodNutrientId": 31097891,
+      "percentDailyValue": 1
+     },
+     {
+      "nutrientId": 1008,
+      "nutrientName": "Energy",
+      "nutrientNumber": "208",
+      "unitName": "KCAL",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 333,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 300,
+      "indentLevel": 1,
+      "foodNutrientId": 31097892
+     },
+     {
+      "nutrientId": 2000,
+      "nutrientName": "Total Sugars",
+      "nutrientNumber": "269",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 88.9,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 1510,
+      "indentLevel": 3,
+      "foodNutrientId": 31097893
+     },
+     {
+      "nutrientId": 1093,
+      "nutrientName": "Sodium, Na",
+      "nutrientNumber": "307",
+      "unitName": "MG",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 5800,
+      "indentLevel": 1,
+      "foodNutrientId": 31097894,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1235,
+      "nutrientName": "Sugars, added",
+      "nutrientNumber": "539",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 88.9,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 1540,
+      "indentLevel": 0,
+      "foodNutrientId": 31097895,
+      "percentDailyValue": 8
+     }
+    ],
+    "finalFoodInputFoods": [],
+    "foodMeasures": [],
+    "foodAttributes": [],
+    "foodAttributeTypes": [],
+    "foodVersionIds": []
+   },
+   "detail": {
+    "discontinuedDate": "",
+    "foodComponents": [],
+    "foodAttributes": [],
+    "foodPortions": [],
+    "fdcId": 2503880,
+    "description": "SEA QUEST EGG HUNT, SEA QUEST",
+    "publicationDate": "3/16/2023",
+    "foodNutrients": [
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1004,
+       "number": "204",
+       "name": "Total lipid (fat)",
+       "rank": 800,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 31097890,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1008,
+       "number": "208",
+       "name": "Energy",
+       "rank": 300,
+       "unitName": "kcal"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 31097892,
+      "amount": 333
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1005,
+       "number": "205",
+       "name": "Carbohydrate, by difference",
+       "rank": 1110,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 31097891,
+      "amount": 88.89
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1093,
+       "number": "307",
+       "name": "Sodium, Na",
+       "rank": 5800,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 31097894,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1235,
+       "number": "539",
+       "name": "Sugars, added",
+       "rank": 1540,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 31097895,
+      "amount": 88.9
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 2000,
+       "number": "269",
+       "name": "Total Sugars",
+       "rank": 1510,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 31097893,
+      "amount": 88.89
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1003,
+       "number": "203",
+       "name": "Protein",
+       "rank": 600,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 31097889,
+      "amount": 0
+     }
+    ],
+    "dataType": "Branded",
+    "foodClass": "Branded",
+    "shortDescription": "",
+    "modifiedDate": "2/20/2023",
+    "availableDate": "2/20/2023",
+    "brandOwner": "Bee International, Inc.",
+    "brandName": "BEE",
+    "subbrandName": "SMARTIES",
+    "dataSource": "LI",
+    "brandedFoodCategory": "Candy",
+    "gtinUpc": "073563004792",
+    "householdServingFullText": "1 Roll",
+    "ingredients": "DEXTROSE, CITRIC ACID, CALCIUM STEARATE, NATURAL AND ARTIFICIAL FLAVOR, RED 40 LAKE, YELLOW 5 LAKE, YELLOW 6 LAKE, BLUE 2 LAKE.",
+    "marketCountry": "United States",
+    "servingSize": 4.5,
+    "servingSizeUnit": "GRM",
+    "packageWeight": "3.7 oz/105 g",
+    "foodUpdateLog": [
+     {
+      "discontinuedDate": "",
+      "foodAttributes": [],
+      "fdcId": 2503880,
+      "description": "SEA QUEST EGG HUNT, SEA QUEST",
+      "publicationDate": "3/16/2023",
+      "dataType": "Branded",
+      "foodClass": "Branded",
+      "shortDescription": "",
+      "modifiedDate": "2/20/2023",
+      "availableDate": "2/20/2023",
+      "brandOwner": "Bee International, Inc.",
+      "brandName": "BEE",
+      "subbrandName": "SMARTIES",
+      "dataSource": "LI",
+      "brandedFoodCategory": "Candy",
+      "gtinUpc": "073563004792",
+      "householdServingFullText": "1 Roll",
+      "ingredients": "DEXTROSE, CITRIC ACID, CALCIUM STEARATE, NATURAL AND ARTIFICIAL FLAVOR, RED 40 LAKE, YELLOW 5 LAKE, YELLOW 6 LAKE, BLUE 2 LAKE.",
+      "marketCountry": "United States",
+      "servingSize": 4.5,
+      "servingSizeUnit": "GRM",
+      "packageWeight": "3.7 oz/105 g"
+     }
+    ],
+    "labelNutrients": {
+     "fat": {
+      "value": 0
+     },
+     "sodium": {
+      "value": 0
+     },
+     "carbohydrates": {
+      "value": 4
+     },
+     "sugars": {
+      "value": 4
+     },
+     "protein": {
+      "value": 0
+     },
+     "addedSugar": {
+      "value": 4
+     },
+     "calories": {
+      "value": 15
+     }
+    }
+   }
+  },
+  {
+   "searchItem": {
+    "fdcId": 1629973,
+    "description": "DORITOS, TORTILLA CHIPS, NACHO CHEESE, NACHO CHEESE",
+    "dataType": "Branded",
+    "gtinUpc": "028400335799",
+    "publishedDate": "2021-03-19",
+    "brandOwner": "Frito-Lay Company",
+    "brandName": "DORITOS",
+    "ingredients": "CORN, VEGETABLE OIL (SUNFLOWER, CANOLA, AND/OR CORN OIL), MALTODEXTRIN (MADE FROM CORN), SALT, CHEDDAR CHEESE (MILK, CHEESE CULTURES, SALT, ENZYMES), WHEY, MONOSODIUM GLUTAMATE, BUTTERMILK, ROMANO CHEESE (PART-SKIM COW'S MILK, CHEESE CULTURES, SALT, ENZYMES), WHEY PROTEIN CONCENTRATE, ONION POWDER, CORN FLOUR NATURAL AND ARTIFICIAL FLAVOR, DEXTROSE, TOMATO POWDER, LACTOSE, SPICES, ARTIFICIAL COLOR (INCLUDING YELLOW 6, YELLOW 5, AND RED 40), LACTIC ACID, CITRIC ACID, SUGAR, GARLIC POWDER, SKIM MILK, RED AND GREEN BELL PEPPER POWDER, DISODIUM INOSINATE, AND DISODIUM GUANYLATE.",
+    "marketCountry": "United States",
+    "foodCategory": "Chips, Pretzels & Snacks",
+    "modifiedDate": "2018-03-11",
+    "dataSource": "LI",
+    "servingSizeUnit": "g",
+    "servingSize": 28,
+    "householdServingFullText": "1 ONZ",
+    "tradeChannels": [
+     "NO_TRADE_CHANNEL"
+    ],
+    "allHighlightFields": "<b>GTIN/UPC</b>: <em>028400335799</em>",
+    "score": -422.5959,
+    "microbes": [],
+    "foodNutrients": [
+     {
+      "nutrientId": 1003,
+      "nutrientName": "Protein",
+      "nutrientNumber": "203",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 7.14,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 600,
+      "indentLevel": 1,
+      "foodNutrientId": 19505870
+     },
+     {
+      "nutrientId": 1004,
+      "nutrientName": "Total lipid (fat)",
+      "nutrientNumber": "204",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 28.6,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 800,
+      "indentLevel": 1,
+      "foodNutrientId": 19505871,
+      "percentDailyValue": 12
+     },
+     {
+      "nutrientId": 1005,
+      "nutrientName": "Carbohydrate, by difference",
+      "nutrientNumber": "205",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 57.1,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 1110,
+      "indentLevel": 2,
+      "foodNutrientId": 19505872,
+      "percentDailyValue": 5
+     },
+     {
+      "nutrientId": 1008,
+      "nutrientName": "Energy",
+      "nutrientNumber": "208",
+      "unitName": "KCAL",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 500,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 300,
+      "indentLevel": 1,
+      "foodNutrientId": 19505873
+     },
+     {
+      "nutrientId": 2000,
+      "nutrientName": "Total Sugars",
+      "nutrientNumber": "269",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 1510,
+      "indentLevel": 3,
+      "foodNutrientId": 19505874
+     },
+     {
+      "nutrientId": 1079,
+      "nutrientName": "Fiber, total dietary",
+      "nutrientNumber": "291",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 3.6,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 1200,
+      "indentLevel": 3,
+      "foodNutrientId": 19505875,
+      "percentDailyValue": 4
+     },
+     {
+      "nutrientId": 1087,
+      "nutrientName": "Calcium, Ca",
+      "nutrientNumber": "301",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 5300,
+      "indentLevel": 1,
+      "foodNutrientId": 19505876,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1089,
+      "nutrientName": "Iron, Fe",
+      "nutrientNumber": "303",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 5400,
+      "indentLevel": 1,
+      "foodNutrientId": 19505877,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1093,
+      "nutrientName": "Sodium, Na",
+      "nutrientNumber": "307",
+      "unitName": "MG",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 750,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 5800,
+      "indentLevel": 1,
+      "foodNutrientId": 19505878,
+      "percentDailyValue": 9
+     },
+     {
+      "nutrientId": 1104,
+      "nutrientName": "Vitamin A, IU",
+      "nutrientNumber": "318",
+      "unitName": "IU",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 357,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 7500,
+      "indentLevel": 1,
+      "foodNutrientId": 19505879,
+      "percentDailyValue": 2
+     },
+     {
+      "nutrientId": 1162,
+      "nutrientName": "Vitamin C, total ascorbic acid",
+      "nutrientNumber": "401",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 6300,
+      "indentLevel": 1,
+      "foodNutrientId": 19505880,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1165,
+      "nutrientName": "Thiamin",
+      "nutrientNumber": "404",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 6400,
+      "indentLevel": 1,
+      "foodNutrientId": 19505881,
+      "percentDailyValue": 2
+     },
+     {
+      "nutrientId": 1175,
+      "nutrientName": "Vitamin B-6",
+      "nutrientNumber": "415",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0.143,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 6800,
+      "indentLevel": 1,
+      "foodNutrientId": 19505882,
+      "percentDailyValue": 2
+     },
+     {
+      "nutrientId": 1253,
+      "nutrientName": "Cholesterol",
+      "nutrientNumber": "601",
+      "unitName": "MG",
+      "derivationCode": "LCCD",
+      "derivationDescription": "Calculated from a daily value percentage per serving size measure",
+      "derivationId": 75,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 15700,
+      "indentLevel": 1,
+      "foodNutrientId": 19505883,
+      "percentDailyValue": 0
+     },
+     {
+      "nutrientId": 1257,
+      "nutrientName": "Fatty acids, total trans",
+      "nutrientNumber": "605",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 0,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 15400,
+      "indentLevel": 1,
+      "foodNutrientId": 19505884
+     },
+     {
+      "nutrientId": 1258,
+      "nutrientName": "Fatty acids, total saturated",
+      "nutrientNumber": "606",
+      "unitName": "G",
+      "derivationCode": "LCCS",
+      "derivationDescription": "Calculated from value per serving size measure",
+      "derivationId": 70,
+      "value": 3.57,
+      "foodNutrientSourceId": 9,
+      "foodNutrientSourceCode": "12",
+      "foodNutrientSourceDescription": "Manufacturer's analytical; partial documentation",
+      "rank": 9700,
+      "indentLevel": 1,
+      "foodNutrientId": 19505885,
+      "percentDailyValue": 6
+     }
+    ],
+    "finalFoodInputFoods": [],
+    "foodMeasures": [],
+    "foodAttributes": [
+     {
+      "value": "10",
+      "name": "Added Brand/Sub Brand Information",
+      "id": 1664863
+     }
+    ],
+    "foodAttributeTypes": [
+     {
+      "name": "Update Log",
+      "description": "Changes that were made to this food",
+      "id": 998,
+      "foodAttributes": [
+       {
+        "value": "10",
+        "name": "Added Brand/Sub Brand Information",
+        "id": 1664863
+       }
+      ]
+     }
+    ],
+    "foodVersionIds": []
+   },
+   "detail": {
+    "discontinuedDate": "",
+    "foodComponents": [],
+    "foodAttributes": [
+     {
+      "id": 1664863,
+      "value": 10,
+      "name": "Added Brand/Sub Brand Information",
+      "foodAttributeType": {
+       "id": 998,
+       "name": "Update Log",
+       "description": "Changes that were made to this food"
+      }
+     }
+    ],
+    "foodPortions": [],
+    "fdcId": 1629973,
+    "description": "DORITOS, TORTILLA CHIPS, NACHO CHEESE, NACHO CHEESE",
+    "publicationDate": "3/19/2021",
+    "foodNutrients": [
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1079,
+       "number": "291",
+       "name": "Fiber, total dietary",
+       "rank": 1200,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 19505875,
+      "amount": 3.6
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1165,
+       "number": "404",
+       "name": "Thiamin",
+       "rank": 6400,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 19505881,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1257,
+       "number": "605",
+       "name": "Fatty acids, total trans",
+       "rank": 15400,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 19505884,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1104,
+       "number": "318",
+       "name": "Vitamin A, IU",
+       "rank": 7500,
+       "unitName": "IU"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 19505879,
+      "amount": 357
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1004,
+       "number": "204",
+       "name": "Total lipid (fat)",
+       "rank": 800,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 19505871,
+      "amount": 28.57
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 2000,
+       "number": "269",
+       "name": "Total Sugars",
+       "rank": 1510,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 19505874,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1003,
+       "number": "203",
+       "name": "Protein",
+       "rank": 600,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 19505870,
+      "amount": 7.14
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1005,
+       "number": "205",
+       "name": "Carbohydrate, by difference",
+       "rank": 1110,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 19505872,
+      "amount": 57.14
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1008,
+       "number": "208",
+       "name": "Energy",
+       "rank": 300,
+       "unitName": "kcal"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 19505873,
+      "amount": 500
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1087,
+       "number": "301",
+       "name": "Calcium, Ca",
+       "rank": 5300,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 19505876,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1258,
+       "number": "606",
+       "name": "Fatty acids, total saturated",
+       "rank": 9700,
+       "unitName": "g"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 19505885,
+      "amount": 3.57
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1162,
+       "number": "401",
+       "name": "Vitamin C, total ascorbic acid",
+       "rank": 6300,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 19505880,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1093,
+       "number": "307",
+       "name": "Sodium, Na",
+       "rank": 5800,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 70,
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 19505878,
+      "amount": 750
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1089,
+       "number": "303",
+       "name": "Iron, Fe",
+       "rank": 5400,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 19505877,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1253,
+       "number": "601",
+       "name": "Cholesterol",
+       "rank": 15700,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 19505883,
+      "amount": 0
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "id": 1175,
+       "number": "415",
+       "name": "Vitamin B-6",
+       "rank": 6800,
+       "unitName": "mg"
+      },
+      "foodNutrientDerivation": {
+       "id": 75,
+       "code": "LCCD",
+       "description": "Calculated from a daily value percentage per serving size measure",
+       "foodNutrientSource": {
+        "id": 9,
+        "code": "12",
+        "description": "Manufacturer's analytical; partial documentation"
+       }
+      },
+      "id": 19505882,
+      "amount": 0.143
+     }
+    ],
+    "dataType": "Branded",
+    "foodClass": "Branded",
+    "modifiedDate": "3/11/2018",
+    "availableDate": "3/11/2018",
+    "brandOwner": "Frito-Lay Company",
+    "brandName": "DORITOS",
+    "dataSource": "LI",
+    "brandedFoodCategory": "Chips, Pretzels & Snacks",
+    "gtinUpc": "028400335799",
+    "householdServingFullText": "1 ONZ",
+    "ingredients": "CORN, VEGETABLE OIL (SUNFLOWER, CANOLA, AND/OR CORN OIL), MALTODEXTRIN (MADE FROM CORN), SALT, CHEDDAR CHEESE (MILK, CHEESE CULTURES, SALT, ENZYMES), WHEY, MONOSODIUM GLUTAMATE, BUTTERMILK, ROMANO CHEESE (PART-SKIM COW'S MILK, CHEESE CULTURES, SALT, ENZYMES), WHEY PROTEIN CONCENTRATE, ONION POWDER, CORN FLOUR NATURAL AND ARTIFICIAL FLAVOR, DEXTROSE, TOMATO POWDER, LACTOSE, SPICES, ARTIFICIAL COLOR (INCLUDING YELLOW 6, YELLOW 5, AND RED 40), LACTIC ACID, CITRIC ACID, SUGAR, GARLIC POWDER, SKIM MILK, RED AND GREEN BELL PEPPER POWDER, DISODIUM INOSINATE, AND DISODIUM GUANYLATE.",
+    "marketCountry": "United States",
+    "servingSize": 28,
+    "servingSizeUnit": "g",
+    "foodUpdateLog": [
+     {
+      "discontinuedDate": "",
+      "foodAttributes": [],
+      "fdcId": 1629973,
+      "description": "DORITOS, TORTILLA CHIPS, NACHO CHEESE, NACHO CHEESE",
+      "publicationDate": "3/19/2021",
+      "dataType": "Branded",
+      "foodClass": "Branded",
+      "modifiedDate": "3/11/2018",
+      "availableDate": "3/11/2018",
+      "brandOwner": "Frito-Lay Company",
+      "brandName": "DORITOS",
+      "dataSource": "LI",
+      "brandedFoodCategory": "Chips, Pretzels & Snacks",
+      "gtinUpc": "028400335799",
+      "householdServingFullText": "1 ONZ",
+      "ingredients": "CORN, VEGETABLE OIL (SUNFLOWER, CANOLA, AND/OR CORN OIL), MALTODEXTRIN (MADE FROM CORN), SALT, CHEDDAR CHEESE (MILK, CHEESE CULTURES, SALT, ENZYMES), WHEY, MONOSODIUM GLUTAMATE, BUTTERMILK, ROMANO CHEESE (PART-SKIM COW'S MILK, CHEESE CULTURES, SALT, ENZYMES), WHEY PROTEIN CONCENTRATE, ONION POWDER, CORN FLOUR NATURAL AND ARTIFICIAL FLAVOR, DEXTROSE, TOMATO POWDER, LACTOSE, SPICES, ARTIFICIAL COLOR (INCLUDING YELLOW 6, YELLOW 5, AND RED 40), LACTIC ACID, CITRIC ACID, SUGAR, GARLIC POWDER, SKIM MILK, RED AND GREEN BELL PEPPER POWDER, DISODIUM INOSINATE, AND DISODIUM GUANYLATE.",
+      "marketCountry": "United States",
+      "servingSize": 28,
+      "servingSizeUnit": "g"
+     },
+     {
+      "discontinuedDate": "",
+      "foodAttributes": [],
+      "fdcId": 1337823,
+      "description": "DORITOS, TORTILLA CHIPS, NACHO CHEESE, NACHO CHEESE",
+      "publicationDate": "2/26/2021",
+      "dataType": "Branded",
+      "foodClass": "Branded",
+      "modifiedDate": "3/11/2018",
+      "availableDate": "3/11/2018",
+      "brandOwner": "Frito-Lay Company",
+      "brandName": "DORITOS",
+      "subbrandName": "",
+      "dataSource": "LI",
+      "brandedFoodCategory": "Chips, Pretzels & Snacks",
+      "gtinUpc": "028400335799",
+      "householdServingFullText": "1 ONZ",
+      "ingredients": "CORN, VEGETABLE OIL (SUNFLOWER, CANOLA, AND/OR CORN OIL), MALTODEXTRIN (MADE FROM CORN), SALT, CHEDDAR CHEESE (MILK, CHEESE CULTURES, SALT, ENZYMES), WHEY, MONOSODIUM GLUTAMATE, BUTTERMILK, ROMANO CHEESE (PART-SKIM COW'S MILK, CHEESE CULTURES, SALT, ENZYMES), WHEY PROTEIN CONCENTRATE, ONION POWDER, CORN FLOUR NATURAL AND ARTIFICIAL FLAVOR, DEXTROSE, TOMATO POWDER, LACTOSE, SPICES, ARTIFICIAL COLOR (INCLUDING YELLOW 6, YELLOW 5, AND RED 40), LACTIC ACID, CITRIC ACID, SUGAR, GARLIC POWDER, SKIM MILK, RED AND GREEN BELL PEPPER POWDER, DISODIUM INOSINATE, AND DISODIUM GUANYLATE.",
+      "marketCountry": "United States",
+      "servingSize": 28,
+      "servingSizeUnit": "g",
+      "packageWeight": "",
+      "notaSignificantSourceOf": ""
+     },
+     {
+      "discontinuedDate": "",
+      "foodAttributes": [],
+      "modifiedDate": "3/11/2018",
+      "availableDate": "3/11/2018",
+      "brandOwner": "Frito-Lay Company",
+      "dataSource": "LI",
+      "gpcCategoryGroup": "Chips, Pretzels & Snacks",
+      "gtinUpc": "028400335799",
+      "ingredients": "CORN, VEGETABLE OIL (SUNFLOWER, CANOLA, AND/OR CORN OIL), MALTODEXTRIN (MADE FROM CORN), SALT, CHEDDAR CHEESE (MILK, CHEESE CULTURES, SALT, ENZYMES), WHEY, MONOSODIUM GLUTAMATE, BUTTERMILK, ROMANO CHEESE (PART-SKIM COW'S MILK, CHEESE CULTURES, SALT, ENZYMES), WHEY PROTEIN CONCENTRATE, ONION POWDER, CORN FLOUR NATURAL AND ARTIFICIAL FLAVOR, DEXTROSE, TOMATO POWDER, LACTOSE, SPICES, ARTIFICIAL COLOR (INCLUDING YELLOW 6, YELLOW 5, AND RED 40), LACTIC ACID, CITRIC ACID, SUGAR, GARLIC POWDER, SKIM MILK, RED AND GREEN BELL PEPPER POWDER, DISODIUM INOSINATE, AND DISODIUM GUANYLATE.",
+      "marketCountry": "United States",
+      "fdcId": 994089,
+      "description": "DORITOS, TORTILLA CHIPS, NACHO CHEESE, NACHO CHEESE",
+      "publicationDate": "6/26/2020",
+      "dataType": "Branded",
+      "foodClass": "Branded"
+     }
+    ],
+    "labelNutrients": {
+     "fat": {
+      "value": 8
+     },
+     "saturatedFat": {
+      "value": 1
+     },
+     "transFat": {
+      "value": 0
+     },
+     "cholesterol": {
+      "value": 0
+     },
+     "sodium": {
+      "value": 210
+     },
+     "carbohydrates": {
+      "value": 16
+     },
+     "fiber": {
+      "value": 1.01
+     },
+     "sugars": {
+      "value": 0
+     },
+     "protein": {
+      "value": 2
+     },
+     "calcium": {
+      "value": 0
+     },
+     "iron": {
+      "value": 0
+     },
+     "calories": {
+      "value": 140
+     }
+    }
+   }
+  }
+ ]
+}
