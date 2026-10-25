@@ -196,19 +196,24 @@
       if (!info.items.length) sec.append(el("p", { class: "muted", text: "No additives listed." }));
       else {
         const list = el("ul", { class: "addlist" });
+        // Tap a row for what it is, why it's there and what the evidence says. Removed ones start open.
         for (const a of info.items) {
-          const li = el("li", { class: a.flag ? "flagged" : null },
+          const body = el("div", { class: "abody-more" },
+            a.what || a.role ? el("p", {}, a.what ? el("b", { text: a.what + " " }) : null, a.role || "") : null,
+            a.note ? el("p", {}, a.note, a.src ? " " : null, a.src ? el("a", { href: a.src, target: "_blank", rel: "noopener", text: "Source" }) : null) : null,
+            a.efsaHigh ? el("p", { class: "muted", text: "EFSA's safety review found some people may exceed the acceptable daily intake." }) : null,
+            el("p", { class: "muted", text: a.statusHint }));
+          const sum = el("summary", {},
             el("span", { class: "acode", text: a.code || "—" }),
-            el("span", { class: "abody" }, el("span", { class: "aname", text: a.name }), a.fn ? el("span", { class: "afn", text: ` · ${a.fn}` }) : null,
-              a.flag ? el("span", { class: "aflag" }, a.flag.t, a.flag.src ? " " : null, a.flag.src ? el("a", { href: a.flag.src, target: "_blank", rel: "noopener", text: "Source" }) : null) : null,
-              a.efsaHigh ? el("span", { class: "aefsa", text: "EFSA's safety review found some people may exceed the acceptable daily intake." }) : null));
-          list.append(li);
+            el("span", { class: "aname", text: a.name }),
+            el("span", { class: `astatus ${a.status}`, text: a.statusLabel }));
+          list.append(el("li", { class: `st-${a.status}` }, el("details", { open: a.status === "removed" ? true : null }, sum, body)));
         }
         sec.append(list);
       }
     }
     if (f.ingredients) sec.append(el("details", { class: "ingr" }, el("summary", { text: "Ingredients" }), el("p", { text: f.ingredients })));
-    sec.append(el("p", { class: "legend", text: (info.fromText ? "Found by name in the ingredient list, so an additive listed under an unusual name can be missed. " : "From Open Food Facts. ") + "Additives approved in the US and EU are judged safe at normal amounts; only ones with a documented concern are flagged. Add any you avoid to your skip list (for example “sucralose” or “E407”)." }));
+    sec.append(el("p", { class: "legend", text: (info.fromText ? "Found by name in the ingredient list, so an additive listed under an unusual name can be missed. " : "From Open Food Facts. ") + "Tap an additive for what it is and what the evidence says. Most approved additives are judged safe at normal amounts; “Mixed evidence” means approved but questioned, with the source. Add any you avoid to your skip list (for example “sucralose” or “E407”)." }));
     return sec;
   }
 

@@ -290,14 +290,26 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
 .nova-badge { flex: none; font: 700 12px var(--font-display); letter-spacing: .06em; padding: 3px 8px; border-radius: 6px; background: var(--good-soft); color: var(--good); }
 .nova.n3 .nova-badge { background: var(--mid-soft); color: var(--mid); }
 .nova.n4 .nova-badge { background: var(--bad-soft); color: var(--bad); }
-.addlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.addlist li { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 8px; font-size: 14px; padding: 6px 8px; border-radius: 8px; }
-.addlist li.flagged { background: var(--mid-soft); }
-.addlist .acode { font: 600 12.5px var(--font-display); color: var(--muted); padding-top: 1px; }
+.addlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.addlist li { border-radius: 8px; font-size: 14px; }
+.addlist li.st-removed { background: var(--bad-soft); }
+.addlist li.st-mixed { background: var(--mid-soft); }
+.addlist summary { display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 7px 8px; cursor: pointer; list-style: none; }
+.addlist summary::-webkit-details-marker { display: none; }
+.addlist summary::after { content: "›"; color: var(--muted); grid-column: 4; transition: transform .15s; }
+.addlist details[open] summary::after { transform: rotate(90deg); }
+.addlist summary { grid-template-columns: 58px minmax(0, 1fr) auto 10px; }
+.addlist .acode { font: 600 12.5px var(--font-display); color: var(--muted); }
 .addlist .aname { font-weight: 600; }
-.addlist .afn, .addlist .aefsa { color: var(--muted); }
-.addlist .aflag, .addlist .aefsa { display: block; font-size: 13px; margin-top: 2px; }
-.addlist .aflag a { color: var(--accent); }
+.addlist .astatus { font: 700 11px var(--font-display); letter-spacing: .04em; padding: 2px 7px; border-radius: 6px; white-space: nowrap; }
+.astatus.safe { background: var(--good-soft); color: var(--good); }
+.astatus.mixed { background: var(--paper); color: var(--mid); border: 1px solid var(--mid); }
+.astatus.removed { background: var(--paper); color: var(--bad); border: 1px solid var(--bad); }
+.astatus.unreviewed { background: var(--paper); color: var(--muted); border: 1px solid var(--line); }
+.abody-more { padding: 0 10px 8px 74px; display: grid; gap: 4px; font-size: 13.5px; }
+.abody-more p { margin: 0; }
+.abody-more a { color: var(--accent); }
+@media (max-width: 520px) { .abody-more { padding-left: 10px; } .addlist summary { grid-template-columns: 50px minmax(0, 1fr) auto 10px; } }
 .additives .ingr { margin-top: 10px; font-size: 13px; color: var(--muted); }
 .additives .ingr summary { cursor: pointer; color: var(--ink); font-weight: 600; }
 .suggest li.action { color: var(--accent); font-weight: 600; border-top: 1px solid var(--line); }
@@ -414,6 +426,7 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
 <script src="js/prices-data.js"></script>
 <script src="js/prices.js"></script>
 <script src="js/additives-data.js"></script>
+<script src="js/additive-notes.js"></script>
 <script src="js/additives.js"></script>
 <script src="js/verdict.js"></script>
 <script src="js/sources.js"></script>

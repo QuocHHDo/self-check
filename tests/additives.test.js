@@ -54,7 +54,7 @@ test("additives regulators removed are flagged with a source and keep a product 
 test("nitrites are flagged but don't change the verdict", () => {
   const ham = S.makeFood("Test Ham", "2 slices", { cal: 60, pro: 10, fat: 2, sat: 0.7, na: 300, carb: 1, sug: 1, add: 1 }, { src: "off", additives: ["en:e250", "en:e301"] });
   const v = V.assess(ham, P), plain = V.assess({ ...ham, additives: undefined }, P);
-  assert.ok(v.reasons.some(r => /Sodium nitrite \(E250\): A curing salt/.test(r.t)));
+  assert.ok(v.reasons.some(r => /Sodium nitrite \(E250\): A curing salt in bacon/.test(r.t)));
   assert.equal(v.word, plain.word);
 });
 
@@ -73,4 +73,46 @@ test("built-in and USDA foods have no additive data, so nothing changes for them
   assert.equal(A.analyze(S.fromUsda(require("./fixtures/usda-durian.json"))), null);
   assert.equal(A.analyze(off("off-nutella")).items.length, 0);
   assert.equal(A.analyze(off("off-nutella")).nova, 3);
+});
+
+// ---- Descriptions and evidence status ----
+const NOTES = require("../js/additive-notes.js");
+
+test("every reviewed note is for a real additive, with a valid status", () => {
+  for (const [code, n] of Object.entries(NOTES.NOTES)) {
+    assert.ok(DATA[code], `${code} isn't in the additive list`);
+    assert.ok(["safe", "mixed", "removed"].includes(n.status), `${code}: status ${n.status}`);
+    assert.ok(n.what && n.what.endsWith("."), `${code}: needs a one-sentence description`);
+  }
+});
+
+test("every Mixed-evidence note cites a source (nitrites cite through their flag)", () => {
+  for (const [code, n] of Object.entries(NOTES.NOTES)) {
+    if (n.status !== "mixed") continue;
+    const a = A.lookup("en:" + code);
+    assert.ok(a.note && a.note.length > 30, `${code}: needs the evidence in words`);
+    if (!A.FLAGS[code]) assert.match(a.src, /^https:\/\//, `${code}: needs a source link`);
+  }
+});
+
+test("Removed status matches the additives regulators removed, and only those", () => {
+  for (const [code, n] of Object.entries(NOTES.NOTES)) assert.equal(n.status === "removed", !!(A.FLAGS[code] && A.FLAGS[code].removed), code);
+  for (const code of ["e171", "e127", "e443"]) assert.equal(A.lookup("en:" + code).status, "removed");
+});
+
+test("descriptions read naturally: reviewed roles win over the taxonomy's alphabetical functions", () => {
+  assert.match(A.lookup("en:e322i").role, /oil and water/, "lecithin is an emulsifier first");
+  assert.match(A.lookup("en:e330").role, /tartness/, "citric acid adds tartness");
+  assert.match(A.lookup("en:e500ii").role, /rise/, "baking soda makes things rise");
+  const unreviewed = A.lookup("en:e1442");
+  assert.equal(unreviewed.status, "unreviewed");
+  assert.ok(unreviewed.role.length > 10, "unreviewed additives still say what they do");
+  // Every function the taxonomy uses for a common additive has a plain-language description.
+  for (const code of ["e1442", "e414", "e319", "e385", "e304"]) assert.ok(A.lookup("en:" + code).role, `${code} has no role text`);
+});
+
+test("statuses never change a verdict beyond the removed-additive rule", () => {
+  const cola = off("off-test-cola");
+  const plain = V.assess({ ...cola, additives: undefined, nova: undefined, ingredients: undefined }, P);
+  assert.equal(V.assess(cola, P).word, plain.word, "mixed-evidence sweeteners and phosphates don't change the verdict");
 });
