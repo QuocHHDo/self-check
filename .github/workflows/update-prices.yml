@@ -5,6 +5,8 @@ on:
   schedule:
     - cron: "17 14 20 * *"
   workflow_dispatch:
+  push:
+    branches: [probe-branded]
 permissions:
   contents: write
   pages: write
