@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "Should I Buy It? Shopping helper",
   "short_name": "Should I Buy It?",
-  "version": "1.3.0",
-  "description": "Shows whether a food fits your goals right on its product page. Free; runs in your browser; uses the same verdict as the Should I Buy It? site.",
+  "version": "1.3.1",
+  "description": "See whether a food fits your nutrition goals right on its product page. Free and private: everything runs in your browser.",
   "icons": {
     "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",
@@ -48,5 +48,6 @@
       ],
       "run_at": "document_idle"
     }
-  ]
+  ],
+  "homepage_url": "https://quochhdo.github.io/self-check/"
 }

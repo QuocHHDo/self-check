@@ -28,3 +28,9 @@ test("permissions stay narrow: storage, Walmart pages, and the two nutrition sou
   const bg = fs.readFileSync(path.join(EXT, manifest.background.service_worker), "utf8");
   assert.match(bg, /credentials: "omit"/);
 });
+
+test("store limits: description at most 132 characters, name at most 75, a version Chrome accepts", () => {
+  assert.ok(manifest.description.length <= 132, `description is ${manifest.description.length} characters`);
+  assert.ok(manifest.name.length <= 75);
+  assert.match(manifest.version, /^\d+(\.\d+){0,3}$/);
+});
