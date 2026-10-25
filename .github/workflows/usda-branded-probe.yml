@@ -3,8 +3,6 @@ name: USDA Branded probe
 # Saves eval/branded-probe.json to the eval-results-branded branch.
 on:
   workflow_dispatch:
-  push:
-    branches: [probe-branded]
 permissions:
   contents: write
 jobs:

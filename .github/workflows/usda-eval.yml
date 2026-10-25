@@ -3,6 +3,8 @@ name: USDA accuracy eval
 # (free key: https://fdc.nal.usda.gov/api-key-signup.html).
 # Results are attached as a download and also saved to the eval-results branch.
 on:
+  push:
+    branches: [probe-branded]
   workflow_dispatch:
     inputs:
       only:
