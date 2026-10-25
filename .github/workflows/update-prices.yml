@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: 22
       - name: Download BLS and USDA ERS price data
-        run: scripts/fetch-prices.sh "$RUNNER_TEMP/prices"
+        run: scripts/fetch-prices.sh "$RUNNER_TEMP/prices" 2>&1 | tee "$RUNNER_TEMP/fetch.log"; for l in $(grep -oE "^[0-9]{3} " "$RUNNER_TEMP/fetch.log" | tr -d " "); do echo "::notice::http $l"; done; exit ${PIPESTATUS[0]}
       - name: Build prices
         run: node scripts/build-prices.mjs "$RUNNER_TEMP/prices"
       - name: Test
