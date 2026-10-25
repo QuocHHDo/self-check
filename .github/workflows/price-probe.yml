@@ -1,0 +1,37 @@
+name: Price data probe
+on:
+  push:
+    branches: [probe-branded]
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download BLS average price files and ERS fruit/vegetable prices
+        run: |
+          mkdir -p out
+          UA="self-check price fetch (wealthladderdev@gmail.com)"
+          for f in ap.item ap.area ap.series ap.data.3.Food ap.footnote; do
+            curl -sS -A "$UA" -o out/$f "https://download.bls.gov/pub/time.series/ap/$f" -w "$f %{http_code} %{size_download}\n" || true
+          done
+          curl -sSL -A "$UA" -o out/ers.html "https://www.ers.usda.gov/data-products/fruit-and-vegetable-prices" -w "ers page %{http_code}\n" || true
+          grep -oiE 'href="[^"]+\.(csv|xlsx|zip)"' out/ers.html | sed 's/href="//;s/"$//' | sort -u > out/ers-links.txt || true
+          cat out/ers-links.txt
+          mkdir -p out/ers
+          while read -r l; do
+            case "$l" in http*) u="$l";; *) u="https://www.ers.usda.gov$l";; esac
+            n=$(basename "$u" | cut -d'?' -f1)
+            curl -sSL -A "$UA" -o "out/ers/$n" "$u" -w "$n %{http_code} %{size_download}\n" || true
+          done < out/ers-links.txt
+          ls -la out out/ers
+          head -c 300 out/ap.item; echo
+      - name: Save
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git checkout -B price-data
+          git add -f out
+          git commit -m "Price source files from run ${{ github.run_id }}"
+          git push -f origin price-data
