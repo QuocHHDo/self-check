@@ -61,9 +61,32 @@
     if (missing.includes("cal") && !missing.includes("pro") && !missing.includes("fat") && !missing.includes("carb")) {
       v.cal = 4 * v.pro + 4 * v.carb + 9 * v.fat; missing.splice(missing.indexOf("cal"), 1); calEstimated = true;
     }
-    const cat = item.foodCategory && typeof item.foodCategory === "object" ? item.foodCategory.description : item.foodCategory;
-    const f = makeFood(titleCase(String(item.description || "USDA food")), "100 g", v,
-      { src: "usda", fdcId: item.fdcId, dataType: item.dataType, missing, calEstimated, foodCategory: cat ? String(cat) : undefined });
+    const catRaw = item.foodCategory || item.brandedFoodCategory;
+    const cat = catRaw && typeof catRaw === "object" ? catRaw.description : catRaw;
+    let name = titleCase(String(item.description || "USDA food")), serving = "100 g";
+    const extra = { src: "usda", fdcId: item.fdcId, dataType: item.dataType, missing, calEstimated, foodCategory: cat ? String(cat) : undefined };
+    if (item.dataType === "Branded") {
+      // Branded Foods: the brand's own label, stored per 100 g (or 100 ml). Scale back to the label's serving.
+      const size = Number(item.servingSize), unit = String(item.servingSizeUnit || "").toLowerCase();
+      const metric = /^(g|grm|gm)$/.test(unit) ? "g" : /^(ml|mlt)$/.test(unit) ? "ml" : null;
+      if (metric && size > 0) {
+        for (const k of Object.keys(v)) v[k] = v[k] * size / 100;
+        const amt = `${Math.round(size * 10) / 10} ${metric}`;
+        // Household measures use GDSN unit codes: "1 ONZ" (ounce), "8 OZA" (fluid ounce).
+        const house = String(item.householdServingFullText || "").toLowerCase().replace(/\bonz\b/g, "oz").replace(/\boza\b/g, "fl oz").trim();
+        serving = house && !/^\d+(\.\d+)?\s*(g|ml|grm|mlt)$/.test(house) ? `${house} (${amt})` : amt;
+      }
+      // "DORITOS, TORTILLA CHIPS, NACHO CHEESE, NACHO CHEESE" → drop the repeated part.
+      name = [...new Set(name.split(/,\s*/))].join(", ");
+      const brand = titleCase(String(item.brandName || "").trim());
+      if (brand && !name.toLowerCase().includes(brand.toLowerCase())) name = `${brand} ${name}`;
+      const ing = String(item.ingredients || "").trim();
+      Object.assign(extra, { gtin: item.gtinUpc ? String(item.gtinUpc) : undefined, brandOwner: item.brandOwner || undefined,
+        published: item.publishedDate || item.publicationDate || undefined, perServing: !!(metric && size > 0),
+        // Labels are often ALL CAPS; sentence case reads better.
+        ingredients: ing ? (ing === ing.toUpperCase() ? ing.toLowerCase().replace(/(^|[.!?]\s+)([a-z])/g, (m, a, b) => a + b.toUpperCase()) : ing).slice(0, 1500) : undefined });
+    }
+    const f = makeFood(name, serving, v, extra);
     // SR Legacy, Foundation and Survey records almost never report added sugar (nutrient 1235).
     return settleAddedSugar(f, byId[1235] != null, /\braw\b/i.test(desc));
   }
@@ -112,8 +135,10 @@
     return settleAddedSugar(f, v.add != null, false);
   }
 
-  function usdaSearchUrl(query, key) {
-    return "https://api.nal.usda.gov/fdc/v1/foods/search?" + new URLSearchParams({ query, dataType: "Foundation,SR Legacy,Survey (FNDDS)", pageSize: "8", api_key: key || "DEMO_KEY" });
+  // kind "generic": USDA's lab-measured foods (per 100 g). kind "branded": packaged products by name, from the
+  // labels brands submit ("great value whole milk").
+  function usdaSearchUrl(query, key, kind = "generic") {
+    return "https://api.nal.usda.gov/fdc/v1/foods/search?" + new URLSearchParams({ query, dataType: kind === "branded" ? "Branded" : "Foundation,SR Legacy,Survey (FNDDS)", pageSize: kind === "branded" ? "12" : "8", api_key: key || "DEMO_KEY" });
   }
   const usdaFoodUrl = (id, key) => `https://api.nal.usda.gov/fdc/v1/food/${encodeURIComponent(id)}?` + new URLSearchParams({ api_key: key || "DEMO_KEY" });
   // Shareable link ids: looked-up foods link by their source id so the link works on a device that never saw them.
@@ -125,6 +150,20 @@
     if ((m = id.match(/^off-(\d{8,14})$/))) return { kind: "off", code: m[1] };
     return id ? { kind: "slug", slug: id } : null;
   }
+  // Barcode lookups in USDA Branded Foods. FoodData Central only finds a UPC in the exact form it was stored:
+  // usually 12 digits (078742378213), sometimes 14 (00016000275287), 13, or an 8-digit UPC-E (04963406).
+  // A scanner reads the same code as 12 or 13 digits, so try the likely forms in turn.
+  const upcCore = code => String(code || "").replace(/\D/g, "").replace(/^0+/, "");
+  function usdaUpcQueries(code) {
+    const raw = String(code || "").replace(/\D/g, ""), core = upcCore(raw);
+    if (!core) return [];
+    const forms = [core.length <= 12 ? core.padStart(12, "0") : null, core.padStart(14, "0"), core.length <= 13 ? core.padStart(13, "0") : null, raw];
+    if (raw.length === 8) forms.unshift(raw); // UPC-E, as printed on small packages
+    return [...new Set(forms.filter(Boolean))];
+  }
+  const usdaUpcUrl = (q, key) => "https://api.nal.usda.gov/fdc/v1/foods/search?" + new URLSearchParams({ query: q, dataType: "Branded", pageSize: "5", api_key: key || "DEMO_KEY" });
+  // The record whose UPC is this barcode (search can also return products that merely mention the number).
+  const matchUpc = (foods, code) => (foods || []).find(f => f.gtinUpc && upcCore(f.gtinUpc) === upcCore(code)) || null;
   const offProductUrl = code => `https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,generic_name,brands,nutriments,serving_size,serving_quantity,serving_quantity_unit,categories_tags,additives_tags,nova_group,ingredients_text,ingredients_text_en`;
 
 
@@ -155,5 +194,5 @@ If "${text}" is not a food, reply {"found":false}.`;
     return f;
   }
 
-  return { PROCESSED, makeFood, settleAddedSugar, fromUsda, fromOff, usdaSearchUrl, usdaFoodUrl, linkId, parseLinkId, titleCase, offProductUrl, claudePrompt, parseJsonReply, fromClaude };
+  return { PROCESSED, makeFood, settleAddedSugar, fromUsda, fromOff, usdaSearchUrl, usdaFoodUrl, usdaUpcQueries, usdaUpcUrl, matchUpc, linkId, parseLinkId, titleCase, offProductUrl, claudePrompt, parseJsonReply, fromClaude };
 });

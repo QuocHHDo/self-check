@@ -37,7 +37,7 @@ Each serving gets a point score from about a dozen rules measured against your g
 ## Testing
 
 ```sh
-npm test            # 95 unit tests (node tests/run.js): data, verdict rules, swaps, search, API conversions, quiz, evals
+npm test            # 101 unit tests (node tests/run.js): data, verdict rules, swaps, search, API conversions, quiz, evals
 node tests/verdict-dump.js > verdicts.csv   # every built-in food's verdict and reasons, for eyeballing outliers
 node scripts/build-additives.mjs <openfoodfacts-server>/taxonomies   # regenerate js/additives-data.js from Open Food Facts
 npm install && npm run test:ui   # click-through test of every feature in both versions + axe accessibility check

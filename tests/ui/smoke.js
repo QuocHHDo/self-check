@@ -5,6 +5,8 @@ const { JSDOM } = require("jsdom");
 const REPO = path.join(__dirname, "..", ".."), MODE = process.argv[2] || "pages";
 const read = p => fs.readFileSync(path.join(REPO, p), "utf8");
 const usdaFixture = JSON.parse(read("tests/fixtures/usda-search.json"));
+const brandedFixture = JSON.parse(read("tests/fixtures/usda-branded.json"));
+let usdaMode = "ok";
 
 let html = read("index.html").replace(/<script src="[^"]+"><\/script>/g, "").replace(/<link [^>]*>/g, "");
 html = html.replace('window.SELF_CHECK_CONFIG = { mode: "pages" };', MODE === "claude"
@@ -20,6 +22,13 @@ w.HTMLElement.prototype.scrollIntoView = () => {};
 w.fetch = async url => {
   url = String(url);
   if (url.includes("/fdc/v1/food/")) { const id = Number(url.match(/food\/(\d+)/)[1]); return { ok: true, status: 200, json: async () => usdaFixture.foods.find(f => f.fdcId === id) }; }
+  if (url.includes("api.nal.usda.gov") && url.includes("dataType=Branded")) {
+    // USDA Branded: a UPC query only matches the exact digits stored; a name query returns everything.
+    const q = new URL(url).searchParams.get("query");
+    if (usdaMode === "rate") return { ok: false, status: 429, json: async () => ({}) };
+    const foods = /^\d+$/.test(q) ? brandedFixture.foods.filter(f => f.gtinUpc === q) : brandedFixture.foods;
+    return { ok: true, status: 200, json: async () => ({ totalHits: foods.length, foods }) };
+  }
   if (url.includes("api.nal.usda.gov")) return { ok: true, status: 200, json: async () => usdaFixture };
   if (url.includes("openfoodfacts.org") && (offMode === "cola" || offMode === "candy")) return { ok: true, status: 200, json: async () => JSON.parse(read(`tests/fixtures/off-test-${offMode}.json`)) };
   if (url.includes("openfoodfacts.org") && offMode === "empty") return { ok: true, status: 200, json: async () => ({ status: 1, product: { product_name: "Mystery Box", nutriments: {} } }) };
@@ -120,12 +129,27 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
     offMode = "candy"; $("#q").value = "0000000000024"; submit("#form"); await tick(10);
     ok($$(".additives li.flagged").length === 3 && $$(".additives li.flagged a").length === 3 && text(".tag .verdict") === "In moderation", `removed additives flagged with sources; verdict ${text(".tag .verdict")}`);
     offMode = "empty"; $("#q").value = "0000000000031"; submit("#form"); await tick(10);
-    ok(/has no nutrition data/.test(text("#out .notice")), "a product with no nutrition values at all still says so (zero-calorie products don't)");
+    ok(/Found “Mystery Box”, but neither Open Food Facts nor USDA has its nutrition data/.test(text("#out .notice")), `a product with no nutrition values at all still says so (${text("#out .notice")})`);
     offMode = "ok";
     $("#q").value = "Avocado"; submit("#form");
     ok(!$(".additives"), "no additives panel for built-in foods");
+    // Walmart store brands: a barcode Open Food Facts doesn't know is found in USDA Branded Foods.
+    // The scanner reads EAN-13 (0078742378213); USDA stores the 12-digit UPC.
+    offMode = "missing"; $("#q").value = "0078742378213"; submit("#form"); await tick(20);
+    ok(text("#out h2") === "Great Value, Lemonade" && /From USDA Branded Foods/.test(text(".src")) && /UPC 078742378213/.test(text(".src")), `UPC falls back to USDA Branded (${text("#out h2")} · ${text(".src")})`);
+    ok(text(".label .serv span:last-child") === "3 tbsp (50 g)" && text(".label .cal .v") === "120", `label serving and calories match the package (${text(".label .serv span:last-child")}, ${text(".label .cal .v")} cal)`);
+    ok($$(".swap .sn").map(e => e.textContent).every(n => /soda|sparkling/i.test(n)), `lemonade swaps like soda (${$$(".swap .sn").map(e => e.textContent).join(", ")})`);
+    $("#q").value = "028400335799"; submit("#form"); await tick(20);
+    ok(/Doritos/.test(text("#out h2")) && /E621Monosodium glutamate/.test(text(".additives")) && /Found by name in the ingredient list/.test(text(".additives")), `additives found in USDA ingredient text (${text(".additives").slice(0, 160)})`);
+    usdaMode = "rate"; $("#q").value = "0000000000999"; submit("#form"); await tick(20);
+    ok(/USDA is out of free searches/.test(text("#out .notice")) && /your own free USDA key/.test(text("#out .notice")), `USDA rate limit explained (${text("#out .notice")})`);
+    usdaMode = "ok"; offMode = "ok";
+    // Packaged products by name (no barcode needed).
+    $("#q").value = "marketside caesar kit"; submit("#form");
+    click(btn("Packaged products", $("#out"))); await tick(20);
+    ok($$("#out .results button").length === 5 && /per 3 tbsp \(50 g\)/.test(text("#out .results")), `packaged-product name search lists label servings (${$$("#out .results button").length})`);
     // 14. Barcode and camera failures always end in a message, never a stuck spinner.
-    for (const [mode, re] of [["missing", /doesn't have barcode/], ["error", /having trouble right now \(error 503\)/], ["hang", /took too long/]]) {
+    for (const [mode, re] of [["missing", /Neither Open Food Facts nor USDA Branded Foods has barcode/], ["error", /Open Food Facts had an error \(503\), and USDA doesn't have it/], ["hang", /Open Food Facts took too long to answer, and USDA doesn't have it/]]) {
       offMode = mode; $("#q").value = "0123456789013"; submit("#form"); await tick(mode === "hang" ? 200 : 10);
       ok(re.test(text("#out .notice")) && !$("#out .thinking"), `barcode ${mode}: ${text("#out .notice")}`);
     }

@@ -208,7 +208,7 @@
       }
     }
     if (f.ingredients) sec.append(el("details", { class: "ingr" }, el("summary", { text: "Ingredients" }), el("p", { text: f.ingredients })));
-    sec.append(el("p", { class: "legend", text: "From Open Food Facts. Additives approved in the US and EU are judged safe at normal amounts; only ones with a documented concern are flagged. Add any you avoid to your skip list (for example “sucralose” or “E407”)." }));
+    sec.append(el("p", { class: "legend", text: (info.fromText ? "Found by name in the ingredient list, so an additive listed under an unusual name can be missed. " : "From Open Food Facts. ") + "Additives approved in the US and EU are judged safe at normal amounts; only ones with a documented concern are flagged. Add any you avoid to your skip list (for example “sucralose” or “E407”)." }));
     return sec;
   }
 
@@ -288,6 +288,8 @@
     wireLabel(label, box, scaled);
     const src = el("p", { class: "src" });
     if (f.src === "claude") src.append(el("b", { text: "Looked up by Claude. " }), "Typical values; check the package label.");
+    else if (f.src === "usda" && f.dataType === "Branded") src.append(el("b", { text: "From USDA Branded Foods. " }),
+      `The brand's own label${f.published ? `, published ${f.published}` : ""}${f.gtin ? ` (UPC ${f.gtin})` : ""}. ${f.perServing ? "Values per serving." : "Values per 100 g."} Recipes change; the package wins.`);
     else if (f.src === "usda") src.append(el("b", { text: "From USDA FoodData Central. " }), "Values per 100 g.");
     else if (f.src === "off") src.append(el("b", { text: "From Open Food Facts. " }), f.per100 ? "Values are per 100 g because the package has no serving size on file; use the servings buttons to match what you eat." : "Values per the package's serving. Crowd-sourced; check the label.");
     else if (isPlate) src.append("The sum of every item at the servings you chose. Judged as one meal: against a third of your daily goals and limits.");
@@ -322,7 +324,8 @@
     if (!closestFor || closestFor.n !== f.n) return null;
     const text = closestFor.text;
     const box = el("div", { class: "notice closest", role: "status" }, el("p", {}, closestFor.link ? `No food matches the link #${closestFor.link} exactly. ` : "", "Showing closest match: ", el("strong", { text: f.n }), closestFor.link ? "." : ". It's not exactly what you typed."));
-    if (PAGES) box.append(el("button", { class: "btn small ghost", type: "button", text: `Search USDA for “${text}” instead`, onclick: () => usdaSearch(text, box) }));
+    if (PAGES) box.append(el("button", { class: "btn small ghost", type: "button", text: `Search USDA for “${text}” instead`, onclick: () => usdaSearch(text, box) }),
+      el("button", { class: "btn small ghost", type: "button", text: "Packaged products", title: `Search packaged products (USDA Branded Foods) for “${text}”`, onclick: () => usdaSearch(text, box, "branded") }));
     else if (sampleState !== "none") box.append(el("button", { class: "btn small ghost", type: "button", text: `Look up “${text}” with Claude instead`, onclick: () => claudeLookup(text, box) }));
     return box;
   }
@@ -607,7 +610,9 @@
       box.append(p);
     }
     if (PAGES) {
-      box.append(el("button", { class: "btn ghost", type: "button", text: `Search USDA for “${text}”`, onclick: () => usdaSearch(text, box) }));
+      box.append(el("div", { class: "chiprow", style: "margin:0" },
+        el("button", { class: "btn ghost", type: "button", text: `Search USDA for “${text}”`, onclick: () => usdaSearch(text, box) }),
+        el("button", { class: "btn ghost", type: "button", text: "Packaged products", title: `Search packaged products (USDA Branded Foods) for “${text}”`, onclick: () => usdaSearch(text, box, "branded") })));
     } else if (sampleState !== "none") {
       box.append(el("button", { class: "btn ghost", type: "button", text: `Look up “${text}” with Claude`, onclick: () => claudeLookup(text, box) }),
         el("p", { class: "muted", style: "font-size:13px", text: "Uses your Claude account. You'll be asked to allow it the first time." }));
@@ -616,10 +621,11 @@
   }
   const busy = (box, msg) => box.replaceChildren(el("span", { class: "thinking" }, el("span", { class: "dot" }), msg));
 
-  async function usdaSearch(text, box) {
-    busy(box, `Searching USDA for ${text}…`);
+  async function usdaSearch(text, box, kind = "generic") {
+    const branded = kind === "branded";
+    busy(box, branded ? `Searching packaged products for ${text}…` : `Searching USDA for ${text}…`);
     const key = (profile.usdaKey || "").trim() || "DEMO_KEY";
-    const url = S.usdaSearchUrl(text, key);
+    const url = S.usdaSearchUrl(text, key, kind);
     try {
       // USDA's API rejects some requests intermittently; retry twice before giving up.
       let res;
@@ -632,17 +638,19 @@
       if (res.status === 403) throw new Error("key");
       if (!res.ok) throw new Error("http");
       const data = await res.json();
-      const items = (data.foods || []).map(S.fromUsda).filter(f => f.cal > 0 || f.pro > 0);
-      if (!items.length) { box.replaceChildren(el("p", { text: `USDA has no match for “${text}”. Try a simpler name, like “chicken thigh” instead of a brand.` })); return; }
+      // Keep anything with reported nutrition, including zero-calorie products (tea, diet soda).
+      const items = (data.foods || []).map(S.fromUsda).filter(f => !["cal", "fat", "carb", "pro"].every(k => V.isMissing(f, k)));
+      const other = el("button", { class: "btn small ghost", type: "button", text: branded ? `Search generic foods for “${text}”` : `Search packaged products for “${text}”`, onclick: () => usdaSearch(text, box, branded ? "generic" : "branded") });
+      if (!items.length) { box.replaceChildren(el("p", { text: branded ? `No packaged product matches “${text}”. Try the brand and product, like “great value whole milk”.` : `USDA has no match for “${text}”. Try a simpler name, like “chicken thigh” instead of a brand.` }), other); return; }
       const list = el("ul", { class: "results" });
       for (const f of items) list.append(el("li", {}, el("button", { type: "button", onclick: () => { saveLookup(f); pick(f); } },
-        el("span", { text: f.n }), el("br"), el("small", { text: `${amt(f, "cal", " cal")} · ${amt(f, "pro", " g")} protein · ${V.isMissing(f, "sat") ? "sat fat not reported" : amt(f, "sat", " g") + " sat fat"} per 100 g` }))));
-      box.replaceChildren(el("p", { text: "Pick the closest match. USDA values are per 100 g." }), list);
+        el("span", { text: f.n }), el("br"), el("small", { text: `${amt(f, "cal", " cal")} · ${amt(f, "pro", " g")} protein · ${V.isMissing(f, "sat") ? "sat fat not reported" : amt(f, "sat", " g") + " sat fat"} per ${f.perServing ? f.s : "100 g"}` }))));
+      box.replaceChildren(el("p", { text: branded ? "Pick the product. Values are per serving from its label." : "Pick the closest match. USDA values are per 100 g." }), list, other);
     } catch (e) {
       const msg = e.message === "rate" ? "USDA's shared demo key is out of searches for now. Add your own free key under Your goals, or try again later."
         : e.message === "key" ? "USDA rejected the API key. Check the key under Your goals."
         : navigator.onLine === false ? "You're offline. Built-in foods still work; USDA search needs a connection." : "The USDA search didn't go through. Try again in a moment.";
-      box.replaceChildren(el("p", { text: msg }), el("button", { class: "btn ghost", type: "button", text: "Try again", onclick: () => usdaSearch(text, box) }));
+      box.replaceChildren(el("p", { text: msg }), el("button", { class: "btn ghost", type: "button", text: "Try again", onclick: () => usdaSearch(text, box, kind) }));
     }
   }
 
@@ -653,6 +661,8 @@
   });
   const LOOKUP_MS = CFG.lookupTimeoutMs || 15000, CAMERA_MS = CFG.cameraTimeoutMs || 60000;
 
+  // A barcode is looked up in Open Food Facts first (crowd-sourced, worldwide, tags additives and NOVA), then in
+  // USDA Branded Foods (labels US brands submit, including Walmart's Great Value, Marketside and Equate).
   async function barcodeLookup(code) {
     const clean = String(code).replace(/\D/g, "");
     if (clean.length < 8) { toast("That doesn't look like a full barcode."); return; }
@@ -660,26 +670,47 @@
     busy(box, `Looking up barcode ${clean}…`);
     const byName = el("button", { class: "btn small ghost", type: "button", text: "Search by name", onclick: () => { $("q").focus(); $("q").select(); } });
     const retry = el("button", { class: "btn small ghost", type: "button", text: "Try again", onclick: () => barcodeLookup(clean) });
+    let offErr = null, offEmpty = null;
     try {
       const res = await withTimeout(fetch(S.offProductUrl(clean)), LOOKUP_MS);
       // Open Food Facts answers an unknown barcode with 404 and status 0; other errors mean it's having trouble.
       if (!res.ok && res.status !== 404) throw Object.assign(new Error("http"), { name: "HttpError", status: res.status });
       const data = await res.json();
-      if (data.status !== 1 || !data.product) {
-        box.replaceChildren(el("p", { text: `Open Food Facts doesn't have barcode ${clean} yet.` }), el("p", { class: "muted", text: "Check the number, or search the food by name." }), byName);
-        return;
+      if (data.status === 1 && data.product) {
+        const f = S.fromOff(clean, data.product);
+        // "No nutrition data" means nothing was reported, not that everything is zero (diet soda, water).
+        if (!["cal", "fat", "carb", "pro"].every(k => V.isMissing(f, k))) { saveLookup(f); pick(f); return; }
+        offEmpty = f.n;
       }
-      const f = S.fromOff(clean, data.product);
-      // "No nutrition data" means nothing was reported, not that everything is zero (diet soda, water).
-      if (["cal", "fat", "carb", "pro"].every(k => V.isMissing(f, k))) { box.replaceChildren(el("p", { text: `Found “${f.n}”, but it has no nutrition data. Search it by name instead.` }), byName); return; }
-      saveLookup(f); pick(f);
-    } catch (e) {
-      const msg = navigator.onLine === false ? "You're offline. Barcode lookup needs a connection."
-        : e.name === "TimeoutError" ? "Open Food Facts took too long to answer. Try again in a moment."
-        : e.name === "HttpError" ? `Open Food Facts is having trouble right now (error ${e.status}). Try again in a moment.`
-        : "The barcode lookup didn't go through. Check your connection and try again.";
-      box.replaceChildren(el("p", { text: msg }), el("div", { class: "chiprow", style: "margin:0" }, retry, byName));
+    } catch (e) { offErr = e; }
+
+    busy(box, `${offErr ? "Open Food Facts didn't answer" : offEmpty ? `Open Food Facts has “${offEmpty}” but no nutrition data` : "Not in Open Food Facts"}. Checking USDA Branded Foods…`);
+    let usdaErr = null;
+    try {
+      const f = await usdaByUpc(clean);
+      if (f) { saveLookup(f); pick(f); return; }
+    } catch (e) { usdaErr = e; }
+
+    const offline = navigator.onLine === false;
+    const why = e => !e ? "" : e.name === "TimeoutError" ? "took too long to answer" : e.name === "RateLimit" ? "is out of free searches for now" : e.name === "HttpError" ? `had an error (${e.status})` : "couldn't be reached";
+    const lines = offline ? [el("p", { text: "You're offline. Barcode lookup needs a connection." })]
+      : !offErr && !usdaErr ? [el("p", { text: offEmpty ? `Found “${offEmpty}”, but neither Open Food Facts nor USDA has its nutrition data.` : `Neither Open Food Facts nor USDA Branded Foods has barcode ${clean}.` }),
+          el("p", { class: "muted", text: "Check the number, or search the food by name." })]
+      : [el("p", { text: `Couldn't finish the lookup: ${offErr ? `Open Food Facts ${why(offErr)}` : "Open Food Facts doesn't have it"}, and USDA ${usdaErr ? why(usdaErr) : "doesn't have it"}.` }),
+          usdaErr && usdaErr.name === "RateLimit" ? el("p", { class: "muted", text: "Add your own free USDA key under Your goals to search more." }) : null];
+    box.replaceChildren(...lines.filter(Boolean), el("div", { class: "chiprow", style: "margin:0" }, (offErr || usdaErr) && !offline ? retry : null, byName));
+  }
+  // USDA Branded Foods by UPC: the search only matches the exact digits stored, so try each likely form.
+  async function usdaByUpc(code) {
+    const key = (profile.usdaKey || "").trim() || "DEMO_KEY";
+    for (const q of S.usdaUpcQueries(code)) {
+      const res = await withTimeout(fetch(S.usdaUpcUrl(q, key)), LOOKUP_MS);
+      if (res.status === 429) throw Object.assign(new Error("rate"), { name: "RateLimit" });
+      if (!res.ok) throw Object.assign(new Error("http"), { name: "HttpError", status: res.status });
+      const hit = S.matchUpc((await res.json()).foods, code);
+      if (hit) return S.fromUsda(hit);
     }
+    return null;
   }
 
   // Camera scanning with the bundled html5-qrcode library, loaded only when needed.

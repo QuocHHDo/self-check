@@ -468,6 +468,27 @@
     [/soup|meal|entree|fast food|restaurant|pizza|sandwich|mixed dish/i, "prepared"],
     [/fats and oils|oil|spice|herb|sauce|gravy|condiment|dressing|sugar/i, "condiments"],
   ];
+  // USDA Branded Foods categories (the brand's own, e.g. "Chips, Pretzels & Snacks", "Nut & Seed Butters").
+  const BRANDED_CATEGORY = [
+    [/protein|nutrition(al)? (drinks?|shakes?|powders?)|meal replacement/i, "protein"],
+    [/soda|soft drink/i, "group:soda"],
+    [/ice cream|frozen yogurt|frozen dessert|frozen novelt/i, "snacks"],
+    [/\bbars?\b/i, "snacks"],
+    [/cereal|granola|oatmeal|muesli/i, "group:cereal"],
+    [/nut (&|and) seed butter|peanut butter/i, "group:spreads"],
+    [/juice|nectar|drink|beverage|water|\btea\b|tea bags|coffee|concentrate|lemonade/i, "drinks"],
+    [/chips|pretzel|popcorn|crackers|snack|cookie|biscuit|candy|chocolate|cake|pastr|\bpies?\b|dessert|donut|doughnut/i, "snacks"],
+    [/butter|margarine|\boils?\b|dressing|mayonnaise|sauce|condiment|ketchup|mustard|spice|seasoning|syrup|honey|jam|jelly|spread|dip/i, "condiments"],
+    [/cheese|milk|yogurt|cream|\beggs?\b|dairy/i, "dairy"],
+    [/bread|\bbuns?\b|bagel|tortilla|pasta|\brice\b|grain|flour|rolls|noodle/i, "grains"],
+    [/meat|poultry|chicken|turkey|beef|pork|sausage|bacon|hot dog|deli|jerky/i, "meat"],
+    [/fish|seafood|tuna|salmon|shrimp|shellfish/i, "seafood"],
+    [/beans|legume|tofu|hummus|plant based/i, "plant"],
+    [/vegetable|potato/i, "veg"],
+    [/fruit/i, "fruit"],
+    [/dinner|entree|entrée|meal|pizza|soup|sandwich|prepared|side dish/i, "prepared"],
+  ];
+  const NUT_NAME = /almond|peanut|cashew|pistachio|walnut|pecan|macadamia|hazelnut|\bnuts?\b|\bseeds?\b|trail mix/i;
   const toTarget = (v, via) => !v ? null : v.startsWith("group:") ? { ...SWAP_GROUPS[v.slice(6)], group: v.slice(6), via } : { cat: v, via };
 
   // Where to look for swaps. Built-ins use their category. A lookup uses its Open Food Facts tags or USDA food
@@ -477,7 +498,14 @@
     if (f.c === "plate") return null;
     if (f.c && f.c !== "lookup") return { cat: f.c, via: "category" };
     for (const [re, c] of OFF_CATEGORY) if ((f.categories || []).some(tag => re.test(tag))) return toTarget(c, "off");
-    if (f.foodCategory) {
+    if (f.foodCategory && f.dataType === "Branded") {
+      // "Popcorn, Peanuts, Seeds & Related Snacks" holds both: nuts swap with nuts, popcorn with snacks.
+      if (/peanuts|seeds|nuts/i.test(f.foodCategory) && NUT_NAME.test(f.n)) return toTarget("nuts", "usda");
+      // Sweet drinks (lemonade, fruit punch, cola) swap like soda: sparkling water, diet soda.
+      if (/lemonade|punch|\bcola\b|soda|fruit drink|sweet tea/i.test(f.n)) return toTarget("group:soda", "usda");
+      for (const [re, c] of BRANDED_CATEGORY) if (re.test(f.foodCategory)) return toTarget(c, "usda");
+    }
+    if (f.foodCategory && f.dataType !== "Branded") {
       if (/juice/i.test(f.n) && /fruit|vegetable|beverage/i.test(f.foodCategory)) return toTarget("drinks", "usda");
       // "Baked Products" holds both bread and cookies; sweets swap with snacks, bread with grains.
       if (/baked/i.test(f.foodCategory) && /cookie|cake|brownie|\bpie\b|pastr|doughnut|donut|muffin|danish|croissant|sweet roll/i.test(f.n)) return toTarget("snacks", "usda");

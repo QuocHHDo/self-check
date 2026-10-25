@@ -1,0 +1,29 @@
+name: USDA Branded probe
+# One-off data check for barcode lookups. Runs when the probe-branded branch is pushed, or from the Actions tab.
+# Saves eval/branded-probe.json to the eval-results-branded branch.
+on:
+  workflow_dispatch:
+  push:
+    branches: [probe-branded]
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Probe USDA Branded Foods
+        env:
+          USDA_API_KEY: ${{ secrets.USDA_API_KEY }}
+        run: node eval/probe-branded.mjs
+      - name: Save results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git checkout -B eval-results-branded
+          git add -f eval/branded-probe.json
+          git commit -m "USDA Branded probe from run ${{ github.run_id }}"
+          git push -f origin eval-results-branded

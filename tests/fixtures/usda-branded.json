@@ -1,0 +1,735 @@
+{
+ "_note": "Real USDA FoodData Central Branded records fetched 2026-10-25 by eval/probe-branded.mjs",
+ "foods": [
+  {
+   "fdcId": 2008921,
+   "description": "GREAT VALUE, LEMONADE",
+   "dataType": "Branded",
+   "gtinUpc": "078742378213",
+   "publishedDate": "2021-10-28",
+   "brandOwner": "Wal-Mart Stores, Inc.",
+   "brandName": "GREAT VALUE",
+   "ingredients": "HIGH FRUCTOSE CORN SYRUP, WATER, CONCENTRATED LEMON JUICE, LEMON PULP, SUGAR SYRUP, LEMON OIL.",
+   "foodCategory": "Frozen Fruit & Fruit Juice Concentrates",
+   "servingSizeUnit": "g",
+   "servingSize": 50,
+   "householdServingFullText": "3 Tbsp",
+   "foodNutrients": [
+    {
+     "nutrientId": 1003,
+     "nutrientName": "Protein",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1004,
+     "nutrientName": "Total lipid (fat)",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1005,
+     "nutrientName": "Carbohydrate, by difference",
+     "unitName": "G",
+     "value": 56
+    },
+    {
+     "nutrientId": 1008,
+     "nutrientName": "Energy",
+     "unitName": "KCAL",
+     "value": 240
+    },
+    {
+     "nutrientId": 2000,
+     "nutrientName": "Total Sugars",
+     "unitName": "G",
+     "value": 56
+    },
+    {
+     "nutrientId": 1079,
+     "nutrientName": "Fiber, total dietary",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1087,
+     "nutrientName": "Calcium, Ca",
+     "unitName": "MG",
+     "value": 0
+    },
+    {
+     "nutrientId": 1089,
+     "nutrientName": "Iron, Fe",
+     "unitName": "MG",
+     "value": 0
+    },
+    {
+     "nutrientId": 1092,
+     "nutrientName": "Potassium, K",
+     "unitName": "MG",
+     "value": 96
+    },
+    {
+     "nutrientId": 1093,
+     "nutrientName": "Sodium, Na",
+     "unitName": "MG",
+     "value": 0
+    },
+    {
+     "nutrientId": 1104,
+     "nutrientName": "Vitamin A, IU",
+     "unitName": "IU",
+     "value": 0
+    },
+    {
+     "nutrientId": 1162,
+     "nutrientName": "Vitamin C, total ascorbic acid",
+     "unitName": "MG",
+     "value": 18
+    },
+    {
+     "nutrientId": 1165,
+     "nutrientName": "Thiamin",
+     "unitName": "MG",
+     "value": 0
+    },
+    {
+     "nutrientId": 1253,
+     "nutrientName": "Cholesterol",
+     "unitName": "MG",
+     "value": 0
+    },
+    {
+     "nutrientId": 1257,
+     "nutrientName": "Fatty acids, total trans",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1258,
+     "nutrientName": "Fatty acids, total saturated",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1292,
+     "nutrientName": "Fatty acids, total monounsaturated",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1293,
+     "nutrientName": "Fatty acids, total polyunsaturated",
+     "unitName": "G",
+     "value": 0
+    }
+   ]
+  },
+  {
+   "fdcId": 2048200,
+   "description": "GREAT VALUE, ALMONDS, SMOKE",
+   "dataType": "Branded",
+   "gtinUpc": "078742096810",
+   "publishedDate": "2021-10-28",
+   "brandOwner": "Wal-Mart Stores, Inc.",
+   "brandName": "GREAT VALUE",
+   "ingredients": "ALMONDS. VEGETABLE OIL (PEANUT, COTTONSEED. SOYBEAN AND/OR SUNFLOWER SEED). CONTAINS LESS THAN 2% OF THE FOLLOWING: SALT, MALTODEXTRIN HYDROLYZED SOY PROTEIN, YEAST EXTRACT, BROWN SUGAR, NATURAL HICKORY SMOKE FLAVOR, NATURAL FLAVOR, LIPOLYZED BUTTER OIL (MILK).",
+   "foodCategory": "Popcorn, Peanuts, Seeds & Related Snacks",
+   "servingSizeUnit": "g",
+   "servingSize": 31,
+   "householdServingFullText": "0.25 cup",
+   "foodNutrients": [
+    {
+     "nutrientId": 1003,
+     "nutrientName": "Protein",
+     "unitName": "G",
+     "value": 19.4
+    },
+    {
+     "nutrientId": 1004,
+     "nutrientName": "Total lipid (fat)",
+     "unitName": "G",
+     "value": 54.8
+    },
+    {
+     "nutrientId": 1005,
+     "nutrientName": "Carbohydrate, by difference",
+     "unitName": "G",
+     "value": 16.1
+    },
+    {
+     "nutrientId": 1008,
+     "nutrientName": "Energy",
+     "unitName": "KCAL",
+     "value": 613
+    },
+    {
+     "nutrientId": 2000,
+     "nutrientName": "Total Sugars",
+     "unitName": "G",
+     "value": 3.23
+    },
+    {
+     "nutrientId": 1079,
+     "nutrientName": "Fiber, total dietary",
+     "unitName": "G",
+     "value": 9.7
+    },
+    {
+     "nutrientId": 1087,
+     "nutrientName": "Calcium, Ca",
+     "unitName": "MG",
+     "value": 258
+    },
+    {
+     "nutrientId": 1089,
+     "nutrientName": "Iron, Fe",
+     "unitName": "MG",
+     "value": 3.48
+    },
+    {
+     "nutrientId": 1092,
+     "nutrientName": "Potassium, K",
+     "unitName": "MG",
+     "value": 677
+    },
+    {
+     "nutrientId": 1093,
+     "nutrientName": "Sodium, Na",
+     "unitName": "MG",
+     "value": 484
+    },
+    {
+     "nutrientId": 1104,
+     "nutrientName": "Vitamin A, IU",
+     "unitName": "IU",
+     "value": 0
+    },
+    {
+     "nutrientId": 1162,
+     "nutrientName": "Vitamin C, total ascorbic acid",
+     "unitName": "MG",
+     "value": 0
+    },
+    {
+     "nutrientId": 1253,
+     "nutrientName": "Cholesterol",
+     "unitName": "MG",
+     "value": 0
+    },
+    {
+     "nutrientId": 1257,
+     "nutrientName": "Fatty acids, total trans",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1258,
+     "nutrientName": "Fatty acids, total saturated",
+     "unitName": "G",
+     "value": 4.84
+    },
+    {
+     "nutrientId": 1292,
+     "nutrientName": "Fatty acids, total monounsaturated",
+     "unitName": "G",
+     "value": 35.5
+    },
+    {
+     "nutrientId": 1293,
+     "nutrientName": "Fatty acids, total polyunsaturated",
+     "unitName": "G",
+     "value": 12.9
+    }
+   ]
+  },
+  {
+   "fdcId": 407399,
+   "description": "GREAT VALUE, BLACK TEA",
+   "dataType": "Branded",
+   "gtinUpc": "078742352077",
+   "publishedDate": "2019-04-01",
+   "brandOwner": "Wal-Mart Stores, Inc.",
+   "ingredients": "BLACK TEA.",
+   "foodCategory": "Tea Bags",
+   "servingSizeUnit": "g",
+   "servingSize": 2.2,
+   "householdServingFullText": "1 TEA BAG",
+   "foodNutrients": [
+    {
+     "nutrientId": 1004,
+     "nutrientName": "Total lipid (fat)",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1005,
+     "nutrientName": "Carbohydrate, by difference",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1079,
+     "nutrientName": "Fiber, total dietary",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1087,
+     "nutrientName": "Calcium, Ca",
+     "unitName": "MG",
+     "value": 0
+    },
+    {
+     "nutrientId": 1089,
+     "nutrientName": "Iron, Fe",
+     "unitName": "MG",
+     "value": 0
+    },
+    {
+     "nutrientId": 1093,
+     "nutrientName": "Sodium, Na",
+     "unitName": "MG",
+     "value": 0
+    },
+    {
+     "nutrientId": 1104,
+     "nutrientName": "Vitamin A, IU",
+     "unitName": "IU",
+     "value": 0
+    },
+    {
+     "nutrientId": 1162,
+     "nutrientName": "Vitamin C, total ascorbic acid",
+     "unitName": "MG",
+     "value": 0
+    },
+    {
+     "nutrientId": 1253,
+     "nutrientName": "Cholesterol",
+     "unitName": "MG",
+     "value": 0
+    },
+    {
+     "nutrientId": 1258,
+     "nutrientName": "Fatty acids, total saturated",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1003,
+     "nutrientName": "Protein",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1008,
+     "nutrientName": "Energy",
+     "unitName": "KCAL",
+     "value": 0
+    },
+    {
+     "nutrientId": 2000,
+     "nutrientName": "Total Sugars",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1092,
+     "nutrientName": "Potassium, K",
+     "unitName": "MG",
+     "value": 1140
+    },
+    {
+     "nutrientId": 1257,
+     "nutrientName": "Fatty acids, total trans",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1292,
+     "nutrientName": "Fatty acids, total monounsaturated",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1293,
+     "nutrientName": "Fatty acids, total polyunsaturated",
+     "unitName": "G",
+     "value": 0
+    }
+   ]
+  },
+  {
+   "fdcId": 2503880,
+   "description": "SEA QUEST EGG HUNT, SEA QUEST",
+   "dataType": "Branded",
+   "gtinUpc": "073563004792",
+   "publishedDate": "2023-03-16",
+   "brandOwner": "Bee International, Inc.",
+   "brandName": "BEE",
+   "ingredients": "DEXTROSE, CITRIC ACID, CALCIUM STEARATE, NATURAL AND ARTIFICIAL FLAVOR, RED 40 LAKE, YELLOW 5 LAKE, YELLOW 6 LAKE, BLUE 2 LAKE.",
+   "foodCategory": "Candy",
+   "servingSizeUnit": "GRM",
+   "servingSize": 4.5,
+   "householdServingFullText": "1 Roll",
+   "foodNutrients": [
+    {
+     "nutrientId": 1003,
+     "nutrientName": "Protein",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1004,
+     "nutrientName": "Total lipid (fat)",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1005,
+     "nutrientName": "Carbohydrate, by difference",
+     "unitName": "G",
+     "value": 88.9
+    },
+    {
+     "nutrientId": 1008,
+     "nutrientName": "Energy",
+     "unitName": "KCAL",
+     "value": 333
+    },
+    {
+     "nutrientId": 2000,
+     "nutrientName": "Total Sugars",
+     "unitName": "G",
+     "value": 88.9
+    },
+    {
+     "nutrientId": 1093,
+     "nutrientName": "Sodium, Na",
+     "unitName": "MG",
+     "value": 0
+    },
+    {
+     "nutrientId": 1235,
+     "nutrientName": "Sugars, added",
+     "unitName": "G",
+     "value": 88.9
+    }
+   ]
+  },
+  {
+   "fdcId": 1629973,
+   "description": "DORITOS, TORTILLA CHIPS, NACHO CHEESE, NACHO CHEESE",
+   "dataType": "Branded",
+   "gtinUpc": "028400335799",
+   "publishedDate": "2021-03-19",
+   "brandOwner": "Frito-Lay Company",
+   "brandName": "DORITOS",
+   "ingredients": "CORN, VEGETABLE OIL (SUNFLOWER, CANOLA, AND/OR CORN OIL), MALTODEXTRIN (MADE FROM CORN), SALT, CHEDDAR CHEESE (MILK, CHEESE CULTURES, SALT, ENZYMES), WHEY, MONOSODIUM GLUTAMATE, BUTTERMILK, ROMANO CHEESE (PART-SKIM COW'S MILK, CHEESE CULTURES, SALT, ENZYMES), WHEY PROTEIN CONCENTRATE, ONION POWDER, CORN FLOUR NATURAL AND ARTIFICIAL FLAVOR, DEXTROSE, TOMATO POWDER, LACTOSE, SPICES, ARTIFICIAL COLOR (INCLUDING YELLOW 6, YELLOW 5, AND RED 40), LACTIC ACID, CITRIC ACID, SUGAR, GARLIC POWDER, SKIM MILK, RED AND GREEN BELL PEPPER POWDER, DISODIUM INOSINATE, AND DISODIUM GUANYLATE.",
+   "foodCategory": "Chips, Pretzels & Snacks",
+   "servingSizeUnit": "g",
+   "servingSize": 28,
+   "householdServingFullText": "1 ONZ",
+   "foodNutrients": [
+    {
+     "nutrientId": 1003,
+     "nutrientName": "Protein",
+     "unitName": "G",
+     "value": 7.14
+    },
+    {
+     "nutrientId": 1004,
+     "nutrientName": "Total lipid (fat)",
+     "unitName": "G",
+     "value": 28.6
+    },
+    {
+     "nutrientId": 1005,
+     "nutrientName": "Carbohydrate, by difference",
+     "unitName": "G",
+     "value": 57.1
+    },
+    {
+     "nutrientId": 1008,
+     "nutrientName": "Energy",
+     "unitName": "KCAL",
+     "value": 500
+    },
+    {
+     "nutrientId": 2000,
+     "nutrientName": "Total Sugars",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1079,
+     "nutrientName": "Fiber, total dietary",
+     "unitName": "G",
+     "value": 3.6
+    },
+    {
+     "nutrientId": 1087,
+     "nutrientName": "Calcium, Ca",
+     "unitName": "MG",
+     "value": 0
+    },
+    {
+     "nutrientId": 1089,
+     "nutrientName": "Iron, Fe",
+     "unitName": "MG",
+     "value": 0
+    },
+    {
+     "nutrientId": 1093,
+     "nutrientName": "Sodium, Na",
+     "unitName": "MG",
+     "value": 750
+    },
+    {
+     "nutrientId": 1104,
+     "nutrientName": "Vitamin A, IU",
+     "unitName": "IU",
+     "value": 357
+    },
+    {
+     "nutrientId": 1162,
+     "nutrientName": "Vitamin C, total ascorbic acid",
+     "unitName": "MG",
+     "value": 0
+    },
+    {
+     "nutrientId": 1165,
+     "nutrientName": "Thiamin",
+     "unitName": "MG",
+     "value": 0
+    },
+    {
+     "nutrientId": 1175,
+     "nutrientName": "Vitamin B-6",
+     "unitName": "MG",
+     "value": 0.143
+    },
+    {
+     "nutrientId": 1253,
+     "nutrientName": "Cholesterol",
+     "unitName": "MG",
+     "value": 0
+    },
+    {
+     "nutrientId": 1257,
+     "nutrientName": "Fatty acids, total trans",
+     "unitName": "G",
+     "value": 0
+    },
+    {
+     "nutrientId": 1258,
+     "nutrientName": "Fatty acids, total saturated",
+     "unitName": "G",
+     "value": 3.57
+    }
+   ]
+  }
+ ],
+ "detail": {
+  "fdcId": 2008921,
+  "description": "GREAT VALUE, LEMONADE",
+  "dataType": "Branded",
+  "gtinUpc": "078742378213",
+  "publicationDate": "10/28/2021",
+  "brandOwner": "Wal-Mart Stores, Inc.",
+  "brandName": "GREAT VALUE",
+  "ingredients": "HIGH FRUCTOSE CORN SYRUP, WATER, CONCENTRATED LEMON JUICE, LEMON PULP, SUGAR SYRUP, LEMON OIL.",
+  "brandedFoodCategory": "Frozen Fruit & Fruit Juice Concentrates",
+  "servingSize": 50,
+  "servingSizeUnit": "g",
+  "householdServingFullText": "3 Tbsp",
+  "labelNutrients": {
+   "fat": {
+    "value": 0
+   },
+   "saturatedFat": {
+    "value": 0
+   },
+   "transFat": {
+    "value": 0
+   },
+   "cholesterol": {
+    "value": 0
+   },
+   "sodium": {
+    "value": 0
+   },
+   "carbohydrates": {
+    "value": 28
+   },
+   "fiber": {
+    "value": 0
+   },
+   "sugars": {
+    "value": 28
+   },
+   "protein": {
+    "value": 0
+   },
+   "calcium": {
+    "value": 0
+   },
+   "iron": {
+    "value": 0
+   },
+   "potassium": {
+    "value": 48
+   },
+   "calories": {
+    "value": 120
+   }
+  },
+  "foodNutrients": [
+   {
+    "nutrient": {
+     "id": 1253,
+     "name": "Cholesterol",
+     "unitName": "mg"
+    },
+    "amount": 0
+   },
+   {
+    "nutrient": {
+     "id": 1005,
+     "name": "Carbohydrate, by difference",
+     "unitName": "g"
+    },
+    "amount": 56
+   },
+   {
+    "nutrient": {
+     "id": 1293,
+     "name": "Fatty acids, total polyunsaturated",
+     "unitName": "g"
+    },
+    "amount": 0
+   },
+   {
+    "nutrient": {
+     "id": 1008,
+     "name": "Energy",
+     "unitName": "kcal"
+    },
+    "amount": 240
+   },
+   {
+    "nutrient": {
+     "id": 1162,
+     "name": "Vitamin C, total ascorbic acid",
+     "unitName": "mg"
+    },
+    "amount": 18
+   },
+   {
+    "nutrient": {
+     "id": 1257,
+     "name": "Fatty acids, total trans",
+     "unitName": "g"
+    },
+    "amount": 0
+   },
+   {
+    "nutrient": {
+     "id": 1104,
+     "name": "Vitamin A, IU",
+     "unitName": "IU"
+    },
+    "amount": 0
+   },
+   {
+    "nutrient": {
+     "id": 1258,
+     "name": "Fatty acids, total saturated",
+     "unitName": "g"
+    },
+    "amount": 0
+   },
+   {
+    "nutrient": {
+     "id": 1087,
+     "name": "Calcium, Ca",
+     "unitName": "mg"
+    },
+    "amount": 0
+   },
+   {
+    "nutrient": {
+     "id": 1093,
+     "name": "Sodium, Na",
+     "unitName": "mg"
+    },
+    "amount": 0
+   },
+   {
+    "nutrient": {
+     "id": 1165,
+     "name": "Thiamin",
+     "unitName": "mg"
+    },
+    "amount": 0
+   },
+   {
+    "nutrient": {
+     "id": 1092,
+     "name": "Potassium, K",
+     "unitName": "mg"
+    },
+    "amount": 96
+   },
+   {
+    "nutrient": {
+     "id": 1292,
+     "name": "Fatty acids, total monounsaturated",
+     "unitName": "g"
+    },
+    "amount": 0
+   },
+   {
+    "nutrient": {
+     "id": 2000,
+     "name": "Total Sugars",
+     "unitName": "g"
+    },
+    "amount": 56
+   },
+   {
+    "nutrient": {
+     "id": 1089,
+     "name": "Iron, Fe",
+     "unitName": "mg"
+    },
+    "amount": 0
+   },
+   {
+    "nutrient": {
+     "id": 1079,
+     "name": "Fiber, total dietary",
+     "unitName": "g"
+    },
+    "amount": 0
+   },
+   {
+    "nutrient": {
+     "id": 1004,
+     "name": "Total lipid (fat)",
+     "unitName": "g"
+    },
+    "amount": 0
+   },
+   {
+    "nutrient": {
+     "id": 1003,
+     "name": "Protein",
+     "unitName": "g"
+    },
+    "amount": 0
+   }
+  ]
+ }
+}

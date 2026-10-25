@@ -44,19 +44,47 @@
       name: d ? d[0] : code.toUpperCase(), fn: d ? US(d[1]) : "", efsaHigh: !!(d && d[2]), flag: FLAGS[code] || FLAGS[base] || null };
   }
 
+  // Additive names in a plain ingredient list (USDA Branded gives text, not E-number tags): "Red 40", "xanthan gum",
+  // "mono and diglycerides". Longest names are tried first, and only whole words count.
+  let TERMS = null;
+  function findInText(text) {
+    if (!text) return [];
+    if (!TERMS) {
+      TERMS = [];
+      for (const [code, d] of Object.entries(DATA)) {
+        // d[3] holds the matchable names (the build script leaves out ones that are also everyday words).
+        const names = (d[3] ? d[3].split("|") : []).filter(t => t.length >= 4);
+        for (const t of new Set(names)) TERMS.push([t, code]);
+      }
+      TERMS.sort((a, b) => b[0].length - a[0].length);
+    }
+    let low = " " + String(text).toLowerCase().replace(/[^a-z0-9.%-]+/g, " ") + " ";
+    const found = [];
+    for (const [t, code] of TERMS) {
+      const needle = " " + t.replace(/[^a-z0-9.%-]+/g, " ").trim() + " ";
+      if (needle.trim().length < 4 || !low.includes(needle)) continue;
+      if (!found.includes(code)) found.push(code);
+      low = low.split(needle).join(" ~ "); // a longer match ("sodium benzoate") hides its parts ("benzoate")
+    }
+    return found.map(c => "en:" + c);
+  }
+
   // Everything the app shows about a product's additives. null when the source has no additive data at all
   // (built-in foods, USDA results, products scanned before this was added).
   function analyze(f) {
     if (!f || (!Array.isArray(f.additives) && !f.nova && !f.ingredients)) return null;
+    // Open Food Facts tags its additives; for other sources, find them in the ingredient text.
+    const fromText = !Array.isArray(f.additives) && !!f.ingredients;
+    const tags = fromText ? findInText(f.ingredients) : f.additives || [];
     const seen = new Set(), items = [];
-    for (const tag of f.additives || []) {
+    for (const tag of tags) {
       const a = lookup(tag);
       if (seen.has(a.base)) continue; // e322 and e322i are the same additive on a label
       seen.add(a.base); items.push(a);
     }
     for (const x of TEXT_FLAGS) if (x.re.test(f.ingredients || "") && !seen.has(x.code)) items.push({ code: "", key: x.code, base: x.code, name: x.name, fn: x.fn, efsaHigh: false, flag: x });
     const nova = [1, 2, 3, 4].includes(Number(f.nova)) ? Number(f.nova) : null;
-    return { items, flagged: items.filter(a => a.flag), removed: items.some(a => a.flag && a.flag.removed), nova, novaInfo: nova ? NOVA[nova] : null, known: Array.isArray(f.additives) };
+    return { items, flagged: items.filter(a => a.flag), removed: items.some(a => a.flag && a.flag.removed), nova, novaInfo: nova ? NOVA[nova] : null, known: Array.isArray(f.additives) || fromText, fromText };
   }
 
   // Does skip-list term `t` (already lowercased) name one of this product's additives? "sucralose", "e955" or "955".
@@ -68,5 +96,5 @@
       (` ${a.name.toLowerCase()} `).includes(` ${term} `)) || null;
   }
 
-  return { lookup, analyze, skipAdditive, FLAGS, TEXT_FLAGS, NOVA, SRC };
+  return { lookup, analyze, skipAdditive, findInText, FLAGS, TEXT_FLAGS, NOVA, SRC };
 });

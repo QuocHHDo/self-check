@@ -1,7 +1,7 @@
 name: Tests
 on:
   push:
-    branches-ignore: [eval-results]
+    branches-ignore: [eval-results, eval-results-branded]
   pull_request:
 jobs:
   unit:
