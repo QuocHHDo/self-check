@@ -4,7 +4,7 @@
 set -euo pipefail
 out="${1:?usage: scripts/fetch-prices.sh <dir>}"
 mkdir -p "$out"
-UA="self-check price refresh (https://github.com/QuocHHDo/self-check)"
+UA="self-check price refresh (https://github.com/QuocHHDo/self-check; QuocHHDo@users.noreply.github.com)"
 for f in ap.item ap.series ap.data.3.Food; do curl -fsS -A "$UA" -o "$out/$f" "https://download.bls.gov/pub/time.series/ap/$f"; done
 curl -fsS -A "$UA" -o "$out/cu.data.11.USFoodBeverage" "https://download.bls.gov/pub/time.series/cu/cu.data.11.USFoodBeverage"
 # ERS links carry a version query (?v=…), so read them from the data page instead of hard-coding.
