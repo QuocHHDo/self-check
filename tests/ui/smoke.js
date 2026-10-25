@@ -18,6 +18,8 @@ let offMode = "ok";
 const dom = new JSDOM(html, { runScripts: "outside-only", url: "https://quochhdo.github.io/self-check/", pretendToBeVisual: true });
 const w = dom.window;
 w.scrollTo = () => {}; // jsdom has no layout
+// Browser APIs jsdom lacks, used by backups and links: taken from Node, which has the same ones.
+Object.assign(w, { TextEncoder, TextDecoder, CompressionStream, DecompressionStream, Response, Blob });
 w.console.error = (...a) => errors.push(a.join(" "));
 w.addEventListener("error", e => errors.push(String(e.message)));
 w.HTMLElement.prototype.scrollIntoView = () => {};
@@ -339,7 +341,7 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
     ok(shown() === "out" && tab("check").getAttribute("aria-current") === "page" && text("#out h2").length > 0, `opening a food from Browse switches to Check (${text("#out h2")})`);
     if (MODE === "pages") {
       w.location.hash = "#goals"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(2);
-      ok(shown() === "profile,dataBox", `#goals opens the Goals view (${shown()})`);
+      ok(shown() === "profile,dataBox,phoneBox", `#goals opens the Goals view (${shown()})`);
       w.location.hash = "#avocado"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(2);
       ok(shown() === "out" && text("#out h2") === "Avocado", `a food link returns to Check (${text("#out h2")})`);
     }
@@ -394,5 +396,26 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
     ok($("#bkLink").hidden === (MODE !== "pages"), `transfer link button ${MODE === "pages" ? "shown" : "hidden"} in ${MODE} mode`);
     click($('#tabs [data-view="check"]'));
   }
+  // Links from the extension (#add=) and the phone bookmarklet (#wm=), on the GitHub Pages version.
+  if (MODE === "pages") {
+    const B = w.SelfCheckBackup, { data } = require("../fixtures/walmart-compact.js");
+    const before = JSON.parse(w.localStorage.getItem("grocery") || "[]").length;
+    const add = await B.encode(B.packAdd([{ n: "Great Value Creamy Peanut Butter, 40 oz", food: { n: "x", s: "2 tbsp (32 g)", cal: 180, fat: 16, sat: 3, trans: 0, chol: 0, na: 135, carb: 7, fib: 2, sug: 3, add: 2, pro: 7, src: "walmart", missing: [] } }, { n: "Banana", qty: 2 }]));
+    w.location.hash = "#add=" + add; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(8);
+    ok(!$("#glistBox").hidden && /Add 2 items from the browser extension/.test(text("#addPreview")), `#add= opens the list with a preview (${text("#addPreview").slice(0, 60)})`);
+    ok(JSON.parse(w.localStorage.getItem("grocery") || "[]").length === before, "nothing is added before you confirm");
+    click(btn("Add to my list", $("#addPreview"))); await tick(2);
+    const gl = JSON.parse(w.localStorage.getItem("grocery"));
+    ok(gl.some(x => x.n === "Great Value Creamy Peanut Butter, 40 oz") && gl.find(x => x.n === "Banana").qty === 2, "confirmed items join the list (with quantity)");
+    const pbRow = $$("#glistItems .lrow").find(r => /Great Value Creamy Peanut Butter/.test(r.textContent));
+    ok(pbRow && /In moderation/i.test(pbRow.textContent), `the store product keeps its label values and verdict (${pbRow && pbRow.textContent.slice(0, 80)})`);
+    // Bookmarklet: a product read from a Walmart page opens with its verdict.
+    const payload = JSON.stringify({ app: "should-i-buy-it", v: 1, kind: "walmart", data: data("chobani greek yogurt") });
+    w.location.hash = "#wm=j." + Buffer.from(payload).toString("base64url"); w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(8);
+    ok(/Chobani Non-Fat Greek Yogurt/.test(text("#out h2")) && /Get it/.test(text(".tag .verdict")) && /Walmart's Nutrition Facts panel/.test(text(".src")), `#wm= shows the Walmart product's verdict (${text("#out h2")})`);
+    click($('#tabs [data-view="goals"]'));
+    ok(/^javascript:/.test($("#bmLink").getAttribute("href")) && !!$("#bmCopy"), "Goals offers the phone bookmark");
+    click($('#tabs [data-view="check"]'));
+  } else ok(!$("#phoneBox"), "no phone bookmark in the Claude version");
   ok(errors.length === 0, "no script errors" + (errors.length ? ": " + errors.join(" | ") : ""));
 })();

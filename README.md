@@ -22,6 +22,7 @@ Live at **https://quochhdo.github.io/self-check/**. It installs to your phone's 
 - **Lookups beyond the built-in list**: USDA search and barcode scanning via Open Food Facts on the web version; a Claude lookup in the Claude version.
 - **Installable and offline** via a service worker.
 
+- **Phone bookmark for Walmart** (Goals tab): tap it on a Walmart product page to open its verdict here.
 - **Browser extension for Walmart product pages** (`extension/`): a card with the verdict, the main reasons and any flagged additives, using your goals. See below.
 
 Everything runs in the browser. Goals, favorites, lists and lookups live in your browser's local storage; there is no account and no server.
@@ -117,6 +118,17 @@ Where the nutrition comes from, in order:
 3. **Otherwise the barcode** (UPC on the page) in Open Food Facts, then USDA Branded Foods.
 
 The card starts as a small chip (the verdict and one line on why) and opens to show bars for saturated fat, sodium and added sugar against your limits, the reasons that decided it, and a better swap with a Walmart search for it. It always shows Walmart's product name; the source of the numbers is in the footer. Non-food pages get no card. Walmart changes pages without reloading, so the card follows as you browse.
+
+More in the extension:
+- **+ Add to list** on the card; a "Send to your list in the app" link (on the card and in the settings) opens the app, which shows the items and asks before adding them to the grocery list (merged, nothing replaced).
+- **Search badges** (off by default; turn on in the settings): a verdict on each product in Walmart search and category pages. Search pages don't include nutrition, so the extension opens each product page in the background: only products you scroll to, one about every 1.5 seconds, at most 40 per page, remembered for a week.
+- Barcode lookups are cached for 30 days (not found: 1 day; network failures aren't cached).
+
+Checked against 41 real Walmart products across the store (captured Oct 25, 2026; `tests/fixtures/walmart-audit.json`): 26 have Walmart's Nutrition Facts panel, 10 go to a barcode lookup, and 5 fresh-produce items are matched by name. `tests/walmart-audit.test.js` pins each one's route and verdict.
+
+## Phone bookmark (Walmart on your phone)
+
+Phones can't run extensions, so Goals → **Walmart on your phone** gives a bookmark to save. Tapped on a Walmart product page, it reads the page's product data and opens the app with it (`#wm=…`); the app then uses the same three routes as the extension and shows the full verdict.
 
 **Install (Chrome, Edge or Brave on a computer):**
 1. Download this repository (Code → Download ZIP) and unzip it.

@@ -38,5 +38,23 @@
     status("Goals imported from the app.");
   });
 
+  // Search badges switch.
+  get(["searchBadges"]).then(s => { $("searchBadges").checked = !!s.searchBadges; });
+  $("searchBadges").addEventListener("change", async () => { await set({ searchBadges: $("searchBadges").checked }); status($("searchBadges").checked ? "Search badges on. Reload Walmart search pages to see them." : "Search badges off."); });
+
+  // Items waiting to be sent to the app's grocery list.
+  const SITE = "https://quochhdo.github.io/self-check/";
+  async function showList() {
+    const { toApp = [] } = await get(["toApp"]);
+    $("listItems").replaceChildren(...toApp.map(i => Object.assign(document.createElement("li"), { textContent: i.n })));
+    $("listInfo").textContent = toApp.length ? `${toApp.length} item${toApp.length === 1 ? "" : "s"} waiting:` : "Nothing yet. Use “+ Add to list” on a product page.";
+    $("sendList").hidden = $("clearList").hidden = !toApp.length;
+    if (toApp.length) $("sendList").href = SITE + "#add=" + await B.encode(B.packAdd(toApp));
+  }
+  $("sendList").addEventListener("click", () => setTimeout(async () => { await set({ toApp: [] }); showList(); }, 300));
+  $("clearList").addEventListener("click", async () => { await set({ toApp: [] }); showList(); });
+  chrome.storage.onChanged.addListener(c => { if (c.toApp) showList(); });
+  showList();
+
   load();
 })();

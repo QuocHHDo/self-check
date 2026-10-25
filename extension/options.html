@@ -55,6 +55,19 @@ a { color: var(--good); }
     <p id="status" role="status" aria-live="polite"></p>
   </section>
 
+  <section aria-labelledby="hSearch">
+    <h2 id="hSearch">Search results</h2>
+    <label class="check"><input id="searchBadges" type="checkbox"> Show a verdict badge on each product in Walmart search and category pages</label>
+    <p class="muted">Search pages don't include nutrition, so the extension opens each product's page in the background: only products you scroll to, one about every 1.5 seconds, at most 40 per page, and remembered for a week. Leave this off if pages feel slow.</p>
+  </section>
+
+  <section aria-labelledby="hList">
+    <h2 id="hList">Waiting for your list</h2>
+    <p class="muted" id="listInfo">Nothing yet. Use “+ Add to list” on a product page.</p>
+    <ul id="listItems"></ul>
+    <div class="row"><a id="sendList" href="#" target="_blank" rel="noopener" hidden>Send to your list in the app ↗</a><button type="button" class="ghost" id="clearList" hidden>Clear</button></div>
+  </section>
+
   <p class="muted">Verdicts are general nutrition guidance, not medical advice. Full app: <a href="https://quochhdo.github.io/self-check/" target="_blank" rel="noopener">quochhdo.github.io/self-check</a>.</p>
 </main>
 <script src="lib/verdict.js"></script>

@@ -26,7 +26,8 @@
     return {
       id: p.usItemId ? String(p.usItemId) : null, name: p.name || "", upc: p.upc ? String(p.upc).replace(/\D/g, "") : "", brand: p.brand || "",
       category: ((p.category && p.category.path) || []).map(c => c && c.name).filter(Boolean),
-      ingredients: ing && typeof ing.value === "string" ? ing.value : "",
+      // Fresh produce pages sometimes hold a recipe or a seller's note here, not ingredients.
+      ingredients: ing && typeof ing.value === "string" && !((p.category && p.category.path) || []).some(c => c && /fresh produce/i.test(c.name)) ? ing.value : "",
       nutrition: idml.nutritionFacts || null,
     };
   }
@@ -61,7 +62,10 @@
     if (!p || !p.nutrition) return null;
     const v = {}, found = new Set();
     for (const r of rows(p.nutrition)) {
-      const k = keyOf(r.name), a = amount(r.amount);
+      const k = keyOf(r.name);
+      // A blank amount with a %DV ("Dietary Fiber | | 2%"): work it out from the FDA Daily Value.
+      const dv = String(r.dvp || "").match(/^([\d.]+)%$/);
+      const a = amount(r.amount) || (dv && V.FDA_DV[k] && (r.amount == null || String(r.amount).trim() === "") ? { v: Number(dv[1]) / 100 * V.FDA_DV[k], u: k === "na" || k === "chol" ? "mg" : "g" } : null);
       if (!k || !a || found.has(k)) continue;
       let x = a.v;
       if (k === "na" || k === "chol") x = a.u === "g" ? x * 1000 : a.u === "mcg" ? x / 1000 : x; // mg
@@ -69,6 +73,11 @@
       v[k] = x; found.add(k);
     }
     if (!["cal", "fat", "carb", "pro"].some(k => found.has(k))) return null;
+    // Labels may leave out lines that follow from others: no fat means no saturated or trans fat; no carbohydrate
+    // means no fiber or sugar (butter, oil, plain meat).
+    const zero = k => { if (!found.has(k)) { v[k] = 0; found.add(k); } };
+    if (found.has("fat") && v.fat === 0) { zero("sat"); zero("trans"); }
+    if (found.has("carb") && v.carb === 0) { zero("fib"); zero("sug"); zero("add"); }
     const missing = V.NUM_KEYS.filter(k => !found.has(k));
     // Walmart's category path ("Food > Pantry > Peanut butter & spreads > Peanut butter") is read like USDA's branded
     // food category, so "Try instead" knows what kind of food this is.
@@ -88,7 +97,7 @@
   // in-store weighed items (UPCs starting with 2) aren't real product barcodes: looking them up returns unrelated
   // products, so these are matched to built-in foods by name instead. Real barcodes have 7+ significant digits.
   const isPlu = upc => { const core = String(upc || "").replace(/^0+/, ""); return core.length > 0 && core.length <= 6; };
-  const isWeighed = upc => /^0?2\d{10}$/.test(String(upc || ""));
+  const isWeighed = upc => /^0?2\d{10,11}$/.test(String(upc || "")) && String(upc).replace(/^0/, "").length <= 12;
   const FRESH = /fresh produce|fresh fruit|fresh vegetable|meat & seafood|fresh meat|fresh seafood|^produce$/i;
   const isFood = p => p && (p.category.some(c => /^food$|grocery|beverage|produce|dairy|meat|frozen|pantry|snack|protein/i.test(c)) || !!p.nutrition);
 
@@ -99,7 +108,12 @@
     if (f) return { kind: "panel", food: f };
     if (!isFood(p)) return { kind: "none", why: "Not a food." };
     const fresh = p.category.some(c => FRESH.test(c));
-    if (isPlu(p.upc) || isWeighed(p.upc) || (fresh && !p.upc)) return { kind: "name", query: produceQuery(p.name) };
+    // Fresh produce: the app's typical values by name first. Their barcodes, when they have one, rarely have
+    // nutrition records, and sticker codes (PLUs) look up as unrelated products.
+    if (fresh || isPlu(p.upc) || isWeighed(p.upc)) {
+      const q = produceQuery(p.name);
+      return { kind: "name", query: q, fallback: p.upc && !isPlu(p.upc) && !isWeighed(p.upc) && p.upc.replace(/^0+/, "").length >= 7 ? p.upc : null };
+    }
     if (p.upc && p.upc.replace(/^0+/, "").length >= 7) return { kind: "barcode", code: p.upc };
     return fresh ? { kind: "name", query: produceQuery(p.name) } : { kind: "none", why: "No nutrition facts or barcode on this page." };
   }

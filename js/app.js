@@ -398,6 +398,7 @@
     else if (f.src === "usda" && f.dataType === "Branded") src.append(el("b", { text: "From USDA Branded Foods. " }),
       `The brand's own label${f.published ? `, published ${f.published}` : ""}${f.gtin ? ` (UPC ${f.gtin})` : ""}. ${f.perServing ? "Values per serving." : "Values per 100 g."} Recipes change; the package wins.`);
     else if (f.src === "usda") src.append(el("b", { text: "From USDA FoodData Central. " }), "Values per 100 g.");
+    else if (f.src === "walmart") src.append(el("b", { text: "From Walmart's Nutrition Facts panel. " }), "Added from the browser extension. Recipes change; the package wins.");
     else if (f.src === "off") src.append(el("b", { text: "From Open Food Facts. " }), f.per100 ? "Values are per 100 g because the package has no serving size on file; use the servings buttons to match what you eat." : "Values per the package's serving. Crowd-sourced; check the label.");
     else if (isPlate) src.append("The sum of every item at the servings you chose. Judged as one meal: against a third of your daily goals and limits.");
     else if (isDish(f)) src.append(el("b", { text: "A typical recipe. " }), "Restaurant and homemade versions vary a lot, most of all in sodium and portion size, so treat these numbers as an estimate. If the restaurant posts nutrition, that wins.");
@@ -1195,14 +1196,62 @@
     $("bkPasteGo").addEventListener("click", () => previewBackup(B.parse($("bkText").value.trim())));
     try { if (sessionStorage.getItem("restored")) { sessionStorage.removeItem("restored"); setTimeout(() => toast("Backup restored"), 300); } } catch {}
   }
+  // ---------- Walmart product from the phone bookmarklet (#wm=…) ----------
+  const WM = window.SelfCheckWalmart, BM = window.SelfCheckBookmarklet;
+  async function openWalmartProduct(token) {
+    try { history.replaceState(null, "", location.pathname + location.search); } catch {}
+    showView("check", { history: false });
+    const data = B && await B.decodeProduct(token);
+    const prod = data && WM ? WM.product(data) : null;
+    const plan = WM ? WM.plan(prod) : { kind: "none" };
+    if (plan.kind === "panel") { const f = plan.food; saveLookup(f); pick(f); toast("From the Walmart page's Nutrition Facts"); return; }
+    if (plan.kind === "name") { const f = WM.byName(plan.query, FOODS); if (f) { pick(f, { closest: prod.name }); return; } if (plan.fallback) { barcodeLookup(plan.fallback); return; } }
+    if (plan.kind === "barcode") { barcodeLookup(plan.code); return; }
+    toast(prod ? "That Walmart page isn't a food the app can check." : "Couldn't read that Walmart page. Tap the bookmark again on the product page.");
+  }
+  function wireBookmarklet() {
+    if (!BM || !PAGES) { $("phoneBox").remove(); return; }
+    const url = BM.url(location.origin + location.pathname);
+    $("bmLink").setAttribute("href", url);
+    $("bmLink").addEventListener("click", e => { e.preventDefault(); toast("Drag it to your bookmarks bar, then use it on a Walmart product page."); });
+    $("bmCopy").addEventListener("click", () => copyText(url, "Bookmark code copied. Paste it as the bookmark's address."));
+  }
+
   // #import=… from a transfer link: decode, then show the same preview (nothing changes until Restore).
   async function importFromHash(hash) {
-    const m = String(hash).match(/^#import=(.+)$/);
+    const m = String(hash).match(/^#(import|add)=(.+)$/);
     if (!m || !B) return false;
+    const r = await B.decode(m[2]);
+    if (m[1] === "add" || r.kind === "add") {
+      try { history.replaceState(null, "", "#list"); } catch {}
+      showView("list", { history: false });
+      previewAdd(r);
+      return true;
+    }
     try { history.replaceState(null, "", "#goals"); } catch {}
     showView("goals", { history: false });
-    previewBackup(await B.decode(m[1]));
+    previewBackup(r);
     return true;
+  }
+  // Items sent from the browser extension: shown first, then merged into the list (nothing is replaced).
+  function previewAdd(r) {
+    const box = $("addPreview");
+    box.replaceChildren();
+    if (!r.ok || r.kind !== "add") { box.append(el("div", { class: "bk-preview err", text: r.ok ? "That link is a full backup, not list items. Open it from Goals → Your data." : r.error })); return; }
+    const items = r.data.grocery;
+    box.append(el("div", { class: "bk-preview" },
+      el("p", { style: "margin:0" }, el("b", { text: `Add ${items.length} item${items.length === 1 ? "" : "s"} from the browser extension?` })),
+      el("ul", { style: "margin:0;padding-left:18px" }, ...items.map(i => el("li", { text: `${i.qty > 1 ? i.qty + " × " : ""}${i.n}` }))),
+      el("div", { class: "actions" },
+        el("button", { class: "btn small", type: "button", text: "Add to my list", onclick: () => {
+          const incoming = (r.data.lookups || []).map(f => ({ ...f, c: "lookup", a: Array.isArray(f.a) ? f.a : [], tags: Array.isArray(f.tags) ? f.tags : [], missing: Array.isArray(f.missing) ? f.missing : [] }));
+          if (incoming.length) { const names = new Set(incoming.map(f => f.n)); lookups = [...lookups.filter(f => !names.has(f.n)), ...incoming]; store.set("lookups", lookups); }
+          let added = 0;
+          for (const i of items) { const ex = glist.find(x => x.n === i.n); if (ex) { ex.done = false; if (i.qty) ex.qty = i.qty; } else { glist.push({ n: i.n, done: false, ...(i.qty ? { qty: i.qty } : {}) }); added++; } }
+          saveList(); updateCount(); box.replaceChildren();
+          toast(added ? `Added ${added} item${added === 1 ? "" : "s"} to your list` : "Those items were already on your list");
+        } }),
+        el("button", { class: "btn small ghost", type: "button", text: "Cancel", onclick: () => box.replaceChildren() }))));
   }
 
   // ---------- shared links ----------
@@ -1309,15 +1358,16 @@
     $("plateView").addEventListener("click", showPlate);
     $("plateClear").addEventListener("click", () => { plate = []; afterPlateChange(); });
 
-    wireBackup();
-    const importing = PAGES && /^#import=/.test(location.hash) ? location.hash : null;
+    wireBackup(); wireBookmarklet();
+    const importing = PAGES && /^#(import|add|wm)=/.test(location.hash) ? location.hash : null;
     const startView = PAGES ? viewFromHash(location.hash) : null;
     const opened = PAGES && !startView && !importing && openFromHash(location.hash, true);
     if (!opened) pick((recents.length && byName(recents[0])) || FOODS[0], { noHash: true, noRecent: true, stay: true });
     showView(startView || "check", { history: false, scroll: false });
-    if (importing) importFromHash(importing);
+    if (importing) { if (/^#wm=/.test(importing)) openWalmartProduct(importing.slice(4)); else importFromHash(importing); }
     if (PAGES) window.addEventListener("hashchange", () => {
-      if (/^#import=/.test(location.hash)) return importFromHash(location.hash);
+      if (/^#wm=/.test(location.hash)) return openWalmartProduct(location.hash.slice(4));
+      if (/^#(import|add)=/.test(location.hash)) return importFromHash(location.hash);
       const v = viewFromHash(location.hash);
       if (v) return showView(v, { history: false });
       showView("check", { history: false });

@@ -32,7 +32,9 @@
     if (plus.length && minus.length) return `${cap(plus[0])}, but ${minus[0]}.`;
     if (minus.length) return `${cap(minus[0])}${minus[1] ? ` and ${minus[1]}` : ""}.`;
     if (plus.length) return a.tier === "good" ? `${cap(plus[0])}${plus[1] ? ` and ${plus[1]}` : ""}.` : `${cap(plus[0])}, but not much else going for it.`;
-    return a.why;
+    // Nothing scored either way: the verdict's own explanation ("Not much fiber or protein for its 150 calories…").
+    const warn = a.reasons.find(r => r.k === "warn" && !/^Partial data/.test(r.t));
+    return warn ? warn.t.replace(/, so it won't do much to keep you full\.$/, ".") : a.why;
   }
 
   // Saturated fat, sodium and added sugar against your daily limits, with the verdict's own cutoffs as ticks.

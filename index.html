@@ -394,6 +394,8 @@ body:not([data-view="check"]) #shelf, body:not([data-view="check"]) #scanBtn, bo
 .ltotal { margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
 .ltotal .amt { font: 700 18px var(--font-display); color: var(--ink); }
 .bk-paste { display: grid; gap: 6px; }
+.steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; } .steps .btn { margin-top: 4px; display: block; }
+.bm-link { font-weight: 700; border: 1px dashed var(--line); border-radius: 8px; padding: 2px 8px; text-decoration: none; }
 .bk-paste textarea { width: 100%; box-sizing: border-box; font: 13px ui-monospace, monospace; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
 .bk-preview { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 8px; background: var(--paper); }
 .bk-preview.err { border-color: var(--bad); color: var(--bad); }
@@ -465,6 +467,7 @@ body:not([data-view="check"]) #shelf, body:not([data-view="check"]) #scanBtn, bo
   <section class="box view" id="glistBox" data-view="list" hidden aria-labelledby="hList">
     <h2 class="vhead"><span id="hList">Grocery list</span><span class="muted" id="glistCount"></span></h2>
     <div class="inner">
+      <div id="addPreview" role="status" aria-live="polite"></div>
       <div id="glistItems" class="lgroup"></div>
       <div class="actions">
         <button class="btn small" type="button" id="glistCopy">Copy list</button>
@@ -537,6 +540,19 @@ body:not([data-view="check"]) #shelf, body:not([data-view="check"]) #scanBtn, bo
     </div>
   </section>
 
+  <section class="box view" id="phoneBox" data-view="goals" hidden aria-labelledby="hPhone">
+    <h2 class="vhead"><span id="hPhone">Walmart on your phone</span></h2>
+    <p class="vsub">A bookmark that checks the Walmart product you're looking at. Tap it on a product page and this app opens with the verdict.</p>
+    <div class="inner">
+      <ol class="steps">
+        <li>Bookmark any page (this one is fine) and name it <b>Should I Buy It?</b></li>
+        <li>Edit that bookmark and replace its address with the bookmark code: <button class="btn small" type="button" id="bmCopy">Copy bookmark code</button></li>
+        <li>On a Walmart product page: <b>iPhone (Safari)</b> open Bookmarks and tap it. <b>Android (Chrome)</b> type “Should I Buy It?” in the address bar and tap the bookmark in the suggestions.</li>
+      </ol>
+      <p class="fine">On a computer, drag this to your bookmarks bar instead: <a id="bmLink" class="bm-link" href="#">Should I Buy It?</a> (or install the browser extension, which shows the verdict on the page itself).</p>
+    </div>
+  </section>
+
   <footer><p class="fine">Built-in values are approximate typical figures for a standard serving; packaged foods vary by brand, so the label on the package wins. USDA results come from USDA FoodData Central; scanned products come from Open Food Facts, a crowd-sourced database that can be incomplete. The label's % Daily Value uses standard FDA values; the bars and verdict use your goals. General nutrition guidance, not medical advice.</p></footer>
 </main>
 
@@ -550,6 +566,8 @@ body:not([data-view="check"]) #shelf, body:not([data-view="check"]) #scanBtn, bo
 <script src="js/verdict.js"></script>
 <script src="js/sources.js"></script>
 <script src="js/search.js"></script>
+<script src="js/walmart.js"></script>
+<script src="js/bookmarklet.js"></script>
 <script src="js/learn.js"></script>
 <script src="js/meals.js"></script>
 <script src="js/backup.js"></script>

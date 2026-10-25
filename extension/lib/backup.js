@@ -79,7 +79,24 @@
     for (const [k, check] of Object.entries(KEYS)) if (k in o.data) { const v = check(o.data[k]); if (!empty(v)) data[k] = v; }
     if (!Object.keys(data).length) return { ok: false, error: "This backup is empty." };
     const saved = typeof o.saved === "string" && !Number.isNaN(Date.parse(o.saved)) ? o.saved : null;
-    return { ok: true, data, saved };
+    // "add": items for the grocery list (from the browser extension), merged in rather than replacing anything.
+    if (o.kind === "add") {
+      if (!data.grocery) return { ok: false, error: "That link has no list items in it." };
+      return { ok: true, kind: "add", data: { grocery: data.grocery, ...(data.lookups ? { lookups: data.lookups } : {}) }, saved };
+    }
+    return { ok: true, kind: "backup", data, saved };
+  }
+
+  // Grocery items to add to the app's list: [{ n, qty, food? }]. A food is included when the app doesn't have it
+  // (a store product read from its label); built-in foods go by name.
+  function packAdd(items, now = new Date()) {
+    const grocery = [], lookups = [];
+    for (const it of items || []) {
+      if (!it || !it.n) continue;
+      grocery.push({ n: it.n, done: false, ...(it.qty > 1 ? { qty: it.qty } : {}) });
+      if (it.food) lookups.push({ ...it.food, n: it.n });
+    }
+    return { app: APP, v: VERSION, kind: "add", saved: now.toISOString(), data: { grocery, ...(lookups.length ? { lookups } : {}) } };
   }
 
   // What a backup holds, in words: ["your goals", "12 favorites", ...].
@@ -114,5 +131,15 @@
     } catch { return { ok: false, error: "That link is damaged or incomplete. Copy it again, or use the backup file." }; }
   }
 
-  return { pack, parse, summary, encode, decode, KEYS, APP, VERSION };
+  // A product read by the phone bookmarklet: { kind: "walmart", data: { product, idml } }, checked by walmart.js.
+  async function decodeProduct(token) {
+    try {
+      const [kind, body] = [String(token).slice(0, 2), String(token).slice(2)];
+      if (kind !== "j." || body.length > 200000) return null;
+      const o = JSON.parse(new TextDecoder().decode(unb64url(body)));
+      return o && o.app === APP && o.kind === "walmart" && o.data && typeof o.data === "object" ? o.data : null;
+    } catch { return null; }
+  }
+
+  return { pack, packAdd, parse, summary, encode, decode, decodeProduct, KEYS, APP, VERSION };
 });

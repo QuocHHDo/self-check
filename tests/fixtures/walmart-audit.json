@@ -1,0 +1,583 @@
+{
+ "_note": "Real Walmart product-page data captured Oct 25, 2026 from 41 searches (first result each). Compact form; tests/fixtures/walmart-compact.js rebuilds the page data. Vitamin/mineral rows trimmed except a few unusual ones kept for parser coverage.",
+ "products": {
+  "frosted flakes": {
+   "h": "2339641206 ¦ Kellogg's Frosted Flakes Original Breakfast Cereal, Fat Free, Mega Size, 30.6  oz ¦ 041192100116 ¦ Frosted Flakes ¦ Food > Pantry > Pantry meal essentials",
+   "ing": "Milled corn, sugar, malt flavor, contains 2% or less of salt, Vitamins and Minerals: Iron (ferric phosphate), niacinamide, vitamin B6 (pyridoxine hydrochloride), vitamin B2 (riboflavin), vitamin B1 (thiamin hydrochloride), folic acid, vitamin D3, vitamin B12",
+   "rows": [
+    "cal|Calories|130|",
+    "k0|Total Fat|0g|0%",
+    "k1|Saturated Fat|0g|0%",
+    "k2|Trans Fat|0g|",
+    "k3|Polyunsaturated Fat|0g|",
+    "k4|Monounsaturated Fat|0g|",
+    "k5|Cholesterol|0mg|0%",
+    "k6|Sodium|190mg|8%",
+    "k7|Total Carbohydrate|31g|11%",
+    "k8|Dietary Fiber|<1g|3%",
+    "k9|Total Sugars|12g|",
+    "k10|Added Sugars|12g|24%",
+    "k11|Protein|2g|",
+    "k12|Vitamin D|2.5mcg|10%",
+    "k14|Iron|18mg|100%",
+    "serv|Servings Per Container|23|",
+    "serv|Serving Size|1 Cap/1 Taza (37g)|"
+   ]
+  },
+  "great value oats and honey granola": {
+   "h": "202344615 ¦ Great Value Oats & Honey Granola, 11 oz ¦ 078742365466 ¦ Great Value ¦ Food > Breakfast & Cereal > Cereal & Granola > Granola",
+   "ing": "WHOLE GRAIN ROLLED OATS, CANE SUGAR, CANOLA OIL, CORN SYRUP, RICE FLOUR, ALMONDS, WHOLE GRAIN BROWN RICE FLOUR, NATURAL FLAVOR",
+   "rows": [
+    "cal|Calories|220|",
+    "k0|Total Fat|6g|8%",
+    "k0+|Saturated Fat|0.5g|3%",
+    "k0+|Trans Fat|0g|",
+    "k1|Cholesterol|0mg|0%",
+    "k2|Sodium|0mg|0%",
+    "k3|Total Carbohydrate|37g|13%",
+    "k3+|Dietary Fiber|3g|11%",
+    "k3+|Total Sugars|12g|",
+    "k3+|Added Sugars|12g|24%",
+    "k4|Protein|5g|",
+    "serv|Servings Per Container|about 6|",
+    "serv|Serving Size|1/2 cup (53g)|"
+   ]
+  },
+  "doritos nacho cheese": {
+   "h": "433078517 ¦ Doritos Nacho Cheese Tortilla Snack Chips,Party Size, 14.5 Ounce Bag ¦ 028400517799 ¦ Doritos ¦ Food > Snacks, Cookies & Chips > Chips > Doritos",
+   "ing": "CORN, VEGETABLE OIL (CORN, CANOLA, AND/OR SUNFLOWER OIL), SALT, CHEDDAR CHEESE (MILK, CHEESE CULTURES, SALT, ENZYMES), MALTODEXTRIN (MADE FROM CORN), WHEY, MONOSODIUM GLUTAMATE, BUTTERMILK, ROMANO CHEESE (PART-SKIM COW'S MILK, CHEESE CULTURES, SALT, ENZYMES), WHEY PROTEIN CONCENTRATE, ONION POWDER, CORN FLOUR, NATURAL AND ARTIFICIAL FLAVOR, DEXTROSE, TOMATO POWDER, LACTOSE, SPICES, ARTIFICIAL COLOR (YELLOW 6, YELLOW 5, RED 40), LACTIC ACID, CITRIC ACID, SUGAR, GARLIC POWDER, SKIM MILK, RED AND GREEN BELL PEPPER POWDER, DISODIUM INOSINATE, DISODIUM GUANYLATE, POTASSIUM CHLORIDE, SODIUM CASEINATE, SOYBEAN OIL",
+   "rows": [
+    "cal|Calories|150|",
+    "k0|Total Fat|8g|10%",
+    "k0+|Saturated Fat|1g|6%",
+    "k0+|Trans Fat|0g|",
+    "k1|Cholesterol|0mg|0%",
+    "k2|Sodium|210mg|9%",
+    "k3|Total Carbohydrate|18g|6%",
+    "k3+|Dietary Fiber|1g|4%",
+    "k3+|Total Sugars||",
+    "k4|Protein|2g|",
+    "serv|Servings Per Container|About 15|",
+    "serv|Serving Size|About 12 chips (28g)|"
+   ]
+  },
+  "lays classic potato chips": {
+   "h": "677669806 ¦ Lay's Classic Potato Chips, Party Size, 13 oz Bag ¦ 028400310413 ¦ Lay's ¦ Food > Snacks, Cookies & Chips > Chips > Lay's Potato Chips",
+   "ing": "POTATOES, VEGETABLE OIL (CANOLA, CORN, SOYBEAN, AND/OR SUNFLOWER OIL), AND SALT",
+   "rows": [
+    "cal|Calories|160|",
+    "k0|Total Fat|10g|13%",
+    "k0+|Saturated Fat|1.5g|7%",
+    "k0+|Trans Fat|0g|",
+    "k1|Cholesterol|0mg|0%",
+    "k2|Sodium|140mg|6%",
+    "k3|Total Carbohydrate|15g|6%",
+    "k3+|Dietary Fiber|1g|5%",
+    "k3+|Total Sugars||",
+    "k4|Protein|2g|",
+    "k9|Vitamin C|6|6%",
+    "serv|Servings Per Container|13|",
+    "serv|Serving Size|About 15 chips (28g)|"
+   ]
+  },
+  "great value saltine crackers": {
+   "h": "10315375 ¦ Great Value Saltine Crackers, 16 oz, 4 Count ¦ 078742351414 ¦ Great Value ¦ Food > Snacks, Cookies & Chips > Crackers > Saltine Crackers",
+   "ing": "ENRICHED FLOUR (WHEAT FLOUR, NIACIN, REDUCED IRON, THIAMINE MONONITRATE, RIBOFLAVIN, FOLIC ACID), SOYBEAN OIL, CONTAINS 2% OR LESS OF: SALT, SODIUM BICARBONATE (LEAVENING), VITAL WHEAT GLUTEN, YEAST, MALTED BARLEY FLOUR",
+   "rows": [
+    "cal|Calories|70|",
+    "k0|Total Fat|1.5g|2%",
+    "k1|Saturated Fat|0g|0%",
+    "k2|Trans Fat|0g|",
+    "k3|Polyunsaturated Fat|1g|",
+    "k4|Monounsaturated Fat|0g|",
+    "k5|Cholesterol|0mg|0%",
+    "k6|Sodium|130mg|6%",
+    "k7|Total Carbohydrate|12g|4%",
+    "k7+|Dietary Fiber|0g|0%",
+    "k7+|Total Sugars|0g|",
+    "k7+>|Added Sugars|0g|0%",
+    "k8|Protein|1g|",
+    "serv|Servings Per Container|about 28|",
+    "serv|Serving Size|5 crackers (16g)|"
+   ]
+  },
+  "oreo cookies": {
+   "h": "5035879686 ¦ OREO Chocolate Sandwich Cookies, Party Size, 24.16 oz ¦ 044000060640 ¦ OREO ¦ Food > Snacks, Cookies & Chips > Cookies > Shop All Cookies",
+   "ing": "UNBLEACHED ENRICHED FLOUR (WHEAT FLOUR, NIACIN, REDUCED IRON, THIAMINE MONONITRATE {VITAMIN B1}, RIBOFLAVIN {VITAMIN B2}, FOLIC ACID), SUGAR, PALM OIL, SOYBEAN AND/OR CANOLA OIL, COCOA (PROCESSED WITH ALKALI), HIGH FRUCTOSE CORN SYRUP, LEAVENING (BAKING SODA AND/OR CALCIUM PHOSPHATE), SALT, SOY LECITHIN, CHOCOLATE, ARTIFICIAL FLAVOR",
+   "rows": [
+    "cal|Calories|160|",
+    "k0|Total Fat|7g|9%",
+    "k0+|Saturated Fat|2g|10%",
+    "k0+|Trans Fat|0g|",
+    "k1|Cholesterol|0mg|0%",
+    "k2|Sodium|130mg|6%",
+    "k3|Total Carbohydrate|25g|9%",
+    "k3+|Dietary Fiber||2%",
+    "k3+|Total Sugars|14g|",
+    "k3+>|Added Sugars|13g|26%",
+    "k4|Protein|1g|",
+    "serv|Servings Per Container|about 20|",
+    "serv|Serving Size|3 cookies (34g)|"
+   ]
+  },
+  "nature valley oats n honey bars": {
+   "h": "10311392 ¦ Nature Valley Crunchy Granola Bars, Oats 'n Honey, 12 Count, 8.94 oz (6 Pouches) ¦ 016000264601 ¦ Nature Valley ¦ Food > Breakfast & Cereal > Grab & Go Bars & Toaster Pastries > Snack Bars",
+   "ing": "Whole Grain Oats, Sugar, Canola and/or Sunflower Oil, Rice Flour, Honey, Salt, Brown Sugar Syrup, Baking Soda, Soy Lecithin, Natural Flavor",
+   "rows": [
+    "cal|Calories|190|",
+    "k0|Total Fat|7g|9%",
+    "k0+|Saturated Fat|1g|4%",
+    "k0+|Trans Fat|0g|",
+    "k1|Cholesterol|0mg|0%",
+    "k2|Sodium|140mg|6%",
+    "k3|Total Carb.|23g|11%",
+    "k3+|Dietary Fiber|2g|8%",
+    "k3+|Total Sugars|11g|",
+    "k3+|Added Sugars|11g|23%",
+    "k4|Protein|3g|",
+    "serv|Servings Per Container|6|",
+    "serv|Serving Size|2 bars (42g)|"
+   ]
+  },
+  "great value frozen pepperoni pizza": {
+   "h": "3442734189 ¦ Great Value Rising Crust Pepperoni Pizza, Marinara Sauce, 27.65 oz (Frozen) ¦ 194346134748 ¦ Great Value ¦ Food > Frozen Foods > Frozen Pizza > Shop All Frozen Pizza",
+   "ing": "CRUST (ENRICHED WHEAT FLOUR, WATER, SOYBEAN OIL, SUGAR, YEAST, SALT), LOW MOISTURE WHOLE MILK MOZZARELLA CHEESE, SAUCE (WATER, TOMATO CONCENTRATE, SALT, SPICE), PEPPERONI MADE WITH PORK, CHICKEN, AND BEEF (PORK, MECHANICALLY SEPARATED CHICKEN, BEEF, SALT, SPICES, DEXTROSE, LACTIC ACID STARTER CULTURE, OLEORESIN OF PAPRIKA, SODIUM ASCORBATE, FLAVORING, SODIUM NITRITE, BHA, BHT, CITRIC ACID), OREGANO, GRANULATED GARLIC, BASIL.",
+   "rows": [
+    "cal|Calories|330|",
+    "k0|Total Fat|13g|17%",
+    "k0+|Saturated Fat|5g|25%",
+    "k0+|Trans Fat|0g|",
+    "k1|Cholesterol|30mg|10%",
+    "k2|Sodium|580mg|25%",
+    "k3|Total Carbohydrate|41g|15%",
+    "k3+|Dietary Fiber|2g|7%",
+    "k3+|Total Sugars|3g|",
+    "k3+>|Added Sugars|2g|4%",
+    "k4|Protein|13g|",
+    "serv|Servings Per Container|6|",
+    "serv|Serving Size|1/6 pizza (131g)|"
+   ]
+  },
+  "banquet chicken pot pie": {
+   "h": "10794554 ¦ Banquet Chicken Pot Pie, 11g Protein, Frozen Meal, 7 oz. ¦ 031000101015 ¦ Banquet ¦ Food > Frozen Foods > Frozen Meals > Frozen Individual Meals",
+   "ing": "Filling: Water, Cooked Chicken Roll (Chicken, Water, Salt, Potassium Phosphate, Potassium Chloride), Carrots, Ground Chicken, Potatoes, Modified Corn Starch, Peas, Wheat Flour, Salt, Soybean Oil, Xanthan Gum, Guar Gum, Crust: Wheat Flour, Lard (Deodorized Lard, Hydrogenated Lard, BHT [Preservative]), Water, Dextrose, Salt, Caramel Color",
+   "rows": [
+    "cal|Calories|370|",
+    "k0|Total Fat|21g|27%",
+    "k1|Saturated Fat|9g|45%",
+    "k2|Trans Fat|0g|",
+    "k3|Cholesterol|40mg|13%",
+    "k4|Sodium|750mg|33%",
+    "k5|Total Carbohydrate|34g|12%",
+    "k6|Dietary Fiber|1g|4%",
+    "k7|Total Sugars|3g|",
+    "k8|Added Sugars|2g|4%",
+    "k9|Protein|11g|",
+    "serv|Servings Per Container|1|",
+    "serv|Serving Size|1 pie (198g)|"
+   ]
+  },
+  "lean cuisine": {
+   "h": "12166184 ¦ Lean Cuisine Five Cheese Rigatoni, Frozen Meal, 10 oz ¦ 013800174208 ¦ Lean Cuisine ¦ Food > Frozen Foods > Frozen Meals > Frozen Individual Meals",
+   "ing": "SAUCE: TOMATO PUREE (WATER, TOMATO PASTE), WATER, WHITE CHEDDAR CHEESE, SPICES, SUGAR, SOYBEAN OIL, MODIFIED FOOD STARCH, GARLIC, SALT, DRIED ONIONS, PASTA: COOKED PASTA (WATER, SEMOLINA WHEAT FLOUR, WHEAT GLUTEN), SOYBEAN OIL, CHEESE TOPPING",
+   "rows": [
+    "cal|Calories|350|",
+    "k0|Total Fat|9g|12%",
+    "k0+|Saturated Fat|3.5g|18%",
+    "k0+|Trans Fat|0g|",
+    "k0+|Polyunsaturated Fat|2g|",
+    "k0+|Monounsaturated Fat|1.5g|",
+    "k1|Cholesterol|15mg|5%",
+    "k2|Sodium|680mg|30%",
+    "k3|Total Carbohydrate|54g|20%",
+    "k3+|Dietary Fiber|3g|11%",
+    "k3+|Total Sugars|8g|",
+    "k3+|Added Sugars|3g|6%",
+    "k4|Protein|14g|19%",
+    "serv|Servings Per Container|1|",
+    "serv|Serving Size|1 package (283g)|"
+   ]
+  },
+  "great value frozen broccoli florets": {
+   "h": "735585383 ¦ Great Value Frozen Broccoli Florets Steamable Bag, 12 oz ¦ 078742237329 ¦ Great Value ¦ Food > Frozen Foods > Frozen Fruits & Vegetables > Frozen Vegetables",
+   "ing": "BROCCOLI",
+   "rows": [
+    "cal|Calories|30|",
+    "k0|Total Fat|0g|0%",
+    "k1|Saturated Fat|0g|0%",
+    "k2|Trans Fat|0g|",
+    "k3|Cholesterol|0mg|0%",
+    "k4|Sodium|10mg|0%",
+    "k5|Total Carbohydrate|5g|2%",
+    "k5+|Dietary Fiber|3g|11%",
+    "k5+|Total Sugars|1g|",
+    "k5+>|Added Sugars|0g|0%",
+    "k6|Protein|3g|",
+    "serv|Servings Per Container|4|",
+    "serv|Serving Size|1 cup (85g)|"
+   ]
+  },
+  "great value orange juice": {
+   "h": "403284742 ¦ Great Value 100% Pasteurized Orange Juice, No Pulp, 52 fl oz ¦ 078742377056 ¦ Great Value ¦ Food > Beverages > Juices > All Juices",
+   "ing": "ORANGE JUICE",
+   "rows": [
+    "cal|Calories|110|",
+    "k0|Total Fat|0g|0%",
+    "k1|Sodium|0mg|0%",
+    "k2|Total Carbohydrate|26g|9%",
+    "k2+|Total Sugars|22g|",
+    "k2+>|Added Sugars|0g|0%",
+    "k3|Protein|2g|",
+    "k8|Vitamin C|72mg|80%",
+    "serv|Servings Per Container|about 7|",
+    "serv|Serving Size|8fl oz (240mL)|"
+   ]
+  },
+  "great value large white eggs 12 count": {
+   "h": "145051970 ¦ Great Value Large White Eggs, 12 Count ¦ 078742127071 ¦ Great Value ¦ Food > Dairy & Eggs > Eggs > White eggs",
+   "ing": "Eggs",
+   "rows": [
+    "cal|Calories|70|",
+    "k0|Total Fat|5g|6%",
+    "k1|Sat. Fat|1.5g|8%",
+    "k2|Trans Fat|0g|",
+    "k3|Cholest.|185mg|62%",
+    "k4|Sodium|70mg|3%",
+    "k5|Total Carb|0g|0%",
+    "k6|Dietary Fiber|0g|0%",
+    "k7|Total Sugars|0g|",
+    "k7+|Added Sugars|0g|0%",
+    "k8|Protein|6g|12%",
+    "k9|Vit. D|6|",
+    "serv|Servings Per Container|12|",
+    "serv|Serving Size|1 egg (50g)|"
+   ]
+  },
+  "great value shredded mozzarella": {
+   "h": "10452371 ¦ Great Value Low-Moisture Part-Skim Mozzarella Finely Shredded Cheese, 8 oz Bag ¦ 078742374253 ¦ Great Value ¦ Food > Dairy & Eggs > Cheese > Mozzarella",
+   "ing": "LOW-MOISTURE PART-SKIM MOZZARELLA CHEESE (PASTEURIZED PART-SKIM MILK, CHEESE CULTURE, SALT, ENZYMES), ANTI-CAKING BLEND (POTATO STARCH, TAPIOCA STARCH, NATAMYCIN [A NATURAL MOLD INHIBITOR])",
+   "rows": [
+    "cal|Calories|80|",
+    "k0|Total Fat|6g|8%",
+    "k0+|Saturated Fat|3g|15%",
+    "k0+|Trans Fat|0g|",
+    "k1|Cholesterol|15mg|5%",
+    "k2|Sodium|180mg|8%",
+    "k3|Total Carbohydrate|2g|1%",
+    "k3+|Dietary Fiber|0g|0%",
+    "k3+|Total Sugars|1g|",
+    "k3+>|Added Sugars|0g|0%",
+    "k4|Protein|6g|12%",
+    "serv|Servings Per Container|8|",
+    "serv|Serving Size|1/4 cup (28g)|"
+   ]
+  },
+  "chobani greek yogurt": {
+   "h": "21291511 ¦ Chobani Non-Fat Greek Yogurt Plain 32 oz Tub ¦ 894700010137 ¦ Chobani ¦ Food > Dairy & Eggs > Yogurt > Greek Yogurt",
+   "ing": "Cultured nonfat milk",
+   "rows": [
+    "cal|Calories|90|",
+    "k0|Total Fat|0g|0%",
+    "k1|Saturated Fat|0g|0%",
+    "k2|Trans Fat|0g|",
+    "k3|Cholesterol|10mg|3%",
+    "k4|Sodium|65mg|3%",
+    "k5|Total Carbohydrate|6g|2%",
+    "k5+|Dietary Fiber|0g|0%",
+    "k5+|Total Sugars|6g|",
+    "k5+>|Added Sugars|0g|0%",
+    "k6|Protein|16g|32%",
+    "serv|Servings Per Container|About 5|",
+    "serv|Serving Size|3/4 cup (170g)|"
+   ]
+  },
+  "great value salted butter": {
+   "h": "132893363 ¦ Great Value Sweet Cream Salted Butter, 16 oz Box, 4 Sticks, Refrigerated ¦ 078742374192 ¦ Great Value ¦ Food > Dairy & Eggs > Butter & Margarine > Butter Sticks",
+   "ing": "PASTEURIZED CREAM (FROM MILK), SALT",
+   "rows": [
+    "cal|Calories|100|",
+    "k0|Total Fat|11g|14%",
+    "k0+|Saturated Fat|7g|35%",
+    "k1|Cholesterol|30mg|10%",
+    "k2|Sodium|90mg|4%",
+    "k3|Total Carbohydrate|0g|0%",
+    "k4|Protein|0g|",
+    "serv|Servings Per Container|about 32|",
+    "serv|Serving Size|1 Tbsp. (14g)|"
+   ]
+  },
+  "great value ground beef 80/20": {
+   "h": "10315960 ¦ Great Value Beef Burgers, 80% Lean/20% Fat, 3 lbs, 12 Count (Frozen) ¦ 078742074924 ¦ Great Value ¦ Food > Meat & Seafood > Beef & Lamb > Ground Beef & Patties",
+   "ing": "BEEF",
+   "rows": [
+    "cal|Calories|300|",
+    "k0|Total Fat|25g|38%",
+    "k0+|Saturated Fat|11g|55%",
+    "k0+|Trans Fat|1.5g|",
+    "k1|Cholesterol|65mg|22%",
+    "k2|Sodium|75mg|3%",
+    "k3|Total Carbohydrate|0g|0%",
+    "k3+|Dietary Fiber|0g|0%",
+    "k3+|Sugars|0g|",
+    "k4|Protein|19g|",
+    "k5|Vitamin A||0%",
+    "k8|Iron||15%",
+    "serv|Servings Per Container|12|",
+    "serv|Serving Size|1 patty (4oz/113.4g)|"
+   ]
+  },
+  "tyson chicken nuggets": {
+   "h": "8070360807 ¦ Tyson Frozen White Meat Chicken Nuggets, 29 oz, 11g Protein per Serving (Fully Cooked) ¦ 023700060266 ¦ Tyson Foods ¦ Food > Weekly Trips > Dinner tonight > Everyday mains",
+   "ing": "WHITE MEAT CHICKEN, WATER, WHEAT FLOUR, CONTAINS 2% OR LESS OF: BROWN SUGAR, DRIED GARLIC, DRIED ONION, DRIED YEAST, EXTRACTIVES OF PAPRIKA, FOOD STARCH, NATURAL FLAVOR, OAT FIBER, SALT, SPICES, WHEAT STARCH, WHITE WHOLE WHEAT FLOUR, YELLOW CORN FLOUR, BREADING SET IN VEGETABLE OIL",
+   "rows": [
+    "cal|Calories|210|",
+    "k0|Total Fat|13g|17%",
+    "k0+|Saturated Fat|3g|15%",
+    "k0+|Trans Fat|0g|",
+    "k0+|Polyunsaturated Fat|4.5g|",
+    "k0+|Monounsaturated Fat|5g|",
+    "k1|Cholesterol|40mg|13%",
+    "k2|Sodium|450mg|20%",
+    "k3|Total Carbohydrate|12g|4%",
+    "k3+|Dietary Fiber|1g|4%",
+    "k3+|Total Sugars|0g|",
+    "k3+|Added Sugars|0g|0%",
+    "k4|Protein|11g|22%",
+    "serv|Servings Per Container|About 9|",
+    "serv|Serving Size|5 Pieces (90g)|"
+   ]
+  },
+  "oscar mayer bacon": {
+   "h": "43710697 ¦ Oscar Mayer Naturally Hardwood Smoked Bacon Mega Pack, 22 oz Pack, 23-25 slices ¦ 044700076484 ¦ Oscar Mayer ¦ Food > Meat & Seafood > Bacon, Hot Dogs, & Sausages > Bacon > All Bacon",
+   "ing": "CURED WITH WATER, SALT, SUGAR, SODIUM PHOSPHATE, SODIUM ASCORBATE, SODIUM NITRITE.",
+   "rows": [
+    "cal|Calories|90|",
+    "k0|Total Fat|8g|10%",
+    "k1|Saturated Fat|3g|15%",
+    "k2|Trans Fat|0g|",
+    "k3|Cholesterol|25mg|8%",
+    "k4|Sodium|360mg|16%",
+    "k5|Total Carbohydrate|0g|0%",
+    "k6|Dietary Fiber|0g|0%",
+    "k7|Total Sugars|0g|",
+    "k8|Added Sugars|0g|0%",
+    "k9|Protein|5g|",
+    "serv|Servings Per Container|about 12|",
+    "serv|Serving Size|2 pan-fried slices (17g)|"
+   ]
+  },
+  "great value deli turkey": {
+   "h": "47394316 ¦ Great Value Thin Sliced Oven Roasted Turkey Breast, 16 oz Family Pack ¦ 078742110288 ¦ Great Value ¦ Food > Meat & Seafood > Turkey > Turkey Lunch Meat",
+   "ing": "TURKEY BREAST, TURKEY BROTH, CONTAINS 2% OR LESS OF SEA SALT, DEXTROSE, FOOD STARCH-MODIFIED, VINEGAR*, SODIUM PHOSPHATES, CARRAGEENAN, CHERRY POWDER, NATURAL FLAVOR, CULTURED CELERY JUICE POWDER, SALT, *TO PRESERVE QUALITY",
+   "rows": [
+    "cal|Calories|50|",
+    "k0|Total Fat|1g|1%",
+    "k1|Saturated Fat|0g|0%",
+    "k2|Trans Fat|0g|",
+    "k3|Cholesterol|15mg|5%",
+    "k4|Sodium|460mg|20%",
+    "k5|Total Carbohydrate|2g|1%",
+    "k6|Dietary Fiber|0g|0%",
+    "k7|Total Sugars|<1g|",
+    "k7+|Added Sugars|<1g|1%",
+    "k8|Protein|9g|",
+    "serv|Servings Per Container|4.5|",
+    "serv|Serving Size|2 oz (56g)|"
+   ]
+  },
+  "great value tilapia fillets": {
+   "h": "51259015 ¦ Great Value Frozen Tilapia Skinless & Boneless Fillets, 2 lb Bag ¦ 078742126623 ¦ Great Value ¦ Food > Shop All Meat and Seafood",
+   "ing": "TILAPIA, CARBON MONOXIDE (TREATED TO RETAIN NATURAL COLOR)",
+   "rows": [
+    "cal|Calories|90|",
+    "k0|Total Fat|2g|3%",
+    "k0+|Saturated Fat|0.5g|3%",
+    "k0+|Trans Fat|0g|",
+    "k1|Cholesterol|40mg|13%",
+    "k2|Sodium|40mg|2%",
+    "k3|Total Carbohydrate|0g|0%",
+    "k3+|Dietary Fiber|0g|0%",
+    "k3+|Total Sugars|0g|",
+    "k3+>|Added Sugars|0g|0%",
+    "k4|Protein|20g|31%",
+    "serv|Servings Per Container|8|",
+    "serv|Serving Size|4 oz (112g / about 1 fillet)|"
+   ]
+  },
+  "barilla spaghetti": {
+   "h": "10309153 ¦ Barilla Classic Non-GMO, Kosher Certified Spaghetti Pasta, 16 oz ¦ 076808280081 ¦ Barilla ¦ Food > Pantry > Pasta & pizza > Dry pasta",
+   "ing": "Semolina (wheat), durum wheat flour",
+   "rows": [
+    "cal|Calories|200|",
+    "k0|Total Fat|1g|1%",
+    "k1|Saturated Fat|0g|0%",
+    "k2|Trans Fat|0g|",
+    "k3|Cholesterol|0mg|0%",
+    "k4|Sodium|0mg|0%",
+    "k5|Total Carbohydrate|42g|15%",
+    "k5+|Dietary Fiber|3g|11%",
+    "k5+>|Soluble Fiber|2g|",
+    "k5+>|Insoluble Fiber|1g|",
+    "k5+|Total Sugars|1g|",
+    "k6|Protein|7g|",
+    "serv|Servings Per Container|8|",
+    "serv|Serving Size|about 2oz (56g)|"
+   ]
+  },
+  "great value extra virgin olive oil": {
+   "h": "10315102 ¦ Great Value Extra Virgin Olive Oil, 17 fl oz ¦ 078742427782 ¦ Great Value ¦ Food > Pantry > Cooking oils & vinegar > Olive oils",
+   "ing": "EXTRA VIRGIN OLIVE OIL",
+   "rows": [
+    "cal|Calories|120|",
+    "k0|Total Fat|14g|18%",
+    "k0+|Sat. Fat|2g|10%",
+    "k0+|Trans Fat|0g|",
+    "k1|Cholest.|0mg|0%",
+    "k2|Sodium|0mg|0%",
+    "k3|Total Carb.|0g|0%",
+    "k3+|Fiber|0g|0%",
+    "k3+|Total Sugars|0g|",
+    "k3+>|Added Sugars|0g|0%",
+    "k4|Protein|0g|",
+    "serv|Servings Per Container|34|",
+    "serv|Serving Size|1 Tbsp. (15mL)|"
+   ]
+  },
+  "heinz ketchup": {
+   "h": "15529427 ¦ Heinz Tomato Ketchup Inverted Squeeze Bottle, 1 Bottle, for Easy Sharing and Easy Serving, 32 oz ¦ 013000006057 ¦ Heinz ¦ Food > Shop All Pantry",
+   "ing": "TOMATO CONCENTRATE FROM RED RIPE TOMATOES, DISTILLED VINEGAR, HIGH FRUCTOSE CORN SYRUP, CORN SYRUP, SALT, SPICE, ONION POWDER, NATURAL FLAVORING",
+   "rows": [
+    "cal|Calories|20|",
+    "k0|Total Fat|0g|0%",
+    "k1|Saturated Fat|0g|0%",
+    "k2|Trans Fat|0g|",
+    "k3|Cholesterol|0mg|0%",
+    "k4|Sodium|160mg|7%",
+    "k5|Total Carbohydrate|5g|2%",
+    "k6|Dietary Fiber|0g|0%",
+    "k7|Total Sugars|4g|",
+    "k8|Added Sugars|4g|8%",
+    "k9|Protein|0g|",
+    "serv|Servings Per Container|About 33|",
+    "serv|Serving Size|1 tbsp (17g)|"
+   ]
+  },
+  "great value white bread": {
+   "h": "10315752 ¦ Great Value White Sandwich Bread, 20 oz ¦ 078742012285 ¦ Great Value ¦ Food > Bakery & Bread > Bread > White Bread",
+   "ing": "ENRICHED WHEAT FLOUR (FLOUR, MALTED BARLEY FLOUR, REDUCED IRON, NIACIN, THIAMINE MONONITRATE [VITAMIN B1], RIBOFLAVIN [VITAMIN B2], FOLIC ACID), WATER, SUGAR, YEAST, VEGETABLE OIL (SOYBEAN), SALT, MONOGLYCERIDES, CALCIUM PROPIONATE (PRESERVATIVE), DATEM, SOY LECITHIN, CITRIC ACID, GRAIN VINEGAR, WHEAT GLUTEN, POTASSIUM IODATE, CALCIUM SULFATE, MONOCALCIUM PHOSPHATE",
+   "rows": [
+    "cal|Calories|120|",
+    "k0|Total Fat|1.5g|2%",
+    "k0+|Saturated Fat|0g|0%",
+    "k0+|Trans Fat|0g|",
+    "k0+|Polyunsaturated Fat|0.5g|",
+    "k0+|Monounsaturated Fat|0g|",
+    "k1|Cholesterol|0mg|0%",
+    "k2|Sodium|220mg|10%",
+    "k3|Total Carbohydrate|24g|9%",
+    "k3+|Dietary Fiber|<1g|3%",
+    "k3+|Total Sugars|2g|",
+    "k3+>|Added Sugars|2g|4%",
+    "k4|Protein|4g|",
+    "k12|Folate|80mcg|20%",
+    "k12+|(45mcg folic acid)||",
+    "serv|Servings Per Container|12|",
+    "serv|Serving Size|2 slices (47g)|"
+   ]
+  },
+  "mission flour tortillas": {
+   "h": "14123550 ¦ Mission Super Soft Flour Tortillas, Fajita Size, 20 Count ¦ 073731008300 ¦ Mission ¦ Food > Bakery & Bread > Tortillas > Flour Tortillas",
+   "ing": "ENRICHED BLEACHED FLOUR (FLOUR, NIACIN, REDUCED IRON, THIAMINE MONONITRATE, RIBOFLAVIN, FOLIC ACID), WATER, VEGETABLE SHORTENING (INTERESTERIFIED AND HYDROGENATED SOYBEAN OILS), CONTAINS 2% OR LESS OF: SALT, SUGAR, BAKING SODA, SODIUM ACID PYROPHOSPHATE, DISTILLED MONOGLYCERIDES, ENZYMES, FUMARIC ACID, AND CALCIUM PROPIONATE AND SORBIC ACID (TO MAINTAIN FRESHNESS)",
+   "rows": [
+    "cal|Calories|90|",
+    "k0|Total Fat|2g|3%",
+    "k0+|Saturated Fat|0.5g|3%",
+    "k0+|Trans Fat|0g|",
+    "k1|Cholesterol|0mg|0%",
+    "k2|Sodium|270mg|12%",
+    "k3|Total Carbohydrate|16g|6%",
+    "k3+|Dietary Fiber|0g|0%",
+    "k3+|Total Sugars|1g|",
+    "k3+>|Added Sugars|1g|2%",
+    "k4|Protein|3g|",
+    "serv|Servings Per Container|20|",
+    "serv|Serving Size|1 tortilla (32g)|"
+   ]
+  },
+  "gatorade lemon lime": {
+   "h": "10449239 ¦ Gatorade Thirst Quencher Electrolyte Sports Drink, Lemon Lime, 12 fl oz, 12 Count Bottle ¦ 052000121780 ¦ Gatorade ¦ Food > Beverages > Sports Drinks > Gatorade",
+   "ing": "Water, Sugar, Dextrose, Citric Acid, Salt, Sodium Citrate, Monopotassium Phosphate, Gum Arabic, Glycerol Ester Of Rosin, Natural Flavor, Yellow 5.",
+   "rows": []
+  },
+  "bodyarmor sports drink": {
+   "h": "608336571 ¦ BODYARMOR Strawberry Banana Sports Drink Bottles, 12 fl oz, 8 Pack ¦ 858176002829 ¦ BODYARMOR ¦ Food > Beverages > Sports Drinks > Sports Drinks",
+   "ing": "Filtered Water, Pure Cane Sugar, Coconut Water Concentrate, Citric Acid",
+   "rows": []
+  },
+  "monster energy zero ultra": {
+   "h": "394935847 ¦ Monster Energy, Zero Ultra, Sugar Free Energy Drink, 12 Pack - 16 Fl Oz ¦ 070847037965 ¦ Monster Energy ¦ Food > Beverages > Energy Drinks > Monster Zero",
+   "ing": "CARBONATED WATER, CITRIC ACID, ERYTHRITOL, TAURINE, SODIUM CITRATE, NATURAL & ARTIFICIAL FLAVORS, CAFFEINE, SUCRALOSE, SORBIC ACID (PRESERVATIVE), BENZOIC ACID (PRESERVATIVE), ACESULFAME POTASSIUM",
+   "rows": []
+  },
+  "great value chunk light tuna": {
+   "h": "33867594 ¦ Great Value Chunk Light Tuna in Water, 5 oz, 4 Pack ¦ 078742040011 ¦ Great Value ¦ Food > Pantry > Canned goods > Canned tuna & seafood",
+   "ing": "LIGHT TUNA, WATER, VEGETABLE BROTH",
+   "rows": []
+  },
+  "great value long grain white rice": {
+   "h": "10315394 ¦ Great Value Long Grain Enriched Rice, 32 oz ¦ 078742352053 ¦ Great Value ¦ Food > Shop All Pantry",
+   "ing": "Long Grain Rice Enriched with Ferric Phosphate, Niacin, Thiamine Mononitrate, Folic Acid",
+   "rows": []
+  },
+  "campbells chicken noodle soup": {
+   "h": "43671426 ¦ Campbell’s Condensed Chicken Noodle Soup, 10.75 oz Can (4 Pack) ¦ 051000129383 ¦ Campbell's ¦ Food > Pantry > Soup > Condensed Soup",
+   "ing": "Chicken stock, enriched egg noodles, chicken meat, salt, chicken fat, monosodium glutamate",
+   "rows": []
+  },
+  "great value black beans": {
+   "h": "10534038 ¦ Great Value Black Beans, 15 oz ¦ 078742075761 ¦ Great Value ¦ Food > Pantry > Canned goods > Canned beans",
+   "ing": "BLACK BEANS, WATER, SALT, CALCIUM CHLORIDE (TO HELP MAINTAIN FIRMNESS)",
+   "rows": []
+  },
+  "jif creamy peanut butter": {
+   "h": "777839120 ¦ Jif Creamy Peanut Butter, 16 oz Jar ¦ 051500255162 ¦ Jif ¦ Food > Pantry > Peanut butter & spreads > Peanut butter > Shop all Peanut Butter",
+   "ing": "Roasted Peanuts, Sugar, Contains 2% Or Less Of: Fully Hydrogenated Vegetable Oils (Rapeseed And Soybean), Salt, Molasses.",
+   "rows": []
+  },
+  "premier protein shake": {
+   "h": "45152391 ¦ Premier Protein Shake, Chocolate, 30g Protein, 11 Fl Oz, 4 Ct ¦ 643843714484 ¦ Premier Protein ¦ Health and Medicine > Protein > Protein Shakes",
+   "ing": "Water, Milk Protein Concentrate, Calcium Caseinate, Sucralose, Acesulfame Potassium, Carrageenan",
+   "rows": []
+  },
+  "quest protein bar": {
+   "h": "52642271 ¦ Quest Protein Bar, Chocolate Chip Cookie Dough Flavored, 21g Protein, Gluten Free, 4 Count ¦ 888849003853 ¦ Quest Nutrition ¦ Health and Medicine > Protein > Protein Bars > Protein Bars",
+   "ing": "PROTEIN BLEND (MILK PROTEIN ISOLATE, WHEY PROTEIN ISOLATE), POLYDEXTROSE (PREBIOTIC FIBER), ALMONDS, WATER, UNSWEETENED CHOCOLATE, ERYTHRITOL, SUCRALOSE",
+   "rows": []
+  },
+  "fresh broccoli crowns": {
+   "h": "51259378 ¦ Fresh Whole Green Broccoli Crowns, 1 Each ¦ 203082000009 ¦ Fresh Produce ¦ Food > Fresh Produce > Fresh Vegetables > Broccoli & Cauliflower",
+   "ing": "BROCCOLI, RAW",
+   "rows": []
+  },
+  "fresh strawberries": {
+   "h": "44391605 ¦ Fresh Strawberries, 1 lb Container ¦ 071430007525 ¦ Fresh Produce ¦ Food > Fresh Produce > Fresh Fruits > Berries",
+   "ing": "Strawberries",
+   "rows": []
+  },
+  "russet potatoes 5 lb": {
+   "h": "10447837 ¦ Fresh Whole Russet Potatoes , 5 lb Bag ¦ 033383530109 ¦ Fresh Produce ¦ Food > Fresh Produce > Fresh Vegetables > Potatoes",
+   "ing": "2 pounds (about 4-5 medium) russet potatoes, 6 cloves garlic, peeled, 2 teaspoons butter, 1 cup buttermilk, Salt and pepper to taste",
+   "rows": []
+  },
+  "fresh hass avocado": {
+   "h": "44390949 ¦ Fresh Hass Avocados, Each ¦ 405563623039 ¦ Fresh Produce ¦ Food > Fresh Produce > Fresh Fruits > Avocados",
+   "ing": "it is being reviewed for our QC team. Important to highlight that we exports FRESH AVOCADOS , Walmart doesn’t request nutrition facts label for our product.",
+   "rows": []
+  },
+  "marketside baby carrots": {
+   "h": "51259199 ¦ Organic Marketside Fresh Baby Peeled Carrots, 1 lb Bag ¦ 032601041007 ¦ Marketside ¦ Food > Fresh Produce > Fresh Vegetables > Root Vegetables",
+   "ing": "Organic Carrots",
+   "rows": []
+  }
+ }
+}

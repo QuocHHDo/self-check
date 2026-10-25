@@ -31,11 +31,16 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     ctx = await chromium.launchPersistentContext(dir, { channel: "chromium", headless: true, args: [`--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`] });
   } catch (e) { console.log("SKIP extension check: this Chromium can't load extensions (" + e.message.split("\n")[0] + ")"); process.exit(0); }
   try {
+    const hits = { ip: [], off: 0 };
+    const SEARCH = `<!doctype html><title>search</title><div style="display:grid;grid-template-columns:repeat(4,240px);gap:12px">${[["Oikos-Pro", "5072512866"], ["Cheerios", "363183524"], ["Bananas", "51259338"], ["HDMI-Cable", "99999999"]]
+      .map(([n, id]) => `<div data-item-id="T${id}" role="group" style="height:300px;border:1px solid #ddd"><div style="height:200px;background:#eee"><img alt="" width="200" height="200" src="data:image/gif;base64,R0lGODlhAQABAAAAACw="></div><a href="/ip/${n}/${id}">${n}</a></div>`).join("")}</div>`;
     await ctx.route("https://www.walmart.com/**", r => {
+      if (/\/search\?/.test(r.request().url())) return r.fulfill({ contentType: "text/html", body: SEARCH });
       const id = (r.request().url().match(/\/ip\/(?:[^/?#]+\/)?(\d+)/) || [])[1];
+      if (id) hits.ip.push({ id, t: Date.now() });
       return BY_ID[id] ? r.fulfill({ contentType: "text/html", body: pageHtml(BY_ID[id]) }) : r.fulfill({ contentType: "text/html", body: "<!doctype html><title>Walmart</title><p>home</p>" });
     });
-    await ctx.route("https://world.openfoodfacts.org/**", r => r.fulfill({ contentType: "application/json", body: JSON.stringify(/078742370033/.test(r.request().url()) ? OFF_PB : { status: 0 }) }));
+    await ctx.route("https://world.openfoodfacts.org/**", r => (hits.off++, r.fulfill({ contentType: "application/json", body: JSON.stringify(/078742370033/.test(r.request().url()) ? OFF_PB : { status: 0 }) })));
     await ctx.route("https://api.nal.usda.gov/**", r => r.fulfill({ contentType: "application/json", body: JSON.stringify({ foods: [] }) }));
     let sw = ctx.serviceWorkers()[0] || await ctx.waitForEvent("serviceworker", { timeout: 10000 });
     ok(!!sw, "extension loads (background service worker running)");
@@ -78,6 +83,15 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     ok(/listed there as “Hannaford Peanut butter”/.test(t) && /Open Food Facts' record for barcode 078742370033/.test(t), "About this verdict explains the source, including the other name");
     await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext2-card.png"), clip: { x: 880, y: 140, width: 400, height: 580 } });
 
+    // Add to the app's list: the button toggles, and a send link carries the item to the app.
+    await click(".lbtn");
+    t = await card();
+    const sendHref = await page.evaluate(async () => { await new Promise(r => setTimeout(r, 300)); const a = document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".send"); return a && a.href; });
+    ok(/✓ Added to list/.test(t) && /Send 1 to your list in the app/.test(t) && /#add=z\./.test(sendHref || ""), `+ Add to list, then a send link for the app (${(sendHref || "").slice(0, 60)}…)`);
+    // Cached: the same product again doesn't ask Open Food Facts a second time.
+    const offBefore = hits.off;
+    await page.goto("https://www.walmart.com/ip/Great-Value-Creamy-Peanut-Butter-40-oz-Jar/10315479"); await card();
+    ok(hits.off === offBefore, `a barcode looked up once is cached (${offBefore} → ${hits.off} Open Food Facts requests)`);
     await click('button[aria-label="Minimize"]');
     t = await card();
     ok((await box()).chip && /^In moderation Mostly healthy fats/.test(t), "minimize returns to the compact chip");
@@ -94,6 +108,24 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
 
     await page.goto("https://www.walmart.com/ip/HDMI-Cable/99999999"); await page.waitForTimeout(1500);
     ok(await page.evaluate(() => !document.getElementById("should-i-buy-it-card")), "non-food products get no card");
+
+    // Search badges: off by default; when on, only visible products, one request at a time, at least 1.5 s apart.
+    await page.goto("https://www.walmart.com/search?q=yogurt"); await page.waitForTimeout(2000);
+    ok(await page.evaluate(() => !document.querySelector(".sib-badge")), "search badges are off by default");
+    await sw.evaluate(() => chrome.storage.local.set({ searchBadges: true, badgeCache: {} }));
+    hits.ip = [];
+    await page.goto("https://www.walmart.com/search?q=yogurt");
+    await page.waitForFunction(() => document.querySelectorAll(".sib-badge").length >= 3 && [...document.querySelectorAll(".sib-badge")].every(b => !/…/.test(b.shadowRoot.textContent)), null, { timeout: 20000 });
+    const badges = await page.evaluate(() => [...document.querySelectorAll("[data-item-id]")].map(t => { const b = t.querySelector(".sib-badge"); return b ? b.shadowRoot.querySelector(".b").textContent : "-"; }));
+    ok(badges[0] === "Get it" && badges[1] === "In moderation" && badges[2] === "Get it" && badges[3] === "-", `badges show each product's verdict; non-food gets none (${badges.join(" | ")})`);
+    const gaps = hits.ip.slice(1).map((h, i) => h.t - hits.ip[i].t);
+    ok(hits.ip.length === 4 && gaps.every(g => g >= 1400), `one product page at a time, ${gaps.map(g => (g / 1000).toFixed(1) + " s").join(", ")} apart`);
+    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext3-badges.png"), clip: { x: 0, y: 0, width: 1000, height: 330 } });
+    hits.ip = [];
+    await page.goto("https://www.walmart.com/search?q=yogurt");
+    await page.waitForFunction(() => document.querySelectorAll(".sib-badge").length >= 3, null, { timeout: 10000 });
+    ok(hits.ip.length === 0, `badges come from the cache on the next visit (${hits.ip.length} page requests)`);
+    await sw.evaluate(() => chrome.storage.local.set({ searchBadges: false }));
 
     // Goals from the settings page change the verdict live (a low sodium limit and a skip term).
     const extId = sw.url().split("/")[2];
