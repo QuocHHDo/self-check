@@ -440,7 +440,7 @@
     F("Beef fajitas", ["fajitas", "steak fajitas", "fajita"], "1 cup with peppers and onions, no tortilla (170 g)", 270, 14, 4.5, 0.5, 70, 520, 8, 2, 4, 1, 27),
     F("Chicken fajita bowl", ["fajita bowl"], "1 bowl: rice, beans, peppers, chicken (450 g)", 600, 18, 5, 0.2, 95, 1200, 70, 10, 6, 1, 40),
     F("Chicken enchiladas, red sauce", ["enchiladas", "chicken enchiladas", "enchilada"], "2 enchiladas (290 g)", 480, 22, 10, 0.3, 85, 1100, 40, 5, 4, 1, 30, ["spicy"]),
-    F("Pork tamales", ["tamales", "tamale", "pork tamale"], "2 tamales (230 g)", 470, 24, 9, 0.2, 50, 900, 46, 5, 2, 0, 17),
+    F("Pork tamales", ["tamales", "tamale", "pork tamale"], "2 tamales (230 g)", 400, 20.7, 6.2, 0.2, 50, 1090, 36.3, 5.5, 1.2, 0, 17),
     F("Brisket sandwich", ["bbq brisket sandwich", "chopped beef sandwich"], "1 sandwich with BBQ sauce (220 g)", 520, 24, 9, 1, 100, 1100, 42, 1, 12, 10, 33),
     F("Kolache, sausage", ["kolache", "kolaches", "klobasnek", "sausage kolache"], "1 kolache (100 g)", 320, 18, 7, 0.2, 35, 700, 28, 1, 4, 3, 11, ["processed"]),
     F("Chicken fried steak with gravy", ["chicken fried steak", "country fried steak"], "1 steak with cream gravy (240 g)", 620, 36, 10, 1, 110, 1450, 40, 1.5, 2, 1, 33),
