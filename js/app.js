@@ -212,6 +212,51 @@
     return sec;
   }
 
+  // ---------- price (typical, or your own) ----------
+  const PR = window.SelfCheckPrices;
+  let myPrices = store.get("myPrices", {});
+  let priceEditing = null;
+  const saveMyPrices = () => { store.set("myPrices", myPrices); renderBrowse(); renderPlate(); if (current) renderResult(current); };
+  function renderPrice(f) {
+    if (!PR) return null;
+    const p = PR.price({ ...f, mult }, myPrices);
+    const sec = el("section", { class: "panel price" });
+    const editing = priceEditing === f.n;
+    const unitWord = p && !p.mine ? p.unitLabel : p && p.mine && p.unitLabel !== "serving" ? p.unitLabel : "serving";
+    if (p) {
+      const v = PR.value(f, p);
+      sec.append(el("div", { class: "price-main" },
+        el("span", { class: "price-amt", text: `≈ ${PR.money(p.cost)}` }),
+        el("span", {}, mult === 1 ? " per serving" : ` for ${fmt(mult)} servings`, v ? el("span", { class: "price-val", text: ` · ${v.text}` }) : null)));
+      sec.append(el("p", { class: "legend" }, p.mine
+        ? `Your price: ${PR.money(p.unitPrice)} per ${unitWord}${p.typical != null ? ` (typical ${PR.money(p.typical)} per serving)` : ""}.`
+        : `Typical ${PR.money(p.unitPrice)} per ${p.unitLabel} · ${p.source}${p.note ? ` · ${p.note}` : ""}. Your store may differ.`));
+    } else sec.append(el("p", { class: "legend", text: "No typical price for this food: there's no free, current price series for it." }));
+    if (editing) {
+      const input = el("input", { type: "number", min: "0", step: "0.01", inputmode: "decimal", id: "myPrice", "aria-label": `Your price per ${unitWord}`, value: p && p.mine ? String(p.unitPrice) : "" });
+      const save = () => { const v = Number(input.value); if (!(v > 0)) { input.setAttribute("aria-invalid", "true"); return; }
+        myPrices = { ...myPrices, [f.n]: p && !(p.mine && p.unitLabel === "serving") && PR.has(f.n) ? { unit: v } : { serving: v } }; priceEditing = null; saveMyPrices(); };
+      input.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); save(); } if (e.key === "Escape") { priceEditing = null; renderResult(current); } });
+      sec.append(el("div", { class: "price-edit" }, el("label", { for: "myPrice", text: `What you pay, $ per ${PR.has(f.n) ? (p ? p.unitLabel : "serving") : "serving"}` }), input,
+        el("button", { class: "btn small", type: "button", text: "Save", onclick: save }),
+        el("button", { class: "btn small ghost", type: "button", text: "Cancel", onclick: () => { priceEditing = null; renderResult(current); } })));
+      setTimeout(() => input.focus(), 0);
+    } else {
+      const row = el("div", { class: "chiprow", style: "margin:0" },
+        el("button", { class: "linkish", type: "button", text: p && p.mine ? "Change my price" : PR.has(f.n) ? "Use my store's price" : "Add my price", onclick: () => { priceEditing = f.n; renderResult(current); } }));
+      if (p && p.mine) row.append(el("button", { class: "linkish", type: "button", text: "Use typical price", onclick: () => { const m = { ...myPrices }; delete m[f.n]; myPrices = m; saveMyPrices(); } }));
+      sec.append(row);
+    }
+    return sec;
+  }
+  function renderPlatePrice() {
+    if (!PR) return null;
+    const c = PR.plateCost(plate.map(i => ({ food: byName(i.n), mult: i.mult })).filter(i => i.food), myPrices);
+    if (!c.priced) return null;
+    return el("section", { class: "panel price" }, el("div", { class: "price-main" },
+      el("span", { class: "price-amt", text: `≈ ${PR.money(c.total)}` }), el("span", { text: c.missing ? ` for the ${c.priced} item${c.priced === 1 ? "" : "s"} with a price (${c.missing} without)` : " for this meal" })));
+  }
+
   // ---------- compare ----------
   const CMP_ROWS = [
     ["Calories", "cal", "", null], ["Protein", "pro", " g", "more"], ["Fiber", "fib", " g", "more"],
@@ -247,6 +292,13 @@
         const win = !unknown && dir && V.meaningfulDiff(k, x, y) ? ((dir === "more") === (x > y) ? 0 : 1) : -1;
         const cell = (food, i) => el("td", { class: win === i ? "win" : null, text: amt(food, k, unit) });
         tbody.append(el("tr", {}, el("td", { text: label }), cell(a, 0), cell(b, 1)));
+      }
+      // Price per serving, when both have one (lower highlighted when at least 10% and 5¢ apart).
+      const pa = PR && PR.price({ ...f, mult }, myPrices), pb = PR && PR.price(compareWith, myPrices);
+      if (pa && pb) {
+        const x = cmpBasis === "kcal" && a !== f ? pa.perServing * 100 / f.cal : pa.cost, y = cmpBasis === "kcal" && b !== compareWith ? pb.perServing * 100 / compareWith.cal : pb.cost;
+        const win = Math.abs(x - y) >= Math.max(0.05, 0.1 * Math.max(x, y)) ? (x < y ? 0 : 1) : -1;
+        tbody.append(el("tr", {}, el("td", { text: "Typical price" }), el("td", { class: win === 0 ? "win" : null, text: PR.money(x) }), el("td", { class: win === 1 ? "win" : null, text: PR.money(y) })));
       }
       sec.append(el("div", { class: "ctable-wrap" }, el("table", { class: "ctable" }, thead, tbody)),
         el("p", { class: "legend", text: a.s === "100 calories" ? "Green marks a meaningful difference (at least 10% apart and 5% of the daily value). Per 100 calories shows nutrient density: what you get for the same calories." : "Green marks a meaningful difference (at least 10% apart and 5% of the daily value). Servings differ, so compare against how much you'd actually eat, or switch to per 100 calories." }),
@@ -309,6 +361,7 @@
         el("div", { class: "side" },
           el("div", { class: "tag " + a.tier }, el("div", { class: "for", text: isPlate ? "For you · whole meal" : "For you" }), el("div", { class: "verdict", text: a.word }), a.spicy ? el("span", { class: "vp spicy flag", text: "Spicy" }) : null, el("p", { class: "why", text: a.why }),
             mult !== 1 ? el("p", { class: "per", text: "The verdict is for one standard serving; the label and bars show your amount." }) : null),
+          isPlate ? renderPlatePrice() : renderPrice(f),
           renderBars(scaled),
           isPlate ? null : renderSwaps(f),
           el("section", { class: "panel" }, el("h3", { text: "Why" }), reasons),
@@ -332,6 +385,7 @@
   function pick(f, opts = {}) {
     if (current && (current.n !== f.n || current.c === "plate")) { mult = 1; explainKey = null; if (compareWith && compareWith.n === f.n) compareWith = null; }
     closestFor = opts.closest ? { n: f.n, text: opts.closest, link: opts.fromLink } : null;
+    if (!current || current.n !== f.n) priceEditing = null;
     $("q").value = opts.closest || f.n; $("suggest").hidden = true;
     renderResult(f);
     if (!opts.noRecent) addRecent(f);
@@ -463,7 +517,9 @@
         el("button", { class: "linkish", type: "button", text: "Remove", "aria-label": `Remove ${item.n} from plate`, onclick: () => { plate = plate.filter(x => x !== item); afterPlateChange(); } })));
     }
     const tot = (k, unit, word) => V.isMissing(pf, k) ? `${word} not reported` : `${V.isLowerBound(pf, k) ? "at least " : ""}${amt({ ...pf, atLeast: [] }, k, unit)} ${word}`;
-    box.append(el("p", { class: "ptotal" }, `Total: ${tot("cal", " cal", "").trim()} · ${tot("pro", " g", "protein")} · ${tot("sat", " g", "saturated fat")} · ${tot("na", " mg", "sodium")} `, pill(V.assess(pf, profile))));
+    const pc = PR ? PR.plateCost(plate.map(i => ({ food: byName(i.n), mult: i.mult })).filter(i => i.food), myPrices) : null;
+    const costText = pc && pc.priced ? ` · ≈ ${PR.money(pc.total)}${pc.missing ? ` (${pc.missing} item${pc.missing === 1 ? "" : "s"} unpriced)` : ""}` : "";
+    box.append(el("p", { class: "ptotal" }, `Total: ${tot("cal", " cal", "").trim()} · ${tot("pro", " g", "protein")} · ${tot("sat", " g", "saturated fat")} · ${tot("na", " mg", "sodium")}${costText} `, pill(V.assess(pf, profile))));
   }
 
   // ---------- learn mode ----------
@@ -518,7 +574,7 @@
   let browseCat = "all";
   let browseSort = store.get("browseSort", "az");
   let browseBasis = store.get("browseBasis", "serving");
-  const SORTS = [{ id: "az", label: "A–Z" }, { id: "worst", label: "Least healthy first" }, { id: "best", label: "Healthiest first" }];
+  const SORTS = [{ id: "az", label: "A–Z" }, { id: "worst", label: "Least healthy first" }, { id: "best", label: "Healthiest first" }, { id: "value", label: "Most protein per $" }];
   function renderBrowse() {
     $("browseCount").textContent = foodCountText();
     if (!$("browse").open) return; // built when the panel is opened
@@ -529,18 +585,22 @@
     const sorts = $("bsort");
     sorts.replaceChildren(el("span", { class: "lbl", text: "Sort" }));
     for (const s of SORTS) sorts.append(el("button", { class: "chip" + (s.id === browseSort ? " on" : ""), type: "button", "aria-pressed": s.id === browseSort ? "true" : "false", text: s.label, onclick: () => { browseSort = s.id; store.set("browseSort", s.id); renderBrowse(); } }));
-    const ranked = browseSort !== "az";
+    const ranked = browseSort !== "az", byValue = browseSort === "value";
     $("bsortNote").hidden = !ranked;
     const basis = $("bbasis");
-    basis.hidden = !ranked;
+    basis.hidden = !ranked || byValue;
     basis.replaceChildren(el("span", { class: "lbl", text: "Basis" }), ...[["serving", "Per serving"], ["kcal", "Per 100 calories"]].map(([id, label]) =>
       el("button", { class: "chip" + (browseBasis === id ? " on" : ""), type: "button", "aria-pressed": browseBasis === id ? "true" : "false", text: label, onclick: () => { browseBasis = id; store.set("browseBasis", id); renderBrowse(); } })));
     $("bsortNote").textContent = browseBasis === "kcal"
       ? `Ranked by nutrient density: 100 calories' worth of each food, scored by the same rules as the verdict (lower is less healthy). Foods under ${V.KCAL_MIN} calories per serving keep their per-serving score.`
       : "Ranked per serving by the same score behind each verdict (lower is less healthy), then by how much of your saturated fat, sodium and added-sugar limits one serving uses.";
 
-    const rows = allFoods().filter(f => browseCat === "all" || f.c === browseCat).map(f => ({ f, v: V.assess(f, profile), h: V.health(f, profile, browseBasis) }));
-    if (browseSort === "az") rows.sort((x, y) => x.f.n.localeCompare(y.f.n));
+    if (byValue) $("bsortNote").textContent = `Grams of protein a dollar buys, at typical prices (or yours). Only priced foods that are real protein sources (at least 5 g and 20% of calories from protein) are listed. Prices: BLS ${PR.meta.bls}, produce from USDA ERS adjusted to ${PR.meta.cpi}.`;
+    let rows = allFoods().filter(f => browseCat === "all" || f.c === browseCat).map(f => ({ f, v: V.assess(f, profile), h: V.health(f, profile, browseBasis) }));
+    if (byValue) {
+      rows = rows.map(r => { const p = PR.price(r.f, myPrices); const val = PR.value(r.f, p); return { ...r, p, val }; }).filter(r => r.val && r.val.k === "pro");
+      rows.sort((x, y) => y.val.v - x.val.v || x.f.n.localeCompare(y.f.n));
+    } else if (browseSort === "az") rows.sort((x, y) => x.f.n.localeCompare(y.f.n));
     else {
       const dir = browseSort === "worst" ? 1 : -1;
       rows.sort((x, y) => dir * (x.h.score - y.h.score) || dir * (y.h.harm - x.h.harm) || x.f.n.localeCompare(y.f.n));
@@ -549,6 +609,8 @@
     list.classList.toggle("ranked", ranked);
     list.replaceChildren(...rows.map((r, i) => {
       const name = el("span", {}, ranked ? el("span", { class: "rank", text: `${i + 1}.` }) : null, r.f.n);
+      if (byValue) return el("button", { class: "bitem", type: "button", onclick: () => pick(r.f, { scroll: true }) }, name,
+        el("span", { class: "bright" }, el("span", { class: "score", title: `${PR.money(r.p.perServing)} per serving`, text: `${Math.round(r.val.v)} g/$` }), pill(r.v)));
       const right = el("span", { class: "bright" }, ranked ? el("span", { class: "score", title: browseBasis === "kcal" && r.h.scaled ? "Health score per 100 calories (higher is better)" : "Health score per serving (higher is better)", text: (r.h.score > 0 ? "+" : "") + r.h.score }) : null, pill(r.v));
       return el("button", { class: "bitem", type: "button", onclick: () => pick(r.f, { scroll: true }) }, name, right);
     }));
