@@ -30,6 +30,9 @@ export const PRICE_MAP = {
   "Pork chop, boneless": { bls: "704212", buy: COOKED_MEAT },
   "Pork tenderloin": { bls: "704212", buy: COOKED_MEAT, approx: "priced as boneless pork chops" },
   "Chicken breast, grilled": { bls: "FF1101", buy: COOKED_MEAT },
+  // Bone-in legs: about 30% bone and skin, then cooked ≈ 75% of raw.
+  "Chicken thigh, skinless": { bls: "706212", buy: Math.round(COOKED_MEAT / 0.7), approx: "priced as bone-in chicken legs" },
+  "Deli ham": { bls: "704312", approx: "priced as boneless ham; sliced deli ham usually costs more" },
   // Eggs and dairy
   "Eggs": { bls: "708111", n: 1 },
   "Egg whites": { bls: "708111", n: 3 },
