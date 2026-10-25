@@ -1,4 +1,4 @@
-﻿Fruit,Form,AverageRetailPrice,AverageRetailPriceUnitOfMeasure,PreparationYieldFactor,SizeOfACupEquivalent ,CupEquivalentUnitOfMeasure,AveragePricePerCupEquivalent
+Fruit,Form,AverageRetailPrice,AverageRetailPriceUnitOfMeasure,PreparationYieldFactor,SizeOfACupEquivalent ,CupEquivalentUnitOfMeasure,AveragePricePerCupEquivalent
 Apples,Fresh,1.86093095,per pound,0.9,0.2425,pounds,0.501435057
 "Apples, applesauce",Canned,1.208099427,per pound,1,0.5401,pounds,0.652533815
 "Apples, ready to drink",Juice,0.951115064,per pint (16 fluid ounces ready to drink),1,0.5,pints,0.475557532

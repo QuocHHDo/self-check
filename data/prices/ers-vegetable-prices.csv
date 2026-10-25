@@ -1,4 +1,4 @@
-﻿Vegetable,Form,AverageRetailPrice,AverageRetailPriceUnitOfMeasure,PreparationYieldFactor,SizeOfACupEquivalent ,CupEquivalentUnitOfMeasure,AveragePricePerCupEquivalent
+Vegetable,Form,AverageRetailPrice,AverageRetailPriceUnitOfMeasure,PreparationYieldFactor,SizeOfACupEquivalent ,CupEquivalentUnitOfMeasure,AveragePricePerCupEquivalent
 Acorn squash,Fresh,1.241438589,per pound,0.4586,0.4519,pounds,1.223533225
 Artichoke,Fresh,2.506855868,per pound,0.375,0.3858,pounds,2.080460852
 Artichoke,Canned,3.505101483,per pound,0.65,0.3858,pounds,2.579113206
