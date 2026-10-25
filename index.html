@@ -302,6 +302,13 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
 .additives .ingr summary { cursor: pointer; color: var(--ink); font-weight: 600; }
 .suggest li.action { color: var(--accent); font-weight: 600; border-top: 1px solid var(--line); }
 .results .rname { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.panel.price { gap: 4px; }
+.price-main { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 6px; font-size: 15px; }
+.price-amt { font: 800 22px var(--font-display); }
+.price-val { color: var(--good); font-weight: 600; }
+.price-edit { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
+.price-edit input { width: 110px; font: 500 15px var(--font-body); color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
+.price-edit input[aria-invalid="true"] { border-color: var(--bad); }
 </style>
 </head>
 <body>
@@ -404,6 +411,8 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
 
 <script>window.SELF_CHECK_CONFIG = { mode: "pages" };</script>
 <script src="js/foods.js"></script>
+<script src="js/prices-data.js"></script>
+<script src="js/prices.js"></script>
 <script src="js/additives-data.js"></script>
 <script src="js/additives.js"></script>
 <script src="js/verdict.js"></script>

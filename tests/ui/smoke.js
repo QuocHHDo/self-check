@@ -88,7 +88,7 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
   type("#cmpq", "chicken breast");
   const li = $(".compare .suggest li"); ok(!!li, "compare search suggests foods");
   li.dispatchEvent(new w.MouseEvent("mousedown", { bubbles: true }));
-  ok($$(".ctable tbody tr").length === 10 && $$(".ctable td.win").length > 0, "compare table renders with winners marked");
+  ok($$(".ctable tbody tr").length === 11 && $$(".ctable tbody tr").pop().textContent.startsWith("Typical price") && $$(".ctable td.win").length > 0, "compare table renders with winners marked");
 
   const firstSwap = w.SelfCheckData.FOODS.find(f => f.n === swaps[0]);
   click($$(".swap")[0]);
@@ -235,6 +235,7 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
   click(btn("2", $(".serving"))); click(btn("Add 2 to plate", $("#out")));
   $("#q").value = "Brown rice"; submit("#form"); click(btn("Add 1 to plate", $("#out")));
   ok(/2 items/.test(text("#plateCount")), `plate has two items (${text("#plateCount")})`);
+  ok(/≈ \$\d+\.\d\d/.test(text("#plateItems .ptotal")), `plate total includes a typical cost (${text("#plateItems .ptotal")})`);
   click($("#plateView"));
   ok(text("#out h2") === "Your plate" && /whole meal/.test(text(".tag")) && Number(text(".label .cal .v")) === Math.round(187 * 2 + 218), `plate verdict with summed calories (${text(".label .cal .v")})`);
   ok(!$("#out .swap") && !$("#cmpq"), "plate view hides swaps and compare");
@@ -259,6 +260,29 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
   const nullText = (root = w.document.body) => [root, ...root.querySelectorAll("*")].some(e => [...e.childNodes].some(n => n.nodeType === 3 && /^\s*(null|undefined)\s*$|\bnull\b|\bundefined\b/.test(n.textContent)));
   ok(!nullText(w.document.getElementById("quiz")), "quiz never renders the text null");
   ok(!nullText(), "no null or undefined text anywhere on the page");
+  // Prices: typical price and value on the result, your own price, compare row, value sort, plate total.
+  w.localStorage.removeItem("myPrices");
+  $("#q").value = "Eggs"; submit("#form");
+  const PD = w.SelfCheckPricesData.foods.Eggs;
+  ok(new RegExp(`≈ \\$${PD[0].toFixed(2)} per serving`).test(text(".price")) && /g protein per \$1/.test(text(".price")) && /per dozen · BLS average price/.test(text(".price")), `price panel (${text(".price")})`);
+  click(btn("Use my store's price", $(".price")));
+  $("#myPrice").value = "3.60"; click(btn("Save", $(".price")));
+  ok(/≈ \$0\.30 per serving/.test(text(".price")) && /Your price: \$3\.60 per dozen/.test(text(".price")), `your own price per dozen (${text(".price")})`);
+  ok(JSON.parse(w.localStorage.getItem("myPrices")).Eggs.unit === 3.6, "your price is saved");
+  click(btn("2", $(".serving")));
+  ok(/≈ \$0\.60 for 2 servings/.test(text(".price")), `price follows servings (${text(".price").slice(0, 40)})`);
+  click(btn("Use typical price", $(".price")));
+  ok(!/Your price/.test(text(".price")), "back to the typical price");
+  $("#q").value = "Hummus"; submit("#form");
+  ok(/No typical price/.test(text(".price")) && !!btn("Add my price", $(".price")), "foods without a series say so and accept your price");
+  $("#q").value = "Chicken breast, grilled"; submit("#form");
+  type("#cmpq", "ground beef 80/20"); $(".compare .suggest li").dispatchEvent(new w.MouseEvent("mousedown", { bubbles: true }));
+  ok($$(".ctable tr").some(r => /^Typical price\$/.test(r.textContent)), "compare shows typical price");
+  $("#browse").open = true; await tick(5);
+  click(btn("All", $("#cats"))); click(btn("Most protein per $", $("#bsort")));
+  const firstVal = $("#blist .bitem");
+  ok(/g\/\$/.test(firstVal.textContent) && /protein a dollar buys/.test(text("#bsortNote")), `protein-per-dollar sort (${firstVal.textContent})`);
+  click(btn("A–Z", $("#bsort"))); $("#browse").open = false;
   // 16. Small fixes
   $("#q").value = "Avocado"; submit("#form");
   type("#cmpq", "salmon"); $(".compare .suggest li").dispatchEvent(new w.MouseEvent("mousedown", { bubbles: true }));
