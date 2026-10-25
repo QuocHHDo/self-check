@@ -73,5 +73,15 @@
   }
   const walmartSearch = q => "https://www.walmart.com/search?q=" + encodeURIComponent(q);
 
-  return { headline, limitBars, reasons, swap, searchName, walmartSearch };
+  // What a dollar buys, by the app's rule (js/prices.js value): protein when the food is a real protein source
+  // (at least 5 g and 20% of calories), else fiber when it's a good source (2.8 g+).
+  function perDollar(f, cost) {
+    if (!(cost > 0) || !f) return null;
+    if ((f.pro || 0) >= 5 && f.cal > 0 && f.pro * 4 / f.cal >= 0.2) return `${Math.round(f.pro / cost)} g protein per $1`;
+    if ((f.fib || 0) >= 2.8) return `${Math.round(f.fib / cost * 10) / 10} g fiber per $1`;
+    return null;
+  }
+  const money = v => `$${v.toFixed(2)}`;
+
+  return { headline, limitBars, reasons, swap, searchName, walmartSearch, perDollar, money };
 });

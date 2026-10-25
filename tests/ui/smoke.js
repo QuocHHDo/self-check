@@ -400,8 +400,9 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
   if (MODE === "pages") {
     const B = w.SelfCheckBackup, { data } = require("../fixtures/walmart-compact.js");
     const before = JSON.parse(w.localStorage.getItem("grocery") || "[]").length;
-    const add = await B.encode(B.packAdd([{ n: "Great Value Creamy Peanut Butter, 40 oz", food: { n: "x", s: "2 tbsp (32 g)", cal: 180, fat: 16, sat: 3, trans: 0, chol: 0, na: 135, carb: 7, fib: 2, sug: 3, add: 2, pro: 7, src: "walmart", missing: [] } }, { n: "Banana", qty: 2 }]));
-    w.location.hash = "#add=" + add; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(8);
+    const add = await B.encode(B.packAdd([{ n: "Great Value Creamy Peanut Butter, 40 oz", food: { n: "x", s: "2 tbsp (32 g)", cal: 180, fat: 16, sat: 3, trans: 0, chol: 0, na: 135, carb: 7, fib: 2, sug: 3, add: 2, pro: 7, src: "walmart", missing: [], storePrice: { perServing: 0.113, item: 3.98, unitText: "10.0 ¢/oz", store: "Walmart", on: "2026-10-25" } } }, { n: "Banana", qty: 2 }]));
+    w.location.hash = "#add=" + add; w.dispatchEvent(new w.HashChangeEvent("hashchange"));
+    for (let i = 0; i < 100 && !text("#addPreview"); i++) await tick(2); // decoding a compressed link is async
     ok(!$("#glistBox").hidden && /Add 2 items from the browser extension/.test(text("#addPreview")), `#add= opens the list with a preview (${text("#addPreview").slice(0, 60)})`);
     ok(JSON.parse(w.localStorage.getItem("grocery") || "[]").length === before, "nothing is added before you confirm");
     click(btn("Add to my list", $("#addPreview"))); await tick(2);
@@ -409,10 +410,12 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
     ok(gl.some(x => x.n === "Great Value Creamy Peanut Butter, 40 oz") && gl.find(x => x.n === "Banana").qty === 2, "confirmed items join the list (with quantity)");
     const pbRow = $$("#glistItems .lrow").find(r => /Great Value Creamy Peanut Butter/.test(r.textContent));
     ok(pbRow && /In moderation/i.test(pbRow.textContent), `the store product keeps its label values and verdict (${pbRow && pbRow.textContent.slice(0, 80)})`);
+    ok(pbRow && /\$3\.98/.test(pbRow.textContent) && !/no typical price/.test(pbRow.textContent), `the list row uses Walmart's item price (${pbRow && pbRow.textContent.slice(0, 90)})`);
     // Bookmarklet: a product read from a Walmart page opens with its verdict.
     const payload = JSON.stringify({ app: "should-i-buy-it", v: 1, kind: "walmart", data: data("chobani greek yogurt") });
     w.location.hash = "#wm=j." + Buffer.from(payload).toString("base64url"); w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(8);
     ok(/Chobani Non-Fat Greek Yogurt/.test(text("#out h2")) && /Get it/.test(text(".tag .verdict")) && /Walmart's Nutrition Facts panel/.test(text(".src")), `#wm= shows the Walmart product's verdict (${text("#out h2")})`);
+    ok(/Walmart's price/.test(text("#out")) && /\$1\.12 per serving/.test(text("#out")) && /\$5\.97/.test(text("#out")), `#wm= shows the price from the Walmart page (${(text("#out").match(/≈[^.]*\.[^.]*/) || [""])[0].slice(0, 90)})`);
     click($('#tabs [data-view="goals"]'));
     ok(/^javascript:/.test($("#bmLink").getAttribute("href")) && !!$("#bmCopy"), "Goals offers the phone bookmark");
     click($('#tabs [data-view="check"]'));

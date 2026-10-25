@@ -13,7 +13,10 @@ const EXT = path.join(ROOT, "extension");
 const PAGES = require(path.join(ROOT, "tests/fixtures/walmart-pages.json")).pages;
 const BY_ID = { "363183524": "cheerios", "10450115": "milk", "5072512866": "oikos", "10315479": "peanut-butter", "51259338": "banana", "12166733": "coke", "99999999": "cable" };
 PAGES.cable = { props: { pageProps: { initialData: { data: { product: { usItemId: "99999999", name: "HDMI Cable, 6 ft", upc: "012345678905", category: { path: [{ name: "Electronics" }] } }, idml: { nutritionFacts: null } } } } } };
-const pageHtml = k => `<!doctype html><html><head><title>${k}</title></head><body><h1>${k}</h1><script id="__NEXT_DATA__" type="application/json">${JSON.stringify(PAGES[k])}</script></body></html>`;
+// Prices as shown on the real pages (Oct 25, 2026).
+const withPrice = (k, now, perUnit, text) => { PAGES[k].props.pageProps.initialData.data.product.priceInfo = { currentPrice: { price: now }, unitPrice: { price: perUnit, priceString: text } }; };
+withPrice("peanut-butter", 3.98, 0.1, "10.0 ¢/oz"); withPrice("cheerios", 4.97, 0.276, "27.6 ¢/oz");
+const pageHtml = k => `<!doctype html><html><head><meta charset="utf-8"><title>${k}</title></head><body><h1>${k}</h1><script id="__NEXT_DATA__" type="application/json">${JSON.stringify(PAGES[k])}</script></body></html>`;
 // Open Food Facts record for the peanut butter's barcode. Values and the other store's brand name are as in the card the
 // user saw on a real page (Oct 25, 2026): a barcode record can carry another store's name.
 const OFF_PB = { status: 1, product: { product_name: "Hannaford Peanut butter", serving_size: "2 tbsp. (32 g)", serving_quantity: 32,
@@ -70,6 +73,7 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     await page.waitForFunction(() => /Cheerios/.test(document.getElementById("should-i-buy-it-card").shadowRoot.textContent), null, { timeout: 10000 });
     t = await card();
     ok(/In moderation/.test(t) && /A good fiber source, but 20% of your added-sugar limit\./.test(t), `Cheerios: headline names the trade-off (${t.slice(0, 120)})`);
+    ok(/≈ \$0\.\d\d a serving at Walmart's price \(27\.6 ¢\/oz\) · [\d.]+ g fiber per \$1/.test(t), `Cheerios: cost per serving from Walmart's unit price (${(t.match(/≈[^·]+·[^A-Z]+/) || [""])[0]})`);
     const swapHref = await page.evaluate(() => { const a = [...document.getElementById("should-i-buy-it-card").shadowRoot.querySelectorAll(".swap a")][0]; return a && a.href; });
     ok(/TRY INSTEAD Toasted oat cereal, plain GET IT/i.test(t) && swapHref === "https://www.walmart.com/search?q=toasted%20oat%20cereal", `Try instead links to a Walmart search (${swapHref})`);
 
@@ -77,6 +81,7 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     t = await card();
     ok(/Great Value Creamy Peanut Butter, 40 oz/.test(t) && !/Hannaford Peanut butter Mostly/.test(t), `shows Walmart's product name, not the barcode record's (${t.slice(0, 90)})`);
     ok(/Mostly healthy fats, but 15% of your saturated-fat limit\./.test(t) && /Sat fat 3 g · 15%/.test(t) && /Sodium 135 mg · 6%/.test(t), `peanut butter: one-line reason and bars (${t.slice(0, 200)})`);
+    ok(/≈ \$0\.11 a serving at Walmart's price \(10\.0 ¢\/oz\)/.test(t) && !/per \$1/.test(t), `peanut butter: price row without a per-dollar line (${(t.match(/≈[^+]*/) || ["none"])[0]})`);
     ok(/2 more notes/.test(t) && !/Ultra-processed/.test(t) && /TRY INSTEAD Powdered peanut butter/i.test(t), "secondary notes are folded away; a swap is offered");
     await click(".foot details > summary");
     t = await card();
@@ -101,6 +106,8 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     ok(/^Get it/.test(t) && (await box()).chip, `stays compact after minimizing (${t})`);
     await click(".chip"); t = await card();
     ok(/Marketside Fresh Organic Bananas/.test(t) && /From typical banana/.test(t), `produce: Walmart's name, typical values by name match (${t.slice(0, 140)})`);
+
+    ok(!/a serving at Walmart's price/.test(t), "no price on the page, no price row");
 
     await page.goto("https://www.walmart.com/ip/Coca-Cola-Fridge-Pack/12166733");
     t = await card();

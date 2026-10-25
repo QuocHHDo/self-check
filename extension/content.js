@@ -131,6 +131,7 @@
   .lbtn { all: unset; cursor: pointer; font: 600 12.5px system-ui, sans-serif; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
   .lbtn.on { background: var(--good-soft); color: var(--good); border-color: transparent; }
   .lbtn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .pricerow { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; } .pricerow b { color: var(--ink); } .pricerow .pd { color: var(--good); font-weight: 600; }
   .sendrow { background: var(--good-soft); border-radius: 10px; padding: 7px 10px; font-size: 13px; }`;
   const el = (tag, attrs = {}, ...kids) => {
     const e = document.createElement(tag);
@@ -206,6 +207,8 @@
         el("p", { class: "headline", text: headline }),
         el("div", { class: "bars", role: "group", "aria-label": "Share of your daily limits" }, ...bars),
         el("div", { class: "factrow" }, el("span", { class: "facts", text: facts }), listBtn),
+        f.storePrice && f.storePrice.perServing ? el("div", { class: "pricerow" }, el("b", { text: `≈ ${C.money(f.storePrice.perServing)} a serving` }),
+          ` at Walmart's price${f.storePrice.unitText ? ` (${f.storePrice.unitText})` : ""}`, C.perDollar(f, f.storePrice.perServing) ? el("span", { class: "pd", text: ` · ${C.perDollar(f, f.storePrice.perServing)}` }) : null) : null,
         why.top.length ? el("ul", {}, ...why.top.map(reasonItem)) : null,
         why.rest.length ? el("details", {}, el("summary", { text: `${why.rest.length} more note${why.rest.length === 1 ? "" : "s"}` }), el("ul", {}, ...why.rest.map(reasonItem))) : null,
         sw ? el("div", { class: "swap" }, el("span", { class: "lbl", text: "Try instead" }),
@@ -333,6 +336,9 @@
       if (mine !== run) return;
       if (!r) return unmount();
       if (r.none) return renderNone(r.none);
+      // Walmart's own price for this item, per serving (from the page's unit price and the serving size).
+      const cost = W.servingCost(prod.price, r.food);
+      if (prod.price && (cost || prod.price.now)) r.food = { ...r.food, storePrice: { perServing: cost, item: prod.price.now, unitText: prod.price.text, store: "Walmart", on: new Date().toISOString().slice(0, 10) } };
       renderVerdict(r, prod, p, collapsed);
     } catch {
       if (mine === run) renderNone("Couldn't read this page. Reload it to try again.");

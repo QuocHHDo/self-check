@@ -71,3 +71,17 @@ test("non-food pages and empty panels get no verdict", () => {
   assert.equal(W.fromPanel({ name: "x", nutrition: { calorieInfo: null, keyNutrients: null } }), null);
   assert.equal(W.nextData("<html>no data</html>"), null);
 });
+
+test("Walmart's own price: unit price → cost per serving (real prices captured Oct 25, 2026)", () => {
+  const { data } = require("./fixtures/walmart-compact.js");
+  const cost = k => { const p = W.product(data(k)), pl = W.plan(p); return W.servingCost(p.price, pl.food || W.byName(pl.query, FOODS)); };
+  assert.equal(cost("chobani greek yogurt"), 1.121, "18.7¢/oz × 170 g");
+  assert.equal(cost("great value large white eggs 12 count"), 0.123, "7¢/oz × 50 g: about $1.67 ÷ 12");
+  assert.equal(cost("great value orange juice"), 0.617, "7.6¢/fl oz × 240 mL");
+  assert.equal(cost("great value ground beef 80/20"), 1.248, "$4.99/lb × 113.4 g");
+  assert.equal(cost("fresh strawberries"), 0.885, "produce matched by name uses the food's serving: 16.5¢/oz × 152 g");
+  assert.deepEqual(W.product(data("great value orange juice")).price, { now: 3.96, perUnit: 0.076, unit: "fl oz", text: "7.6 ¢/fl oz" });
+  assert.equal(W.servingCost(W.priceOf({ currentPrice: { price: 198 } }), { s: "1 cup (30g)" }), null, "no unit price, no per-serving cost");
+  assert.equal(W.servingCost({ perUnit: 0.2, unit: "ct", text: "20 ¢/ct" }, { s: "1 egg (50g)" }), null, "count units aren't converted");
+  assert.equal(W.priceOf({ currentPrice: { price: -1 }, unitPrice: { price: "x" } }), null);
+});

@@ -94,7 +94,8 @@
     for (const it of items || []) {
       if (!it || !it.n) continue;
       grocery.push({ n: it.n, done: false, ...(it.qty > 1 ? { qty: it.qty } : {}) });
-      if (it.food) lookups.push({ ...it.food, n: it.n });
+      // A store price travels as plain fields (backups keep only plain values).
+      if (it.food) { const { storePrice: sp, ...food } = it.food; lookups.push({ ...food, n: it.n, ...(sp ? { spServing: sp.perServing || undefined, spItem: sp.item || undefined, spUnit: sp.unitText || undefined, spStore: sp.store, spOn: sp.on } : {}) }); }
     }
     return { app: APP, v: VERSION, kind: "add", saved: now.toISOString(), data: { grocery, ...(lookups.length ? { lookups } : {}) } };
   }

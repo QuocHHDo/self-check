@@ -29,7 +29,32 @@
       // Fresh produce pages sometimes hold a recipe or a seller's note here, not ingredients.
       ingredients: ing && typeof ing.value === "string" && !((p.category && p.category.path) || []).some(c => c && /fresh produce/i.test(c.name)) ? ing.value : "",
       nutrition: idml.nutritionFacts || null,
+      price: priceOf(p.priceInfo),
     };
+  }
+
+  // Walmart's price on the page: { now: $ for the item, perUnit: $ per unit, unit: "oz" | "fl oz" | "lb" | …, text }.
+  // The unit price ("18.7 ¢/oz", "$4.99/lb") is what makes a per-serving cost work for multipacks and big jars.
+  function priceOf(pi) {
+    if (!pi || typeof pi !== "object") return null;
+    const now = pi.currentPrice && Number(pi.currentPrice.price);
+    const up = pi.unitPrice || {};
+    const unit = (String(up.priceString || "").match(/\/\s*([a-z ]+?)\s*$/i) || [])[1];
+    const perUnit = Number(up.price);
+    const ok = x => Number.isFinite(x) && x > 0 && x < 10000;
+    if (!ok(now) && !ok(perUnit)) return null;
+    return { now: ok(now) ? now : null, perUnit: ok(perUnit) && unit ? perUnit : null, unit: unit ? unit.toLowerCase() : null, text: ok(perUnit) && unit ? String(up.priceString).trim() : "" };
+  }
+  // Cost of one serving from the unit price and the serving's grams or millilitres ("3/4 cup (170g)", "1 cup (240mL)").
+  const PER = { oz: ["g", 28.3495], lb: ["g", 453.592], "fl oz": ["ml", 29.5735], kg: ["g", 1000], g: ["g", 1], l: ["ml", 1000], ml: ["ml", 1] };
+  function servingCost(price, f) {
+    if (!price || !price.perUnit || !price.unit || !PER[price.unit] || !f) return null;
+    const m = [...String(f.s || "").matchAll(/(\d+(?:\.\d+)?)\s*(g|ml)\b/gi)].pop();
+    if (!m) return null;
+    const amount = Number(m[1]) * (f.mult || 1), [kind, size] = PER[price.unit];
+    // Liquids priced per fl oz with a serving in grams (or the reverse): close enough to count 1 g as 1 ml.
+    const cost = price.perUnit * amount / size;
+    return Number.isFinite(cost) && cost > 0 ? Math.round(cost * 1000) / 1000 : null;
   }
 
   // "1.5g" → { v: 1.5, u: "g" }; "<1g" and "less than 1g" → half the bound; "140" → { v: 140, u: "" }.
@@ -129,5 +154,5 @@
     return r.kind === "open" || r.kind === "closest" ? r.food : null;
   }
 
-  return { productId, nextData, product, amount, keyOf, rows, fromPanel, plan, produceQuery, byName, isPlu, isWeighed, shortName };
+  return { priceOf, servingCost, productId, nextData, product, amount, keyOf, rows, fromPanel, plan, produceQuery, byName, isPlu, isWeighed, shortName };
 });

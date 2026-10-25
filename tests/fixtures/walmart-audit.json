@@ -1,5 +1,5 @@
 {
- "_note": "Real Walmart product-page data captured Oct 25, 2026 from 41 searches (first result each). Compact form; tests/fixtures/walmart-compact.js rebuilds the page data. Vitamin/mineral rows trimmed except a few unusual ones kept for parser coverage.",
+ "_note": "Real Walmart product-page data captured Oct 25, 2026 from 41 searches (first result each). Compact form; tests/fixtures/walmart-compact.js rebuilds the page data. Vitamin/mineral rows trimmed except a few unusual ones kept for parser coverage. Prices (price: [item $, unit price text, $ per unit]) were captured the same day for seven of them.",
  "products": {
   "frosted flakes": {
    "h": "2339641206 ¦ Kellogg's Frosted Flakes Original Breakfast Cereal, Fat Free, Mega Size, 30.6  oz ¦ 041192100116 ¦ Frosted Flakes ¦ Food > Pantry > Pantry meal essentials",
@@ -118,6 +118,11 @@
     "k4|Protein|1g|",
     "serv|Servings Per Container|about 20|",
     "serv|Serving Size|3 cookies (34g)|"
+   ],
+   "price": [
+    5.98,
+    "24.8 ¢/oz",
+    0.248
    ]
   },
   "nature valley oats n honey bars": {
@@ -231,6 +236,11 @@
     "k8|Vitamin C|72mg|80%",
     "serv|Servings Per Container|about 7|",
     "serv|Serving Size|8fl oz (240mL)|"
+   ],
+   "price": [
+    3.96,
+    "7.6 ¢/fl oz",
+    0.076
    ]
   },
   "great value large white eggs 12 count": {
@@ -251,6 +261,11 @@
     "k9|Vit. D|6|",
     "serv|Servings Per Container|12|",
     "serv|Serving Size|1 egg (50g)|"
+   ],
+   "price": [
+    1.67,
+    "7.0 ¢/oz",
+    0.07
    ]
   },
   "great value shredded mozzarella": {
@@ -289,6 +304,11 @@
     "k6|Protein|16g|32%",
     "serv|Servings Per Container|About 5|",
     "serv|Serving Size|3/4 cup (170g)|"
+   ],
+   "price": [
+    5.97,
+    "18.7 ¢/oz",
+    0.187
    ]
   },
   "great value salted butter": {
@@ -324,6 +344,11 @@
     "k8|Iron||15%",
     "serv|Servings Per Container|12|",
     "serv|Serving Size|1 patty (4oz/113.4g)|"
+   ],
+   "price": [
+    14.97,
+    "$4.99/lb",
+    4.99
    ]
   },
   "tyson chicken nuggets": {
@@ -507,7 +532,12 @@
   "gatorade lemon lime": {
    "h": "10449239 ¦ Gatorade Thirst Quencher Electrolyte Sports Drink, Lemon Lime, 12 fl oz, 12 Count Bottle ¦ 052000121780 ¦ Gatorade ¦ Food > Beverages > Sports Drinks > Gatorade",
    "ing": "Water, Sugar, Dextrose, Citric Acid, Salt, Sodium Citrate, Monopotassium Phosphate, Gum Arabic, Glycerol Ester Of Rosin, Natural Flavor, Yellow 5.",
-   "rows": []
+   "rows": [],
+   "price": [
+    7.97,
+    "5.5 ¢/fl oz",
+    0.055
+   ]
   },
   "bodyarmor sports drink": {
    "h": "608336571 ¦ BODYARMOR Strawberry Banana Sports Drink Bottles, 12 fl oz, 8 Pack ¦ 858176002829 ¦ BODYARMOR ¦ Food > Beverages > Sports Drinks > Sports Drinks",
@@ -562,7 +592,12 @@
   "fresh strawberries": {
    "h": "44391605 ¦ Fresh Strawberries, 1 lb Container ¦ 071430007525 ¦ Fresh Produce ¦ Food > Fresh Produce > Fresh Fruits > Berries",
    "ing": "Strawberries",
-   "rows": []
+   "rows": [],
+   "price": [
+    2.64,
+    "16.5 ¢/oz",
+    0.165
+   ]
   },
   "russet potatoes 5 lb": {
    "h": "10447837 ¦ Fresh Whole Russet Potatoes , 5 lb Bag ¦ 033383530109 ¦ Fresh Produce ¦ Food > Fresh Produce > Fresh Vegetables > Potatoes",

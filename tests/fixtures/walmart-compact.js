@@ -1,7 +1,7 @@
 // Rebuilds Walmart page data ({ product, idml }) from the compact captured form in walmart-audit.json.
 // Row tags: cal; kN (key nutrient N); kN+ (child of value N); kN+> (child of that child); kN> (child of the main nutrient); serv.
 const nut = (name, amount, dvp) => ({ name, amount, dvp, standardServingAmount: null, childNutrients: null });
-function build({ h, ing, rows }) {
+function build({ h, ing, rows, price }) {
   const [usItemId, name, upc, brand, cat] = h.split(" ¦ ");
   let nf = { calorieInfo: null, keyNutrients: null, vitaminMinerals: null, servingInfo: null };
   if (rows.length) {
@@ -17,7 +17,8 @@ function build({ h, ing, rows }) {
     }
     nf = { calorieInfo: cal, keyNutrients: { name: "Key Nutrients", values }, vitaminMinerals: null, servingInfo: { name: "Serving Information", values: serv } };
   }
-  return { product: { usItemId, name, upc, brand, category: { path: cat.split(" > ").map(name => ({ name })) } },
+  const priceInfo = price ? { currentPrice: { price: price[0], priceString: "$" + price[0] }, unitPrice: { price: price[2], priceString: price[1] } } : undefined;
+  return { product: { usItemId, name, upc, brand, priceInfo, category: { path: cat.split(" > ").map(name => ({ name })) } },
     idml: { ingredients: { ingredients: ing ? { name: "Ingredients", value: ing } : null }, nutritionFacts: nf } };
 }
 const AUDIT = require("./walmart-audit.json").products;

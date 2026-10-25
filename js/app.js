@@ -265,7 +265,18 @@
   let myPrices = store.get("myPrices", {});
   let priceEditing = null;
   const saveMyPrices = () => { store.set("myPrices", myPrices); renderBrowse(); renderPlate(); renderList(); renderMeals(); if (current) renderResult(current); };
+  // A store's own price, read from its product page by the extension or the phone bookmark.
+  const storePriceOf = f => f && (f.storePrice || (f.spItem || f.spServing ? { perServing: f.spServing, item: f.spItem, unitText: f.spUnit, store: f.spStore || "Walmart", on: f.spOn } : null));
   function renderPrice(f) {
+    const sp = storePriceOf(f);
+    if (sp) {
+      const per = sp.perServing ? sp.perServing * mult : null, v = per && window.SelfCheckCard ? window.SelfCheckCard.perDollar(V.scale(f, mult), per) : null;
+      const when = sp.on ? new Date(sp.on + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
+      return el("section", { class: "panel price" },
+        per ? el("div", { class: "price-main" }, el("span", { class: "price-amt", text: `≈ ${PR ? PR.money(per) : "$" + per.toFixed(2)}` }),
+          el("span", {}, mult === 1 ? " per serving" : ` for ${fmt(mult)} servings`, v ? el("span", { class: "price-val", text: ` · ${v}` }) : null)) : null,
+        el("p", { class: "legend", text: `${sp.store}'s price${when ? ` on ${when}` : ""}${sp.item ? `: $${Number(sp.item).toFixed(2)} an item` : ""}${sp.unitText ? ` (${sp.unitText})` : ""}. Prices change; the shelf wins.` }));
+    }
     if (!PR) return null;
     const p = PR.price({ ...f, mult }, myPrices);
     const sec = el("section", { class: "panel price" });
@@ -543,7 +554,9 @@
   }
   const qtyOf = item => Math.max(1, Math.min(99, Math.round(item.qty || 1)));
   // Price of one purchase unit (a lb, a dozen, a gallon…), yours when you've set one.
-  const unitCost = f => { const p = f && PR ? PR.price(f, myPrices) : null; return p ? { each: p.unitPrice, unit: p.unitLabel, mine: p.mine } : null; };
+  // A store product's own item price when it has one (what you'd pay), else the typical price per unit.
+  const unitCost = f => { const sp = storePriceOf(f); if (sp && sp.item > 0 && !(myPrices[f.n])) return { each: Number(sp.item), unit: "item", mine: false };
+    const p = f && PR ? PR.price(f, myPrices) : null; return p ? { each: p.unitPrice, unit: p.unitLabel, mine: p.mine } : null; };
   function listRow(item) {
     const f = byName(item.n), id = "g-" + V.slug(item.n), q = qtyOf(item), u = unitCost(f);
     const setQty = n => { item.qty = Math.max(1, Math.min(99, n)); saveList(); };
@@ -1204,7 +1217,11 @@
     const data = B && await B.decodeProduct(token);
     const prod = data && WM ? WM.product(data) : null;
     const plan = WM ? WM.plan(prod) : { kind: "none" };
-    if (plan.kind === "panel") { const f = plan.food; saveLookup(f); pick(f); toast("From the Walmart page's Nutrition Facts"); return; }
+    if (plan.kind === "panel") {
+      const f = plan.food, cost = WM.servingCost(prod.price, f);
+      if (prod.price && (cost || prod.price.now)) Object.assign(f, { spServing: cost || undefined, spItem: prod.price.now || undefined, spUnit: prod.price.text || undefined, spStore: "Walmart", spOn: new Date().toISOString().slice(0, 10) });
+      saveLookup(f); pick(f); toast("From the Walmart page's Nutrition Facts"); return;
+    }
     if (plan.kind === "name") { const f = WM.byName(plan.query, FOODS); if (f) { pick(f, { closest: prod.name }); return; } if (plan.fallback) { barcodeLookup(plan.fallback); return; } }
     if (plan.kind === "barcode") { barcodeLookup(plan.code); return; }
     toast(prod ? "That Walmart page isn't a food the app can check." : "Couldn't read that Walmart page. Tap the bookmark again on the product page.");

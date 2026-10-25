@@ -57,3 +57,20 @@ test("swap: same kind of food, better verdict, and a Walmart search", () => {
   assert.equal(C.searchName("Peanut butter, natural"), "natural peanut butter");
   assert.equal(C.walmartSearch("natural peanut butter"), "https://www.walmart.com/search?q=natural%20peanut%20butter");
 });
+
+test("per-dollar line follows the app's own rule (prices.js value)", () => {
+  const PR = require("../js/prices.js");
+  for (const f of FOODS) {
+    const p = PR.price(f);
+    if (!p) continue;
+    const v = PR.value(f, p);
+    assert.equal(C.perDollar(f, p.perServing), v ? v.text : null, f.n);
+  }
+  assert.equal(C.perDollar(panel("oikos"), 1.12), "21 g protein per $1");
+});
+
+test("per-dollar line: none without a cost or for foods that are neither protein nor fiber picks", () => {
+  assert.equal(C.perDollar(panel("oikos"), 0), null);
+  assert.equal(C.perDollar({ cal: 140, pro: 0, fib: 0 }, 0.65), null);
+  assert.equal(C.money(1.121), "$1.12");
+});
