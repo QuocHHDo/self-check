@@ -31,8 +31,13 @@ async function fetchSeries(ids) {
   }
   return "series_id\tyear\tperiod\tvalue\n" + rows.join("\n") + "\n";
 }
-fs.writeFileSync(path.join(out, "ap.data.3.Food"), await fetchSeries(apSeries));
-fs.writeFileSync(path.join(out, "cu.data.11.USFoodBeverage"), await fetchSeries(cuSeries));
+try {
+  fs.writeFileSync(path.join(out, "ap.data.3.Food"), await fetchSeries(apSeries));
+  fs.writeFileSync(path.join(out, "cu.data.11.USFoodBeverage"), await fetchSeries(cuSeries));
+} catch (e) {
+  console.log(`::error::${String(e.message || e).replace(/\n/g, " ")}`); // shows as an annotation on the run
+  process.exit(1);
+}
 fs.copyFileSync(path.join(ROOT, "data/prices/bls-items.tsv"), path.join(out, "ap.item"));
 
 // ERS: links carry a version query (?v=…), so read them from the data page. Keep the committed copy on failure.
