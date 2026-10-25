@@ -23,8 +23,10 @@ async function fetchSeries(ids) {
   const per = KEY ? 50 : 25, rows = [];
   for (let i = 0; i < ids.length; i += per) {
     const body = { seriesid: ids.slice(i, i + per), startyear: "2023", endyear: String(year), ...(KEY ? { registrationkey: KEY } : {}) };
-    const res = await fetch(`https://api.bls.gov/publicAPI/${KEY ? "v2" : "v1"}/timeseries/data/`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-    const json = await res.json();
+    const res = await fetch(`https://api.bls.gov/publicAPI/${KEY ? "v2" : "v1"}/timeseries/data/`, { method: "POST", headers: { "content-type": "application/json", "user-agent": "self-check price refresh (https://github.com/QuocHHDo/self-check)" }, body: JSON.stringify(body) });
+    const text = await res.text();
+    let json;
+    try { json = JSON.parse(text); } catch { throw new Error(`BLS API answered ${res.status} with: ${text.replace(/\s+/g, " ").slice(0, 400)}`); }
     if (json.status !== "REQUEST_SUCCEEDED") throw new Error(`BLS API: ${json.status} ${JSON.stringify(json.message || "").slice(0, 300)}`);
     for (const s of json.Results.series) for (const d of s.data) rows.push([s.seriesID, d.year, d.period, d.value].join("\t"));
     console.log(`BLS ${i + 1}-${Math.min(i + per, ids.length)} of ${ids.length}: ${json.Results.series.reduce((t, s) => t + s.data.length, 0)} values`);
