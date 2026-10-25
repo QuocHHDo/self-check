@@ -16,6 +16,9 @@ jobs:
           for f in ap.item ap.area ap.series ap.data.3.Food ap.footnote; do
             curl -sS -A "$UA" -o out/$f "https://download.bls.gov/pub/time.series/ap/$f" -w "$f %{http_code} %{size_download}\n" || true
           done
+          for f in cu.item cu.series cu.data.11.USFoodBeverage; do
+            curl -sS -A "$UA" -o out/$f "https://download.bls.gov/pub/time.series/cu/$f" -w "$f %{http_code} %{size_download}\n" || true
+          done
           curl -sSL -A "$UA" -o out/ers.html "https://www.ers.usda.gov/data-products/fruit-and-vegetable-prices" -w "ers page %{http_code}\n" || true
           grep -oiE 'href="[^"]*-csv-format[^"]*"' out/ers.html | sed 's/href="//;s/"$//' | sort -u > out/ers-links.txt || true
           cat out/ers-links.txt
