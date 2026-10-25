@@ -1,5 +1,6 @@
 // End-to-end UI test: loads the real page in jsdom, clicks through every feature, and mocks the
 // USDA, Open Food Facts and Claude APIs. Run with `npm run test:ui` (needs `npm install` for jsdom and axe-core).
+const N_FOODS = require("../../js/foods.js").FOODS.length;
 const fs = require("fs"), path = require("path");
 const { JSDOM } = require("jsdom");
 const REPO = path.join(__dirname, "..", ".."), MODE = process.argv[2] || "pages";
@@ -196,9 +197,9 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
       click($("#scanClose")); await tick(2);
       delete w.Html5Qrcode; delete w.navigator.mediaDevices;
     })();
-    ok(/449 common foods built in \+ \d+ looked up\./.test(text("#foodCount")), `count includes lookups (${text("#foodCount")})`);
+    ok(new RegExp(`${N_FOODS} common foods built in \\+ \\d+ looked up\\.`).test(text("#foodCount")), `count includes lookups (${text("#foodCount")})`);
     const nLook = text("#foodCount").match(/\+ (\d+) looked up/)[1];
-    ok(text("#browseCount") === `449 foods + ${nLook} looked up`, `Browse count matches the header (${text("#browseCount")})`);
+    ok(text("#browseCount") === `${N_FOODS} foods + ${nLook} looked up`, `Browse count matches the header (${text("#browseCount")})`);
     // Shared links to looked-up foods: re-fetched when this browser doesn't have them.
     // foods[1] was listed but never opened, so this browser has no copy and must fetch it.
     const fresh = usdaFixture.foods[1];

@@ -6,7 +6,7 @@ Live at **https://quochhdo.github.io/self-check/**. It installs to your phone's 
 
 ## Features
 
-- **449 built-in foods** across 13 categories, with search and aliases ("boba", "EVOO", "hamburger").
+- **486 built-in foods** across 13 categories, with search and aliases ("boba", "EVOO", "hamburger").
 - **Nutrition label** in FDA format; tap any line to see what it means and how it compares with your daily target.
 - **Personal verdict** scored against your calorie, protein, saturated fat, sodium, added sugar and fiber goals, plus a skip list and a mild-food preference.
 - **Healthier swaps** for anything below "Get it," with the difference spelled out ("5.3 g less saturated fat").
@@ -61,7 +61,7 @@ The USDA eval also writes `eval/suggested-values.json`: confident matches that d
 
 ### Results: built-in values vs USDA (October 24, 2026)
 
-439 of 449 foods were searched; 304 had a USDA record the matcher trusts as the same food. Within that set:
+In the last USDA check (before 37 foods were added), 439 of 449 foods were searched; 304 had a USDA record the matcher trusts as the same food. Within that set:
 
 | Nutrient | Median error | Within 10% | Within 25% |
 | --- | --- | --- | --- |

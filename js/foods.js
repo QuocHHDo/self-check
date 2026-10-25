@@ -47,6 +47,8 @@
     F("Papaya", [], "1 cup cubed (145 g)", 62, 0.4, 0.1, 0, 0, 12, 15.7, 2.5, 11.3, 0, 0.7),
     F("Guava", ["guavas"], "1 fruit (55 g)", 37, 0.5, 0.2, 0, 0, 1, 7.9, 3, 4.9, 0, 1.4),
     F("Lychee", ["lychees", "litchi"], "10 fruits (96 g)", 63, 0.4, 0.1, 0, 0, 1, 15.9, 1.2, 14.6, 0, 0.8),
+    F("Jackfruit", ["jack fruit", "mit"], "1 cup sliced (165 g)", 157, 1.1, 0.3, 0, 0, 3, 38.4, 2.5, 31.5, 0, 2.8),
+    F("Longan", ["longans", "nhan"], "10 fruits (32 g)", 19, 0, 0, 0, 0, 0, 4.8, 0.4, 4, 0, 0.4),
   ],
   veg: [
     F("Potato, baked", ["potato", "potatoes", "baked potato"], "1 medium with skin (173 g)", 161, 0.2, 0.1, 0, 0, 17, 37, 3.8, 2, 0, 4.3),
@@ -105,6 +107,11 @@
     F("Okra", [], "1 cup (100 g)", 33, 0.2, 0, 0, 0, 7, 7.5, 3.2, 1.5, 0, 1.9),
     F("Collard greens, cooked", ["collards", "collard greens"], "1 cup (190 g)", 63, 1.4, 0.2, 0, 0, 30, 10.7, 7.6, 0.8, 0, 5.2),
     F("Spaghetti squash", [], "1 cup cooked (155 g)", 42, 0.4, 0.1, 0, 0, 28, 10, 2.2, 3.9, 0, 1),
+    F("Napa cabbage", ["chinese cabbage", "wombok", "cai thao"], "1 cup shredded (76 g)", 12, 0.2, 0, 0, 0, 7, 2.4, 0.9, 1.1, 0, 0.9),
+    F("Daikon radish", ["daikon", "white radish", "mooli", "cu cai"], "1 cup sliced (116 g)", 21, 0.1, 0, 0, 0, 24, 4.8, 1.9, 2.9, 0, 0.7),
+    F("Taro, cooked", ["taro root", "khoai mon"], "1 cup sliced (132 g)", 187, 0.1, 0, 0, 0, 20, 45.7, 6.7, 0.6, 0, 0.7),
+    F("Bean sprouts", ["mung bean sprouts", "gia"], "1 cup (104 g)", 31, 0.2, 0, 0, 0, 6, 6.2, 1.9, 4.3, 0, 3.2),
+    F("Elote", ["mexican street corn", "elotes", "corn on the cob with mayo"], "1 ear with mayo, cheese and chili (150 g)", 280, 18, 5, 0, 25, 450, 27, 3, 5, 0, 6, ["spicy"]),
   ],
   meat: [
     F("Chicken breast, grilled", ["chicken", "chicken breast", "grilled chicken"], "4 oz cooked (113 g)", 187, 4.1, 1.1, 0, 96, 84, 0, 0, 0, 0, 35),
@@ -173,6 +180,7 @@
     F("Breaded shrimp, frozen", ["popcorn shrimp", "coconut shrimp"], "6 pieces (85 g)", 200, 10, 1.5, 0, 60, 500, 19, 1, 2, 1, 8),
     F("Smoked salmon", ["lox", "nova"], "2 oz (56 g)", 66, 2.4, 0.5, 0, 13, 1130, 0, 0, 0, 0, 10.3),
     F("Tuna, canned in oil", ["tuna in oil", "oil packed tuna"], "3 oz drained (85 g)", 168, 7, 1.3, 0, 15, 300, 0, 0, 0, 0, 25),
+    F("Crawfish, boiled", ["crawfish", "crayfish", "crawdads", "mudbugs"], "3 oz tail meat (85 g)", 70, 1, 0.2, 0, 113, 80, 0, 0, 0, 0, 14),
   ],
   plant: [
     F("Tofu, firm", ["tofu"], "3 oz (85 g)", 80, 4.5, 0.5, 0, 0, 10, 2, 1, 0, 0, 9),
@@ -189,6 +197,8 @@
     F("Seitan", ["wheat gluten"], "3 oz (85 g)", 110, 1.5, 0, 0, 0, 350, 5, 1, 0, 0, 20),
     F("Silken tofu", ["soft tofu"], "3 oz (85 g)", 47, 2.3, 0.3, 0, 0, 5, 2.5, 0.1, 1.1, 0, 4.1),
     F("Chickpea pasta", ["banza", "bean pasta", "lentil pasta"], "2 oz dry (56 g)", 190, 3.5, 0.5, 0, 0, 75, 32, 8, 4, 0, 11),
+    F("Tempeh", [], "3 oz (85 g)", 163, 9.2, 1.9, 0, 0, 8, 6.5, 3.5, 0, 0, 17.3),
+    F("Mung beans, cooked", ["mung beans", "moong dal", "dau xanh"], "½ cup (101 g)", 106, 0.4, 0.1, 0, 0, 2, 19.2, 7.7, 2, 0, 7.1),
   ],
   dairy: [
     F("Eggs", ["egg", "whole egg"], "1 large (50 g)", 72, 4.8, 1.6, 0, 186, 71, 0.4, 0, 0.2, 0, 6.3),
@@ -229,6 +239,7 @@
     F("Greek yogurt, vanilla", ["vanilla greek yogurt", "flavored greek yogurt"], "1 container (150 g)", 120, 0, 0, 0, 5, 55, 13, 0, 11, 7, 13),
     F("Ultra-filtered 2% milk", ["fairlife", "fairlife milk", "ultrafiltered milk"], "1 cup (240 ml)", 120, 4.5, 3, 0, 20, 125, 6, 0, 6, 0, 13),
     F("Egg bites, bacon and cheese", ["egg bites", "sous vide egg bites"], "2 bites (130 g)", 300, 20, 12, 0, 230, 680, 9, 0, 2, 0, 19, ["processed"]),
+    F("Hard-boiled eggs", ["hard boiled eggs", "boiled eggs", "hard-boiled egg"], "2 large (100 g)", 155, 10.6, 3.3, 0, 373, 124, 1.1, 0, 1.1, 0, 12.6),
   ],
   grains: [
     F("Oatmeal, rolled oats", ["oats", "oatmeal", "rolled oats"], "½ cup dry (40 g)", 150, 2.5, 0.5, 0, 0, 0, 27, 4, 1, 0, 5),
@@ -279,6 +290,7 @@
     F("Wild rice", [], "1 cup cooked (164 g)", 166, 0.6, 0.1, 0, 0, 5, 35, 3, 1.2, 0, 6.5),
     F("Bulgur", [], "1 cup cooked (182 g)", 151, 0.4, 0.1, 0, 0, 9, 33.8, 8.2, 0.2, 0, 5.6),
     F("Protein pancake mix", ["kodiak cakes", "kodiak", "protein pancakes"], "½ cup dry mix (53 g)", 190, 2, 0, 0, 0, 380, 30, 5, 3, 3, 14),
+    F("Overnight oats", ["overnight oatmeal"], "1 jar: oats, milk, chia, berries (240 g)", 320, 9, 2.5, 0, 10, 120, 48, 8, 14, 6, 14),
   ],
   nuts: [
     F("Peanut butter", ["pb"], "2 tbsp (32 g)", 190, 16, 3.3, 0, 0, 140, 7, 2, 3, 2, 7),
@@ -305,6 +317,7 @@
     F("Plant protein powder", ["vegan protein", "pea protein"], "1 scoop (33 g)", 120, 2, 0.5, 0, 0, 300, 3, 1, 0, 0, 24),
     F("Collagen peptides", ["collagen"], "2 scoops (20 g)", 70, 0, 0, 0, 0, 50, 0, 0, 0, 0, 18),
     F("Protein chips", ["quest chips"], "1 bag (32 g)", 140, 5, 1.5, 0, 5, 280, 5, 1, 1, 0, 19),
+    F("Casein protein powder", ["casein", "casein shake"], "1 scoop (33 g)", 120, 1, 0.5, 0, 10, 260, 3, 1, 1, 0, 24),
   ],
   snacks: [
     F("Vanilla ice cream", ["ice cream"], "⅔ cup (95 g)", 200, 11, 7, 0.3, 45, 70, 23, 0, 21, 16, 3, ["treat"]),
@@ -347,6 +360,8 @@
     F("Peanut butter sandwich crackers", ["peanut butter crackers", "lance crackers"], "6 crackers (39 g)", 190, 10, 2, 0, 0, 290, 22, 1, 5, 5, 4, ["treat"]),
     F("Mochi ice cream", ["mochi"], "1 piece (44 g)", 100, 2.5, 1.5, 0, 10, 25, 18, 0, 11, 10, 1, ["treat"]),
     F("Cinnamon roll, refrigerated", ["cinnamon roll", "cinnamon rolls"], "1 roll with icing (44 g)", 150, 5, 1.5, 0, 0, 340, 24, 0.5, 9, 9, 2, ["treat"]),
+    F("Tres leches cake", ["tres leches", "three milk cake"], "1 slice (110 g)", 330, 13, 7.5, 0.2, 95, 170, 47, 0.3, 38, 30, 7, ["treat"]),
+    F("Bao, BBQ pork", ["char siu bao", "pork bun", "steamed bun", "banh bao"], "1 bun (80 g)", 220, 6, 2, 0, 15, 330, 33, 1, 10, 9, 8),
   ],
   drinks: [
     F("Orange juice", ["oj", "juice"], "1 cup (248 g)", 112, 0.5, 0.1, 0, 0, 2, 26, 0.5, 21, 0, 1.7),
@@ -379,6 +394,9 @@
     F("Cold brew coffee", ["cold brew"], "16 fl oz (475 ml)", 5, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0.5),
     F("Chicken broth", ["chicken stock", "broth"], "1 cup (240 ml)", 15, 0.5, 0, 0, 0, 860, 1, 0, 1, 0, 2),
     F("Bone broth", [], "1 cup (240 ml)", 40, 0, 0, 0, 0, 450, 0, 0, 0, 0, 9),
+    F("Horchata", ["agua de horchata", "rice milk drink"], "12 fl oz (360 ml)", 220, 3, 1.5, 0, 5, 70, 47, 0.5, 36, 33, 2),
+    F("Matcha latte, sweetened", ["matcha latte", "green tea latte", "matcha"], "16 fl oz, 2% milk (475 ml)", 240, 7, 4, 0, 25, 160, 34, 1, 32, 20, 12),
+    F("Energy drink, zero sugar", ["celsius", "sugar free energy drink", "zero sugar energy drink", "monster zero", "red bull sugar free"], "12 fl oz can (355 ml)", 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
   ],
   prepared: [
     F("Instant ramen", ["ramen", "cup noodles", "instant noodles"], "1 package (85 g)", 380, 14, 7, 0, 0, 1600, 54, 2, 2, 0, 9),
@@ -418,6 +436,23 @@
     F("Minestrone soup, canned", ["minestrone"], "1 cup (245 g)", 110, 1.5, 0.3, 0, 0, 640, 20, 4, 5, 2, 5),
     F("Greek salad", [], "1 side salad with dressing (200 g)", 210, 18, 5, 0, 20, 560, 9, 2.5, 5, 1, 5),
     F("Miso soup", [], "1 cup (240 ml)", 40, 1.5, 0.3, 0, 0, 800, 5, 1, 1.5, 0, 3),
+    F("Breakfast taco, egg and cheese", ["breakfast taco", "egg and cheese taco", "breakfast tacos"], "1 taco, flour tortilla (110 g)", 250, 13, 5.5, 0.2, 200, 470, 20, 1, 1, 0, 13),
+    F("Beef fajitas", ["fajitas", "steak fajitas", "fajita"], "1 cup with peppers and onions, no tortilla (170 g)", 270, 14, 4.5, 0.5, 70, 520, 8, 2, 4, 1, 27),
+    F("Chicken fajita bowl", ["fajita bowl"], "1 bowl: rice, beans, peppers, chicken (450 g)", 600, 18, 5, 0.2, 95, 1200, 70, 10, 6, 1, 40),
+    F("Chicken enchiladas, red sauce", ["enchiladas", "chicken enchiladas", "enchilada"], "2 enchiladas (290 g)", 480, 22, 10, 0.3, 85, 1100, 40, 5, 4, 1, 30, ["spicy"]),
+    F("Pork tamales", ["tamales", "tamale", "pork tamale"], "2 tamales (230 g)", 470, 24, 9, 0.2, 50, 900, 46, 5, 2, 0, 17),
+    F("Brisket sandwich", ["bbq brisket sandwich", "chopped beef sandwich"], "1 sandwich with BBQ sauce (220 g)", 520, 24, 9, 1, 100, 1100, 42, 1, 12, 10, 33),
+    F("Kolache, sausage", ["kolache", "kolaches", "klobasnek", "sausage kolache"], "1 kolache (100 g)", 320, 18, 7, 0.2, 35, 700, 28, 1, 4, 3, 11, ["processed"]),
+    F("Chicken fried steak with gravy", ["chicken fried steak", "country fried steak"], "1 steak with cream gravy (240 g)", 620, 36, 10, 1, 110, 1450, 40, 1.5, 2, 1, 33),
+    F("Double cheeseburger, fast food", ["double cheeseburger", "double burger"], "1 burger (165 g)", 450, 24, 11, 1.5, 90, 1050, 33, 1, 7, 6, 25),
+    F("Banh mi, grilled pork", ["banh mi", "bánh mì", "vietnamese sandwich"], "1 sandwich (220 g)", 480, 16, 4, 0, 50, 1100, 60, 3, 9, 6, 25, ["spicy"]),
+    F("Chicken pho", ["pho ga", "phở gà", "chicken noodle pho"], "1 large bowl (900 g)", 420, 7, 2, 0, 70, 1700, 58, 2, 4, 2, 32),
+    F("Congee with chicken", ["congee", "chao", "cháo", "jook", "rice porridge"], "1½ cups (360 g)", 230, 5, 1.4, 0, 35, 750, 32, 0.5, 0, 0, 13),
+    F("Fresh spring rolls", ["goi cuon", "gỏi cuốn", "summer rolls", "spring rolls"], "2 rolls with shrimp and pork, no sauce (220 g)", 220, 3, 0.6, 0, 50, 450, 36, 2, 3, 1, 13),
+    F("Vermicelli bowl, grilled pork", ["bun thit nuong", "bún thịt nướng", "vermicelli bowl", "bun bowl"], "1 bowl with fish-sauce dressing (450 g)", 600, 18, 5, 0, 70, 1250, 80, 3, 18, 14, 30),
+    F("Poke bowl, ahi tuna", ["poke", "poke bowl", "ahi poke"], "1 bowl with rice (400 g)", 600, 18, 3, 0, 55, 1400, 72, 5, 10, 7, 38),
+    F("Chicken Caesar salad kit", ["salad kit", "caesar salad kit"], "½ kit with dressing (150 g)", 260, 19, 4, 0, 45, 620, 9, 2, 2, 1, 14),
+    F("Protein snack box, turkey and cheese", ["snack box", "protein box", "bistro box"], "1 box (100 g)", 260, 16, 7, 0, 60, 900, 12, 1, 5, 3, 17, ["processed"]),
   ],
   condiments: [
     F("Butter", ["salted butter"], "1 tbsp (14 g)", 102, 11.5, 7.3, 0.5, 31, 91, 0, 0, 0, 0, 0.1),
@@ -483,6 +518,8 @@
     F("Buffalo sauce", ["wing sauce", "franks red hot"], "1 tbsp (15 g)", 5, 0.5, 0, 0, 0, 570, 0.5, 0, 0, 0, 0, ["spicy"]),
     F("Balsamic vinegar", ["vinegar"], "1 tbsp (16 g)", 14, 0, 0, 0, 0, 4, 2.7, 0, 2.4, 0, 0.1),
     F("Table salt", ["salt", "sea salt", "kosher salt"], "¼ tsp (1.5 g)", 0, 0, 0, 0, 0, 581, 0, 0, 0, 0, 0),
+    F("Fish sauce", ["nuoc mam", "nước mắm"], "1 tbsp (18 g)", 6, 0, 0, 0, 0, 1410, 0.7, 0, 0.7, 0, 0.9),
+    F("Coconut milk, canned", ["coconut milk", "coconut cream"], "¼ cup (60 g)", 118, 12.8, 11.3, 0, 0, 8, 1.7, 0, 0, 0, 1.2),
   ],
   };
   const FOODS = [];

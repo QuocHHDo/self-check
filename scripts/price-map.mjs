@@ -33,6 +33,7 @@ export const PRICE_MAP = {
   // Eggs and dairy
   "Eggs": { bls: "708111", n: 1 },
   "Egg whites": { bls: "708111", n: 3 },
+  "Hard-boiled eggs": { bls: "708111", n: 2 },
   "Whole milk": { bls: "709112", buy: 240 },
   "2% milk": { bls: "FJ1101", buy: 240 },
   "Skim milk": { bls: "FJ1101", buy: 240 },
@@ -103,6 +104,8 @@ export const PRICE_MAP = {
   "Cabbage": { ers: "Cabbage, green|Fresh" },
   "Celery": { ers: "Celery, trimmed bunches|Fresh" },
   "Radishes": { ers: "Radish|Fresh" },
+  "Napa cabbage": { ers: "Cabbage, green|Fresh", approx: "priced as green cabbage" },
+  "Daikon radish": { ers: "Radish|Fresh", approx: "priced as radishes" },
   "Butternut squash": { ers: "Butternut squash|Fresh" },
   "Okra": { ers: "Okra|Fresh" },
   "Collard greens, cooked": { ers: "Collard greens|Fresh" },
