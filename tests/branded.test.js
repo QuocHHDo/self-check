@@ -66,3 +66,43 @@ test("Branded categories pick sensible swaps; unknown categories hide them", () 
   assert.equal(V.swapTarget(S.fromUsda(rec("028400335799")), FOODS).cat, "snacks");
   assert.equal(V.swapTarget({ ...S.fromUsda(rec("028400335799")), foodCategory: "Baby Formula", n: "Zorblax" }, FOODS), null);
 });
+
+// ---- Packaged products by name ----
+const names = require("./fixtures/usda-branded-names.json");
+const asFood = t => ({ description: t.d, brandName: t.brand, brandOwner: t.owner, gtinUpc: t.upc, publishedDate: t.pub });
+
+test("name search ANDs the words (any field), since plain search matches any word", () => {
+  const u = new URL(S.brandedSearchUrl("Great Value peanut-butter, creamy", "k"));
+  assert.equal(u.searchParams.get("query"), "great AND value AND peanut AND butter AND creamy");
+  assert.equal(u.searchParams.get("dataType"), "Branded");
+  assert.equal(new URL(S.brandedSearchUrl("great value milk", "k", { all: false })).searchParams.get("query"), "great value milk");
+});
+
+test("store brands at the start of a query are recognized", () => {
+  assert.deepEqual(S.storeBrand("Great Value whole milk"), { brand: "great value", walmart: true });
+  assert.equal(S.storeBrand("marketside caesar kit").walmart, true);
+  assert.equal(S.storeBrand("kirkland almonds").walmart, false);
+  assert.equal(S.storeBrand("greatness"), null);
+  assert.equal(S.storeBrand("value pack"), null);
+});
+
+test("ranking puts products named for what you typed first and drops ingredient-only matches", () => {
+  // Real results for "great AND value AND peanut AND butter": the first two were almonds.
+  const ranked = S.rankBranded(names.greatValuePeanutButter.map(asFood), "great value peanut butter").map(f => f.description);
+  assert.ok(ranked.every(d => /PEANUT BUTTER/.test(d)), "almonds that only contain peanut butter are dropped");
+  assert.ok(ranked.indexOf("PEANUT BUTTER COOKIE MIX, PEANUT BUTTER") < ranked.indexOf("PEANUT BUTTER CUP PEANUT BUTTER ICE CREAM WITH FUDGE & PEANUT BUTTER RIBBONS & PEANUT BUTTER CUP PIECES, PEANUT BUTTER CUP"), "shorter names first");
+  assert.equal(ranked.filter(d => d === "PEANUT BUTTER WAFER BARS, PEANUT BUTTER").length, 1, "duplicate listings collapse");
+  const cheerios = S.rankBranded(names.cheerios.map(asFood), "cheerios");
+  assert.equal(cheerios[0].description, "Cheerios Cereal");
+  assert.equal(cheerios[0].publishedDate.slice(0, 4), "2026", "newest listing of a duplicate is kept");
+});
+
+test("Walmart brands only keeps Walmart-owned products", () => {
+  const all = names.peanutButter.map(asFood);
+  assert.equal(S.rankBranded(all, "peanut butter", { walmartOnly: true }).length, 0);
+  const gv = S.rankBranded(names.greatValuePeanutButter.map(asFood), "peanut butter", { walmartOnly: true });
+  assert.ok(gv.length > 0 && gv.every(S.isWalmart));
+  assert.equal(S.isWalmart({ brandOwner: "Wal-Mart Stores Inc." }), true);
+  assert.equal(S.isWalmart({ brandName: "Marketside", brandOwner: "" }), true);
+  assert.equal(S.isWalmart({ brandOwner: "Milton G. Waldbaum Company" }), false);
+});

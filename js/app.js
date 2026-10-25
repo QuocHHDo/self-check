@@ -559,16 +559,24 @@
   // Matching lives in search.js (exact, prefix, word, contains, and typo-tolerant).
   const match = q => Q.match(q, allFoods()).map(x => x.f);
 
-  function attachSuggest(input, list, onPick) {
+  // `extra(text)` can add a final action row, e.g. "Search packaged products for …".
+  function attachSuggest(input, list, onPick, extra) {
     let sel = -1, sugg = [];
     const close = () => { list.hidden = true; sel = -1; };
+    const choose = item => { close(); if (item.run) item.run(); else onPick(item); };
     input.addEventListener("input", () => {
-      sugg = match(input.value).slice(0, 7); sel = -1;
+      const text = input.value.trim();
+      sugg = text ? match(input.value).slice(0, 7) : [];
+      const act = text && extra ? extra(text) : null;
+      if (act) sugg.push(act);
+      sel = -1;
       list.replaceChildren();
-      if (!sugg.length || !input.value.trim()) return close();
+      if (!sugg.length) return close();
       sugg.forEach((f, i) => {
-        const li = el("li", { role: "option", id: input.id + "-opt" + i, "aria-selected": "false" }, el("span", { text: f.n }), pill(V.assess(f, profile)));
-        li.addEventListener("mousedown", e => { e.preventDefault(); close(); onPick(f); });
+        const li = f.run
+          ? el("li", { role: "option", class: "action", id: input.id + "-opt" + i, "aria-selected": "false" }, el("span", { text: f.label }))
+          : el("li", { role: "option", id: input.id + "-opt" + i, "aria-selected": "false" }, el("span", { text: f.n }), pill(V.assess(f, profile)));
+        li.addEventListener("mousedown", e => { e.preventDefault(); choose(f); });
         list.append(li);
       });
       list.hidden = false;
@@ -583,8 +591,8 @@
         e.preventDefault(); sel = (sel + (e.key === "ArrowDown" ? 1 : -1) + sugg.length) % sugg.length;
         [...list.children].forEach((li, i) => li.setAttribute("aria-selected", i === sel ? "true" : "false"));
         input.setAttribute("aria-activedescendant", input.id + "-opt" + sel);
-      } else if (e.key === "Enter" && sel >= 0) { e.preventDefault(); const f = sugg[sel]; close(); onPick(f); }
-      else if (e.key === "Enter" && input.id === "cmpq") { e.preventDefault(); const m = match(input.value); if (m.length) { close(); onPick(m[0]); } }
+      } else if (e.key === "Enter" && sel >= 0) { e.preventDefault(); choose(sugg[sel]); }
+      else if (e.key === "Enter" && input.id === "cmpq") { e.preventDefault(); const m = match(input.value); if (m.length) choose(m[0]); }
     });
   }
 
@@ -601,6 +609,11 @@
     updateCount(); renderBrowse();
   }
 
+  function openPackaged(text) {
+    closestFor = null;
+    const box = el("div", { class: "notice" }); $("out").replaceChildren(box);
+    packagedSearch(text, box);
+  }
   function offerLookup(text, near, typo, link) {
     closestFor = null;
     const box = el("div", { class: "notice" }, el("p", { text: link ? `No food matches the link #${link}.` : typo ? `No exact match for “${text}”.` : `“${text}” isn't in the built-in list.` }));
@@ -621,8 +634,52 @@
   }
   const busy = (box, msg) => box.replaceChildren(el("span", { class: "thinking" }, el("span", { class: "dot" }), msg));
 
+  // Packaged products by name: AND search (all words, any field), falling back to any-word search, then re-ranked
+  // here with an optional Walmart-brands-only filter (remembered).
+  let walmartOnly = store.get("walmartOnly", false);
+  async function packagedSearch(text, box) {
+    busy(box, `Searching packaged products for ${text}…`);
+    const key = (profile.usdaKey || "").trim() || "DEMO_KEY";
+    const get = async all => {
+      const res = await withTimeout(fetch(S.brandedSearchUrl(text, key, { all })), LOOKUP_MS);
+      if (res.status === 429) throw Object.assign(new Error("rate"), { name: "RateLimit" });
+      if (res.status === 403) throw Object.assign(new Error("key"), { name: "KeyError" });
+      if (!res.ok) throw Object.assign(new Error("http"), { name: "HttpError", status: res.status });
+      return (await res.json()).foods || [];
+    };
+    try {
+      let raw = await get(true), loose = false;
+      if (!raw.length) { raw = await get(false); loose = true; }
+      const render = () => {
+        const ranked = S.rankBranded(raw, text, { walmartOnly });
+        const items = ranked.map(S.fromUsda).filter(f => !["cal", "fat", "carb", "pro"].every(k => V.isMissing(f, k))).slice(0, 15);
+        const toggle = el("button", { class: "chip" + (walmartOnly ? " on" : ""), type: "button", "aria-pressed": walmartOnly ? "true" : "false", text: "Walmart brands only",
+          onclick: () => { walmartOnly = !walmartOnly; store.set("walmartOnly", walmartOnly); render(); } });
+        const head = el("div", { class: "chiprow", style: "margin:0" }, toggle);
+        const generic = el("button", { class: "btn small ghost", type: "button", text: `Search generic foods for “${text}”`, onclick: () => usdaSearch(text, box) });
+        if (!items.length) {
+          box.replaceChildren(el("p", { text: walmartOnly ? `No Walmart-brand product matches “${text}”.` : `No packaged product matches “${text}”. Try the brand and product, like “great value whole milk”.` }), head, generic);
+          return;
+        }
+        const list = el("ul", { class: "results" });
+        for (const f of items) list.append(el("li", {}, el("button", { type: "button", onclick: () => { saveLookup(f); pick(f); } },
+          el("span", { class: "rname" }, el("span", { text: f.n }), pill(V.assess(f, profile))),
+          el("small", { text: `${amt(f, "cal", " cal")} · ${amt(f, "pro", " g")} protein · ${V.isMissing(f, "sat") ? "sat fat not reported" : amt(f, "sat", " g") + " sat fat"} per ${f.perServing ? f.s : "100 g"}${f.published ? ` · label from ${String(f.published).slice(0, 4)}` : ""}` }))));
+        box.replaceChildren(el("p", { text: loose ? `Nothing matched every word of “${text}”, so these match some of them.` : "Packaged products from USDA Branded Foods, with each label's serving." }), head, list, generic);
+      };
+      render();
+    } catch (e) {
+      const msg = e.name === "RateLimit" ? "USDA's shared demo key is out of searches for now. Add your own free key under Your goals, or try again later."
+        : e.name === "KeyError" ? "USDA rejected the API key. Check the key under Your goals."
+        : navigator.onLine === false ? "You're offline. Packaged-product search needs a connection."
+        : e.name === "TimeoutError" ? "USDA took too long to answer. Try again in a moment." : "The search didn't go through. Try again in a moment.";
+      box.replaceChildren(el("p", { text: msg }), el("button", { class: "btn ghost", type: "button", text: "Try again", onclick: () => packagedSearch(text, box) }));
+    }
+  }
+
   async function usdaSearch(text, box, kind = "generic") {
-    const branded = kind === "branded";
+    if (kind === "branded") return packagedSearch(text, box);
+    const branded = false;
     busy(box, branded ? `Searching packaged products for ${text}…` : `Searching USDA for ${text}…`);
     const key = (profile.usdaKey || "").trim() || "DEMO_KEY";
     const url = S.usdaSearchUrl(text, key, kind);
@@ -900,9 +957,10 @@
   function init() {
     updateCount();
     if (!PAGES) document.querySelectorAll("[data-pages-only]").forEach(n => n.remove());
+    if (PAGES) $("q").placeholder = "Try avocado, or a product like great value whole milk";
     $("scanBtn").hidden = !PAGES; $("usdaKeyWrap").hidden = !PAGES;
 
-    attachSuggest($("q"), $("suggest"), f => pick(f));
+    attachSuggest($("q"), $("suggest"), f => pick(f), PAGES ? text => ({ label: `Search packaged products for “${text}”`, run: () => openPackaged(text) }) : null);
     $("shelf").addEventListener("scroll", shelfFade, { passive: true });
     window.addEventListener("resize", shelfFade);
     $("form").addEventListener("submit", e => {
@@ -910,6 +968,8 @@
       const text = $("q").value.trim(); if (!text) return;
       $("suggest").hidden = true;
       if (/^\d{8,14}$/.test(text) && PAGES) return barcodeLookup(text);
+      // "great value whole milk", "marketside caesar kit": a store brand means a packaged product.
+      if (PAGES && S.storeBrand(text) && !allFoods().some(f => Q.isExact(f, text))) return openPackaged(text);
       const r = Q.resolve(text, allFoods());
       if (r.kind === "open") return pick(r.food);
       if (r.kind === "closest") return pick(r.food, { closest: text });

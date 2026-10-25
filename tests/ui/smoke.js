@@ -68,9 +68,9 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
   ok(text("#out h2") === "Ground beef 80/20" && text(".tag .verdict") === "Limit it", "exact search shows result and verdict");
   $("#q").value = "chiken brest"; submit("#form");
   ok(/Did you mean/.test(text("#out")) && $$("#out .notice .chip").some(b => b.textContent === "Chicken breast, grilled"), `typo offers Did you mean (${text("#out .notice")})`);
-  $("#q").value = "kirkland protein bar"; submit("#form");
-  ok(text("#out h2") === "Protein bar" && /Showing closest match/.test(text("#out .notice.closest")), `loose match is labeled as closest (${text("#out .notice.closest")})`);
-  ok(MODE !== "pages" || /Search USDA for “kirkland protein bar” instead/.test(text("#out .notice.closest")), "closest match offers the full search");
+  $("#q").value = "organic baby spinach"; submit("#form");
+  ok(text("#out h2") === "Spinach" && /Showing closest match/.test(text("#out .notice.closest")), `loose match is labeled as closest (${text("#out .notice.closest")})`);
+  ok(MODE !== "pages" || (/Search USDA for “organic baby spinach” instead/.test(text("#out .notice.closest")) && /Packaged products/.test(text("#out .notice.closest"))), "closest match offers the full searches");
   $("#q").value = "Ground beef 80/20"; submit("#form");
   ok(!$("#out .notice.closest"), "exact match has no closest-match banner");
   const swaps = $$(".swap .sn").map(e => e.textContent);
@@ -145,9 +145,22 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
     ok(/USDA is out of free searches/.test(text("#out .notice")) && /your own free USDA key/.test(text("#out .notice")), `USDA rate limit explained (${text("#out .notice")})`);
     usdaMode = "ok"; offMode = "ok";
     // Packaged products by name (no barcode needed).
-    $("#q").value = "marketside caesar kit"; submit("#form");
+    $("#q").value = "doritos nacho"; submit("#form");
     click(btn("Packaged products", $("#out"))); await tick(20);
-    ok($$("#out .results button").length === 5 && /per 3 tbsp \(50 g\)/.test(text("#out .results")), `packaged-product name search lists label servings (${$$("#out .results button").length})`);
+    ok($$("#out .results button").length >= 1 && /Doritos/.test(text("#out .results")), `packaged-product search from the not-found card (${text("#out .results").slice(0, 80)})`);
+    type("#q", "tortilla chips");
+    const lastOpt = $$("#suggest li").pop();
+    ok(lastOpt && /Search packaged products for “tortilla chips”/.test(lastOpt.textContent), `suggestions end with a packaged-product search (${lastOpt && lastOpt.textContent})`);
+    lastOpt.dispatchEvent(new w.MouseEvent("mousedown", { bubbles: true })); await tick(20);
+    ok(/Doritos/.test(text("#out .results")), "choosing it searches packaged products");
+    // A store brand goes straight to packaged products; Walmart brands only filters out other brands.
+    $("#q").value = "great value almonds"; submit("#form"); await tick(20);
+    const shown = () => $$("#out .results .rname span:first-child").map(e => e.textContent);
+    ok(shown()[0] === "Great Value, Almonds, Smoke" && /per 0.25 cup \(31 g\)/.test(text("#out .results")), `store brand → packaged search, best match first (${shown().join(", ")})`);
+    click(btn("Walmart brands only", $("#out"))); await tick(5);
+    ok(shown().length > 0 && shown().every(n => /Great Value/.test(n)), `Walmart brands only (${shown().join(", ")})`);
+    ok(JSON.parse(w.localStorage.getItem("walmartOnly")) === true, "the Walmart filter is remembered");
+    click(btn("Walmart brands only", $("#out"))); await tick(5);
     // 14. Barcode and camera failures always end in a message, never a stuck spinner.
     for (const [mode, re] of [["missing", /Neither Open Food Facts nor USDA Branded Foods has barcode/], ["error", /Open Food Facts had an error \(503\), and USDA doesn't have it/], ["hang", /Open Food Facts took too long to answer, and USDA doesn't have it/]]) {
       offMode = mode; $("#q").value = "0123456789013"; submit("#form"); await tick(mode === "hang" ? 200 : 10);

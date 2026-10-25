@@ -77,7 +77,7 @@
         serving = house && !/^\d+(\.\d+)?\s*(g|ml|grm|mlt)$/.test(house) ? `${house} (${amt})` : amt;
       }
       // "DORITOS, TORTILLA CHIPS, NACHO CHEESE, NACHO CHEESE" → drop the repeated part.
-      name = [...new Set(name.split(/,\s*/))].join(", ");
+      name = name.split(/,\s*/).reduce((acc, part) => acc.length && acc.join(", ").toLowerCase().includes(part.toLowerCase()) ? acc : [...acc, part], []).join(", ");
       const brand = titleCase(String(item.brandName || "").trim());
       if (brand && !name.toLowerCase().includes(brand.toLowerCase())) name = `${brand} ${name}`;
       const ing = String(item.ingredients || "").trim();
@@ -150,6 +150,60 @@
     if ((m = id.match(/^off-(\d{8,14})$/))) return { kind: "off", code: m[1] };
     return id ? { kind: "slug", slug: id } : null;
   }
+  // ---- Packaged products by name (USDA Branded Foods) ----
+  // FoodData Central's default search matches ANY word and ranks loosely ("great value peanut butter" returns Great
+  // Value lemonade); requireAllWords only checks the description, which usually omits the brand. Joining the words
+  // with AND searches every field and keeps only products that match them all. Its brandOwner filter is ignored, so
+  // the Walmart filter runs here. Probed on GitHub Actions (eval/probe-branded.mjs).
+  const STORE_BRANDS = { walmart: ["great value", "marketside", "equate", "sam's choice", "sams choice", "freshness guaranteed", "bettergoods", "parent's choice", "member's mark"],
+    other: ["kirkland", "kirkland signature", "365", "whole foods market", "good & gather", "market pantry", "kroger", "simple truth", "private selection", "trader joe's", "o organics", "signature select", "h-e-b", "heb", "publix", "aldi", "clancy's"] };
+  const SEARCH_STOP = new Set(["the", "and", "with", "of", "a", "an", "for", "in", "oz", "ounce", "pack", "count", "ct", "lb"]);
+  const nameWords = t => String(t || "").toLowerCase().replace(/[^a-z0-9'& ]+/g, " ").split(/\s+/).filter(w => w && !SEARCH_STOP.has(w));
+  // The store brand a query starts with, if any ("great value whole milk" → "great value").
+  function storeBrand(text) {
+    const q = " " + String(text || "").toLowerCase().replace(/\s+/g, " ").trim() + " ";
+    for (const [group, list] of Object.entries(STORE_BRANDS)) for (const b of list) if (q.startsWith(" " + b + " ")) return { brand: b, walmart: group === "walmart" };
+    return null;
+  }
+  const isWalmart = f => /wal-?mart/i.test(f.brandOwner || "") || STORE_BRANDS.walmart.includes(String(f.brandName || "").toLowerCase());
+  function brandedSearchUrl(text, key, { all = true, size = 100 } = {}) {
+    const words = nameWords(text).map(w => w.replace(/[^a-z0-9]/g, "")).filter(Boolean);
+    const query = all && words.length > 1 ? words.join(" AND ") : words.join(" ");
+    return "https://api.nal.usda.gov/fdc/v1/foods/search?" + new URLSearchParams({ query, dataType: "Branded", pageSize: String(size), api_key: key || "DEMO_KEY" });
+  }
+  // Re-rank search results: products whose own name has the words you typed (not just their ingredients), with
+  // a short name ("PEANUT BUTTER, CREAMY" before "PEANUT BUTTER WAFER BARS"), from the brand you named, newest
+  // first among equals. Duplicate listings of the same product keep the newest.
+  function rankBranded(foods, text, { walmartOnly = false } = {}) {
+    const sb = storeBrand(text);
+    const brandWords = new Set(sb ? nameWords(sb.brand) : []);
+    const want = nameWords(text).filter(w => !brandWords.has(w));
+    const seen = new Map();
+    for (const f of foods || []) {
+      if (walmartOnly && !isWalmart(f)) continue;
+      const key = `${String(f.description || "").toLowerCase()}|${String(f.brandName || f.brandOwner || "").toLowerCase()}`;
+      const prev = seen.get(key);
+      if (!prev || String(f.publishedDate || "") > String(prev.publishedDate || "")) seen.set(key, f);
+    }
+    const scored = [...seen.values()].map(f => {
+      const desc = String(f.description || "").toLowerCase();
+      const brandText = `${f.brandName || ""} ${f.brandOwner || ""}`.toLowerCase();
+      // The product's own name, without a leading brand: "GREAT VALUE, LEMONADE" → "lemonade".
+      const parts = desc.split(/,\s*/).filter(p => !(sb && p.trim() === sb.brand) && !brandText.includes(p.trim()) || !p.trim());
+      const head = nameWords(parts[0] || desc);
+      const all = new Set(nameWords(desc));
+      const hit = want.filter(w => all.has(w) || all.has(w.replace(/s$/, "")) || all.has(w + "s")).length;
+      const headHit = want.filter(w => head.includes(w) || head.includes(w.replace(/s$/, "")) || head.includes(w + "s")).length;
+      let score = want.length ? 10 * hit / want.length + 4 * headHit / want.length : 0;
+      score -= 0.6 * Math.max(0, head.length - want.length); // extra words: a more specific (different) product
+      if (sb && (brandText.includes(sb.brand) || desc.startsWith(sb.brand))) score += 3;
+      score += 0.05 * (Number(String(f.publishedDate || "").slice(0, 4)) - 2019 || 0);
+      return { f, score, hit };
+    });
+    const anyHit = scored.some(x => x.hit > 0);
+    return scored.filter(x => !anyHit || x.hit > 0).sort((a, b) => b.score - a.score).map(x => x.f);
+  }
+
   // Barcode lookups in USDA Branded Foods. FoodData Central only finds a UPC in the exact form it was stored:
   // usually 12 digits (078742378213), sometimes 14 (00016000275287), 13, or an 8-digit UPC-E (04963406).
   // A scanner reads the same code as 12 or 13 digits, so try the likely forms in turn.
@@ -194,5 +248,5 @@ If "${text}" is not a food, reply {"found":false}.`;
     return f;
   }
 
-  return { PROCESSED, makeFood, settleAddedSugar, fromUsda, fromOff, usdaSearchUrl, usdaFoodUrl, usdaUpcQueries, usdaUpcUrl, matchUpc, linkId, parseLinkId, titleCase, offProductUrl, claudePrompt, parseJsonReply, fromClaude };
+  return { PROCESSED, makeFood, settleAddedSugar, fromUsda, fromOff, usdaSearchUrl, usdaFoodUrl, usdaUpcQueries, usdaUpcUrl, matchUpc, brandedSearchUrl, rankBranded, storeBrand, isWalmart, STORE_BRANDS, linkId, parseLinkId, titleCase, offProductUrl, claudePrompt, parseJsonReply, fromClaude };
 });

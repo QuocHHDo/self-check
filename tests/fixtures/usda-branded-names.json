@@ -1,0 +1,276 @@
+{
+ "_note": "Real USDA Branded search results (names only) from eval/probe-branded.mjs, 2026-10-25",
+ "greatValuePeanutButter": [
+  {
+   "d": "GREAT VALUE, ALMONDS, SMOKE",
+   "brand": "GREAT VALUE",
+   "owner": "Wal-Mart Stores, Inc.",
+   "upc": "078742096810",
+   "cat": "Popcorn, Peanuts, Seeds & Related Snacks",
+   "pub": "2021-10-28",
+   "score": -414.07065
+  },
+  {
+   "d": "GREAT VALUE, COCOA ROASTED ALMONDS",
+   "brand": "GREAT VALUE",
+   "owner": "Wal-Mart Stores, Inc.",
+   "upc": "078742096568",
+   "cat": "Popcorn, Peanuts, Seeds & Related Snacks",
+   "pub": "2021-10-28",
+   "score": -416.2209
+  },
+  {
+   "d": "PEANUT BUTTER PROTEIN GRANOLA, PEANUT BUTTER",
+   "brand": "GREAT VALUE",
+   "owner": "Wal-Mart Stores, Inc.",
+   "upc": "194346050130",
+   "cat": "Cereal",
+   "pub": "2023-04-27",
+   "score": -417.4486
+  },
+  {
+   "d": "PEANUT BUTTER COOKIE MIX, PEANUT BUTTER",
+   "brand": "GREAT VALUE",
+   "owner": "Wal-Mart Stores, Inc.",
+   "upc": "078742067070",
+   "cat": "Cake, Cookie & Cupcake Mixes",
+   "pub": "2021-10-28",
+   "score": -417.48828
+  },
+  {
+   "d": "PEANUT BUTTER CREME PIE, PEANUT BUTTER",
+   "brand": "GREAT VALUE",
+   "owner": "Wal-Mart Stores, Inc.",
+   "upc": "078742277066",
+   "cat": "Other Frozen Desserts",
+   "pub": "2022-06-21",
+   "score": -417.48828
+  },
+  {
+   "d": "PEANUT BUTTER SANDWICH COOKIES, PEANUT BUTTER",
+   "brand": "GREAT VALUE",
+   "owner": "Wal-Mart Stores, Inc.",
+   "upc": "078742125961",
+   "cat": "Cookies & Biscuits",
+   "pub": "2023-05-25",
+   "score": -417.48828
+  },
+  {
+   "d": "PEANUT BUTTER TRAIL MIX, PEANUT BUTTER",
+   "brand": "GREAT VALUE",
+   "owner": "Wal-Mart Stores, Inc.",
+   "upc": "078742020389",
+   "cat": "Popcorn, Peanuts, Seeds & Related Snacks",
+   "pub": "2023-03-16",
+   "score": -417.48828
+  },
+  {
+   "d": "PEANUT BUTTER WAFER BARS, PEANUT BUTTER",
+   "brand": "GREAT VALUE",
+   "owner": "Wal-Mart Stores, Inc.",
+   "upc": "078742147468",
+   "cat": "Candy",
+   "pub": "2021-10-28",
+   "score": -417.48828
+  },
+  {
+   "d": "PEANUT BUTTER WAFER BARS, PEANUT BUTTER",
+   "brand": "GREAT VALUE",
+   "owner": "Wal-Mart Stores, Inc.",
+   "upc": "078742373195",
+   "cat": "Cookies & Biscuits",
+   "pub": "2023-05-25",
+   "score": -417.48828
+  },
+  {
+   "d": "PEANUT BUTTER CUP PEANUT BUTTER ICE CREAM WITH FUDGE & PEANUT BUTTER RIBBONS & PEANUT BUTTER CUP PIECES, PEANUT BUTTER CUP",
+   "brand": "GREAT VALUE",
+   "owner": "Wal-Mart Stores, Inc.",
+   "upc": "078742077017",
+   "cat": "Ice Cream & Frozen Yogurt",
+   "pub": "2023-11-16",
+   "score": -417.4967
+  }
+ ],
+ "cheerios": [
+  {
+   "d": "Cheerios Cereal",
+   "brand": "Cheerios",
+   "owner": "General Mills",
+   "upc": "00016000275287",
+   "cat": "Processed Cereal Products",
+   "pub": "2023-04-27",
+   "score": 98.9555
+  },
+  {
+   "d": "Cheerios Cereal",
+   "brand": "Cheerios",
+   "owner": "GENERAL MILLS SALES INC.",
+   "upc": "00016000322622",
+   "cat": "Processed Cereal Products",
+   "pub": "2026-09-24",
+   "score": 98.9555
+  },
+  {
+   "d": "Cheerios Cereal",
+   "owner": "GENERAL MILLS SALES INC.",
+   "upc": "00016000503687",
+   "cat": "Processed Cereal Products",
+   "pub": "2020-02-27",
+   "score": 98.9555
+  },
+  {
+   "d": "Frosted Cheerios Cereal",
+   "brand": "Cheerios",
+   "owner": "GENERAL MILLS SALES INC.",
+   "upc": "00016000169142",
+   "cat": "Processed Cereal Products",
+   "pub": "2026-09-24",
+   "score": 53.02546
+  },
+  {
+   "d": "Frosted Cheerios Cereal",
+   "brand": "Cheerios",
+   "owner": "GENERAL MILLS SALES INC.",
+   "upc": "00016000125544",
+   "cat": "Processed Cereal Products",
+   "pub": "2026-09-24",
+   "score": 53.02546
+  },
+  {
+   "d": "Blueberry Cheerios Cereal",
+   "brand": "Cheerios",
+   "owner": "GENERAL MILLS SALES INC.",
+   "upc": "00016000149830",
+   "cat": "Processed Cereal Products",
+   "pub": "2021-03-19",
+   "score": 52.650894
+  },
+  {
+   "d": "Blueberry Cheerios Cereal",
+   "brand": "Cheerios",
+   "owner": "GENERAL MILLS SALES INC.",
+   "upc": "00016000149847",
+   "cat": "Processed Cereal Products",
+   "pub": "2022-04-01",
+   "score": 52.650894
+  },
+  {
+   "d": "Blueberry Cheerios Cereal",
+   "brand": "Cheerios",
+   "owner": "GENERAL MILLS SALES INC.",
+   "upc": "00016000154179",
+   "cat": "Processed Cereal Products",
+   "pub": "2021-03-19",
+   "score": 52.650894
+  },
+  {
+   "d": "Cheerios Breakfast Cereal",
+   "brand": "Cheerios",
+   "owner": "GENERAL MILLS SALES INC.",
+   "upc": "00016000224650",
+   "cat": "Processed Cereal Products",
+   "pub": "2026-09-24",
+   "score": 52.650894
+  },
+  {
+   "d": "Cheerios Breakfast Cereal",
+   "brand": "Cheerios",
+   "owner": "GENERAL MILLS SALES INC.",
+   "upc": "00016000189522",
+   "cat": "Processed Cereal Products",
+   "pub": "2026-09-24",
+   "score": 52.650894
+  }
+ ],
+ "peanutButter": [
+  {
+   "d": "PEANUT BUTTER",
+   "owner": "PIC'S REALLY GOOD",
+   "upc": "9421901881160",
+   "cat": "Nut & Seed Butters",
+   "pub": "2019-04-01",
+   "score": 1030.9039
+  },
+  {
+   "d": "PEANUT BUTTER",
+   "owner": "WILD OATS MARKETPLACE",
+   "upc": "048737002276",
+   "cat": "Nut & Seed Butters",
+   "pub": "2019-04-01",
+   "score": 1030.9039
+  },
+  {
+   "d": "PEANUT BUTTER",
+   "brand": "SWEET CHAOS",
+   "owner": "Kenny's Candy Company Inc.",
+   "upc": "022224500418",
+   "cat": "Other Snacks",
+   "pub": "2021-07-29",
+   "score": 1030.9039
+  },
+  {
+   "d": "PEANUT BUTTER",
+   "brand": "REGINALD'S HOMEMADE",
+   "owner": "Reginald's Homemade Llc",
+   "upc": "869759000149",
+   "cat": "Nut & Seed Butters",
+   "pub": "2021-10-28",
+   "score": 1030.9039
+  },
+  {
+   "d": "PEANUT BUTTER",
+   "brand": "BRAD'S ORGANIC",
+   "owner": "First International Health Foods Ltd.",
+   "upc": "681170300154",
+   "cat": "Nut & Seed Butters",
+   "pub": "2021-10-28",
+   "score": 1030.9039
+  },
+  {
+   "d": "PEANUT BUTTER",
+   "brand": "SCHNUCKS",
+   "owner": "Schnuck Markets, Inc.",
+   "upc": "041318210231",
+   "cat": "Nut & Seed Butters",
+   "pub": "2021-10-28",
+   "score": 1030.9039
+  },
+  {
+   "d": "PEANUT BUTTER",
+   "brand": "ABC",
+   "owner": "American Blanching Company",
+   "upc": "837991211289",
+   "cat": "Nut & Seed Butters",
+   "pub": "2021-10-28",
+   "score": 1030.9039
+  },
+  {
+   "d": "PEANUT BUTTER",
+   "brand": "VOSGES",
+   "owner": "Vosges, Ltd.",
+   "upc": "810048013111",
+   "cat": "Candy",
+   "pub": "2021-07-29",
+   "score": 1030.9039
+  },
+  {
+   "d": "PEANUT BUTTER",
+   "brand": "EARTH O'SWEET",
+   "owner": "Springboard Software Inc",
+   "upc": "051907142843",
+   "cat": "Nut & Seed Butters",
+   "pub": "2021-10-28",
+   "score": 1030.9039
+  },
+  {
+   "d": "PEANUT BUTTER",
+   "brand": "RALEY'S",
+   "owner": "Raley's",
+   "upc": "04656700418",
+   "cat": "Nut & Seed Butters",
+   "pub": "2021-10-28",
+   "score": 1030.9039
+  }
+ ]
+}
