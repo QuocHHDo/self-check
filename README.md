@@ -22,6 +22,8 @@ Live at **https://quochhdo.github.io/self-check/**. It installs to your phone's 
 - **Lookups beyond the built-in list**: USDA search and barcode scanning via Open Food Facts on the web version; a Claude lookup in the Claude version.
 - **Installable and offline** via a service worker.
 
+- **Browser extension for Walmart product pages** (`extension/`): a card with the verdict, the main reasons and any flagged additives, using your goals. See below.
+
 Everything runs in the browser. Goals, favorites, lists and lookups live in your browser's local storage; there is no account and no server.
 
 ## How the verdict works
@@ -104,3 +106,25 @@ scripts/build-single.mjs   single-file build
 ## Caveats
 
 Values are approximate and vary by brand; the package label wins. Open Food Facts is crowd-sourced and can be incomplete. The scoring thresholds are rules of thumb, not a clinical standard. General nutrition guidance, not medical advice.
+
+## Browser extension (Walmart product pages)
+
+`extension/` is a Chrome extension (Manifest V3) that adds a verdict card to Walmart product pages (`walmart.com/ip/…`). It uses the same verdict code and foods as the site, and it's free: no server, no account.
+
+Where the nutrition comes from, in order:
+1. **The page's own Nutrition Facts panel** (Walmart's page data), for the exact product.
+2. **Fresh produce and weighed items**: matched by name to the app's built-in foods ("Marketside Fresh Organic Bananas" → Banana). Their codes are produce stickers (PLUs), not real barcodes, and looking them up returns unrelated products.
+3. **Otherwise the barcode** (UPC on the page) in Open Food Facts, then USDA Branded Foods.
+
+Non-food pages get no card. Walmart changes pages without reloading, so the card follows as you browse.
+
+**Install (Chrome, Edge or Brave on a computer):**
+1. Download this repository (Code → Download ZIP) and unzip it.
+2. Open `chrome://extensions`, turn on **Developer mode**, choose **Load unpacked**, and pick the `extension` folder.
+3. Click the extension's toolbar button to set your goals, or paste a backup or transfer link from the app (Goals → Your data).
+
+Phones: Chrome on Android and iOS doesn't run extensions.
+
+**Permissions:** storage (your goals), Walmart pages (to show the card), and Open Food Facts and USDA (barcode lookups, without cookies). Nothing is sent anywhere else.
+
+**For development:** `extension/lib/` holds copies of the app code; after changing `js/`, run `npm run sync:extension` (a test fails if the copies are out of date). `node tests/ui/extension.js` loads the extension in Chromium against saved Walmart page data (`tests/fixtures/walmart-pages.json`).

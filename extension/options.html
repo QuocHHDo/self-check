@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Should I Buy It? settings</title>
+<style>
+:root { --ink:#161813; --muted:#5b6157; --line:#d8dccf; --bg:#f5f6f1; --surface:#fff; --good:#2b7742; --bad:#b23a2f; color-scheme: light dark; }
+@media (prefers-color-scheme: dark) { :root { --ink:#e8ebe2; --muted:#a1a898; --line:#30352b; --bg:#121410; --surface:#1b1e18; --good:#6fc487; --bad:#ef8577; } }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding: 24px 16px 48px; }
+main { max-width: 640px; margin: 0 auto; display: grid; gap: 18px; }
+h1 { margin: 0; font-size: 26px; } h2 { margin: 0 0 6px; font-size: 17px; }
+section { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 10px; }
+p { margin: 0; } .muted { color: var(--muted); font-size: 13.5px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+label { display: grid; gap: 4px; font-size: 13.5px; } .wide { grid-column: 1 / -1; } .check { display: flex; align-items: center; gap: 8px; }
+input, textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; box-sizing: border-box; width: 100%; }
+input[type=checkbox] { width: 18px; height: 18px; }
+textarea { font: 13px ui-monospace, monospace; min-height: 90px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; }
+button { font: 600 14px system-ui, sans-serif; border-radius: 8px; padding: 8px 14px; border: 1px solid var(--ink); background: var(--ink); color: var(--bg); cursor: pointer; }
+button.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+#status { min-height: 1.5em; } .ok { color: var(--good); } .err { color: var(--bad); }
+a { color: var(--good); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Should I Buy It?</h1>
+    <p class="muted">Shows a verdict card on Walmart product pages, using these goals. Everything stays in this browser.</p>
+  </header>
+
+  <section aria-labelledby="hImport">
+    <h2 id="hImport">Bring your goals from the app</h2>
+    <p class="muted">In the app, open <b>Goals → Your data</b> and choose <b>Copy as text</b> or <b>Copy transfer link</b>, then paste it here. Only your goals, skip list and mild-food setting are used.</p>
+    <label for="paste">Backup text or transfer link<textarea id="paste" spellcheck="false"></textarea></label>
+    <div class="row"><button type="button" id="importBtn">Use these goals</button></div>
+  </section>
+
+  <section aria-labelledby="hGoals">
+    <h2 id="hGoals">Your goals</h2>
+    <form id="goals" class="grid">
+      <label>Calories / day<input id="cal" type="number" min="800" max="6000" step="10" required></label>
+      <label>Protein goal (g)<input id="pro" type="number" min="20" max="400" required></label>
+      <label>Saturated fat limit (g)<input id="sat" type="number" min="5" max="40" required></label>
+      <label>Sodium limit (mg)<input id="na" type="number" min="500" max="5000" step="50" required></label>
+      <label>Added sugar limit (g)<input id="add" type="number" min="0" max="100" required></label>
+      <label>Fiber goal (g)<input id="fib" type="number" min="10" max="70" required></label>
+      <label class="wide">Foods or additives you skip (comma separated)<input id="skip" type="text"></label>
+      <label class="wide check"><input id="mild" type="checkbox"> I prefer mild food (flag spicy items)</label>
+      <label class="wide">USDA API key (optional; used for barcode lookups when a page has no nutrition facts)<input id="usdaKey" type="text" placeholder="DEMO_KEY" autocomplete="off" spellcheck="false"></label>
+      <div class="row wide"><button type="submit">Save</button><button type="button" class="ghost" id="reset">Reset to defaults</button></div>
+    </form>
+    <p id="status" role="status" aria-live="polite"></p>
+  </section>
+
+  <p class="muted">Verdicts are general nutrition guidance, not medical advice. Full app: <a href="https://quochhdo.github.io/self-check/" target="_blank" rel="noopener">quochhdo.github.io/self-check</a>.</p>
+</main>
+<script src="lib/verdict.js"></script>
+<script src="lib/backup.js"></script>
+<script src="options.js"></script>
+</body>
+</html>

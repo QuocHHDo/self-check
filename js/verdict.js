@@ -45,7 +45,7 @@
   // A daily-limit nutrient whose amount we can't vouch for. Unknown added sugar on a raw or nearly sugar-free food
   // doesn't count: there's no room for much of it.
   const unknownLimit = (f, k) => (isMissing(f, k) || isLowerBound(f, k)) && !(k === "add" && f.addLikelyZero);
-  const SOURCE_WORD = { usda: "USDA", off: "Open Food Facts", claude: "the lookup" };
+  const SOURCE_WORD = { usda: "USDA", off: "Open Food Facts", claude: "the lookup", walmart: "Walmart's nutrition panel" };
   const listWords = ks => { const w = ks.map(k => NUTRIENT_WORD[k]); return w.length <= 1 ? w.join("") : w.slice(0, -1).join(", ") + " or " + w.at(-1); };
   // "Partial data: USDA didn't report saturated fat or total sugars." (null when nothing is missing)
   function missingNote(f) {
