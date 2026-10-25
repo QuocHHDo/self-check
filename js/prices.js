@@ -27,11 +27,13 @@
     };
   }
 
-  // What a dollar buys: protein when the food is a real protein source, else fiber when it's a real fiber source.
+  // What a dollar buys: protein when the food is a real protein source (the verdict's "decent protein" bar: at least
+  // 5 g and 20% of calories, so pasta and bread don't top a protein-per-dollar list), else fiber when it's a good
+  // fiber source.
   function value(f, p) {
     if (!p || !(p.perServing > 0)) return null;
     const per = k => (f[k] || 0) / p.perServing;
-    if ((f.pro || 0) >= 5) return { k: "pro", v: per("pro"), text: `${Math.round(per("pro"))} g protein per $1` };
+    if ((f.pro || 0) >= 5 && f.cal > 0 && f.pro * 4 / f.cal >= 0.2) return { k: "pro", v: per("pro"), text: `${Math.round(per("pro"))} g protein per $1` };
     if ((f.fib || 0) >= 2.8) return { k: "fib", v: per("fib"), text: `${Math.round(per("fib") * 10) / 10} g fiber per $1` };
     return null;
   }

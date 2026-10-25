@@ -196,19 +196,24 @@
       if (!info.items.length) sec.append(el("p", { class: "muted", text: "No additives listed." }));
       else {
         const list = el("ul", { class: "addlist" });
+        // Tap a row for what it is, why it's there and what the evidence says. Removed ones start open.
         for (const a of info.items) {
-          const li = el("li", { class: a.flag ? "flagged" : null },
+          const body = el("div", { class: "abody-more" },
+            a.what || a.role ? el("p", {}, a.what ? el("b", { text: a.what + " " }) : null, a.role || "") : null,
+            a.note ? el("p", {}, a.note, a.src ? " " : null, a.src ? el("a", { href: a.src, target: "_blank", rel: "noopener", text: "Source" }) : null) : null,
+            a.efsaHigh ? el("p", { class: "muted", text: "EFSA's safety review found some people may exceed the acceptable daily intake." }) : null,
+            el("p", { class: "muted", text: a.statusHint }));
+          const sum = el("summary", {},
             el("span", { class: "acode", text: a.code || "—" }),
-            el("span", { class: "abody" }, el("span", { class: "aname", text: a.name }), a.fn ? el("span", { class: "afn", text: ` · ${a.fn}` }) : null,
-              a.flag ? el("span", { class: "aflag" }, a.flag.t, a.flag.src ? " " : null, a.flag.src ? el("a", { href: a.flag.src, target: "_blank", rel: "noopener", text: "Source" }) : null) : null,
-              a.efsaHigh ? el("span", { class: "aefsa", text: "EFSA's safety review found some people may exceed the acceptable daily intake." }) : null));
-          list.append(li);
+            el("span", { class: "aname", text: a.name }),
+            el("span", { class: `astatus ${a.status}`, text: a.statusLabel }));
+          list.append(el("li", { class: `st-${a.status}` }, el("details", { open: a.status === "removed" ? true : null }, sum, body)));
         }
         sec.append(list);
       }
     }
     if (f.ingredients) sec.append(el("details", { class: "ingr" }, el("summary", { text: "Ingredients" }), el("p", { text: f.ingredients })));
-    sec.append(el("p", { class: "legend", text: (info.fromText ? "Found by name in the ingredient list, so an additive listed under an unusual name can be missed. " : "From Open Food Facts. ") + "Additives approved in the US and EU are judged safe at normal amounts; only ones with a documented concern are flagged. Add any you avoid to your skip list (for example “sucralose” or “E407”)." }));
+    sec.append(el("p", { class: "legend", text: (info.fromText ? "Found by name in the ingredient list, so an additive listed under an unusual name can be missed. " : "From Open Food Facts. ") + "Tap an additive for what it is and what the evidence says. Most approved additives are judged safe at normal amounts; “Mixed evidence” means approved but questioned, with the source. Add any you avoid to your skip list (for example “sucralose” or “E407”)." }));
     return sec;
   }
 
@@ -595,7 +600,7 @@
       ? `Ranked by nutrient density: 100 calories' worth of each food, scored by the same rules as the verdict (lower is less healthy). Foods under ${V.KCAL_MIN} calories per serving keep their per-serving score.`
       : "Ranked per serving by the same score behind each verdict (lower is less healthy), then by how much of your saturated fat, sodium and added-sugar limits one serving uses.";
 
-    if (byValue) $("bsortNote").textContent = `Grams of protein a dollar buys, at typical prices (or yours). Only foods with a price and at least 5 g protein per serving are listed. Prices: BLS ${PR.meta.bls}, produce from USDA ERS adjusted to ${PR.meta.cpi}.`;
+    if (byValue) $("bsortNote").textContent = `Grams of protein a dollar buys, at typical prices (or yours). Only priced foods that are real protein sources (at least 5 g and 20% of calories from protein) are listed. Prices: BLS ${PR.meta.bls}, produce from USDA ERS adjusted to ${PR.meta.cpi}.`;
     let rows = allFoods().filter(f => browseCat === "all" || f.c === browseCat).map(f => ({ f, v: V.assess(f, profile), h: V.health(f, profile, browseBasis) }));
     if (byValue) {
       rows = rows.map(r => { const p = PR.price(r.f, myPrices); const val = PR.value(r.f, p); return { ...r, p, val }; }).filter(r => r.val && r.val.k === "pro");

@@ -1,12 +1,10 @@
 name: Update prices
-# Monthly: BLS publishes average prices around mid-month. Rebuilds js/prices-data.js from free government data,
+# Monthly: BLS publishes average prices around mid-month. Needs a repository secret BLS_CONTACT (an email). Rebuilds js/prices-data.js from free government data,
 # runs the tests, and commits only if prices changed. Also runnable from the Actions tab.
 on:
   schedule:
     - cron: "17 14 20 * *"
   workflow_dispatch:
-  push:
-    branches: [probe-branded]
 permissions:
   contents: write
   pages: write
@@ -20,7 +18,7 @@ jobs:
           node-version: 22
       - name: Download BLS and USDA ERS price data
         env:
-          BLS_API_KEY: ${{ secrets.BLS_API_KEY }} # optional; the keyless API is enough for this
+          BLS_CONTACT: ${{ secrets.BLS_CONTACT }} # an email; BLS requires one for automated downloads
         run: node scripts/fetch-prices.mjs "$RUNNER_TEMP/prices"
       - name: Build prices
         run: node scripts/build-prices.mjs "$RUNNER_TEMP/prices"

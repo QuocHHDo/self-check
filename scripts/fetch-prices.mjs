@@ -1,45 +1,35 @@
 // Downloads the price sources for scripts/build-prices.mjs into <dir>:
-//   BLS series through the public API (https://api.bls.gov). v2 with a free key (env BLS_API_KEY) when set,
-//   else v1, which needs no key (25 series per request). Written in the same tab-separated layout as BLS's
-//   bulk files (ap.data.3.Food, cu.data.11.USFoodBeverage); item names come from data/prices/bls-items.tsv.
+//   BLS bulk files (https://download.bls.gov/pub/time.series/): average prices (ap.data.3.Food) and CPI food
+//   indexes (cu.data.11.USFoodBeverage). BLS blocks automated downloads that don't carry a contact email in the
+//   user agent, so set BLS_CONTACT (a repository secret in the workflow; never committed).
 //   USDA ERS fruit and vegetable CSVs, refreshed in data/prices/ when the ERS page links them.
-//   node scripts/fetch-prices.mjs <dir>
+//   BLS_CONTACT=you@example.com node scripts/fetch-prices.mjs <dir>
 import fs from "node:fs";
 import path from "node:path";
-import { PRICE_MAP } from "./price-map.mjs";
 
 const out = process.argv[2];
-if (!out) { console.error("usage: node scripts/fetch-prices.mjs <dir>"); process.exit(1); }
+if (!out) { console.error("usage: BLS_CONTACT=<email> node scripts/fetch-prices.mjs <dir>"); process.exit(1); }
 fs.mkdirSync(out, { recursive: true });
 const ROOT = new URL("..", import.meta.url).pathname;
-const KEY = process.env.BLS_API_KEY || "";
-const year = new Date().getUTCFullYear();
-
-const codes = [...new Set(Object.values(PRICE_MAP).map(s => s.bls).filter(Boolean))];
-const apSeries = codes.flatMap(c => [`APU0300${c}`, `APU0000${c}`]);
-const cuSeries = ["SEFK", "SEFL", "SEFM01", "SEFM02", "SEFM03", "SEFN03"].map(s => `CUUR0000${s}`);
-
-async function fetchSeries(ids) {
-  const per = KEY ? 50 : 25, rows = [];
-  for (let i = 0; i < ids.length; i += per) {
-    const body = { seriesid: ids.slice(i, i + per), startyear: "2023", endyear: String(year), ...(KEY ? { registrationkey: KEY } : {}) };
-    const res = await fetch(`https://api.bls.gov/publicAPI/${KEY ? "v2" : "v1"}/timeseries/data/`, { method: "POST", headers: { "content-type": "application/json", "user-agent": "self-check price refresh (https://github.com/QuocHHDo/self-check)" }, body: JSON.stringify(body) });
-    const text = await res.text();
-    let json;
-    try { json = JSON.parse(text); } catch { throw new Error(`BLS API answered ${res.status} with: ${text.replace(/\s+/g, " ").slice(0, 400)}`); }
-    if (json.status !== "REQUEST_SUCCEEDED") throw new Error(`BLS API: ${json.status} ${JSON.stringify(json.message || "").slice(0, 300)}`);
-    for (const s of json.Results.series) for (const d of s.data) rows.push([s.seriesID, d.year, d.period, d.value].join("\t"));
-    console.log(`BLS ${i + 1}-${Math.min(i + per, ids.length)} of ${ids.length}: ${json.Results.series.reduce((t, s) => t + s.data.length, 0)} values`);
-  }
-  return "series_id\tyear\tperiod\tvalue\n" + rows.join("\n") + "\n";
-}
-try {
-  fs.writeFileSync(path.join(out, "ap.data.3.Food"), await fetchSeries(apSeries));
-  fs.writeFileSync(path.join(out, "cu.data.11.USFoodBeverage"), await fetchSeries(cuSeries));
-} catch (e) {
-  console.log(`::error::${String(e.message || e).replace(/\n/g, " ")}`); // shows as an annotation on the run
+const contact = (process.env.BLS_CONTACT || "").trim();
+if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(contact)) {
+  console.log("::error::Set BLS_CONTACT to a contact email (repository secret). BLS rejects automated downloads without one.");
   process.exit(1);
 }
+const BLS_UA = { "user-agent": `self-check price refresh (${contact})` };
+
+async function bls(pathPart, file) {
+  const res = await fetch(`https://download.bls.gov/pub/time.series/${pathPart}`, { headers: BLS_UA });
+  const text = await res.text();
+  if (!res.ok || !text.startsWith("series_id")) {
+    console.log(`::error::BLS ${pathPart} answered ${res.status}: ${text.replace(/\s+/g, " ").slice(0, 200)}`);
+    process.exit(1);
+  }
+  fs.writeFileSync(path.join(out, file), text);
+  console.log(`BLS ${pathPart}: ${(text.length / 1e6).toFixed(1)} MB`);
+}
+await bls("ap/ap.data.3.Food", "ap.data.3.Food");
+await bls("cu/cu.data.11.USFoodBeverage", "cu.data.11.USFoodBeverage");
 fs.copyFileSync(path.join(ROOT, "data/prices/bls-items.tsv"), path.join(out, "ap.item"));
 
 // ERS: links carry a version query (?v=…), so read them from the data page. Keep the committed copy on failure.

@@ -6,7 +6,7 @@ Live at **https://quochhdo.github.io/self-check/**. It installs to your phone's 
 
 ## Features
 
-- **449 built-in foods** across 13 categories, with search and aliases ("boba", "EVOO", "hamburger").
+- **486 built-in foods** across 13 categories, with search and aliases ("boba", "EVOO", "hamburger").
 - **Nutrition label** in FDA format; tap any line to see what it means and how it compares with your daily target.
 - **Personal verdict** scored against your calorie, protein, saturated fat, sodium, added sugar and fiber goals, plus a skip list and a mild-food preference.
 - **Healthier swaps** for anything below "Get it," with the difference spelled out ("5.3 g less saturated fat").
@@ -37,10 +37,10 @@ Each serving gets a point score from about a dozen rules measured against your g
 ## Testing
 
 ```sh
-npm test            # 111 unit tests (node tests/run.js): data, verdict rules, swaps, search, API conversions, quiz, evals
+npm test            # 116 unit tests (node tests/run.js): data, verdict rules, swaps, search, API conversions, quiz, evals
 node tests/verdict-dump.js > verdicts.csv   # every built-in food's verdict and reasons, for eyeballing outliers
 node scripts/build-additives.mjs <openfoodfacts-server>/taxonomies   # regenerate js/additives-data.js from Open Food Facts
-scripts/fetch-prices.sh /tmp/prices && node scripts/build-prices.mjs /tmp/prices   # rebuild js/prices-data.js (the Update prices workflow does this monthly)
+BLS_CONTACT=you@example.com node scripts/fetch-prices.mjs /tmp/prices && node scripts/build-prices.mjs /tmp/prices   # rebuild js/prices-data.js (the Update prices workflow does this monthly)
 npm install && npm run test:ui   # click-through test of every feature in both versions + axe accessibility check
 npm run test:layout # Playwright: layout at 320/375/414/1280 px, plus a real barcode decode from a fake camera
 npm run snapshot    # after an intentional rule or data change: rewrite the verdict snapshot, then review the diff
@@ -61,7 +61,7 @@ The USDA eval also writes `eval/suggested-values.json`: confident matches that d
 
 ### Results: built-in values vs USDA (October 24, 2026)
 
-439 of 449 foods were searched; 304 had a USDA record the matcher trusts as the same food. Within that set:
+In the last USDA check (before 37 foods were added), 439 of 449 foods were searched; 304 had a USDA record the matcher trusts as the same food. Within that set:
 
 | Nutrient | Median error | Within 10% | Within 25% |
 | --- | --- | --- | --- |

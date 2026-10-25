@@ -1,5 +1,6 @@
 // End-to-end UI test: loads the real page in jsdom, clicks through every feature, and mocks the
 // USDA, Open Food Facts and Claude APIs. Run with `npm run test:ui` (needs `npm install` for jsdom and axe-core).
+const N_FOODS = require("../../js/foods.js").FOODS.length;
 const fs = require("fs"), path = require("path");
 const { JSDOM } = require("jsdom");
 const REPO = path.join(__dirname, "..", ".."), MODE = process.argv[2] || "pages";
@@ -124,10 +125,12 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
     ok(text(".label .serv span:last-child") === "1 bar (60 g)", "barcode product uses per-serving values");
     // Additives panel: listed with functions, NOVA badge, flagged ones with sources; skip list covers additives.
     offMode = "cola"; $("#q").value = "0000000000017"; submit("#form"); await tick(10);
-    ok(/NOVA 4/.test(text(".additives .nova")) && $$(".additives .addlist li").length === 6 && /E951Aspartame · sweetener/.test(text(".additives")), `additives panel lists the cola's 6 additives (${text(".additives").slice(0, 120)})`);
-    ok(!$(".additives li.flagged"), "ordinary additives aren't flagged");
+    ok(/NOVA 4/.test(text(".additives .nova")) && $$(".additives .addlist li").length === 6 && /E951AspartameMixed evidence/.test(text(".additives")), `additives panel lists the cola's 6 additives (${text(".additives").slice(0, 120)})`);
+    ok(!$(".additives li.st-removed") && $$(".additives li.st-mixed").length >= 2 && /E330Citric acidConsidered safe/.test(text(".additives")), `statuses: none removed, sweeteners mixed, citric acid safe (${$$(".additives li").map(l => l.className).join(" ")})`);
+    const asp = $$(".additives li").find(l => /Aspartame/.test(l.textContent));
+    ok(!asp.querySelector("details").open && /possibly carcinogenic/.test(asp.textContent) && asp.querySelector("a[href*='who.int']"), "aspartame's note and WHO source are one tap away");
     offMode = "candy"; $("#q").value = "0000000000024"; submit("#form"); await tick(10);
-    ok($$(".additives li.flagged").length === 3 && $$(".additives li.flagged a").length === 3 && text(".tag .verdict") === "In moderation", `removed additives flagged with sources; verdict ${text(".tag .verdict")}`);
+    ok($$(".additives li.st-removed").length === 3 && $$(".additives li.st-removed details[open] a").length === 3 && text(".tag .verdict") === "In moderation", `removed additives flagged with sources; verdict ${text(".tag .verdict")}`);
     offMode = "empty"; $("#q").value = "0000000000031"; submit("#form"); await tick(10);
     ok(/Found “Mystery Box”, but neither Open Food Facts nor USDA has its nutrition data/.test(text("#out .notice")), `a product with no nutrition values at all still says so (${text("#out .notice")})`);
     offMode = "ok";
@@ -194,9 +197,9 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
       click($("#scanClose")); await tick(2);
       delete w.Html5Qrcode; delete w.navigator.mediaDevices;
     })();
-    ok(/449 common foods built in \+ \d+ looked up\./.test(text("#foodCount")), `count includes lookups (${text("#foodCount")})`);
+    ok(new RegExp(`${N_FOODS} common foods built in \\+ \\d+ looked up\\.`).test(text("#foodCount")), `count includes lookups (${text("#foodCount")})`);
     const nLook = text("#foodCount").match(/\+ (\d+) looked up/)[1];
-    ok(text("#browseCount") === `449 foods + ${nLook} looked up`, `Browse count matches the header (${text("#browseCount")})`);
+    ok(text("#browseCount") === `${N_FOODS} foods + ${nLook} looked up`, `Browse count matches the header (${text("#browseCount")})`);
     // Shared links to looked-up foods: re-fetched when this browser doesn't have them.
     // foods[1] was listed but never opened, so this browser has no copy and must fetch it.
     const fresh = usdaFixture.foods[1];

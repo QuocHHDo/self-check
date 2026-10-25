@@ -3,9 +3,10 @@
 // regulators that have removed it from food, or the processed-meat cancer link for nitrites. Most additives are
 // judged safe at normal intakes by the FDA and EFSA, so the rest are shown without a rating.
 (function (root, factory) {
-  if (typeof module === "object" && module.exports) module.exports = factory(require("./additives-data.js"));
-  else root.SelfCheckAdditives = factory(root.SelfCheckAdditivesData);
-})(typeof self !== "undefined" ? self : this, function (DATA) {
+  if (typeof module === "object" && module.exports) module.exports = factory(require("./additives-data.js"), require("./additive-notes.js"));
+  else root.SelfCheckAdditives = factory(root.SelfCheckAdditivesData, root.SelfCheckAdditiveNotes);
+})(typeof self !== "undefined" ? self : this, function (DATA, NOTES_DATA) {
+  const { FUNCTION = {}, NOTES = {}, STATUS = {} } = NOTES_DATA || {};
   const SRC = {
     tio2: "https://fas.usda.gov/data/european-union-titanium-dioxide-banned-food-additive-eu",
     red3: "https://mcguirewoods.com/client-resources/alerts/2025/1/fda-bans-red-dye-no-3-food-drugs-sets-deadlines-manufacturers-reformulate",
@@ -13,7 +14,7 @@
     pho: "https://www.packaginglaw.com/index.php/news/fda-announces-final-determination-partially-hydrogenated-oils-are-not-gras",
   };
   // removed: a regulator has taken it out of food, so a product with it can't be a top pick.
-  const NITRITE = { t: "A curing salt for meat. The WHO's cancer agency classifies processed meat as a cause of colorectal cancer, and nitrites are thought to be part of why." };
+  const NITRITE = { t: "A curing salt in bacon, ham and hot dogs. The WHO's cancer agency classifies processed meat as a cause of colorectal cancer, and nitrites are thought to be part of why." };
   const FLAGS = {
     e171: { t: "Banned as a food additive in the EU since 2022. Still allowed in the US.", src: SRC.tio2, removed: true },
     e127: { t: "The FDA revoked its approval in January 2025; foods must drop it by January 15, 2027.", src: SRC.red3, removed: true },
@@ -22,7 +23,7 @@
   };
   // Ingredients that have no E-number, found in the ingredient text.
   const TEXT_FLAGS = [
-    { code: "pho", re: /partially[ -]hydrogenated/i, name: "Partially hydrogenated oil", fn: "fat",
+    { code: "pho", re: /partially[ -]hydrogenated/i, name: "Partially hydrogenated oil", fn: "fat", what: "Vegetable oil partly hydrogenated to make it solid.",
       t: "The main source of artificial trans fat. The FDA ruled in 2015 that it isn't safe (not GRAS) and gave food makers until 2018 to remove it.", src: SRC.pho, removed: true },
   ];
   const NOVA = {
@@ -40,8 +41,24 @@
     const code = String(tag).replace(/^[a-z]{2}:/, "").toLowerCase();
     const d = DATA[code] || DATA[code.replace(/[a-z]+$/, "")];
     const base = code.match(/^e\d+/) ? code.match(/^e\d+/)[0] : code;
-    return { code: code.toUpperCase().replace(/^E(\d+)([A-Z]*)$/, (m, n, v) => "E" + n + v.toLowerCase()), key: code, base,
-      name: d ? d[0] : code.toUpperCase(), fn: d ? US(d[1]) : "", efsaHigh: !!(d && d[2]), flag: FLAGS[code] || FLAGS[base] || null };
+    const flag = FLAGS[code] || FLAGS[base] || null;
+    const fn = d ? US(d[1]) : "";
+    return describe({ code: code.toUpperCase().replace(/^E(\d+)([A-Z]*)$/, (m, n, v) => "E" + n + v.toLowerCase()), key: code, base,
+      name: d ? d[0] : code.toUpperCase(), fn, efsaHigh: !!(d && d[2]), flag }, NOTES[code] || NOTES[code.replace(/(iv|v?i{1,3}|v)$/, "")]);
+  }
+  // Adds what it is, what it does, and a status: removed (a regulator took it out of food), mixed, safe, or
+  // unreviewed. A flag's reason and source take precedence for flagged additives.
+  const PRIMARY = ["sweetener", "color", "preservative", "raising agent", "flavor enhancer", "acid", "emulsifying salts", "gelling agent", "thickener",
+    "emulsifier", "acidity regulator", "stabilizer", "humectant", "firming agent", "glazing agent", "anti-caking agent", "antioxidant", "sequestrant"];
+  const rank = c => { const i = PRIMARY.indexOf(c); return i < 0 ? PRIMARY.length : i; };
+  function describe(a, note) {
+    // Taxonomy functions are alphabetical; describe the usual main job (lecithin: emulsifier, not antioxidant).
+    const fns = a.fn.split(", ").filter(c => FUNCTION[c]).sort((x, y) => rank(x) - rank(y));
+    // A reviewed note's own role wins; the taxonomy's function list is a fallback (it calls citric acid an antioxidant).
+    const role = note && note.role ? note.role : note && note.what ? "" : fns.length ? FUNCTION[fns[0]] : "";
+    const status = a.flag && a.flag.removed ? "removed" : note ? note.status : a.flag ? "mixed" : "unreviewed";
+    return { ...a, what: note ? note.what : "", role, status, statusLabel: (STATUS[status] || {}).label || "", statusHint: (STATUS[status] || {}).hint || "",
+      note: a.flag ? a.flag.t : note && note.note || "", src: a.flag && a.flag.src || note && note.src || "" };
   }
 
   // Additive names in a plain ingredient list (USDA Branded gives text, not E-number tags): "Red 40", "xanthan gum",
@@ -82,7 +99,7 @@
       if (seen.has(a.base)) continue; // e322 and e322i are the same additive on a label
       seen.add(a.base); items.push(a);
     }
-    for (const x of TEXT_FLAGS) if (x.re.test(f.ingredients || "") && !seen.has(x.code)) items.push({ code: "", key: x.code, base: x.code, name: x.name, fn: x.fn, efsaHigh: false, flag: x });
+    for (const x of TEXT_FLAGS) if (x.re.test(f.ingredients || "") && !seen.has(x.code)) items.push(describe({ code: "", key: x.code, base: x.code, name: x.name, fn: x.fn, efsaHigh: false, flag: x }, { what: x.what }));
     const nova = [1, 2, 3, 4].includes(Number(f.nova)) ? Number(f.nova) : null;
     return { items, flagged: items.filter(a => a.flag), removed: items.some(a => a.flag && a.flag.removed), nova, novaInfo: nova ? NOVA[nova] : null, known: Array.isArray(f.additives) || fromText, fromText };
   }

@@ -43,6 +43,8 @@ test("value: protein per dollar for protein foods, fiber per dollar for fiber fo
   assert.equal(v.k, "pro"); assert.match(v.text, /^\d+ g protein per \$1$/);
   assert.equal(PR.value(food("Raspberries"), PR.price(food("Raspberries"))).k, "fib");
   assert.equal(PR.value(food("Soda"), PR.price(food("Soda"))), null);
+  // Pasta has 7 g protein but only 14% of its calories: not ranked as a protein buy.
+  assert.notEqual((PR.value(food("Pasta"), PR.price(food("Pasta"))) || {}).k, "pro");
 });
 
 test("a plate's cost adds up the priced items and counts the rest", () => {
