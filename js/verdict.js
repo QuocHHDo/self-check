@@ -120,6 +120,11 @@
   const POS_FLOOR = { pro: 5, fib: 2.8 };
   const HEAVY_SHARE = 0.2;
   const MEANINGFUL_REL = 0.1;
+  // One serving's cutoffs, as shares of the daily limit: the first costs a point, the second two.
+  const CUT = { sat: [0.15, 0.3], na: [0.2, 0.35], add: [0.15, 0.3] };
+  // Share of calories from protein for "decent" and "high" protein, and below which a heavy serving is penalized.
+  const DENSITY = [0.2, 0.4];
+  const HEAVY_DENSITY = 0.15;
   const floorFor = (k, share) => (FDA_DV[k] || 0) * share;
   // A difference worth pointing out: at least 10% relative and above a per-nutrient floor (share of the Daily Value).
   function meaningfulDiff(k, x, y, share = 0.05) {
@@ -130,6 +135,8 @@
   // A plate is a meal, so it's judged against a meal's share of the day (a third of each daily goal and limit),
   // not as if it were one food. It gets credit for protein, fiber and balance, and a flag when protein is low.
   const MEAL_SHARE = 1 / 3;
+  // Meal cutoffs, as shares of a meal's third of each daily goal or limit.
+  const MEAL_CUT = { pro: [0.5, 0.8], fib: 0.6, limit: [0.7, 1], cal: 1.5 };
   const PROTEIN_CATS = new Set(["meat", "seafood", "plant", "dairy", "protein"]);
   function assessMeal(f, p) {
     const m = {}; for (const k of ["cal", "pro", "sat", "na", "add", "fib"]) m[k] = (p[k] || 0) * MEAL_SHARE;
@@ -137,25 +144,25 @@
     const pct = (v, t) => Math.round(v / t * 100);
     const items = f.items || [];
     if (K("pro")) {
-      if (f.pro >= 0.8 * m.pro) { s += 2; r.push({ k: "pos", t: `Enough protein for a meal: ${fmt(f.pro)} g of the ${Math.round(m.pro)} g that's a third of your ${p.pro} g goal.` }); }
-      else if (f.pro >= 0.5 * m.pro) { s += 1; r.push({ k: "pos", t: `Some protein: ${fmt(f.pro)} g of about ${Math.round(m.pro)} g for this meal.` }); }
-      else { s -= 1; r.push({ k: "neg", t: `Low protein for a meal: ${fmt(f.pro)} g. A third of your ${p.pro} g goal is about ${Math.round(m.pro)} g.` }); }
+      if (f.pro >= MEAL_CUT.pro[1] * m.pro) { s += 2; r.push({ k: "pos", n: "pro", d: 2, t: `Enough protein for a meal: ${fmt(f.pro)} g of the ${Math.round(m.pro)} g that's a third of your ${p.pro} g goal.` }); }
+      else if (f.pro >= MEAL_CUT.pro[0] * m.pro) { s += 1; r.push({ k: "pos", n: "pro", d: 1, t: `Some protein: ${fmt(f.pro)} g of about ${Math.round(m.pro)} g for this meal.` }); }
+      else { s -= 1; r.push({ k: "neg", n: "pro", d: -1, t: `Low protein for a meal: ${fmt(f.pro)} g. A third of your ${p.pro} g goal is about ${Math.round(m.pro)} g.` }); }
     }
-    if (K("fib") && f.fib >= 0.6 * m.fib) { s += 1; r.push({ k: "pos", t: `Good fiber for a meal: ${fmt(f.fib)} g of about ${Math.round(m.fib)} g.` }); }
+    if (K("fib") && f.fib >= MEAL_CUT.fib * m.fib) { s += 1; r.push({ k: "pos", n: "fib", d: 1, t: `Good fiber for a meal: ${fmt(f.fib)} g of about ${Math.round(m.fib)} g.` }); }
     const hasProtein = items.some(({ food, mult }) => PROTEIN_CATS.has(food.c) && (food.pro || 0) * (mult || 1) >= 7);
     const hasProduce = items.some(({ food }) => food.c === "fruit" || food.c === "veg");
-    if (hasProtein && hasProduce) { s += 1; r.push({ k: "pos", t: "Balanced: a protein food plus fruit or vegetables." }); }
+    if (hasProtein && hasProduce) { s += 1; r.push({ k: "pos", n: "balance", d: 1, t: "Balanced: a protein food plus fruit or vegetables." }); }
     else if (items.length && !hasProduce) r.push({ k: "note", t: "No fruit or vegetables on this plate yet. Adding some is the easiest upgrade." });
     const limit = (k, word, unit) => {
       if (!K(k) || !m[k]) return;
       const share = f[k] / m[k], amt = k === "na" ? Math.round(f[k]).toLocaleString("en-US") : fmt(f[k]);
-      if (share >= 1) { s -= 2; r.push({ k: "neg", t: `High ${word}: ${amt}${unit} is ${pct(f[k], m[k])}% of this meal's share (${pct(f[k], p[k])}% of your daily limit).` }); }
-      else if (share >= 0.7) { s -= 1; r.push({ k: "neg", t: `Getting high on ${word}: ${amt}${unit}, ${pct(f[k], m[k])}% of this meal's share.` }); }
+      if (share >= MEAL_CUT.limit[1]) { s -= 2; r.push({ k: "neg", n: k, d: -2, t: `High ${word}: ${amt}${unit} is ${pct(f[k], m[k])}% of this meal's share (${pct(f[k], p[k])}% of your daily limit).` }); }
+      else if (share >= MEAL_CUT.limit[0]) { s -= 1; r.push({ k: "neg", n: k, d: -1, t: `Getting high on ${word}: ${amt}${unit}, ${pct(f[k], m[k])}% of this meal's share.` }); }
     };
     limit("sat", "saturated fat", " g"); limit("na", "sodium", " mg"); limit("add", "added sugar", " g");
-    if ((f.tags || []).includes("processed")) { s -= 1; r.push({ k: "neg", t: "Includes processed meat, which is linked to higher heart and cancer risk." }); }
+    if ((f.tags || []).includes("processed")) { s -= 1; r.push({ k: "neg", n: "processed", d: -1, t: "Includes processed meat, which is linked to higher heart and cancer risk." }); }
     if (K("cal") && m.cal) {
-      if (f.cal > 1.5 * m.cal) { s -= 1; r.push({ k: "neg", t: `A big meal: ${Math.round(f.cal)} calories is ${pct(f.cal, p.cal)}% of your ${p.cal.toLocaleString("en-US")} for the day.` }); }
+      if (f.cal > MEAL_CUT.cal * m.cal) { s -= 1; r.push({ k: "neg", n: "cal", d: -1, t: `A big meal: ${Math.round(f.cal)} calories is ${pct(f.cal, p.cal)}% of your ${p.cal.toLocaleString("en-US")} for the day.` }); }
       else if (f.cal < 0.5 * m.cal) r.push({ k: "note", t: `A light meal: ${Math.round(f.cal)} calories, well under a third of your day.` });
     }
     let tier, word, why;
@@ -185,48 +192,48 @@
     const K = k => known(f, k);
     const pd = K("cal") && K("pro") && f.cal > 0 ? (f.pro * 4) / f.cal : 0;
     if (!K("pro")) { /* unknown protein: no protein credit */ }
-    else if (f.pro >= POS_FLOOR.pro && pd >= 0.4) { s += 2; r.push({ k: "pos", t: `High protein for the calories: ${fmt(f.pro)} g, about ${Math.round(f.pro / p.pro * 100)}% of your ${p.pro} g goal.` }); }
-    else if (f.pro >= POS_FLOOR.pro && pd >= 0.2) { s += 1; r.push({ k: "pos", t: `Decent protein: ${fmt(f.pro)} g per serving.` }); }
+    else if (f.pro >= POS_FLOOR.pro && pd >= DENSITY[1]) { s += 2; r.push({ k: "pos", n: "pro", d: 2, t: `High protein for the calories: ${fmt(f.pro)} g, about ${Math.round(f.pro / p.pro * 100)}% of your ${p.pro} g goal.` }); }
+    else if (f.pro >= POS_FLOOR.pro && pd >= DENSITY[0]) { s += 1; r.push({ k: "pos", n: "pro", d: 1, t: `Decent protein: ${fmt(f.pro)} g per serving.` }); }
 
     if (!K("fib")) { /* unknown fiber */ }
     // A positive needs at least 10% of the Daily Value (FDA's "good source" bar), so 1.5 g of fiber no longer counts.
-    else if (f.fib >= POS_FLOOR.fib) { s += 2; r.push({ k: "pos", t: `Good fiber source: ${fmt(f.fib)} g (${Math.round(f.fib / FDA_DV.fib * 100)}% of the daily value) keeps you full.` }); }
-    if (wholeProduce(f)) { s += 2; r.push({ k: "pos", t: f.c === "fruit" ? "Whole fruit: its natural sugar comes with water, fiber and nutrients, and most people should eat more." : "A whole vegetable: most people should eat more of these." }); }
-    if (wholeGrain(f)) { s += 2; r.push({ k: "pos", t: "Whole grain: keeps the bran and germ that refined grains lose." }); }
+    else if (f.fib >= POS_FLOOR.fib) { s += 2; r.push({ k: "pos", n: "fib", d: 2, t: `Good fiber source: ${fmt(f.fib)} g (${Math.round(f.fib / FDA_DV.fib * 100)}% of the daily value) keeps you full.` }); }
+    if (wholeProduce(f)) { s += 2; r.push({ k: "pos", n: "whole", d: 2, t: f.c === "fruit" ? "Whole fruit: its natural sugar comes with water, fiber and nutrients, and most people should eat more." : "A whole vegetable: most people should eat more of these." }); }
+    if (wholeGrain(f)) { s += 2; r.push({ k: "pos", n: "grain", d: 2, t: "Whole grain: keeps the bran and germ that refined grains lose." }); }
 
     const grams = servingGrams(f.s) ? servingGrams(f.s) * (f.mult || 1) : null;
     const lowDensity = grams ? f.cal / grams <= 1.0 : false; // "volume" means low energy density, not just a small serving
-    if (["cal", "fat", "sat", "add", "na", "fib"].every(K) && lowDensity && f.cal >= 5 && f.cal <= 65 && f.fat < 3 && f.sat < 1 && f.add === 0 && f.na < 250 && f.fib >= 0.5) { s += 2; r.push({ k: "pos", t: "Lots of food volume for very few calories." }); }
+    if (["cal", "fat", "sat", "add", "na", "fib"].every(K) && lowDensity && f.cal >= 5 && f.cal <= 65 && f.fat < 3 && f.sat < 1 && f.add === 0 && f.na < 250 && f.fib >= 0.5) { s += 2; r.push({ k: "pos", n: "volume", d: 2, t: "Lots of food volume for very few calories." }); }
     const goodFat = healthyFatSource(f);
-    if (goodFat && K("cal") && f.fat >= 5 && f.fat * 9 >= 0.5 * f.cal && !OIL_NAME.test(f.n) && (f.pro >= 3 || f.fib >= 2)) { s += 1; r.push({ k: "pos", t: "Its fat is mostly the unsaturated kind, which is better for cholesterol." }); }
+    if (goodFat && K("cal") && f.fat >= 5 && f.fat * 9 >= 0.5 * f.cal && !OIL_NAME.test(f.n) && (f.pro >= 3 || f.fib >= 2)) { s += 1; r.push({ k: "pos", n: "goodfat", d: 1, t: "Its fat is mostly the unsaturated kind, which is better for cholesterol." }); }
 
     const satShare = K("sat") ? f.sat / p.sat : 0;
-    if (satShare >= 0.3) { s -= 2; r.push({ k: "neg", t: `High saturated fat: ${fmt(f.sat)} g is ${Math.round(satShare * 100)}% of your ${p.sat} g daily limit in one serving.` }); }
-    else if (satShare >= 0.15) { s -= 1; r.push({ k: "neg", t: `Moderate saturated fat: ${fmt(f.sat)} g (${Math.round(satShare * 100)}% of your limit).` }); }
+    if (satShare >= CUT.sat[1]) { s -= 2; r.push({ k: "neg", n: "sat", d: -2, t: `High saturated fat: ${fmt(f.sat)} g is ${Math.round(satShare * 100)}% of your ${p.sat} g daily limit in one serving.` }); }
+    else if (satShare >= CUT.sat[0]) { s -= 1; r.push({ k: "neg", n: "sat", d: -1, t: `Moderate saturated fat: ${fmt(f.sat)} g (${Math.round(satShare * 100)}% of your limit).` }); }
     if (K("trans") && f.trans > 0.5) {
       s -= 1;
       const natural = f.c === "meat" || f.c === "dairy";
-      r.push({ k: "neg", t: `Contains ${fmt(f.trans)} g trans fat${natural ? " (the kind that occurs naturally in red meat and dairy)" : ", the type of fat that raises LDL the most"}.` });
+      r.push({ k: "neg", n: "trans", d: -1, t: `Contains ${fmt(f.trans)} g trans fat${natural ? " (the kind that occurs naturally in red meat and dairy)" : ", the type of fat that raises LDL the most"}.` });
     }
 
     const naShare = K("na") ? f.na / p.na : 0;
-    if (naShare >= 0.35) { s -= 2; r.push({ k: "neg", t: `Very salty: ${Math.round(f.na).toLocaleString("en-US")} mg sodium is ${Math.round(naShare * 100)}% of your daily limit.` }); }
-    else if (naShare >= 0.2) { s -= 1; r.push({ k: "neg", t: `Salty: ${Math.round(f.na)} mg sodium (${Math.round(naShare * 100)}% of your limit).` }); }
+    if (naShare >= CUT.na[1]) { s -= 2; r.push({ k: "neg", n: "na", d: -2, t: `Very salty: ${Math.round(f.na).toLocaleString("en-US")} mg sodium is ${Math.round(naShare * 100)}% of your daily limit.` }); }
+    else if (naShare >= CUT.na[0]) { s -= 1; r.push({ k: "neg", n: "na", d: -1, t: `Salty: ${Math.round(f.na)} mg sodium (${Math.round(naShare * 100)}% of your limit).` }); }
 
     const addShare = K("add") && p.add > 0 ? f.add / p.add : 0;
-    if (addShare >= 0.3) { s -= 2; r.push({ k: "neg", t: `High added sugar: ${fmt(f.add)} g is ${Math.round(addShare * 100)}% of your ${p.add} g daily limit.` }); }
-    else if (addShare >= 0.15) { s -= 1; r.push({ k: "neg", t: `Some added sugar: ${fmt(f.add)} g (${Math.round(addShare * 100)}% of your limit).` }); }
+    if (addShare >= CUT.add[1]) { s -= 2; r.push({ k: "neg", n: "add", d: -2, t: `High added sugar: ${fmt(f.add)} g is ${Math.round(addShare * 100)}% of your ${p.add} g daily limit.` }); }
+    else if (addShare >= CUT.add[0]) { s -= 1; r.push({ k: "neg", n: "add", d: -1, t: `Some added sugar: ${fmt(f.add)} g (${Math.round(addShare * 100)}% of your limit).` }); }
 
-    if (K("sug") && K("add") && K("pro") && CONCENTRATED_SUGAR.test(f.n) && f.sug >= 25 && f.add < 10 && f.pro < 5) { s -= 1; r.push({ k: "neg", t: `${fmt(f.sug)} g of sugar in one serving. Even natural sugar adds up at this amount.` }); }
-    if ((f.tags || []).includes("treat")) { s -= 1; r.push({ k: "neg", t: "A treat (dessert, candy or fried snack): best kept occasional, not a regular buy." }); }
-    if ((f.tags || []).includes("processed")) { s -= 2; r.push({ k: "neg", t: "Processed meat, which is linked to higher heart and cancer risk." }); }
+    if (K("sug") && K("add") && K("pro") && CONCENTRATED_SUGAR.test(f.n) && f.sug >= 25 && f.add < 10 && f.pro < 5) { s -= 1; r.push({ k: "neg", n: "sug", d: -1, t: `${fmt(f.sug)} g of sugar in one serving. Even natural sugar adds up at this amount.` }); }
+    if ((f.tags || []).includes("treat")) { s -= 1; r.push({ k: "neg", n: "treat", d: -1, t: "A treat (dessert, candy or fried snack): best kept occasional, not a regular buy." }); }
+    if ((f.tags || []).includes("processed")) { s -= 2; r.push({ k: "neg", n: "processed", d: -2, t: "Processed meat, which is linked to higher heart and cancer risk." }); }
     const isPureFat = K("fat") && K("carb") && K("pro") && K("cal") && f.fat > 0 && f.carb < 0.5 && f.pro < 0.5 && f.fat * 9 >= 0.9 * f.cal;
     const unsaturatedOil = isPureFat && OIL_NAME.test(f.n) && K("sat") && f.sat / f.fat <= 0.25 && f.trans <= 0.2;
     if (unsaturatedOil) r.push({ k: "pos", t: "A cooking fat that's mostly unsaturated, which is better for cholesterol than butter, lard or coconut oil." });
-    else if (K("cal") && K("pro") && K("fib") && f.cal >= 100 && f.pro < 2 && f.fib < 1) { s -= 1; r.push({ k: "neg", t: "Calories with little protein or fiber, so it won't keep you full." }); }
+    else if (K("cal") && K("pro") && K("fib") && f.cal >= 100 && f.pro < 2 && f.fib < 1) { s -= 1; r.push({ k: "neg", n: "empty", d: -1, t: "Calories with little protein or fiber, so it won't keep you full." }); }
     // A big share of the day's calories in one serving, with little protein to show for it.
-    if (K("cal") && K("pro") && f.cal >= HEAVY_SHARE * p.cal && pd < 0.15) { s -= 1; r.push({ k: "neg", t: `A big share of your day: ${Math.round(f.cal)} calories (${Math.round(f.cal / p.cal * 100)}% of your ${p.cal.toLocaleString("en-US")}) in one serving, with only ${fmt(f.pro)} g protein.` }); }
-    if (EVIDENCE[f.n]) { s += 1; r.push({ k: "pos", t: EVIDENCE[f.n] }); }
+    if (K("cal") && K("pro") && f.cal >= HEAVY_SHARE * p.cal && pd < HEAVY_DENSITY) { s -= 1; r.push({ k: "neg", n: "cal", d: -1, t: `A big share of your day: ${Math.round(f.cal)} calories (${Math.round(f.cal / p.cal * 100)}% of your ${p.cal.toLocaleString("en-US")}) in one serving, with only ${fmt(f.pro)} g protein.` }); }
+    if (EVIDENCE[f.n]) { s += 1; r.push({ k: "pos", n: "evidence", d: 1, t: EVIDENCE[f.n] }); }
     if (NOTES[f.n]) r.push({ k: "note", t: NOTES[f.n] });
 
     if (K("chol") && K("sat") && f.chol >= 150 && satShare < 0.15) r.push({ k: "note", t: `High in dietary cholesterol (${Math.round(f.chol)} mg), but low in saturated fat. For most people saturated fat raises blood cholesterol more.` });
@@ -630,5 +637,51 @@
   // The old slug dropped accented letters (Jalapeño → jalape-o); kept so links shared before still resolve.
   const legacySlug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-  return { NEGLIGIBLE_KCAL, RANK, DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, skipMatch, healthyFatSource, servingGrams, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, assessMeal, MEAL_SHARE, swapCategory, swapTarget, SWAP_GROUPS, swapDiffs, meaningfulDiff, FDA_DV, POS_FLOOR, HEAVY_SHARE, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, legacySlug, foldAccents, fmt };
+  // What decided the verdict, as chart rows. Every point comes from a scored reason in assess() (r.n, r.d), so the
+  // chart can't disagree with the verdict; cutoffs are the same constants assess() uses. Judged on one serving.
+  const OTHER_LABEL = { whole: f => f.c === "fruit" ? "Whole fruit" : "Whole vegetable", grain: "Whole grain", volume: "Lots of volume, few calories",
+    goodfat: "Mostly unsaturated fat", trans: "Trans fat", sug: "A lot of sugar, even natural", treat: "A treat", processed: "Processed meat",
+    empty: "Little protein or fiber", evidence: "Research beyond the label", balance: "Protein plus fruit or veg" };
+  const ROW_KEYS = ["pro", "fib", "cal", "sat", "na", "add"];
+  function breakdown(f, p) {
+    const a = assess(f, p);
+    if (a.score == null) return null;
+    const meal = f.c === "plate";
+    const pts = n => a.reasons.filter(r => r.n === n).reduce((t, r) => t + r.d, 0);
+    const pct = v => Math.round(v * 100);
+    const num = (k, v) => k === "na" || k === "cal" ? Math.round(v).toLocaleString("en-US") : fmt(v);
+    const rows = [];
+    const row = (k, o) => rows.push({ k, name: { pro: "Protein", fib: "Fiber", cal: "Calories", sat: "Saturated fat", na: "Sodium", add: "Added sugar" }[k],
+      known: known(f, k), atLeast: isLowerBound(f, k), points: pts(k), ...o });
+    // Protein: share of calories for one food (what earns the credit); share of the meal's goal for a plate.
+    if (meal) row("pro", { kind: "goal", v: f.pro / p.pro, max: 0.5, marks: MEAL_CUT.pro.map(c => c * MEAL_SHARE),
+      text: `${fmt(f.pro)} g · ${pct(f.pro / p.pro)}% of your ${p.pro} g goal`, axis: "share of your daily protein goal" });
+    else {
+      const pd = f.cal > 0 ? Math.min(1, f.pro * 4 / f.cal) : 0;
+      row("pro", { kind: "goal", v: pd, max: 1, marks: DENSITY.slice(),
+        text: `${fmt(f.pro)} g · ${pct(pd)}% of calories`, axis: "share of calories from protein",
+        hint: known(f, "pro") && f.pro < POS_FLOOR.pro && pd >= DENSITY[0] ? `Under ${POS_FLOOR.pro} g, too little to count` : "" });
+    }
+    row("fib", { kind: "goal", v: f.fib / p.fib, max: 0.4, marks: [meal ? MEAL_CUT.fib * MEAL_SHARE : POS_FLOOR.fib / p.fib],
+      text: `${fmt(f.fib)} g · ${pct(f.fib / p.fib)}% of your ${p.fib} g goal`, axis: "share of your daily fiber goal" });
+    row("cal", { kind: "ctx", v: f.cal / p.cal, max: meal ? 0.8 : 0.5, marks: [meal ? MEAL_CUT.cal * MEAL_SHARE : HEAVY_SHARE],
+      text: `${num("cal", f.cal)} · ${pct(f.cal / p.cal)}% of your day`, axis: "share of your daily calories",
+      hint: !meal && f.cal >= HEAVY_SHARE * p.cal && !pts("cal") ? "Past the tick, but it has enough protein to not count against it" : "" });
+    for (const [k, u] of [["sat", " g"], ["na", " mg"], ["add", " g"]]) {
+      if (!p[k]) continue;
+      const v = f[k] / p[k];
+      row(k, { kind: "limit", v, max: Math.max(0.5, meal ? 0.5 : CUT[k][1] + 0.15), marks: meal ? MEAL_CUT.limit.map(c => c * MEAL_SHARE) : CUT[k].slice(),
+        text: `${isLowerBound(f, k) ? "≥" : ""}${num(k, f[k])}${u} · ${pct(v)}% of your limit`, axis: "share of your daily limit" });
+    }
+    const other = a.reasons.filter(r => r.n && !ROW_KEYS.includes(r.n))
+      .map(r => ({ n: r.n, points: r.d, label: typeof OTHER_LABEL[r.n] === "function" ? OTHER_LABEL[r.n](f) : OTHER_LABEL[r.n] || r.n }));
+    // A score between −2 and +2 is In moderation, or Fine for a serving with barely any calories and nothing to flag.
+    const byScore = a.score >= 2 ? "good" : a.score <= -2 ? "bad" : a.tier === "fine" ? "fine" : "mid";
+    // When something other than the score set the verdict (missing data, a removed additive), say what.
+    const override = a.tier === byScore ? "" : a.why;
+    const note = byScore === "fine" ? `Under ${NEGLIGIBLE_KCAL} calories and nothing to flag.` : "";
+    return { rows, other, score: a.score, tier: a.tier, word: a.word, byScore, override, note, meal };
+  }
+
+  return { breakdown, CUT, DENSITY, MEAL_CUT, NEGLIGIBLE_KCAL, RANK, DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, skipMatch, healthyFatSource, servingGrams, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, assessMeal, MEAL_SHARE, swapCategory, swapTarget, SWAP_GROUPS, swapDiffs, meaningfulDiff, FDA_DV, POS_FLOOR, HEAVY_SHARE, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, legacySlug, foldAccents, fmt };
 });

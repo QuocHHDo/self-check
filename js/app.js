@@ -158,6 +158,49 @@
       el("p", { class: "legend", text: "Green bars are goals to reach. Amber and red show how much of a daily limit this uses." }));
   }
 
+  // ---------- what decided the verdict ----------
+  // Each bar is a nutrient against the verdict's own cutoffs (the tick marks), with the points it scored. Other
+  // factors and the total follow, so the verdict reads as a sum. Always one standard serving: what the verdict judges.
+  const signed = n => n > 0 ? `+${n}` : n < 0 ? `−${-n}` : "0";
+  function renderWhy(f) {
+    const b = V.breakdown(f, profile);
+    if (!b) return renderBars(V.scale(f, mult));
+    const wrap = el("div", { class: "why-rows" });
+    for (const r of b.rows) {
+      const tone = !r.known ? "na" : r.points > 0 ? "good" : r.points <= -2 ? "bad" : r.points < 0 ? "warn" : r.kind === "limit" ? "ok" : "neutral";
+      const head = el("div", { class: "why-head" }, el("span", { class: "name", text: r.name }),
+        el("span", { class: "val", text: r.known ? r.text : "not reported" }),
+        el("span", { class: "pts " + tone, text: r.known ? signed(r.points) : "?", "aria-label": r.known ? `${signed(r.points)} points` : "not counted" }));
+      const track = el("div", { class: "track" + (r.known ? "" : " na") });
+      if (r.known) {
+        const w = Math.min(1, Math.max(0, r.v) / r.max);
+        track.append(el("div", { class: "fill " + tone, style: `width:${(w * 100).toFixed(1)}%` }));
+        if (r.v > r.max) track.append(el("span", { class: "over", "aria-hidden": "true", text: "›" }));
+      }
+      for (const m of r.marks) if (m < r.max) track.append(el("span", { class: "tick", style: `left:${(m / r.max * 100).toFixed(1)}%`, title: `${Math.round(m * 100)}%` }));
+      wrap.append(el("div", { class: "why-row", role: "group", "aria-label": `${r.name}: ${r.known ? r.text : "not reported"}, ${r.known ? signed(r.points) + " points" : "not counted"}. Ticks at ${r.marks.map(m => Math.round(m * 100) + "%").join(" and ")} of the ${r.axis}.` },
+        head, track, r.hint && r.known ? el("span", { class: "hint", text: r.hint }) : null));
+    }
+    const other = b.other.length ? el("div", { class: "why-other" }, el("span", { class: "lbl", text: "Also" }),
+      ...b.other.map(o => el("span", { class: "why-chip " + (o.points > 0 ? "good" : "bad") }, el("b", { text: signed(o.points) }), " " + o.label))) : null;
+    // Score line from −6 to +6: Limit it at −2 or lower, Get it at +2 or higher.
+    const pos = s => ((Math.max(-6, Math.min(6, s)) + 6) / 12 * 100).toFixed(1);
+    const scale = el("div", { class: "why-scale", "aria-hidden": "true" },
+      el("div", { class: "zone bad", style: `width:${pos(-1.5)}%` }), el("div", { class: "zone mid", style: `width:${(pos(1.5) - pos(-1.5)).toFixed(1)}%` }), el("div", { class: "zone good" }),
+      el("span", { class: "marker", style: `left:${pos(b.score)}%` }));
+    const total = el("div", { class: "why-total" },
+      el("p", {}, "Total ", el("b", { text: signed(b.score) }), " → ", el("b", { class: "tw " + b.byScore, text: { good: "Get it", mid: "In moderation", bad: "Limit it", fine: "Fine" }[b.byScore] })),
+      scale, el("div", { class: "why-scale-lbl", "aria-hidden": "true" }, el("span", { text: "Limit it ≤ −2" }), el("span", { text: "In moderation" }), el("span", { text: "Get it ≥ +2" })),
+      b.note ? el("p", { class: "why-override", text: b.note }) : null,
+      b.override ? el("p", { class: "why-override" }, el("b", { text: `Verdict: ${b.word}. ` }), b.override) : null);
+    const title = b.meal ? "What decided it (whole meal)" : "What decided it";
+    return el("section", { class: "panel decided" }, el("h3", { text: title }), wrap, other, total,
+      el("p", { class: "legend", text: (b.meal
+        ? "Bars are this meal against a third of your daily goals and limits. Ticks are the cutoffs: past the first, ±1 point; past the second, ±2."
+        : "Ticks are the verdict's cutoffs: past the first, ±1 point; past the second, ±2. Protein counts by its share of calories, so a lean food scores higher than a fatty one with the same grams.")
+        + (mult !== 1 && !b.meal ? ` Bars are one serving, which is what the verdict judges; the label shows your ${fmt(mult)} servings.` : "") }));
+  }
+
   // ---------- swaps ----------
   // Differences are per serving when servings have similar calories, otherwise per 100 calories, so a big
   // serving can't win just by being big. Only differences of at least 10% of the Daily Value are listed.
@@ -312,6 +355,11 @@
     return sec;
   }
 
+  // Restaurant or homemade dishes (not packaged foods with a label): their values are a typical recipe.
+  const PACKAGED = /frozen|canned|boxed|instant|\bkit\b|snack box|deli\b/i;
+  const DISH_ELSEWHERE = new Set(["Elote", "Bao, BBQ pork", "Overnight oats", "Tres leches cake", "Horchata", "Matcha latte, sweetened"]);
+  const isDish = f => !f.src && (f.c === "prepared" && !PACKAGED.test(f.n) || DISH_ELSEWHERE.has(f.n));
+
   // ---------- result ----------
   const MULTS = [0.5, 1, 1.5, 2, 3];
   const multLabel = m => (m === 0.5 ? "½" : m === 1.5 ? "1½" : String(m));
@@ -350,6 +398,7 @@
     else if (f.src === "usda") src.append(el("b", { text: "From USDA FoodData Central. " }), "Values per 100 g.");
     else if (f.src === "off") src.append(el("b", { text: "From Open Food Facts. " }), f.per100 ? "Values are per 100 g because the package has no serving size on file; use the servings buttons to match what you eat." : "Values per the package's serving. Crowd-sourced; check the label.");
     else if (isPlate) src.append("The sum of every item at the servings you chose. Judged as one meal: against a third of your daily goals and limits.");
+    else if (isDish(f)) src.append(el("b", { text: "A typical recipe. " }), "Restaurant and homemade versions vary a lot, most of all in sodium and portion size, so treat these numbers as an estimate. If the restaurant posts nutrition, that wins.");
     else src.append("Typical values for this serving. Brands vary.");
 
     const missingNote = V.missingNote(scaled);
@@ -367,7 +416,7 @@
           el("div", { class: "tag " + a.tier }, el("div", { class: "for", text: isPlate ? "For you · whole meal" : "For you" }), el("div", { class: "verdict", text: a.word }), a.spicy ? el("span", { class: "vp spicy flag", text: "Spicy" }) : null, el("p", { class: "why", text: a.why }),
             mult !== 1 ? el("p", { class: "per", text: "The verdict is for one standard serving; the label and bars show your amount." }) : null),
           isPlate ? renderPlatePrice() : renderPrice(f),
-          renderBars(scaled),
+          renderWhy(f),
           isPlate ? null : renderSwaps(f),
           el("section", { class: "panel" }, el("h3", { text: "Why" }), reasons),
           isPlate ? null : renderAdditives(f),

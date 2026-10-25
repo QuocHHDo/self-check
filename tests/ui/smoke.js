@@ -197,6 +197,19 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
       click($("#scanClose")); await tick(2);
       delete w.Html5Qrcode; delete w.navigator.mediaDevices;
     })();
+    // "What decided it": the points shown add up to the total, and the total matches the verdict.
+    w.location.hash = "#chicken-breast-grilled"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(4);
+    {
+      const pts = $$(".decided .pts, .why-chip b").map(e => Number(e.textContent.replace("−", "-").replace("?", "0")));
+      const tot = Number($(".why-total b").textContent.replace("−", "-"));
+      ok(pts.length >= 6 && pts.reduce((x, y) => x + y, 0) === tot, `chart points add up to the total (${pts.join(",")} = ${tot})`);
+      ok($$(".decided .tick").length >= 6, `chart shows the verdict's cutoffs as ticks (${$$(".decided .tick").length})`);
+      ok(/Get it/.test(text(".why-total")) && /Get it/.test(text(".tag .verdict")), `total matches the verdict (${text(".why-total").slice(0, 40)})`);
+    }
+    w.location.hash = "#chicken-pho"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(4);
+    ok(/A typical recipe/.test(text(".src")), `restaurant dishes are marked as a typical recipe (${text(".src").slice(0, 40)})`);
+    w.location.hash = "#lasagna-frozen"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(4);
+    ok(/Brands vary/.test(text(".src")), `packaged foods keep "Brands vary" (${text(".src").slice(0, 40)})`);
     ok(new RegExp(`${N_FOODS} common foods built in \\+ \\d+ looked up\\.`).test(text("#foodCount")), `count includes lookups (${text("#foodCount")})`);
     const nLook = text("#foodCount").match(/\+ (\d+) looked up/)[1];
     ok(text("#browseCount") === `${N_FOODS} foods + ${nLook} looked up`, `Browse count matches the header (${text("#browseCount")})`);
@@ -207,7 +220,7 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
     ok(text("#out h2").toLowerCase() === fresh.description.toLowerCase() && /From USDA/.test(text(".src")), `#usda-<id> fetches a food this browser hasn't seen (${text("#out h2")})`);
     const addRow = $$(".label [data-k]").find(r => r.dataset.k === "add");
     ok(addRow && /—/.test(addRow.textContent) && !/0\s?g/.test(addRow.textContent), `unreported added sugar shows "—" on the label (${addRow && addRow.textContent})`);
-    ok(/Added sugar\s*not reported/.test(text(".bars")), `and "not reported" on the bar (${text(".bars").slice(-40)})`);
+    ok(/Added sugar\s*not reported\s*\?/.test(text(".decided")), `and "not reported" on the chart, not counted (${text(".decided").slice(0, 200)})`);
     offMode = "ok"; w.location.hash = "#off-0123456789099"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(10);
     ok(/Open Food Facts/.test(text(".src")), `#off-<code> opens the product (${text("#out h2")})`);
     // Accented names: the folded slug and the old one both open Jalapeño; an unknown link never opens another food.
