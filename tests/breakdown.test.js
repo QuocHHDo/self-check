@@ -74,3 +74,18 @@ test("missing data and tiny servings explain why the score didn't decide", () =>
   assert.equal(coffee.override, "");
   assert.match(coffee.note, /Under 25 calories/);
 });
+
+test("a meal over its share of a limit can't be Get it, and the chart says why", () => {
+  // 2 servings of 80/20 beef: 17.4 g saturated fat, 87% of the daily limit in one meal. It used to score +2 → Get it.
+  const plate = V.combine([{ food: food("Ground beef 80/20"), mult: 2 }, { food: food("Carrots"), mult: 1 }, { food: food("Whole wheat bread"), mult: 1 }]);
+  const a = V.assessMeal(plate, P);
+  assert.equal(a.score, 2, "the score itself is unchanged");
+  assert.equal(a.tier, "mid");
+  assert.ok(a.reasons.some(r => r.k === "warn" && /over this meal's share of saturated fat/.test(r.t)));
+  const b = V.breakdown(plate, P);
+  assert.equal(b.byScore, "good");
+  assert.match(b.override, /over this meal's share of saturated fat/);
+  // A meal under every share still can be.
+  const lean = V.combine([{ food: food("Chicken breast, grilled"), mult: 1 }, { food: food("Broccoli"), mult: 1 }, { food: food("Brown rice"), mult: 1 }]);
+  assert.equal(V.assessMeal(lean, P).tier, "good");
+});

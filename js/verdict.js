@@ -171,6 +171,14 @@
     else if (s <= -2) { tier = "bad"; word = "Limit it"; why = "This meal works against your goals as a regular thing."; }
     else { tier = "mid"; word = "In moderation"; why = "An OK meal. See what would improve it below.";
       if (!hasNeg) r.push({ k: "warn", t: "Not much going for it yet: more protein, fiber or vegetables would make this a strong meal." }); }
+    // A meal over its share of a limit can't be a top pick, however much protein and fiber it has: the −2 for a
+    // limit is the same at 100% or 260% of the share, so the pluses could otherwise outweigh it.
+    const over = ["sat", "na", "add"].filter(k => K(k) && m[k] && f[k] / m[k] >= MEAL_CUT.limit[1]);
+    if (over.length && tier === "good") {
+      tier = "mid"; word = "In moderation";
+      why = `Strong on protein and balance, but over this meal's share of ${listWords(over)}.`;
+      r.push({ k: "warn", t: `Can't be "Get it" while it goes over this meal's share of ${listWords(over)}. A smaller portion or a leaner swap would fix that.` });
+    }
     const unknownLimits = KEY_LIMITS.filter(k => unknownLimit(f, k));
     const note = missingNote(f);
     if (note) r.push({ k: "warn", t: (f.missing || []).some(k => KEY_LIMITS.includes(k) || k === "sug") ? `${note} They aren't counted either way.` : note });
