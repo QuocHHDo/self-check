@@ -116,7 +116,7 @@ Where the nutrition comes from, in order:
 2. **Fresh produce and weighed items**: matched by name to the app's built-in foods ("Marketside Fresh Organic Bananas" → Banana). Their codes are produce stickers (PLUs), not real barcodes, and looking them up returns unrelated products.
 3. **Otherwise the barcode** (UPC on the page) in Open Food Facts, then USDA Branded Foods.
 
-Non-food pages get no card. Walmart changes pages without reloading, so the card follows as you browse.
+The card starts as a small chip (the verdict and one line on why) and opens to show bars for saturated fat, sodium and added sugar against your limits, the reasons that decided it, and a better swap with a Walmart search for it. It always shows Walmart's product name; the source of the numbers is in the footer. Non-food pages get no card. Walmart changes pages without reloading, so the card follows as you browse.
 
 **Install (Chrome, Edge or Brave on a computer):**
 1. Download this repository (Code → Download ZIP) and unzip it.

@@ -2,18 +2,49 @@
   "manifest_version": 3,
   "name": "Should I Buy It? Shopping helper",
   "short_name": "Should I Buy It?",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Shows whether a food fits your goals right on its product page. Free; runs in your browser; uses the same verdict as the Should I Buy It? site.",
-  "icons": { "16": "icons/icon-16.png", "32": "icons/icon-32.png", "48": "icons/icon-48.png", "128": "icons/icon-128.png" },
-  "permissions": ["storage"],
-  "host_permissions": ["https://world.openfoodfacts.org/*", "https://api.nal.usda.gov/*"],
-  "background": { "service_worker": "background.js" },
-  "action": { "default_title": "Should I Buy It? settings", "default_icon": { "16": "icons/icon-16.png", "32": "icons/icon-32.png" } },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://world.openfoodfacts.org/*",
+    "https://api.nal.usda.gov/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Should I Buy It? settings",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
+  },
   "options_page": "options.html",
   "content_scripts": [
     {
-      "matches": ["https://www.walmart.com/*"],
-      "js": ["lib/foods.js", "lib/additives-data.js", "lib/additive-notes.js", "lib/additives.js", "lib/verdict.js", "lib/sources.js", "lib/search.js", "lib/walmart.js", "content.js"],
+      "matches": [
+        "https://www.walmart.com/*"
+      ],
+      "js": [
+        "lib/foods.js",
+        "lib/additives-data.js",
+        "lib/additive-notes.js",
+        "lib/additives.js",
+        "lib/verdict.js",
+        "lib/card.js",
+        "lib/sources.js",
+        "lib/search.js",
+        "lib/walmart.js",
+        "content.js"
+      ],
       "run_at": "document_idle"
     }
   ]

@@ -4,6 +4,6 @@
 import fs from "node:fs";
 import path from "node:path";
 const ROOT = new URL("..", import.meta.url).pathname;
-export const LIB = ["foods.js", "additives-data.js", "additive-notes.js", "additives.js", "verdict.js", "sources.js", "search.js", "walmart.js", "backup.js"];
+export const LIB = ["foods.js", "additives-data.js", "additive-notes.js", "additives.js", "verdict.js", "sources.js", "search.js", "walmart.js", "backup.js", "card.js"];
 for (const f of LIB) fs.copyFileSync(path.join(ROOT, "js", f), path.join(ROOT, "extension/lib", f));
 console.log(`Copied ${LIB.length} files to extension/lib`);

@@ -14,10 +14,11 @@ const PAGES = require(path.join(ROOT, "tests/fixtures/walmart-pages.json")).page
 const BY_ID = { "363183524": "cheerios", "10450115": "milk", "5072512866": "oikos", "10315479": "peanut-butter", "51259338": "banana", "12166733": "coke", "99999999": "cable" };
 PAGES.cable = { props: { pageProps: { initialData: { data: { product: { usItemId: "99999999", name: "HDMI Cable, 6 ft", upc: "012345678905", category: { path: [{ name: "Electronics" }] } }, idml: { nutritionFacts: null } } } } } };
 const pageHtml = k => `<!doctype html><html><head><title>${k}</title></head><body><h1>${k}</h1><script id="__NEXT_DATA__" type="application/json">${JSON.stringify(PAGES[k])}</script></body></html>`;
-// Open Food Facts record for the peanut butter, in the shape the API returns (values from its live record, Oct 2026).
-const OFF_PB = { status: 1, product: { product_name: "Creamy Peanut Butter", brands: "Great Value", serving_size: "2 tbsp (32 g)", serving_quantity: 32,
-  nutriments: { "energy-kcal_serving": 180, fat_serving: 15, "saturated-fat_serving": 2.5, "trans-fat_serving": 0, cholesterol_serving: 0, sodium_serving: 0.135,
-    carbohydrates_serving: 8, fiber_serving: 2, sugars_serving: 3, "added-sugars_serving": 3, proteins_serving: 7 }, categories_tags: ["en:spreads", "en:peanut-butters"],
+// Open Food Facts record for the peanut butter's barcode. Values and the other store's brand name are as in the card the
+// user saw on a real page (Oct 25, 2026): a barcode record can carry another store's name.
+const OFF_PB = { status: 1, product: { product_name: "Hannaford Peanut butter", serving_size: "2 tbsp. (32 g)", serving_quantity: 32,
+  nutriments: { "energy-kcal_serving": 180, fat_serving: 16, "saturated-fat_serving": 3, "trans-fat_serving": 0, cholesterol_serving: 0, sodium_serving: 0.135,
+    carbohydrates_serving: 7, fiber_serving: 2, sugars_serving: 3, "added-sugars_serving": 2, proteins_serving: 7 }, categories_tags: ["en:spreads", "en:nut-butters", "en:peanut-butters"], nova_group: 4,
   ingredients_text: "Roasted Peanuts, Sugar, Hydrogenated Vegetable Oil (Rapeseed, Cottonseed, Soybean), Salt, Molasses, Mono-and Diglycerides." } };
 
 let fails = 0;
@@ -40,32 +41,56 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     ok(!!sw, "extension loads (background service worker running)");
 
     const page = await ctx.newPage();
+    await page.setViewportSize({ width: 1280, height: 800 });
     const errors = []; page.on("pageerror", e => errors.push(e.message));
-    const card = async () => { await page.waitForFunction(() => { const h = document.getElementById("should-i-buy-it-card"); return h && h.shadowRoot && !/Checking this product/.test(h.shadowRoot.textContent); }, null, { timeout: 10000 });
-      return page.evaluate(() => [...document.getElementById("should-i-buy-it-card").shadowRoot.children].filter(c => c.tagName !== "STYLE").map(c => c.textContent).join(" ")); };
+    const root = () => page.evaluateHandle(() => document.getElementById("should-i-buy-it-card").shadowRoot);
+    const card = async () => { await page.waitForFunction(() => { const h = document.getElementById("should-i-buy-it-card"); return h && h.shadowRoot && h.shadowRoot.querySelector(".wrap") && !/Checking this product/.test(h.shadowRoot.textContent); }, null, { timeout: 10000 });
+      return page.evaluate(() => document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".wrap").innerText.replace(/\s+/g, " ")); };
+    const click = async sel => page.evaluate(s => document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(s).click(), sel);
+    const box = () => page.evaluate(() => { const e = document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".card, .chip"); const r = e.getBoundingClientRect(); return { h: r.height, bottom: innerHeight - r.bottom, right: innerWidth - r.right, chip: e.classList.contains("chip") }; });
 
     await page.goto("https://www.walmart.com/ip/Oikos-Pro-23g-Protein-Vanilla-Yogurt/5072512866");
     let t = await card();
-    ok(/Get it/.test(t) && /Per 3\/4 cup \(170g\) · from Walmart's Nutrition Facts panel/.test(t) && /23 g protein/.test(t), `Oikos Pro: Get it, from the page's own panel (${t.slice(0, 120)})`);
-    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext-oikos.png") });
+    let b = await box();
+    ok(b.chip && /^Get it High protein for the calories\./.test(t), `starts compact: verdict and its reason (${t})`);
+    ok(b.bottom >= 80 && b.right >= 12, `sits above the bottom-right corner, clear of Walmart's own button (${Math.round(b.bottom)} px up)`);
+    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext2-chip.png"), clip: { x: 880, y: 560, width: 400, height: 240 } });
+    await click(".chip");
+    t = await card(); b = await box();
+    ok(!b.chip && /Oikos Pro 23g Protein Vanilla/.test(t) && /Sat fat 2.5 g · 13%/.test(t) && /From this page/.test(t), `expands to the card: Walmart's name, limit bars, source (${t.slice(0, 160)})`);
+    ok(b.h <= 460, `expanded card stays compact (${Math.round(b.h)} px tall)`);
 
-    // Walmart changes pages without a reload: the card follows.
+    // Walmart changes pages without a reload: the card follows, and stays open now that it was opened.
     await page.evaluate(() => history.pushState(null, "", "/ip/Cheerios-Heart-Healthy-Cereal/363183524"));
     await page.waitForFunction(() => /Cheerios/.test(document.getElementById("should-i-buy-it-card").shadowRoot.textContent), null, { timeout: 10000 });
     t = await card();
-    ok(/In moderation/.test(t) && /Some added sugar: 10 g/.test(t), `client-side navigation to Cheerios updates the card (${t.slice(0, 100)})`);
+    ok(/In moderation/.test(t) && /A good fiber source, but 20% of your added-sugar limit\./.test(t), `Cheerios: headline names the trade-off (${t.slice(0, 120)})`);
+    const swapHref = await page.evaluate(() => { const a = [...document.getElementById("should-i-buy-it-card").shadowRoot.querySelectorAll(".swap a")][0]; return a && a.href; });
+    ok(/TRY INSTEAD Toasted oat cereal, plain GET IT/i.test(t) && swapHref === "https://www.walmart.com/search?q=toasted%20oat%20cereal", `Try instead links to a Walmart search (${swapHref})`);
 
     await page.goto("https://www.walmart.com/ip/Great-Value-Creamy-Peanut-Butter-40-oz-Jar/10315479");
     t = await card();
-    ok(/Open Food Facts, by barcode 078742370033/.test(t) && /180 cal/.test(t) && /Full breakdown in the app/.test(t), `no panel: barcode lookup through the background (${t.slice(0, 140)})`);
+    ok(/Great Value Creamy Peanut Butter, 40 oz/.test(t) && !/Hannaford Peanut butter Mostly/.test(t), `shows Walmart's product name, not the barcode record's (${t.slice(0, 90)})`);
+    ok(/Mostly healthy fats, but 15% of your saturated-fat limit\./.test(t) && /Sat fat 3 g · 15%/.test(t) && /Sodium 135 mg · 6%/.test(t), `peanut butter: one-line reason and bars (${t.slice(0, 200)})`);
+    ok(/2 more notes/.test(t) && !/Ultra-processed/.test(t) && /TRY INSTEAD Powdered peanut butter/i.test(t), "secondary notes are folded away; a swap is offered");
+    await click(".foot details > summary");
+    t = await card();
+    ok(/listed there as “Hannaford Peanut butter”/.test(t) && /Open Food Facts' record for barcode 078742370033/.test(t), "About this verdict explains the source, including the other name");
+    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext2-card.png"), clip: { x: 880, y: 140, width: 400, height: 580 } });
+
+    await click('button[aria-label="Minimize"]');
+    t = await card();
+    ok((await box()).chip && /^In moderation Mostly healthy fats/.test(t), "minimize returns to the compact chip");
 
     await page.goto("https://www.walmart.com/ip/Marketside-Fresh-Organic-Bananas-Bunch/51259338");
     t = await card();
-    ok(/Get it/.test(t) && /Banana \(typical\)/.test(t) && /built-in “Banana”, matched by name/.test(t), `produce: matched by name, never by its sticker code (${t.slice(0, 120)})`);
+    ok(/^Get it/.test(t) && (await box()).chip, `stays compact after minimizing (${t})`);
+    await click(".chip"); t = await card();
+    ok(/Marketside Fresh Organic Bananas/.test(t) && /From typical banana/.test(t), `produce: Walmart's name, typical values by name match (${t.slice(0, 140)})`);
 
     await page.goto("https://www.walmart.com/ip/Coca-Cola-Fridge-Pack/12166733");
     t = await card();
-    ok(/neither Open Food Facts nor USDA has its barcode/.test(t), `not found anywhere: says so (${t.slice(0, 100)})`);
+    ok(/Open Food Facts and USDA don't have its barcode/.test(t), `not found anywhere: says so (${t.slice(0, 100)})`);
 
     await page.goto("https://www.walmart.com/ip/HDMI-Cable/99999999"); await page.waitForTimeout(1500);
     ok(await page.evaluate(() => !document.getElementById("should-i-buy-it-card")), "non-food products get no card");
@@ -79,7 +104,7 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     await opts.waitForFunction(() => /Saved/.test(document.getElementById("status").textContent));
     await page.bringToFront();
     await page.waitForFunction(() => /Skip/.test(document.getElementById("should-i-buy-it-card").shadowRoot.textContent), null, { timeout: 10000 });
-    ok(/on your skip list/.test(await card()), "a skip term saved in settings turns Cheerios into Skip on the open page");
+    ok(await page.evaluate(() => document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".verdict, .w").textContent.includes("Skip")) && /on your skip list/.test(await card()), "a skip term saved in settings turns Cheerios into Skip on the open page");
     // Import goals from the app's transfer link.
     const link = await opts.evaluate(async () => "https://quochhdo.github.io/self-check/#import=" + await SelfCheckBackup.encode(SelfCheckBackup.pack(k => k === "profile" ? { cal: 1850, pro: 140, sat: 13, na: 2300, add: 36, fib: 30, skip: "", mild: true } : undefined)));
     await opts.fill("#paste", link); await opts.click("#importBtn");

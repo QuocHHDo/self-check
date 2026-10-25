@@ -70,7 +70,10 @@
     }
     if (!["cal", "fat", "carb", "pro"].some(k => found.has(k))) return null;
     const missing = V.NUM_KEYS.filter(k => !found.has(k));
-    const f = S.makeFood(shortName(p), servingOf(p.nutrition) || "1 serving", v, { src: "walmart", missing, upc: p.upc, ingredients: p.ingredients || undefined });
+    // Walmart's category path ("Food > Pantry > Peanut butter & spreads > Peanut butter") is read like USDA's branded
+    // food category, so "Try instead" knows what kind of food this is.
+    const f = S.makeFood(shortName(p), servingOf(p.nutrition) || "1 serving", v, { src: "walmart", missing, upc: p.upc, ingredients: p.ingredients || undefined,
+      foodCategory: p.category.slice(1).join(" > ") || undefined, dataType: p.category.length > 1 ? "Branded" : undefined });
     return S.settleAddedSugar(f, found.has("add"), false);
   }
 
