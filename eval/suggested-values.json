@@ -1,0 +1,5321 @@
+[
+  {
+    "name": "Soda",
+    "serving": "12 fl oz can (355 ml)",
+    "grams": 355,
+    "usdaRecord": "Beverages, Carbonated, Club Soda (174842)",
+    "maxError": 39,
+    "current": {
+      "cal": 140,
+      "pro": 0,
+      "fat": 0,
+      "sat": 0,
+      "carb": 39,
+      "fib": 0,
+      "sug": 39,
+      "na": 45
+    },
+    "usda": {
+      "cal": 0,
+      "pro": 0,
+      "fat": 0,
+      "sat": 0,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 74.6
+    }
+  },
+  {
+    "name": "Chicken burrito bowl",
+    "serving": "1 bowl: rice, beans, salsa, cheese (520 g)",
+    "grams": 520,
+    "usdaRecord": "Burrito Bowl, Chicken (2708560)",
+    "maxError": 32.72,
+    "current": {
+      "cal": 655,
+      "pro": 50,
+      "fat": 21,
+      "sat": 8,
+      "carb": 67,
+      "fib": 9,
+      "sug": 3,
+      "na": 1660
+    },
+    "usda": {
+      "cal": 837.2,
+      "pro": 109.2,
+      "fat": 42.1,
+      "sat": 17.2,
+      "carb": 1.6,
+      "fib": 0,
+      "sug": 0.5,
+      "na": 1565.2
+    }
+  },
+  {
+    "name": "Chicken enchiladas, red sauce",
+    "serving": "2 enchiladas (290 g)",
+    "grams": 290,
+    "usdaRecord": "Enchilada Sauce, Red (2709741)",
+    "maxError": 14.13,
+    "current": {
+      "cal": 480,
+      "pro": 30,
+      "fat": 22,
+      "sat": 10,
+      "carb": 40,
+      "fib": 5,
+      "sug": 4,
+      "na": 1100
+    },
+    "usda": {
+      "cal": 87,
+      "pro": 1.7,
+      "fat": 2.6,
+      "sat": 0.3,
+      "carb": 14.2,
+      "fib": 1.5,
+      "sug": 5.2,
+      "na": 1586.3
+    }
+  },
+  {
+    "name": "Cornbread",
+    "serving": "1 piece (60 g)",
+    "grams": 60,
+    "usdaRecord": "Chicken Cornbread (2708745)",
+    "maxError": 5.88,
+    "current": {
+      "cal": 188,
+      "pro": 4.3,
+      "fat": 6,
+      "sat": 1.6,
+      "carb": 29,
+      "fib": 1.4,
+      "sug": 6,
+      "na": 467
+    },
+    "usda": {
+      "cal": 100.2,
+      "pro": 8.3,
+      "fat": 4.9,
+      "sat": 1.1,
+      "carb": 5.6,
+      "fib": 0.2,
+      "sug": 0.1,
+      "na": 274.8
+    }
+  },
+  {
+    "name": "Hash browns, frozen",
+    "serving": "1 patty (64 g)",
+    "grams": 64,
+    "usdaRecord": "Potatoes, Hash Brown, Frozen, Plain, Unprepared (170043)",
+    "maxError": 5.32,
+    "current": {
+      "cal": 140,
+      "pro": 1.3,
+      "fat": 8,
+      "sat": 1.2,
+      "carb": 15,
+      "fib": 1.5,
+      "sug": 0,
+      "na": 280
+    },
+    "usda": {
+      "cal": 52.5,
+      "pro": 1.3,
+      "fat": 0.4,
+      "sat": 0.1,
+      "carb": 11.3,
+      "fib": 0.9,
+      "sug": null,
+      "na": 14.1
+    }
+  },
+  {
+    "name": "Pretzels",
+    "serving": "1 oz (28 g)",
+    "grams": 28,
+    "usdaRecord": "Pretzels, Soft (169064)",
+    "maxError": 5.16,
+    "current": {
+      "cal": 108,
+      "pro": 2.9,
+      "fat": 0.8,
+      "sat": 0.2,
+      "carb": 22.5,
+      "fib": 0.9,
+      "sug": 0.8,
+      "na": 350
+    },
+    "usda": {
+      "cal": 94.6,
+      "pro": 2.3,
+      "fat": 0.9,
+      "sat": 0.2,
+      "carb": 19.4,
+      "fib": 0.5,
+      "sug": 0.1,
+      "na": 56.8
+    }
+  },
+  {
+    "name": "Peanuts, dry roasted",
+    "serving": "1 oz, salted (28 g)",
+    "grams": 28,
+    "usdaRecord": "Peanuts, All Types, Dry-Roasted, without Salt (173806)",
+    "maxError": 4.57,
+    "current": {
+      "cal": 166,
+      "pro": 6.7,
+      "fat": 14.1,
+      "sat": 2,
+      "carb": 6,
+      "fib": 2.3,
+      "sug": 1.2,
+      "na": 230
+    },
+    "usda": {
+      "cal": 164.4,
+      "pro": 6.8,
+      "fat": 13.9,
+      "sat": 2.2,
+      "carb": 6,
+      "fib": 2.4,
+      "sug": 1.4,
+      "na": 1.7
+    }
+  },
+  {
+    "name": "Egg roll",
+    "serving": "1 roll (89 g)",
+    "grams": 89,
+    "usdaRecord": "Wonton Wrappers (Includes Egg Roll Wrappers) (172802)",
+    "maxError": 4.33,
+    "current": {
+      "cal": 200,
+      "pro": 6,
+      "fat": 10,
+      "sat": 2,
+      "carb": 22,
+      "fib": 2,
+      "sug": 3,
+      "na": 420
+    },
+    "usda": {
+      "cal": 259,
+      "pro": 8.7,
+      "fat": 1.3,
+      "sat": 0.3,
+      "carb": 51.5,
+      "fib": 1.6,
+      "sug": null,
+      "na": 509.1
+    }
+  },
+  {
+    "name": "Salami",
+    "serving": "1 oz (28 g)",
+    "grams": 28,
+    "usdaRecord": "Salami, Hard, Sliced (2759005)",
+    "maxError": 3.2,
+    "current": {
+      "cal": 110,
+      "pro": 6.3,
+      "fat": 9,
+      "sat": 3.2,
+      "carb": 0.5,
+      "fib": 0,
+      "sug": 0,
+      "na": 500
+    },
+    "usda": {
+      "cal": null,
+      "pro": null,
+      "fat": null,
+      "sat": 0,
+      "carb": null,
+      "fib": null,
+      "sug": null,
+      "na": null
+    }
+  },
+  {
+    "name": "Bologna",
+    "serving": "1 slice (28 g)",
+    "grams": 28,
+    "usdaRecord": "Bologna, Beef (2758991)",
+    "maxError": 3,
+    "current": {
+      "cal": 90,
+      "pro": 3,
+      "fat": 8,
+      "sat": 3,
+      "carb": 1,
+      "fib": 0,
+      "sug": 1,
+      "na": 300
+    },
+    "usda": {
+      "cal": null,
+      "pro": null,
+      "fat": null,
+      "sat": 0,
+      "carb": null,
+      "fib": null,
+      "sug": null,
+      "na": null
+    }
+  },
+  {
+    "name": "Pulled pork, no sauce",
+    "serving": "4 oz cooked (113 g)",
+    "grams": 113,
+    "usdaRecord": "Pulled Pork in Barbecue Sauce (173344)",
+    "maxError": 2.98,
+    "current": {
+      "cal": 280,
+      "pro": 27,
+      "fat": 18,
+      "sat": 6.3,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 80
+    },
+    "usda": {
+      "cal": 189.8,
+      "pro": 14.9,
+      "fat": 5,
+      "sat": 1.6,
+      "carb": 21.1,
+      "fib": 1.4,
+      "sug": 17.2,
+      "na": 752.6
+    }
+  },
+  {
+    "name": "California roll",
+    "serving": "6 pieces (150 g)",
+    "grams": 150,
+    "usdaRecord": "Sushi Roll, California (2708961)",
+    "maxError": 2.98,
+    "current": {
+      "cal": 250,
+      "pro": 7,
+      "fat": 7,
+      "sat": 1,
+      "carb": 38,
+      "fib": 3,
+      "sug": 6,
+      "na": 430
+    },
+    "usda": {
+      "cal": 141,
+      "pro": 4.4,
+      "fat": 1,
+      "sat": 0.2,
+      "carb": 27.6,
+      "fib": 1.5,
+      "sug": 3.2,
+      "na": 642
+    }
+  },
+  {
+    "name": "Ranch dressing",
+    "serving": "2 tbsp (30 g)",
+    "grams": 30,
+    "usdaRecord": "Dressing, Ranch (2758988)",
+    "maxError": 2.5,
+    "current": {
+      "cal": 140,
+      "pro": 0,
+      "fat": 14,
+      "sat": 2.5,
+      "carb": 2,
+      "fib": 0,
+      "sug": 1,
+      "na": 270
+    },
+    "usda": {
+      "cal": null,
+      "pro": null,
+      "fat": null,
+      "sat": 0,
+      "carb": null,
+      "fib": null,
+      "sug": null,
+      "na": null
+    }
+  },
+  {
+    "name": "Eggs",
+    "serving": "1 large (50 g)",
+    "grams": 50,
+    "usdaRecord": "Eggs, Grade a, Large, Egg White (747997)",
+    "maxError": 2.4,
+    "current": {
+      "cal": 72,
+      "pro": 6.3,
+      "fat": 4.8,
+      "sat": 1.6,
+      "carb": 0.4,
+      "fib": 0,
+      "sug": 0.2,
+      "na": 71
+    },
+    "usda": {
+      "cal": 27.5,
+      "pro": 5.4,
+      "fat": 0,
+      "sat": null,
+      "carb": 1.2,
+      "fib": null,
+      "sug": null,
+      "na": null
+    }
+  },
+  {
+    "name": "Pistachios",
+    "serving": "1 oz, salted (28 g)",
+    "grams": 28,
+    "usdaRecord": "Nuts, Pistachio Nuts, Raw (2515379)",
+    "maxError": 2.4,
+    "current": {
+      "cal": 159,
+      "pro": 5.7,
+      "fat": 12.8,
+      "sat": 1.6,
+      "carb": 7.7,
+      "fib": 3,
+      "sug": 2.2,
+      "na": 120
+    },
+    "usda": {
+      "cal": 157.1,
+      "pro": 5.7,
+      "fat": 12.6,
+      "sat": null,
+      "carb": 7.8,
+      "fib": 2,
+      "sug": null,
+      "na": 0
+    }
+  },
+  {
+    "name": "Smoked salmon",
+    "serving": "2 oz (56 g)",
+    "grams": 56,
+    "usdaRecord": "Fish, Salmon, Chinook, Smoked (173687)",
+    "maxError": 2,
+    "current": {
+      "cal": 66,
+      "pro": 10.3,
+      "fat": 2.4,
+      "sat": 0.5,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 1130
+    },
+    "usda": {
+      "cal": 65.5,
+      "pro": 10.2,
+      "fat": 2.4,
+      "sat": 0.5,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 376.3
+    }
+  },
+  {
+    "name": "Chicken sausage",
+    "serving": "1 link (85 g)",
+    "grams": 85,
+    "usdaRecord": "Turkey or Chicken Sausage (2706200)",
+    "maxError": 2,
+    "current": {
+      "cal": 170,
+      "pro": 14,
+      "fat": 10,
+      "sat": 3,
+      "carb": 3,
+      "fib": 0,
+      "sug": 2,
+      "na": 560
+    },
+    "usda": {
+      "cal": 164,
+      "pro": 16.7,
+      "fat": 10.4,
+      "sat": 2.6,
+      "carb": 0.9,
+      "fib": 0,
+      "sug": 0,
+      "na": 599.3
+    }
+  },
+  {
+    "name": "Soy milk, unsweetened",
+    "serving": "1 cup (240 ml)",
+    "grams": 240,
+    "usdaRecord": "Soy Milk, Unsweetened (2705405)",
+    "maxError": 2,
+    "current": {
+      "cal": 80,
+      "pro": 7,
+      "fat": 4,
+      "sat": 0.5,
+      "carb": 4,
+      "fib": 2,
+      "sug": 1,
+      "na": 85
+    },
+    "usda": {
+      "cal": 91.2,
+      "pro": 8.6,
+      "fat": 5,
+      "sat": 0.7,
+      "carb": 3.1,
+      "fib": 0,
+      "sug": 1.4,
+      "na": 81.6
+    }
+  },
+  {
+    "name": "Whey protein powder",
+    "serving": "1 scoop (30 g)",
+    "grams": 30,
+    "usdaRecord": "Beverages, Protein Powder Whey Based (173180)",
+    "maxError": 2,
+    "current": {
+      "cal": 120,
+      "pro": 24,
+      "fat": 1.5,
+      "sat": 1,
+      "carb": 3,
+      "fib": 0,
+      "sug": 2,
+      "na": 50
+    },
+    "usda": {
+      "cal": 105.6,
+      "pro": 23.4,
+      "fat": 0.5,
+      "sat": 0.2,
+      "carb": 1.9,
+      "fib": 0.9,
+      "sug": 0,
+      "na": 46.8
+    }
+  },
+  {
+    "name": "Hard seltzer",
+    "serving": "12 fl oz can (355 ml)",
+    "grams": 355,
+    "usdaRecord": "Hard Seltzer (2710622)",
+    "maxError": 2,
+    "current": {
+      "cal": 100,
+      "pro": 0,
+      "fat": 0,
+      "sat": 0,
+      "carb": 2,
+      "fib": 0,
+      "sug": 2,
+      "na": 20
+    },
+    "usda": {
+      "cal": 85.2,
+      "pro": 0.4,
+      "fat": 0,
+      "sat": 0,
+      "carb": 2.1,
+      "fib": 0,
+      "sug": 0,
+      "na": 60.4
+    }
+  },
+  {
+    "name": "Italian dressing",
+    "serving": "2 tbsp (30 g)",
+    "grams": 30,
+    "usdaRecord": "Italian Dressing, Light (2710224)",
+    "maxError": 1.99,
+    "current": {
+      "cal": 70,
+      "pro": 0,
+      "fat": 6,
+      "sat": 1,
+      "carb": 3,
+      "fib": 0,
+      "sug": 2,
+      "na": 450
+    },
+    "usda": {
+      "cal": 30.6,
+      "pro": 0.1,
+      "fat": 2,
+      "sat": 0.2,
+      "carb": 3,
+      "fib": 0,
+      "sug": 2.8,
+      "na": 267.3
+    }
+  },
+  {
+    "name": "Cheese puffs",
+    "serving": "1 oz (28 g)",
+    "grams": 28,
+    "usdaRecord": "Cheese Puffs and Twists, Corn Based, Baked, Low Fat (168860)",
+    "maxError": 1.95,
+    "current": {
+      "cal": 160,
+      "pro": 2,
+      "fat": 10,
+      "sat": 1.5,
+      "carb": 15,
+      "fib": 0.5,
+      "sug": 1,
+      "na": 250
+    },
+    "usda": {
+      "cal": 121,
+      "pro": 2.4,
+      "fat": 3.4,
+      "sat": 0.6,
+      "carb": 20.3,
+      "fib": 1,
+      "sug": 2,
+      "na": 235.8
+    }
+  },
+  {
+    "name": "Pancakes",
+    "serving": "3 pancakes, 4 in (114 g)",
+    "grams": 114,
+    "usdaRecord": "Potato Pancakes (170092)",
+    "maxError": 1.92,
+    "current": {
+      "cal": 260,
+      "pro": 7,
+      "fat": 9,
+      "sat": 2,
+      "carb": 37,
+      "fib": 1,
+      "sug": 6,
+      "na": 580
+    },
+    "usda": {
+      "cal": 305.5,
+      "pro": 7,
+      "fat": 16.9,
+      "sat": 2.8,
+      "carb": 31.7,
+      "fib": 3.8,
+      "sug": 2.1,
+      "na": 871
+    }
+  },
+  {
+    "name": "Grilled chicken sandwich",
+    "serving": "1 sandwich (200 g)",
+    "grams": 200,
+    "usdaRecord": "Chicken Fillet Sandwich, Grilled, on Wheat Bun (2707014)",
+    "maxError": 1.75,
+    "current": {
+      "cal": 390,
+      "pro": 28,
+      "fat": 12,
+      "sat": 2.5,
+      "carb": 44,
+      "fib": 4,
+      "sug": 11,
+      "na": 770
+    },
+    "usda": {
+      "cal": 420,
+      "pro": 45,
+      "fat": 9.8,
+      "sat": 1.8,
+      "carb": 35.6,
+      "fib": 4.2,
+      "sug": 4,
+      "na": 774
+    }
+  },
+  {
+    "name": "Biscuit, refrigerated",
+    "serving": "1 biscuit (56 g)",
+    "grams": 56,
+    "usdaRecord": "Biscuits, Mixed Grain, Refrigerated Dough (172671)",
+    "maxError": 1.72,
+    "current": {
+      "cal": 180,
+      "pro": 4,
+      "fat": 8,
+      "sat": 2.5,
+      "carb": 24,
+      "fib": 1,
+      "sug": 3,
+      "na": 540
+    },
+    "usda": {
+      "cal": 147.3,
+      "pro": 3.4,
+      "fat": 3.1,
+      "sat": 0.8,
+      "carb": 26.5,
+      "fib": null,
+      "sug": null,
+      "na": 375.2
+    }
+  },
+  {
+    "name": "Flour tortilla",
+    "serving": "1 medium, 8 in (49 g)",
+    "grams": 49,
+    "usdaRecord": "Taco, Flour Tortilla, Beef, Cheese (2708522)",
+    "maxError": 1.7,
+    "current": {
+      "cal": 146,
+      "pro": 4,
+      "fat": 3.6,
+      "sat": 1,
+      "carb": 25,
+      "fib": 1,
+      "sug": 1,
+      "na": 330
+    },
+    "usda": {
+      "cal": 125.9,
+      "pro": 8.2,
+      "fat": 6,
+      "sat": 2.5,
+      "carb": 9.3,
+      "fib": 0.6,
+      "sug": 0.7,
+      "na": 217.6
+    }
+  },
+  {
+    "name": "Mayonnaise",
+    "serving": "1 tbsp (14 g)",
+    "grams": 14,
+    "usdaRecord": "Mayonnaise, Regular (2758986)",
+    "maxError": 1.6,
+    "current": {
+      "cal": 94,
+      "pro": 0.1,
+      "fat": 10.3,
+      "sat": 1.6,
+      "carb": 0.1,
+      "fib": 0,
+      "sug": 0.1,
+      "na": 88
+    },
+    "usda": {
+      "cal": null,
+      "pro": null,
+      "fat": null,
+      "sat": 0,
+      "carb": null,
+      "fib": null,
+      "sug": null,
+      "na": null
+    }
+  },
+  {
+    "name": "Grapes",
+    "serving": "1 cup (151 g)",
+    "grams": 151,
+    "usdaRecord": "Grape Leaves, Raw (168575)",
+    "maxError": 1.46,
+    "current": {
+      "cal": 104,
+      "pro": 1.1,
+      "fat": 0.2,
+      "sat": 0.1,
+      "carb": 27.3,
+      "fib": 1.4,
+      "sug": 23.4,
+      "na": 3
+    },
+    "usda": {
+      "cal": 140.4,
+      "pro": 8.5,
+      "fat": 3.2,
+      "sat": 0.5,
+      "carb": 26.1,
+      "fib": 16.6,
+      "sug": 9.5,
+      "na": 13.6
+    }
+  },
+  {
+    "name": "Half and half",
+    "serving": "2 tbsp (30 g)",
+    "grams": 30,
+    "usdaRecord": "Beef, Brisket, Flat Half, Boneless, Separable Lean Only, Trimmed to 0\" (168657)",
+    "maxError": 1.4,
+    "current": {
+      "cal": 39,
+      "pro": 0.9,
+      "fat": 3.5,
+      "sat": 2,
+      "carb": 1.3,
+      "fib": 0,
+      "sug": 1.2,
+      "na": 12
+    },
+    "usda": {
+      "cal": 41.1,
+      "pro": 6.4,
+      "fat": 1.7,
+      "sat": 0.6,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 24.6
+    }
+  },
+  {
+    "name": "Almond butter",
+    "serving": "2 tbsp (32 g)",
+    "grams": 32,
+    "usdaRecord": "Almond Butter, Creamy (2262074)",
+    "maxError": 1.39,
+    "current": {
+      "cal": 196,
+      "pro": 6.7,
+      "fat": 17.8,
+      "sat": 1.3,
+      "carb": 6,
+      "fib": 3.3,
+      "sug": 1.4,
+      "na": 70
+    },
+    "usda": {
+      "cal": 193,
+      "pro": 6.7,
+      "fat": 17,
+      "sat": 1.4,
+      "carb": 6.8,
+      "fib": 3.1,
+      "sug": null,
+      "na": 0.3
+    }
+  },
+  {
+    "name": "Beef jerky",
+    "serving": "1 oz (28 g)",
+    "grams": 28,
+    "usdaRecord": "Beef Jerky (2705860)",
+    "maxError": 1.38,
+    "current": {
+      "cal": 80,
+      "pro": 11,
+      "fat": 1,
+      "sat": 0.5,
+      "carb": 6,
+      "fib": 0,
+      "sug": 6,
+      "na": 590
+    },
+    "usda": {
+      "cal": 114.8,
+      "pro": 9.3,
+      "fat": 7.2,
+      "sat": 3.1,
+      "carb": 3.1,
+      "fib": 0.5,
+      "sug": 2.5,
+      "na": 499.8
+    }
+  },
+  {
+    "name": "Bell pepper",
+    "serving": "1 medium (119 g)",
+    "grams": 119,
+    "usdaRecord": "Peppers, Bell, Green, Raw (2258588)",
+    "maxError": 1.33,
+    "current": {
+      "cal": 31,
+      "pro": 1.2,
+      "fat": 0.4,
+      "sat": 0,
+      "carb": 7.2,
+      "fib": 2.5,
+      "sug": 5,
+      "na": 5
+    },
+    "usda": {
+      "cal": 23.4,
+      "pro": 0.8,
+      "fat": 0.1,
+      "sat": null,
+      "carb": 5.7,
+      "fib": 1.1,
+      "sug": null,
+      "na": 0
+    }
+  },
+  {
+    "name": "Mushrooms",
+    "serving": "1 cup sliced (70 g)",
+    "grams": 70,
+    "usdaRecord": "Mushrooms, Enoki, Raw (169382)",
+    "maxError": 1.26,
+    "current": {
+      "cal": 15,
+      "pro": 2.2,
+      "fat": 0.2,
+      "sat": 0,
+      "carb": 2.3,
+      "fib": 0.7,
+      "sug": 1.4,
+      "na": 4
+    },
+    "usda": {
+      "cal": 25.9,
+      "pro": 1.9,
+      "fat": 0.2,
+      "sat": 0,
+      "carb": 5.5,
+      "fib": 1.9,
+      "sug": 0.1,
+      "na": 2.1
+    }
+  },
+  {
+    "name": "Feta cheese",
+    "serving": "1 oz (28 g)",
+    "grams": 28,
+    "usdaRecord": "Cheese, Feta (173420)",
+    "maxError": 1.2,
+    "current": {
+      "cal": 75,
+      "pro": 4,
+      "fat": 6,
+      "sat": 4.2,
+      "carb": 1.2,
+      "fib": 0,
+      "sug": 1.2,
+      "na": 323
+    },
+    "usda": {
+      "cal": 74.2,
+      "pro": 4,
+      "fat": 6,
+      "sat": 3.7,
+      "carb": 1.1,
+      "fib": 0,
+      "sug": 0,
+      "na": 319.2
+    }
+  },
+  {
+    "name": "Egg bites, bacon and cheese",
+    "serving": "2 bites (130 g)",
+    "grams": 130,
+    "usdaRecord": "Mcdonald's, Bacon, Egg & Cheese Mcgriddles (173300)",
+    "maxError": 1.2,
+    "current": {
+      "cal": 300,
+      "pro": 19,
+      "fat": 20,
+      "sat": 12,
+      "carb": 9,
+      "fib": 0,
+      "sug": 2,
+      "na": 680
+    },
+    "usda": {
+      "cal": 353.6,
+      "pro": 15.6,
+      "fat": 17.2,
+      "sat": 5.5,
+      "carb": 34.1,
+      "fib": 1,
+      "sug": 12.5,
+      "na": 874.9
+    }
+  },
+  {
+    "name": "Grapefruit",
+    "serving": "½ medium (123 g)",
+    "grams": 123,
+    "usdaRecord": "Grapefruit, Raw (2758977)",
+    "maxError": 1.14,
+    "current": {
+      "cal": 52,
+      "pro": 0.9,
+      "fat": 0.2,
+      "sat": 0,
+      "carb": 13.2,
+      "fib": 2,
+      "sug": 8.5,
+      "na": 0
+    },
+    "usda": {
+      "cal": null,
+      "pro": null,
+      "fat": null,
+      "sat": null,
+      "carb": null,
+      "fib": 0.9,
+      "sug": 9.8,
+      "na": 0
+    }
+  },
+  {
+    "name": "Cottage cheese 4%",
+    "serving": "½ cup (113 g)",
+    "grams": 113,
+    "usdaRecord": "Cheese, Cottage, Lowfat, 2% Milkfat (328841)",
+    "maxError": 1.04,
+    "current": {
+      "cal": 110,
+      "pro": 12,
+      "fat": 5,
+      "sat": 3,
+      "carb": 4,
+      "fib": 0,
+      "sug": 3,
+      "na": 360
+    },
+    "usda": {
+      "cal": 94.9,
+      "pro": 12.4,
+      "fat": 2.6,
+      "sat": 1.5,
+      "carb": 4.9,
+      "fib": null,
+      "sug": 4.6,
+      "na": 362.7
+    }
+  },
+  {
+    "name": "Energy drink",
+    "serving": "16 fl oz can (473 ml)",
+    "grams": 473,
+    "usdaRecord": "Energy Drink (2710756)",
+    "maxError": 1.01,
+    "current": {
+      "cal": 210,
+      "pro": 0,
+      "fat": 0,
+      "sat": 0,
+      "carb": 54,
+      "fib": 0,
+      "sug": 54,
+      "na": 370
+    },
+    "usda": {
+      "cal": 203.4,
+      "pro": 2.4,
+      "fat": 0,
+      "sat": 0,
+      "carb": 48.2,
+      "fib": 0,
+      "sug": 48.2,
+      "na": 184.5
+    }
+  },
+  {
+    "name": "Sweet potato, baked",
+    "serving": "1 medium (114 g)",
+    "grams": 114,
+    "usdaRecord": "Sweet Potato, Baked, Ns as to Fat (2709698)",
+    "maxError": 1,
+    "current": {
+      "cal": 103,
+      "pro": 2.3,
+      "fat": 0.2,
+      "sat": 0,
+      "carb": 24,
+      "fib": 3.8,
+      "sug": 7.4,
+      "na": 41
+    },
+    "usda": {
+      "cal": 131.1,
+      "pro": 1.8,
+      "fat": 5.1,
+      "sat": 1.3,
+      "carb": 19.5,
+      "fib": 3.4,
+      "sug": 6.8,
+      "na": 183.5
+    }
+  },
+  {
+    "name": "Taro, cooked",
+    "serving": "1 cup sliced (132 g)",
+    "grams": 132,
+    "usdaRecord": "Taro, Cooked (2709567)",
+    "maxError": 1,
+    "current": {
+      "cal": 187,
+      "pro": 0.7,
+      "fat": 0.1,
+      "sat": 0,
+      "carb": 45.7,
+      "fib": 6.7,
+      "sug": 0.6,
+      "na": 20
+    },
+    "usda": {
+      "cal": 186.1,
+      "pro": 2.1,
+      "fat": 4,
+      "sat": 1.1,
+      "carb": 36.4,
+      "fib": 5.7,
+      "sug": 0.5,
+      "na": 187.4
+    }
+  },
+  {
+    "name": "Ribeye steak",
+    "serving": "4 oz cooked (113 g)",
+    "grams": 113,
+    "usdaRecord": "Beef, Ribeye Cap Steak, Boneless, Separable Lean Only, Trimmed to 0\" F (173055)",
+    "maxError": 1,
+    "current": {
+      "cal": 330,
+      "pro": 27,
+      "fat": 25,
+      "sat": 10,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 60
+    },
+    "usda": {
+      "cal": 292.7,
+      "pro": 27.3,
+      "fat": 19.4,
+      "sat": 6.8,
+      "carb": 2,
+      "fib": 0,
+      "sug": 0,
+      "na": 97.2
+    }
+  },
+  {
+    "name": "Deli ham",
+    "serving": "2 oz (56 g)",
+    "grams": 56,
+    "usdaRecord": "Ham, Prepackaged or Deli, Luncheon Meat (2706206)",
+    "maxError": 1,
+    "current": {
+      "cal": 60,
+      "pro": 10,
+      "fat": 1.5,
+      "sat": 0.5,
+      "carb": 2,
+      "fib": 0,
+      "sug": 1,
+      "na": 550
+    },
+    "usda": {
+      "cal": 56.6,
+      "pro": 9.4,
+      "fat": 2.1,
+      "sat": 0.6,
+      "carb": 0.2,
+      "fib": 0,
+      "sug": 0,
+      "na": 498.4
+    }
+  },
+  {
+    "name": "Turkey bacon",
+    "serving": "2 slices (28 g)",
+    "grams": 28,
+    "usdaRecord": "Bacon, Turkey, Microwaved (171639)",
+    "maxError": 1,
+    "current": {
+      "cal": 60,
+      "pro": 4.5,
+      "fat": 4,
+      "sat": 1,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 320
+    },
+    "usda": {
+      "cal": 103,
+      "pro": 8.3,
+      "fat": 7.3,
+      "sat": 1.9,
+      "carb": 1.2,
+      "fib": 0,
+      "sug": 1.2,
+      "na": 565.6
+    }
+  },
+  {
+    "name": "Catfish",
+    "serving": "4 oz cooked (113 g)",
+    "grams": 113,
+    "usdaRecord": "Fish, Catfish, Nfs (2706234)",
+    "maxError": 1,
+    "current": {
+      "cal": 165,
+      "pro": 21,
+      "fat": 8,
+      "sat": 1.8,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 135
+    },
+    "usda": {
+      "cal": 288.2,
+      "pro": 15.3,
+      "fat": 18.9,
+      "sat": 3.1,
+      "carb": 13.2,
+      "fib": 0.6,
+      "sug": 0.2,
+      "na": 472.3
+    }
+  },
+  {
+    "name": "Trout",
+    "serving": "4 oz cooked (113 g)",
+    "grams": 113,
+    "usdaRecord": "Fish, Trout, Nfs (2706302)",
+    "maxError": 1,
+    "current": {
+      "cal": 190,
+      "pro": 27,
+      "fat": 8.3,
+      "sat": 2.4,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 69
+    },
+    "usda": {
+      "cal": 306.2,
+      "pro": 19.3,
+      "fat": 19.1,
+      "sat": 3.1,
+      "carb": 13.2,
+      "fib": 0.6,
+      "sug": 0.2,
+      "na": 431.7
+    }
+  },
+  {
+    "name": "Greek yogurt, vanilla",
+    "serving": "1 container (150 g)",
+    "grams": 150,
+    "usdaRecord": "Yogurt, Greek, Vanilla, Lowfat (170907)",
+    "maxError": 1,
+    "current": {
+      "cal": 120,
+      "pro": 13,
+      "fat": 0,
+      "sat": 0,
+      "carb": 13,
+      "fib": 0,
+      "sug": 11,
+      "na": 55
+    },
+    "usda": {
+      "cal": 142.5,
+      "pro": 12.9,
+      "fat": 3.8,
+      "sat": 2.3,
+      "carb": 14.3,
+      "fib": 0,
+      "sug": 14.3,
+      "na": 60
+    }
+  },
+  {
+    "name": "Cheese crackers",
+    "serving": "1 oz (28 g)",
+    "grams": 28,
+    "usdaRecord": "Crackers, Cheese, Regular (174975)",
+    "maxError": 1,
+    "current": {
+      "cal": 140,
+      "pro": 3,
+      "fat": 5,
+      "sat": 1,
+      "carb": 20,
+      "fib": 1,
+      "sug": 0,
+      "na": 250
+    },
+    "usda": {
+      "cal": 136.9,
+      "pro": 3.1,
+      "fat": 6.4,
+      "sat": 1.5,
+      "carb": 16.6,
+      "fib": 0.6,
+      "sug": 1.3,
+      "na": 272.4
+    }
+  },
+  {
+    "name": "Energy drink, zero sugar",
+    "serving": "12 fl oz can (355 ml)",
+    "grams": 355,
+    "usdaRecord": "Beverages, Energy Drink, Vault Zero, Sugar-Free, Citrus Flavor (174177)",
+    "maxError": 1,
+    "current": {
+      "cal": 10,
+      "pro": 0,
+      "fat": 0,
+      "sat": 0,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 0
+    },
+    "usda": {
+      "cal": 3.6,
+      "pro": 1.1,
+      "fat": 0.4,
+      "sat": 0,
+      "carb": 2.5,
+      "fib": 0,
+      "sug": 0,
+      "na": 49.7
+    }
+  },
+  {
+    "name": "Brown gravy",
+    "serving": "¼ cup (60 g)",
+    "grams": 60,
+    "usdaRecord": "Gravy, Brown, Dry (171565)",
+    "maxError": 1,
+    "current": {
+      "cal": 25,
+      "pro": 1,
+      "fat": 1,
+      "sat": 0.5,
+      "carb": 3,
+      "fib": 0,
+      "sug": 0,
+      "na": 300
+    },
+    "usda": {
+      "cal": 220.2,
+      "pro": 6.4,
+      "fat": 5.8,
+      "sat": 2,
+      "carb": 35.6,
+      "fib": 1.2,
+      "sug": null,
+      "na": 2904
+    }
+  },
+  {
+    "name": "Pasta",
+    "serving": "1 cup cooked (140 g)",
+    "grams": 140,
+    "usdaRecord": "Pasta, Cooked (2708357)",
+    "maxError": 1,
+    "current": {
+      "cal": 220,
+      "pro": 8,
+      "fat": 1.3,
+      "sat": 0.2,
+      "carb": 43,
+      "fib": 2.5,
+      "sug": 0.8,
+      "na": 1
+    },
+    "usda": {
+      "cal": 219.8,
+      "pro": 8.1,
+      "fat": 1.3,
+      "sat": 0.3,
+      "carb": 43,
+      "fib": 2.5,
+      "sug": 0.8,
+      "na": 324.8
+    }
+  },
+  {
+    "name": "Mung beans, cooked",
+    "serving": "½ cup (101 g)",
+    "grams": 101,
+    "usdaRecord": "Mung Beans, Cooked (2707389)",
+    "maxError": 0.99,
+    "current": {
+      "cal": 106,
+      "pro": 7.1,
+      "fat": 0.4,
+      "sat": 0.1,
+      "carb": 19.2,
+      "fib": 7.7,
+      "sug": 2,
+      "na": 2
+    },
+    "usda": {
+      "cal": 157.6,
+      "pro": 6.6,
+      "fat": 7,
+      "sat": 1,
+      "carb": 18,
+      "fib": 7.2,
+      "sug": 1.9,
+      "na": 220.2
+    }
+  },
+  {
+    "name": "Lentils",
+    "serving": "½ cup cooked (99 g)",
+    "grams": 99,
+    "usdaRecord": "Lentils, Nfs (2707423)",
+    "maxError": 0.99,
+    "current": {
+      "cal": 115,
+      "pro": 9,
+      "fat": 0.4,
+      "sat": 0.1,
+      "carb": 20,
+      "fib": 8,
+      "sug": 1.8,
+      "na": 2
+    },
+    "usda": {
+      "cal": 164.3,
+      "pro": 8.3,
+      "fat": 6.8,
+      "sat": 0.9,
+      "carb": 18.5,
+      "fib": 7.2,
+      "sug": 1.7,
+      "na": 215.8
+    }
+  },
+  {
+    "name": "Peanut butter",
+    "serving": "2 tbsp (32 g)",
+    "grams": 32,
+    "usdaRecord": "Peanut Butter, Creamy (2262072)",
+    "maxError": 0.98,
+    "current": {
+      "cal": 190,
+      "pro": 7,
+      "fat": 16,
+      "sat": 3.3,
+      "carb": 7,
+      "fib": 2,
+      "sug": 3,
+      "na": 140
+    },
+    "usda": {
+      "cal": 188.5,
+      "pro": 7.7,
+      "fat": 15.8,
+      "sat": 2.7,
+      "carb": 7.3,
+      "fib": 2,
+      "sug": null,
+      "na": 70.7
+    }
+  },
+  {
+    "name": "Grits",
+    "serving": "1 cup cooked (257 g)",
+    "grams": 257,
+    "usdaRecord": "Grits, Nfs (2708363)",
+    "maxError": 0.98,
+    "current": {
+      "cal": 151,
+      "pro": 3.6,
+      "fat": 1,
+      "sat": 0.2,
+      "carb": 31.6,
+      "fib": 0.8,
+      "sug": 0.3,
+      "na": 5
+    },
+    "usda": {
+      "cal": 182.5,
+      "pro": 3.1,
+      "fat": 4.6,
+      "sat": 1.8,
+      "carb": 31.4,
+      "fib": 1.8,
+      "sug": 0.3,
+      "na": 208.2
+    }
+  },
+  {
+    "name": "Sandwich cookies",
+    "serving": "3 cookies (34 g)",
+    "grams": 34,
+    "usdaRecord": "Cookie, Vanilla Sandwich (2707975)",
+    "maxError": 0.96,
+    "current": {
+      "cal": 160,
+      "pro": 1,
+      "fat": 7,
+      "sat": 2,
+      "carb": 25,
+      "fib": 1,
+      "sug": 14,
+      "na": 135
+    },
+    "usda": {
+      "cal": 164.2,
+      "pro": 1.5,
+      "fat": 6.8,
+      "sat": 1,
+      "carb": 24.5,
+      "fib": 0.5,
+      "sug": 13.4,
+      "na": 131.9
+    }
+  },
+  {
+    "name": "Cream of wheat",
+    "serving": "1 cup cooked (241 g)",
+    "grams": 241,
+    "usdaRecord": "Cream of Wheat, Nfs (2708433)",
+    "maxError": 0.95,
+    "current": {
+      "cal": 133,
+      "pro": 4,
+      "fat": 0.5,
+      "sat": 0.1,
+      "carb": 28,
+      "fib": 1,
+      "sug": 0.2,
+      "na": 10
+    },
+    "usda": {
+      "cal": 156.7,
+      "pro": 3.4,
+      "fat": 4.3,
+      "sat": 1.7,
+      "carb": 25.1,
+      "fib": 1.2,
+      "sug": 0,
+      "na": 200
+    }
+  },
+  {
+    "name": "Edamame",
+    "serving": "½ cup shelled (75 g)",
+    "grams": 75,
+    "usdaRecord": "Edamame, Cooked (2707436)",
+    "maxError": 0.95,
+    "current": {
+      "cal": 94,
+      "pro": 9,
+      "fat": 4,
+      "sat": 0.5,
+      "carb": 7,
+      "fib": 4,
+      "sug": 1.7,
+      "na": 5
+    },
+    "usda": {
+      "cal": 105,
+      "pro": 8.6,
+      "fat": 5.7,
+      "sat": 1,
+      "carb": 6.5,
+      "fib": 3.8,
+      "sug": 1.6,
+      "na": 95.3
+    }
+  },
+  {
+    "name": "Potato, baked",
+    "serving": "1 medium with skin (173 g)",
+    "grams": 173,
+    "usdaRecord": "Potato, Baked, Nfs (2709383)",
+    "maxError": 0.95,
+    "current": {
+      "cal": 161,
+      "pro": 4.3,
+      "fat": 0.2,
+      "sat": 0.1,
+      "carb": 37,
+      "fib": 3.8,
+      "sug": 2,
+      "na": 17
+    },
+    "usda": {
+      "cal": 160.9,
+      "pro": 3.5,
+      "fat": 0.2,
+      "sat": 0,
+      "carb": 37.2,
+      "fib": 2.6,
+      "sug": 2.9,
+      "na": 313.1
+    }
+  },
+  {
+    "name": "Potstickers, frozen",
+    "serving": "7 pieces (140 g)",
+    "grams": 140,
+    "usdaRecord": "Potsticker or Wonton, Pork and Vegetable, Frozen, Unprepared (169773)",
+    "maxError": 0.93,
+    "current": {
+      "cal": 280,
+      "pro": 11,
+      "fat": 10,
+      "sat": 2.5,
+      "carb": 36,
+      "fib": 2,
+      "sug": 4,
+      "na": 600
+    },
+    "usda": {
+      "cal": 190.4,
+      "pro": 11.6,
+      "fat": 7.7,
+      "sat": 2.4,
+      "carb": 18.6,
+      "fib": 2,
+      "sug": 3.9,
+      "na": 617.4
+    }
+  },
+  {
+    "name": "Kale",
+    "serving": "2 cups raw (42 g)",
+    "grams": 42,
+    "usdaRecord": "Kale, Raw (323505)",
+    "maxError": 0.93,
+    "current": {
+      "cal": 20,
+      "pro": 1.8,
+      "fat": 0.6,
+      "sat": 0.1,
+      "carb": 3.7,
+      "fib": 1.7,
+      "sug": 0.4,
+      "na": 18
+    },
+    "usda": {
+      "cal": 14.7,
+      "pro": 1.2,
+      "fat": 0.6,
+      "sat": null,
+      "carb": 1.8,
+      "fib": 1.7,
+      "sug": 0.3,
+      "na": 22.3
+    }
+  },
+  {
+    "name": "Sweet potato fries, frozen",
+    "serving": "3 oz (85 g)",
+    "grams": 85,
+    "usdaRecord": "Sweet Potato Fries, Frozen (2709711)",
+    "maxError": 0.91,
+    "current": {
+      "cal": 150,
+      "pro": 1,
+      "fat": 6,
+      "sat": 0.5,
+      "carb": 22,
+      "fib": 2,
+      "sug": 7,
+      "na": 250
+    },
+    "usda": {
+      "cal": 163.2,
+      "pro": 2,
+      "fat": 8,
+      "sat": 1,
+      "carb": 31.9,
+      "fib": 5.1,
+      "sug": 11.6,
+      "na": 130.9
+    }
+  },
+  {
+    "name": "Spaghetti squash",
+    "serving": "1 cup cooked (155 g)",
+    "grams": 155,
+    "usdaRecord": "Spaghetti Squash, Cooked (2710001)",
+    "maxError": 0.91,
+    "current": {
+      "cal": 42,
+      "pro": 1,
+      "fat": 0.4,
+      "sat": 0.1,
+      "carb": 10,
+      "fib": 2.2,
+      "sug": 3.9,
+      "na": 28
+    },
+    "usda": {
+      "cal": 76,
+      "pro": 1.1,
+      "fat": 4.3,
+      "sat": 1.1,
+      "carb": 9.8,
+      "fib": 2.2,
+      "sug": 3.9,
+      "na": 213.9
+    }
+  },
+  {
+    "name": "Frozen bean and cheese burrito",
+    "serving": "1 burrito (142 g)",
+    "grams": 142,
+    "usdaRecord": "Burrito, Bean and Cheese, Frozen (173336)",
+    "maxError": 0.9,
+    "current": {
+      "cal": 330,
+      "pro": 12,
+      "fat": 9,
+      "sat": 3.5,
+      "carb": 49,
+      "fib": 5,
+      "sug": 2,
+      "na": 640
+    },
+    "usda": {
+      "cal": 313.8,
+      "pro": 10.1,
+      "fat": 8.9,
+      "sat": 1.8,
+      "carb": 48.3,
+      "fib": 4.8,
+      "sug": 4.5,
+      "na": 498.4
+    }
+  },
+  {
+    "name": "Chickpeas, canned",
+    "serving": "½ cup drained (130 g)",
+    "grams": 130,
+    "usdaRecord": "Chickpeas, from Canned, Reduced Sodium (2707419)",
+    "maxError": 0.87,
+    "current": {
+      "cal": 120,
+      "pro": 6,
+      "fat": 2,
+      "sat": 0.2,
+      "carb": 20,
+      "fib": 6,
+      "sug": 1,
+      "na": 280
+    },
+    "usda": {
+      "cal": 256.1,
+      "pro": 10.3,
+      "fat": 12.2,
+      "sat": 1.6,
+      "carb": 28.1,
+      "fib": 9.2,
+      "sug": 5.5,
+      "na": 275.6
+    }
+  },
+  {
+    "name": "Cheeseburger, fast food",
+    "serving": "1 burger (119 g)",
+    "grams": 119,
+    "usdaRecord": "Cheeseburger Slider, from Fast Food (2706887)",
+    "maxError": 0.87,
+    "current": {
+      "cal": 300,
+      "pro": 15,
+      "fat": 13,
+      "sat": 6,
+      "carb": 33,
+      "fib": 2,
+      "sug": 7,
+      "na": 720
+    },
+    "usda": {
+      "cal": 354.6,
+      "pro": 19.3,
+      "fat": 17,
+      "sat": 7.5,
+      "carb": 29.8,
+      "fib": 1.1,
+      "sug": 4.8,
+      "na": 600.9
+    }
+  },
+  {
+    "name": "Protein bar",
+    "serving": "1 bar (60 g)",
+    "grams": 60,
+    "usdaRecord": "Formulated Bar, South Beach Protein Bar (173158)",
+    "maxError": 0.83,
+    "current": {
+      "cal": 210,
+      "pro": 20,
+      "fat": 8,
+      "sat": 3.5,
+      "carb": 24,
+      "fib": 8,
+      "sug": 6,
+      "na": 200
+    },
+    "usda": {
+      "cal": 247.2,
+      "pro": 18.2,
+      "fat": 9.1,
+      "sat": 2,
+      "carb": 23,
+      "fib": 4.4,
+      "sug": 9.1,
+      "na": 261.6
+    }
+  },
+  {
+    "name": "Trail mix",
+    "serving": "¼ cup (37 g)",
+    "grams": 37,
+    "usdaRecord": "Trail Mix, Nfs (2707574)",
+    "maxError": 0.83,
+    "current": {
+      "cal": 175,
+      "pro": 5,
+      "fat": 11,
+      "sat": 2.5,
+      "carb": 16,
+      "fib": 2,
+      "sug": 11,
+      "na": 40
+    },
+    "usda": {
+      "cal": 168,
+      "pro": 4,
+      "fat": 9.9,
+      "sat": 1.4,
+      "carb": 18.9,
+      "fib": 2.4,
+      "sug": 13.5,
+      "na": 49.6
+    }
+  },
+  {
+    "name": "Chicken sandwich, fried",
+    "serving": "1 sandwich (180 g)",
+    "grams": 180,
+    "usdaRecord": "Chicken Fillet Sandwich, Fried, on Wheat Bun (2707010)",
+    "maxError": 0.82,
+    "current": {
+      "cal": 440,
+      "pro": 28,
+      "fat": 19,
+      "sat": 3.5,
+      "carb": 41,
+      "fib": 1,
+      "sug": 6,
+      "na": 1400
+    },
+    "usda": {
+      "cal": 473.4,
+      "pro": 23.6,
+      "fat": 21.1,
+      "sat": 4.3,
+      "carb": 47.3,
+      "fib": 5.6,
+      "sug": 4.1,
+      "na": 867.6
+    }
+  },
+  {
+    "name": "Tilapia",
+    "serving": "4 oz cooked (113 g)",
+    "grams": 113,
+    "usdaRecord": "Fish, Tilapia, Nfs (2706318)",
+    "maxError": 0.8,
+    "current": {
+      "cal": 145,
+      "pro": 30,
+      "fat": 3,
+      "sat": 1,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 63
+    },
+    "usda": {
+      "cal": 180.8,
+      "pro": 28.2,
+      "fat": 7.6,
+      "sat": 2.1,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 316.4
+    }
+  },
+  {
+    "name": "Minestrone soup, canned",
+    "serving": "1 cup (245 g)",
+    "grams": 245,
+    "usdaRecord": "Soup, Minestrone, Canned, Chunky, Ready-to-Serve (171550)",
+    "maxError": 0.8,
+    "current": {
+      "cal": 110,
+      "pro": 5,
+      "fat": 1.5,
+      "sat": 0.3,
+      "carb": 20,
+      "fib": 4,
+      "sug": 5,
+      "na": 640
+    },
+    "usda": {
+      "cal": 129.9,
+      "pro": 5.1,
+      "fat": 2.9,
+      "sat": 1.5,
+      "carb": 21.1,
+      "fib": 5.9,
+      "sug": 5.4,
+      "na": 705.6
+    }
+  },
+  {
+    "name": "Brown rice",
+    "serving": "1 cup cooked (195 g)",
+    "grams": 195,
+    "usdaRecord": "Rice, Brown, Cooked, as Ingredient (2710789)",
+    "maxError": 0.79,
+    "current": {
+      "cal": 218,
+      "pro": 4.5,
+      "fat": 1.6,
+      "sat": 0.3,
+      "carb": 46,
+      "fib": 3.5,
+      "sug": 0.7,
+      "na": 2
+    },
+    "usda": {
+      "cal": 241.8,
+      "pro": 4.9,
+      "fat": 2.1,
+      "sat": 0.4,
+      "carb": 50.5,
+      "fib": 2,
+      "sug": 0.4,
+      "na": 5.9
+    }
+  },
+  {
+    "name": "Fruit snacks",
+    "serving": "1 pouch (23 g)",
+    "grams": 23,
+    "usdaRecord": "Candy, Fruit Snacks (2710367)",
+    "maxError": 0.79,
+    "current": {
+      "cal": 80,
+      "pro": 1,
+      "fat": 0,
+      "sat": 0,
+      "carb": 19,
+      "fib": 0,
+      "sug": 11,
+      "na": 15
+    },
+    "usda": {
+      "cal": 85.3,
+      "pro": 0,
+      "fat": 0.7,
+      "sat": 0.2,
+      "carb": 19.7,
+      "fib": 0,
+      "sug": 11.3,
+      "na": 72.9
+    }
+  },
+  {
+    "name": "Salmon",
+    "serving": "4 oz cooked (113 g)",
+    "grams": 113,
+    "usdaRecord": "Fish, Salmon, Nfs (2706285)",
+    "maxError": 0.79,
+    "current": {
+      "cal": 233,
+      "pro": 25,
+      "fat": 13.9,
+      "sat": 2.8,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 69
+    },
+    "usda": {
+      "cal": 309.6,
+      "pro": 28.7,
+      "fat": 20.8,
+      "sat": 4.9,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 332.2
+    }
+  },
+  {
+    "name": "Chicken wings",
+    "serving": "4 oz cooked, with skin (113 g)",
+    "grams": 113,
+    "usdaRecord": "Chicken Wing, Stewed (2706061)",
+    "maxError": 0.78,
+    "current": {
+      "cal": 328,
+      "pro": 30,
+      "fat": 22,
+      "sat": 6.2,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 93
+    },
+    "usda": {
+      "cal": 279.1,
+      "pro": 25.5,
+      "fat": 18.9,
+      "sat": 5.3,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 422.6
+    }
+  },
+  {
+    "name": "Refried beans",
+    "serving": "½ cup (126 g)",
+    "grams": 126,
+    "usdaRecord": "On the Border, Refried Beans (169032)",
+    "maxError": 0.78,
+    "current": {
+      "cal": 120,
+      "pro": 7,
+      "fat": 1.5,
+      "sat": 0.5,
+      "carb": 20,
+      "fib": 6,
+      "sug": 1,
+      "na": 520
+    },
+    "usda": {
+      "cal": 181.4,
+      "pro": 9.2,
+      "fat": 6.3,
+      "sat": 2.3,
+      "carb": 22.1,
+      "fib": 10.3,
+      "sug": 1,
+      "na": 476.3
+    }
+  },
+  {
+    "name": "Milk chocolate bar",
+    "serving": "1 bar (44 g)",
+    "grams": 44,
+    "usdaRecord": "Candies, Symphony Milk Chocolate Bar (167984)",
+    "maxError": 0.75,
+    "current": {
+      "cal": 235,
+      "pro": 3.4,
+      "fat": 13,
+      "sat": 8,
+      "carb": 26,
+      "fib": 1.5,
+      "sug": 23,
+      "na": 35
+    },
+    "usda": {
+      "cal": 233.6,
+      "pro": 3.7,
+      "fat": 13.5,
+      "sat": 8.1,
+      "carb": 25.5,
+      "fib": 0.7,
+      "sug": 23.8,
+      "na": 44.4
+    }
+  },
+  {
+    "name": "Chocolate milk, low-fat",
+    "serving": "1 cup (250 g)",
+    "grams": 250,
+    "usdaRecord": "Chocolate Milk, Low Fat (1%) (2705470)",
+    "maxError": 0.75,
+    "current": {
+      "cal": 158,
+      "pro": 8,
+      "fat": 2.5,
+      "sat": 1.5,
+      "carb": 26,
+      "fib": 1,
+      "sug": 24,
+      "na": 150
+    },
+    "usda": {
+      "cal": 160,
+      "pro": 8.8,
+      "fat": 2.8,
+      "sat": 1.5,
+      "carb": 25.5,
+      "fib": 0.3,
+      "sug": 24.8,
+      "na": 162.5
+    }
+  },
+  {
+    "name": "Pork tamales",
+    "serving": "2 tamales (230 g)",
+    "grams": 230,
+    "usdaRecord": "Restaurant, Latino, Tamale, Pork (334628)",
+    "maxError": 0.74,
+    "current": {
+      "cal": 470,
+      "pro": 17,
+      "fat": 24,
+      "sat": 9,
+      "carb": 46,
+      "fib": 5,
+      "sug": 2,
+      "na": 900
+    },
+    "usda": {
+      "cal": 400.2,
+      "pro": 17,
+      "fat": 20.7,
+      "sat": 6.2,
+      "carb": 36.3,
+      "fib": 5.5,
+      "sug": 1.2,
+      "na": 1087.9
+    }
+  },
+  {
+    "name": "Beef fajitas",
+    "serving": "1 cup with peppers and onions, no tortilla (170 g)",
+    "grams": 170,
+    "usdaRecord": "Fajita, Beef or Pork (2708605)",
+    "maxError": 0.74,
+    "current": {
+      "cal": 270,
+      "pro": 27,
+      "fat": 14,
+      "sat": 4.5,
+      "carb": 8,
+      "fib": 2,
+      "sug": 4,
+      "na": 520
+    },
+    "usda": {
+      "cal": 392.7,
+      "pro": 20.6,
+      "fat": 20.7,
+      "sat": 5.4,
+      "carb": 30.6,
+      "fib": 2.6,
+      "sug": 4.1,
+      "na": 780.3
+    }
+  },
+  {
+    "name": "Protein shake, ready-to-drink",
+    "serving": "11 fl oz bottle (325 ml)",
+    "grams": 325,
+    "usdaRecord": "Nutritional Drink or Shake, High Protein, Ready-to-Drink, Nfs (2710726)",
+    "maxError": 0.73,
+    "current": {
+      "cal": 160,
+      "pro": 30,
+      "fat": 3,
+      "sat": 1,
+      "carb": 5,
+      "fib": 1,
+      "sug": 1,
+      "na": 220
+    },
+    "usda": {
+      "cal": 198.3,
+      "pro": 21.5,
+      "fat": 11,
+      "sat": 1.6,
+      "carb": 2.9,
+      "fib": 1.3,
+      "sug": 2,
+      "na": 234
+    }
+  },
+  {
+    "name": "Granola",
+    "serving": "½ cup (60 g)",
+    "grams": 60,
+    "usdaRecord": "Cereal, Granola (2708461)",
+    "maxError": 0.72,
+    "current": {
+      "cal": 260,
+      "pro": 7,
+      "fat": 10,
+      "sat": 1.5,
+      "carb": 39,
+      "fib": 4,
+      "sug": 14,
+      "na": 40
+    },
+    "usda": {
+      "cal": 252,
+      "pro": 5.9,
+      "fat": 7.8,
+      "sat": 0.8,
+      "carb": 40.4,
+      "fib": 4.4,
+      "sug": 13.3,
+      "na": 96.6
+    }
+  },
+  {
+    "name": "Bok choy",
+    "serving": "1 cup shredded (70 g)",
+    "grams": 70,
+    "usdaRecord": "Cabbage, Bok Choy, Raw (2685572)",
+    "maxError": 0.72,
+    "current": {
+      "cal": 9,
+      "pro": 1.1,
+      "fat": 0.1,
+      "sat": 0,
+      "carb": 1.5,
+      "fib": 0.7,
+      "sug": 0.8,
+      "na": 46
+    },
+    "usda": {
+      "cal": 11.9,
+      "pro": 0.7,
+      "fat": 0.1,
+      "sat": null,
+      "carb": 2.4,
+      "fib": 0.9,
+      "sug": null,
+      "na": 10
+    }
+  },
+  {
+    "name": "Farro",
+    "serving": "1 cup cooked (170 g)",
+    "grams": 170,
+    "usdaRecord": "Farro, Pearled, Dry, Raw (2710828)",
+    "maxError": 0.72,
+    "current": {
+      "cal": 220,
+      "pro": 8,
+      "fat": 1.5,
+      "sat": 0.2,
+      "carb": 46,
+      "fib": 7,
+      "sug": 1,
+      "na": 10
+    },
+    "usda": {
+      "cal": 584.8,
+      "pro": 21.4,
+      "fat": 5.3,
+      "sat": null,
+      "carb": 122.6,
+      "fib": 12.4,
+      "sug": null,
+      "na": 1.4
+    }
+  },
+  {
+    "name": "Egg whites",
+    "serving": "3 large whites (99 g)",
+    "grams": 99,
+    "usdaRecord": "Eggs, Grade a, Large, Egg White (747997)",
+    "maxError": 0.71,
+    "current": {
+      "cal": 51,
+      "pro": 10.8,
+      "fat": 0.2,
+      "sat": 0,
+      "carb": 0.7,
+      "fib": 0,
+      "sug": 0.7,
+      "na": 165
+    },
+    "usda": {
+      "cal": 54.5,
+      "pro": 10.6,
+      "fat": 0,
+      "sat": null,
+      "carb": 2.4,
+      "fib": null,
+      "sug": null,
+      "na": null
+    }
+  },
+  {
+    "name": "French toast",
+    "serving": "2 slices (130 g)",
+    "grams": 130,
+    "usdaRecord": "French Toast, Nfs (2708331)",
+    "maxError": 0.7,
+    "current": {
+      "cal": 298,
+      "pro": 10,
+      "fat": 14,
+      "sat": 3.6,
+      "carb": 32,
+      "fib": 1.4,
+      "sug": 4,
+      "na": 622
+    },
+    "usda": {
+      "cal": 354.9,
+      "pro": 13.5,
+      "fat": 14.8,
+      "sat": 4.3,
+      "carb": 42,
+      "fib": 1.6,
+      "sug": 13.1,
+      "na": 392.6
+    }
+  },
+  {
+    "name": "Whole grain crackers",
+    "serving": "6 crackers (28 g)",
+    "grams": 28,
+    "usdaRecord": "Crackers, Cheese, Whole Grain (174084)",
+    "maxError": 0.67,
+    "current": {
+      "cal": 120,
+      "pro": 3,
+      "fat": 4,
+      "sat": 0.5,
+      "carb": 20,
+      "fib": 3,
+      "sug": 0,
+      "na": 140
+    },
+    "usda": {
+      "cal": 115.4,
+      "pro": 2.7,
+      "fat": 4.5,
+      "sat": 0.9,
+      "carb": 16,
+      "fib": 1.8,
+      "sug": 0,
+      "na": 197.7
+    }
+  },
+  {
+    "name": "Oat milk",
+    "serving": "1 cup (240 ml)",
+    "grams": 240,
+    "usdaRecord": "Oat Milk (2705412)",
+    "maxError": 0.67,
+    "current": {
+      "cal": 120,
+      "pro": 3,
+      "fat": 5,
+      "sat": 0.5,
+      "carb": 16,
+      "fib": 2,
+      "sug": 7,
+      "na": 100
+    },
+    "usda": {
+      "cal": 108,
+      "pro": 1.7,
+      "fat": 5.5,
+      "sat": 0.5,
+      "carb": 13,
+      "fib": 1.2,
+      "sug": 4.8,
+      "na": 103.2
+    }
+  },
+  {
+    "name": "Vanilla ice cream",
+    "serving": "⅔ cup (95 g)",
+    "grams": 95,
+    "usdaRecord": "Ice Creams, Vanilla (167575)",
+    "maxError": 0.66,
+    "current": {
+      "cal": 200,
+      "pro": 3,
+      "fat": 11,
+      "sat": 7,
+      "carb": 23,
+      "fib": 0,
+      "sug": 21,
+      "na": 70
+    },
+    "usda": {
+      "cal": 196.6,
+      "pro": 3.3,
+      "fat": 10.5,
+      "sat": 6.5,
+      "carb": 22.4,
+      "fib": 0.7,
+      "sug": 20.1,
+      "na": 76
+    }
+  },
+  {
+    "name": "Meatballs, frozen",
+    "serving": "5 meatballs (85 g)",
+    "grams": 85,
+    "usdaRecord": "Meatballs, Frozen, Italian Style (171638)",
+    "maxError": 0.66,
+    "current": {
+      "cal": 240,
+      "pro": 12,
+      "fat": 18,
+      "sat": 7,
+      "carb": 6,
+      "fib": 1,
+      "sug": 1,
+      "na": 500
+    },
+    "usda": {
+      "cal": 243.1,
+      "pro": 12.2,
+      "fat": 18.9,
+      "sat": 6.5,
+      "carb": 6.9,
+      "fib": 2,
+      "sug": 3,
+      "na": 566.1
+    }
+  },
+  {
+    "name": "Chicken noodle soup, canned",
+    "serving": "1 cup (245 g)",
+    "grams": 245,
+    "usdaRecord": "Soup, Chicken Noodle, Canned (2709148)",
+    "maxError": 0.66,
+    "current": {
+      "cal": 60,
+      "pro": 3,
+      "fat": 2,
+      "sat": 0.5,
+      "carb": 8,
+      "fib": 1,
+      "sug": 1,
+      "na": 890
+    },
+    "usda": {
+      "cal": 102.9,
+      "pro": 5.9,
+      "fat": 2.5,
+      "sat": 0.5,
+      "carb": 14.7,
+      "fib": 2,
+      "sug": 2.9,
+      "na": 654.2
+    }
+  },
+  {
+    "name": "Beef brisket",
+    "serving": "4 oz cooked (113 g)",
+    "grams": 113,
+    "usdaRecord": "Beef, New Zealand, Imported, Brisket Navel End, Separable Lean and Fat (174739)",
+    "maxError": 0.65,
+    "current": {
+      "cal": 330,
+      "pro": 29,
+      "fat": 23,
+      "sat": 9,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 70
+    },
+    "usda": {
+      "cal": 511.9,
+      "pro": 22.7,
+      "fat": 46.7,
+      "sat": 17.5,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 37.3
+    }
+  },
+  {
+    "name": "Cheese quesadilla",
+    "serving": "1 quesadilla, 8 in (130 g)",
+    "grams": 130,
+    "usdaRecord": "On the Border, Cheese Quesadilla (169034)",
+    "maxError": 0.65,
+    "current": {
+      "cal": 400,
+      "pro": 18,
+      "fat": 22,
+      "sat": 12,
+      "carb": 27,
+      "fib": 1,
+      "sug": 1,
+      "na": 690
+    },
+    "usda": {
+      "cal": 512.2,
+      "pro": 22,
+      "fat": 33.2,
+      "sat": 16.9,
+      "carb": 31.5,
+      "fib": 2.9,
+      "sug": 2.6,
+      "na": 880.1
+    }
+  },
+  {
+    "name": "Pinto beans, canned",
+    "serving": "½ cup drained (130 g)",
+    "grams": 130,
+    "usdaRecord": "Beans, Pinto, Canned, Drained Solids (174286)",
+    "maxError": 0.65,
+    "current": {
+      "cal": 110,
+      "pro": 6,
+      "fat": 1,
+      "sat": 0.2,
+      "carb": 20,
+      "fib": 6,
+      "sug": 0,
+      "na": 330
+    },
+    "usda": {
+      "cal": 148.2,
+      "pro": 9.1,
+      "fat": 1.2,
+      "sat": 0.3,
+      "carb": 26.3,
+      "fib": 7.2,
+      "sug": 0.7,
+      "na": 310.7
+    }
+  },
+  {
+    "name": "Cucumber",
+    "serving": "1 cup sliced (119 g)",
+    "grams": 119,
+    "usdaRecord": "Cucumber, Peeled, Raw (169225)",
+    "maxError": 0.64,
+    "current": {
+      "cal": 18,
+      "pro": 0.8,
+      "fat": 0.1,
+      "sat": 0,
+      "carb": 4.3,
+      "fib": 0.6,
+      "sug": 2,
+      "na": 2
+    },
+    "usda": {
+      "cal": 11.9,
+      "pro": 0.7,
+      "fat": 0.2,
+      "sat": 0.1,
+      "carb": 2.6,
+      "fib": 0.8,
+      "sug": 1.7,
+      "na": 2.4
+    }
+  },
+  {
+    "name": "French fries",
+    "serving": "1 medium fast-food order (117 g)",
+    "grams": 117,
+    "usdaRecord": "Applebee's, French Fries (169009)",
+    "maxError": 0.64,
+    "current": {
+      "cal": 320,
+      "pro": 5,
+      "fat": 15,
+      "sat": 2,
+      "carb": 43,
+      "fib": 4,
+      "sug": 0,
+      "na": 260
+    },
+    "usda": {
+      "cal": 339.3,
+      "pro": 3.9,
+      "fat": 15.4,
+      "sat": 2.7,
+      "carb": 46.2,
+      "fib": 4.6,
+      "sug": 0,
+      "na": 723.1
+    }
+  },
+  {
+    "name": "Dragon fruit",
+    "serving": "1 cup cubed (170 g)",
+    "grams": 170,
+    "usdaRecord": "Dragon Fruit (2709234)",
+    "maxError": 0.63,
+    "current": {
+      "cal": 97,
+      "pro": 2,
+      "fat": 0.2,
+      "sat": 0,
+      "carb": 22,
+      "fib": 5,
+      "sug": 13,
+      "na": 0
+    },
+    "usda": {
+      "cal": 115.6,
+      "pro": 1.2,
+      "fat": 0.3,
+      "sat": 0.2,
+      "carb": 27.5,
+      "fib": 3.1,
+      "sug": 20.4,
+      "na": 1.7
+    }
+  },
+  {
+    "name": "Coleslaw",
+    "serving": "½ cup (95 g)",
+    "grams": 95,
+    "usdaRecord": "Applebee's, Coleslaw (169020)",
+    "maxError": 0.63,
+    "current": {
+      "cal": 150,
+      "pro": 1,
+      "fat": 11,
+      "sat": 1.7,
+      "carb": 12,
+      "fib": 1.4,
+      "sug": 10,
+      "na": 200
+    },
+    "usda": {
+      "cal": 114,
+      "pro": 0.8,
+      "fat": 6.7,
+      "sat": 1,
+      "carb": 12.5,
+      "fib": 2.7,
+      "sug": 8.8,
+      "na": 169.1
+    }
+  },
+  {
+    "name": "Raspberries",
+    "serving": "1 cup (123 g)",
+    "grams": 123,
+    "usdaRecord": "Raspberries, Raw (2346410)",
+    "maxError": 0.63,
+    "current": {
+      "cal": 64,
+      "pro": 1.5,
+      "fat": 0.8,
+      "sat": 0,
+      "carb": 14.7,
+      "fib": 8,
+      "sug": 5.4,
+      "na": 1
+    },
+    "usda": {
+      "cal": 63.2,
+      "pro": 1.2,
+      "fat": 0.2,
+      "sat": null,
+      "carb": 15.9,
+      "fib": null,
+      "sug": 3.3,
+      "na": 0
+    }
+  },
+  {
+    "name": "Chocolate hazelnut spread",
+    "serving": "2 tbsp (37 g)",
+    "grams": 37,
+    "usdaRecord": "Chocolate Hazelnut Spread (2710289)",
+    "maxError": 0.62,
+    "current": {
+      "cal": 200,
+      "pro": 2,
+      "fat": 12,
+      "sat": 4,
+      "carb": 22,
+      "fib": 1,
+      "sug": 21,
+      "na": 15
+    },
+    "usda": {
+      "cal": 199.4,
+      "pro": 2,
+      "fat": 11,
+      "sat": 10.5,
+      "carb": 23.1,
+      "fib": 2,
+      "sug": 20,
+      "na": 15.2
+    }
+  },
+  {
+    "name": "Whole wheat pasta",
+    "serving": "1 cup cooked (140 g)",
+    "grams": 140,
+    "usdaRecord": "Pasta, Whole Grain, 51% Whole Wheat, Remaining Unenriched Semolina, Co (168916)",
+    "maxError": 0.62,
+    "current": {
+      "cal": 174,
+      "pro": 7.5,
+      "fat": 0.8,
+      "sat": 0.1,
+      "carb": 37,
+      "fib": 6.3,
+      "sug": 1.1,
+      "na": 4
+    },
+    "usda": {
+      "cal": 222.6,
+      "pro": 8.1,
+      "fat": 2.1,
+      "sat": 0.3,
+      "carb": 44.1,
+      "fib": 6.4,
+      "sug": 1.3,
+      "na": 8.4
+    }
+  },
+  {
+    "name": "Goat cheese",
+    "serving": "1 oz (28 g)",
+    "grams": 28,
+    "usdaRecord": "Cheese, Goat, Hard Type (172197)",
+    "maxError": 0.62,
+    "current": {
+      "cal": 75,
+      "pro": 5.3,
+      "fat": 6,
+      "sat": 4.1,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 130
+    },
+    "usda": {
+      "cal": 126.6,
+      "pro": 8.5,
+      "fat": 10,
+      "sat": 6.9,
+      "carb": 0.6,
+      "fib": 0,
+      "sug": 0.6,
+      "na": 118.4
+    }
+  },
+  {
+    "name": "Dried mango, sweetened",
+    "serving": "¼ cup (40 g)",
+    "grams": 40,
+    "usdaRecord": "Mango, Dried, Sweetened (169091)",
+    "maxError": 0.61,
+    "current": {
+      "cal": 130,
+      "pro": 1,
+      "fat": 0.5,
+      "sat": 0.1,
+      "carb": 31,
+      "fib": 1,
+      "sug": 26,
+      "na": 25
+    },
+    "usda": {
+      "cal": 127.6,
+      "pro": 1,
+      "fat": 0.5,
+      "sat": 0.1,
+      "carb": 31.4,
+      "fib": 1,
+      "sug": 26.5,
+      "na": 64.8
+    }
+  },
+  {
+    "name": "Spam",
+    "serving": "2 oz (56 g)",
+    "grams": 56,
+    "usdaRecord": "Spam (2706211)",
+    "maxError": 0.61,
+    "current": {
+      "cal": 180,
+      "pro": 7,
+      "fat": 16,
+      "sat": 6,
+      "carb": 1,
+      "fib": 0,
+      "sug": 0,
+      "na": 790
+    },
+    "usda": {
+      "cal": 176.4,
+      "pro": 7.5,
+      "fat": 14.9,
+      "sat": 5.6,
+      "carb": 2.6,
+      "fib": 0,
+      "sug": 0,
+      "na": 790.2
+    }
+  },
+  {
+    "name": "Margarine spread",
+    "serving": "1 tbsp (14 g)",
+    "grams": 14,
+    "usdaRecord": "Margarine Spread, 40-49% Fat, Tub (173589)",
+    "maxError": 0.61,
+    "current": {
+      "cal": 80,
+      "pro": 0,
+      "fat": 9,
+      "sat": 2.5,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 85
+    },
+    "usda": {
+      "cal": 56.1,
+      "pro": 0,
+      "fat": 6.2,
+      "sat": 1.6,
+      "carb": 0,
+      "fib": 0,
+      "sug": null,
+      "na": 100.2
+    }
+  },
+  {
+    "name": "Orange juice",
+    "serving": "1 cup (248 g)",
+    "grams": 248,
+    "usdaRecord": "Beverages, Orange Juice Drink (169044)",
+    "maxError": 0.6,
+    "current": {
+      "cal": 112,
+      "pro": 1.7,
+      "fat": 0.5,
+      "sat": 0.1,
+      "carb": 26,
+      "fib": 0.5,
+      "sug": 21,
+      "na": 2
+    },
+    "usda": {
+      "cal": 133.9,
+      "pro": 0.5,
+      "fat": 0,
+      "sat": 0,
+      "carb": 33.2,
+      "fib": 0.5,
+      "sug": 23.3,
+      "na": 5
+    }
+  },
+  {
+    "name": "White rice",
+    "serving": "1 cup cooked (158 g)",
+    "grams": 158,
+    "usdaRecord": "Rice, White, Cooked, as Ingredient (2710788)",
+    "maxError": 0.6,
+    "current": {
+      "cal": 205,
+      "pro": 4.3,
+      "fat": 0.4,
+      "sat": 0.1,
+      "carb": 45,
+      "fib": 0.6,
+      "sug": 0,
+      "na": 2
+    },
+    "usda": {
+      "cal": 205.4,
+      "pro": 4,
+      "fat": 0.6,
+      "sat": 0.2,
+      "carb": 45.8,
+      "fib": 0,
+      "sug": 0,
+      "na": 4.7
+    }
+  },
+  {
+    "name": "Kidney beans, canned",
+    "serving": "½ cup drained (130 g)",
+    "grams": 130,
+    "usdaRecord": "Beans, Kidney, All Types, Mature Seeds, Canned (173741)",
+    "maxError": 0.6,
+    "current": {
+      "cal": 110,
+      "pro": 7,
+      "fat": 0.5,
+      "sat": 0.1,
+      "carb": 19,
+      "fib": 6,
+      "sug": 1,
+      "na": 340
+    },
+    "usda": {
+      "cal": 109.2,
+      "pro": 6.8,
+      "fat": 0.8,
+      "sat": 0.1,
+      "carb": 18.9,
+      "fib": 5.6,
+      "sug": 2.5,
+      "na": 384.8
+    }
+  },
+  {
+    "name": "Mashed potatoes",
+    "serving": "½ cup, with milk and butter (105 g)",
+    "grams": 105,
+    "usdaRecord": "Potato, Mashed, Nfs (2709492)",
+    "maxError": 0.59,
+    "current": {
+      "cal": 119,
+      "pro": 2,
+      "fat": 4.4,
+      "sat": 2.6,
+      "carb": 18,
+      "fib": 1.6,
+      "sug": 1.5,
+      "na": 350
+    },
+    "usda": {
+      "cal": 119.7,
+      "pro": 2.3,
+      "fat": 4.3,
+      "sat": 2.2,
+      "carb": 18.5,
+      "fib": 1.3,
+      "sug": 2.2,
+      "na": 220.5
+    }
+  },
+  {
+    "name": "Tofu, firm",
+    "serving": "3 oz (85 g)",
+    "grams": 85,
+    "usdaRecord": "House Foods Premium Firm Tofu (173788)",
+    "maxError": 0.57,
+    "current": {
+      "cal": 80,
+      "pro": 9,
+      "fat": 4.5,
+      "sat": 0.5,
+      "carb": 2,
+      "fib": 1,
+      "sug": 0,
+      "na": 10
+    },
+    "usda": {
+      "cal": 72.3,
+      "pro": 9.3,
+      "fat": 3.6,
+      "sat": 0.6,
+      "carb": 0.9,
+      "fib": 0.8,
+      "sug": 0.3,
+      "na": 28.1
+    }
+  },
+  {
+    "name": "Queso dip",
+    "serving": "2 tbsp (31 g)",
+    "grams": 31,
+    "usdaRecord": "Dip, Tostitos, Salsa Con Queso, Medium (174069)",
+    "maxError": 0.57,
+    "current": {
+      "cal": 40,
+      "pro": 1,
+      "fat": 2.5,
+      "sat": 1,
+      "carb": 4,
+      "fib": 0,
+      "sug": 1,
+      "na": 270
+    },
+    "usda": {
+      "cal": 41.2,
+      "pro": 0.9,
+      "fat": 2.6,
+      "sat": 0.7,
+      "carb": 3.6,
+      "fib": 0.2,
+      "sug": 0.4,
+      "na": 239.6
+    }
+  },
+  {
+    "name": "Orange chicken",
+    "serving": "1 entrée portion (160 g)",
+    "grams": 160,
+    "usdaRecord": "Orange Chicken (2706443)",
+    "maxError": 0.56,
+    "current": {
+      "cal": 490,
+      "pro": 25,
+      "fat": 23,
+      "sat": 5,
+      "carb": 51,
+      "fib": 2,
+      "sug": 19,
+      "na": 820
+    },
+    "usda": {
+      "cal": 419.2,
+      "pro": 23.2,
+      "fat": 20.3,
+      "sat": 3.8,
+      "carb": 36,
+      "fib": 1.3,
+      "sug": 21.8,
+      "na": 884.8
+    }
+  },
+  {
+    "name": "Deli turkey",
+    "serving": "2 oz (56 g)",
+    "grams": 56,
+    "usdaRecord": "Turkey, White, Rotisserie, Deli Cut (174613)",
+    "maxError": 0.55,
+    "current": {
+      "cal": 60,
+      "pro": 10,
+      "fat": 1,
+      "sat": 0.3,
+      "carb": 2,
+      "fib": 0,
+      "sug": 1,
+      "na": 540
+    },
+    "usda": {
+      "cal": 62.7,
+      "pro": 7.6,
+      "fat": 1.7,
+      "sat": 0.1,
+      "carb": 4.3,
+      "fib": 0.2,
+      "sug": 2.2,
+      "na": 672
+    }
+  },
+  {
+    "name": "Deli chicken breast",
+    "serving": "2 oz (56 g)",
+    "grams": 56,
+    "usdaRecord": "Chicken Breast, Deli, Rotisserie Seasoned, Sliced, Prepackaged (173874)",
+    "maxError": 0.55,
+    "current": {
+      "cal": 60,
+      "pro": 11,
+      "fat": 1,
+      "sat": 0.3,
+      "carb": 1,
+      "fib": 0,
+      "sug": 1,
+      "na": 480
+    },
+    "usda": {
+      "cal": 54.9,
+      "pro": 9.7,
+      "fat": 1.1,
+      "sat": 0.3,
+      "carb": 1.6,
+      "fib": 0,
+      "sug": 0.4,
+      "na": 576.8
+    }
+  },
+  {
+    "name": "Pineapple",
+    "serving": "1 cup chunks (165 g)",
+    "grams": 165,
+    "usdaRecord": "Pineapple, Raw (2346398)",
+    "maxError": 0.55,
+    "current": {
+      "cal": 82,
+      "pro": 0.9,
+      "fat": 0.2,
+      "sat": 0,
+      "carb": 21.6,
+      "fib": 2.3,
+      "sug": 16.3,
+      "na": 2
+    },
+    "usda": {
+      "cal": 89.1,
+      "pro": 0.8,
+      "fat": 0.3,
+      "sat": null,
+      "carb": 23.3,
+      "fib": 1.5,
+      "sug": 18.8,
+      "na": 0
+    }
+  },
+  {
+    "name": "Toaster pastry",
+    "serving": "2 pastries (96 g)",
+    "grams": 96,
+    "usdaRecord": "Toaster Pastries, Brown-Sugar-Cinnamon (172801)",
+    "maxError": 0.55,
+    "current": {
+      "cal": 370,
+      "pro": 4,
+      "fat": 9,
+      "sat": 3,
+      "carb": 69,
+      "fib": 1,
+      "sug": 30,
+      "na": 340
+    },
+    "usda": {
+      "cal": 355.2,
+      "pro": 3.9,
+      "fat": 7.7,
+      "sat": null,
+      "carb": 69.7,
+      "fib": 2.2,
+      "sug": 26.1,
+      "na": 346.6
+    }
+  },
+  {
+    "name": "Frozen yogurt",
+    "serving": "½ cup (72 g)",
+    "grams": 72,
+    "usdaRecord": "Frozen Yogurt, Nfs (2705451)",
+    "maxError": 0.54,
+    "current": {
+      "cal": 115,
+      "pro": 3,
+      "fat": 4,
+      "sat": 2.5,
+      "carb": 17,
+      "fib": 0,
+      "sug": 17,
+      "na": 63
+    },
+    "usda": {
+      "cal": 91.4,
+      "pro": 2.2,
+      "fat": 2.6,
+      "sat": 1.7,
+      "carb": 15.6,
+      "fib": 0,
+      "sug": 14.3,
+      "na": 45.4
+    }
+  },
+  {
+    "name": "Chicken taco",
+    "serving": "1 taco, corn tortilla (100 g)",
+    "grams": 100,
+    "usdaRecord": "Taco, Flour Tortilla, Chicken, Cheese (2708526)",
+    "maxError": 0.54,
+    "current": {
+      "cal": 180,
+      "pro": 14,
+      "fat": 7,
+      "sat": 2.5,
+      "carb": 15,
+      "fib": 2,
+      "sug": 1,
+      "na": 320
+    },
+    "usda": {
+      "cal": 220,
+      "pro": 17.5,
+      "fat": 7.9,
+      "sat": 2.9,
+      "carb": 18.9,
+      "fib": 1.3,
+      "sug": 1.5,
+      "na": 446
+    }
+  },
+  {
+    "name": "Sunflower seeds",
+    "serving": "1 oz shelled (28 g)",
+    "grams": 28,
+    "usdaRecord": "Seeds, Sunflower Seed, Kernel, Raw (2515381)",
+    "maxError": 0.54,
+    "current": {
+      "cal": 165,
+      "pro": 5.5,
+      "fat": 14.1,
+      "sat": 1.5,
+      "carb": 6.8,
+      "fib": 3.1,
+      "sug": 0.8,
+      "na": 1
+    },
+    "usda": {
+      "cal": 159.9,
+      "pro": 5.3,
+      "fat": 13.6,
+      "sat": null,
+      "carb": 6.9,
+      "fib": 2,
+      "sug": null,
+      "na": 0
+    }
+  },
+  {
+    "name": "Frosted cereal",
+    "serving": "1 cup (39 g)",
+    "grams": 39,
+    "usdaRecord": "Cereals Ready-to-Eat, Malt-O-Meal, Frosted Flakes (172990)",
+    "maxError": 0.53,
+    "current": {
+      "cal": 150,
+      "pro": 1,
+      "fat": 0,
+      "sat": 0,
+      "carb": 36,
+      "fib": 1,
+      "sug": 15,
+      "na": 190
+    },
+    "usda": {
+      "cal": 151.7,
+      "pro": 1.7,
+      "fat": 0.4,
+      "sat": 0,
+      "carb": 35.2,
+      "fib": 0.5,
+      "sug": 15.3,
+      "na": 175.9
+    }
+  },
+  {
+    "name": "Flank steak",
+    "serving": "4 oz cooked (113 g)",
+    "grams": 113,
+    "usdaRecord": "Beef, Flank, Steak, Separable Lean and Fat, Trimmed to 0\" Fat, Choice, (169434)",
+    "maxError": 0.53,
+    "current": {
+      "cal": 217,
+      "pro": 32,
+      "fat": 9,
+      "sat": 3.7,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 63
+    },
+    "usda": {
+      "cal": 297.2,
+      "pro": 30.5,
+      "fat": 18.5,
+      "sat": 7.8,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 79.1
+    }
+  },
+  {
+    "name": "Sorbet",
+    "serving": "½ cup (95 g)",
+    "grams": 95,
+    "usdaRecord": "Sorbet (2709314)",
+    "maxError": 0.53,
+    "current": {
+      "cal": 120,
+      "pro": 0.3,
+      "fat": 0,
+      "sat": 0,
+      "carb": 30,
+      "fib": 1,
+      "sug": 25,
+      "na": 15
+    },
+    "usda": {
+      "cal": 104.5,
+      "pro": 0.8,
+      "fat": 0.1,
+      "sat": 0,
+      "carb": 25.7,
+      "fib": 0.5,
+      "sug": 24.5,
+      "na": 12.4
+    }
+  },
+  {
+    "name": "Pad thai",
+    "serving": "1 restaurant plate (400 g)",
+    "grams": 400,
+    "usdaRecord": "Pad Thai, Nfs (2708804)",
+    "maxError": 0.52,
+    "current": {
+      "cal": 650,
+      "pro": 28,
+      "fat": 22,
+      "sat": 4,
+      "carb": 85,
+      "fib": 4,
+      "sug": 25,
+      "na": 1800
+    },
+    "usda": {
+      "cal": 616,
+      "pro": 32.4,
+      "fat": 30,
+      "sat": 5.2,
+      "carb": 57.6,
+      "fib": 4.8,
+      "sug": 16.4,
+      "na": 1536
+    }
+  },
+  {
+    "name": "Lentil soup, canned",
+    "serving": "1 cup (245 g)",
+    "grams": 245,
+    "usdaRecord": "Soup, Lentil, Canned (2707460)",
+    "maxError": 0.52,
+    "current": {
+      "cal": 160,
+      "pro": 9,
+      "fat": 2,
+      "sat": 0.5,
+      "carb": 25,
+      "fib": 7,
+      "sug": 3,
+      "na": 680
+    },
+    "usda": {
+      "cal": 105.4,
+      "pro": 6.1,
+      "fat": 1.5,
+      "sat": 0.2,
+      "carb": 17.6,
+      "fib": 6.1,
+      "sug": 3.7,
+      "na": 646.8
+    }
+  },
+  {
+    "name": "Silken tofu",
+    "serving": "3 oz (85 g)",
+    "grams": 85,
+    "usdaRecord": "Mori-Nu, Tofu, Silken, Firm (172461)",
+    "maxError": 0.51,
+    "current": {
+      "cal": 47,
+      "pro": 4.1,
+      "fat": 2.3,
+      "sat": 0.3,
+      "carb": 2.5,
+      "fib": 0.1,
+      "sug": 1.1,
+      "na": 5
+    },
+    "usda": {
+      "cal": 52.7,
+      "pro": 5.9,
+      "fat": 2.3,
+      "sat": 0.3,
+      "carb": 2,
+      "fib": 0.1,
+      "sug": 1.1,
+      "na": 30.6
+    }
+  },
+  {
+    "name": "Pork chop, boneless",
+    "serving": "4 oz cooked (113 g)",
+    "grams": 113,
+    "usdaRecord": "Pork, Fresh, Loin, Blade (Chops), Boneless, Separable Lean Only, Bonel (169196)",
+    "maxError": 0.51,
+    "current": {
+      "cal": 210,
+      "pro": 33,
+      "fat": 7.9,
+      "sat": 2.6,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 70
+    },
+    "usda": {
+      "cal": 191,
+      "pro": 29.5,
+      "fat": 7.6,
+      "sat": 1.8,
+      "carb": 1,
+      "fib": 0,
+      "sug": 0,
+      "na": 65.5
+    }
+  },
+  {
+    "name": "Granola bar, chewy",
+    "serving": "1 bar (24 g)",
+    "grams": 24,
+    "usdaRecord": "Snacks, Granola Bar, Quaker, Chewy, 90 Calorie Bar (174800)",
+    "maxError": 0.5,
+    "current": {
+      "cal": 100,
+      "pro": 1,
+      "fat": 3,
+      "sat": 1,
+      "carb": 18,
+      "fib": 1,
+      "sug": 7,
+      "na": 65
+    },
+    "usda": {
+      "cal": 97.9,
+      "pro": 1,
+      "fat": 2,
+      "sat": 0.5,
+      "carb": 19,
+      "fib": 1,
+      "sug": 7,
+      "na": 75.1
+    }
+  },
+  {
+    "name": "Tahini",
+    "serving": "1 tbsp (15 g)",
+    "grams": 15,
+    "usdaRecord": "Tahini (2707587)",
+    "maxError": 0.5,
+    "current": {
+      "cal": 89,
+      "pro": 2.6,
+      "fat": 8,
+      "sat": 1.1,
+      "carb": 3.2,
+      "fib": 1.4,
+      "sug": 0.1,
+      "na": 17
+    },
+    "usda": {
+      "cal": 104.6,
+      "pro": 3,
+      "fat": 9.4,
+      "sat": 1.3,
+      "carb": 2.1,
+      "fib": 1.3,
+      "sug": 0.1,
+      "na": 9.6
+    }
+  },
+  {
+    "name": "Almond milk, unsweetened",
+    "serving": "1 cup (240 ml)",
+    "grams": 240,
+    "usdaRecord": "Almond Milk, Unsweetened, Plain, Refrigerated (2257045)",
+    "maxError": 0.5,
+    "current": {
+      "cal": 30,
+      "pro": 1,
+      "fat": 2.5,
+      "sat": 0,
+      "carb": 1,
+      "fib": 0.5,
+      "sug": 0,
+      "na": 170
+    },
+    "usda": {
+      "cal": 46.3,
+      "pro": 1.7,
+      "fat": 3.8,
+      "sat": null,
+      "carb": 1.7,
+      "fib": 0,
+      "sug": null,
+      "na": 142.1
+    }
+  },
+  {
+    "name": "Horchata",
+    "serving": "12 fl oz (360 ml)",
+    "grams": 360,
+    "usdaRecord": "Beverages, Horchata, as Served in Restaurant (171941)",
+    "maxError": 0.5,
+    "current": {
+      "cal": 220,
+      "pro": 2,
+      "fat": 3,
+      "sat": 1.5,
+      "carb": 47,
+      "fib": 0.5,
+      "sug": 36,
+      "na": 70
+    },
+    "usda": {
+      "cal": 194.4,
+      "pro": 1.8,
+      "fat": 2.5,
+      "sat": null,
+      "carb": 41.4,
+      "fib": 0,
+      "sug": 33.8,
+      "na": 50.4
+    }
+  },
+  {
+    "name": "Veggie burger",
+    "serving": "1 patty (71 g)",
+    "grams": 71,
+    "usdaRecord": "Veggie Burgers or Soyburgers, Unprepared (174287)",
+    "maxError": 0.49,
+    "current": {
+      "cal": 120,
+      "pro": 7,
+      "fat": 4,
+      "sat": 0.5,
+      "carb": 15,
+      "fib": 4,
+      "sug": 1,
+      "na": 350
+    },
+    "usda": {
+      "cal": 125.7,
+      "pro": 11.1,
+      "fat": 4.5,
+      "sat": 1,
+      "carb": 10.2,
+      "fib": 3.5,
+      "sug": 0.8,
+      "na": 404
+    }
+  },
+  {
+    "name": "Shredded Mexican cheese blend",
+    "serving": "¼ cup (28 g)",
+    "grams": 28,
+    "usdaRecord": "Cheese, Mexican Blend (171288)",
+    "maxError": 0.49,
+    "current": {
+      "cal": 110,
+      "pro": 6,
+      "fat": 9,
+      "sat": 5,
+      "carb": 1,
+      "fib": 0,
+      "sug": 0,
+      "na": 180
+    },
+    "usda": {
+      "cal": 107.5,
+      "pro": 6.6,
+      "fat": 9,
+      "sat": 4.5,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 170
+    }
+  },
+  {
+    "name": "Napa cabbage",
+    "serving": "1 cup shredded (76 g)",
+    "grams": 76,
+    "usdaRecord": "Cabbage, Napa, Leaf, Destemmed, Raw (2727583)",
+    "maxError": 0.48,
+    "current": {
+      "cal": 12,
+      "pro": 0.9,
+      "fat": 0.2,
+      "sat": 0,
+      "carb": 2.4,
+      "fib": 0.9,
+      "sug": 1.1,
+      "na": 7
+    },
+    "usda": {
+      "cal": null,
+      "pro": 0.8,
+      "fat": null,
+      "sat": null,
+      "carb": null,
+      "fib": 0.9,
+      "sug": 2.1,
+      "na": 9.6
+    }
+  },
+  {
+    "name": "Sourdough bread",
+    "serving": "1 slice (50 g)",
+    "grams": 50,
+    "usdaRecord": "Bread, French or Vienna (Includes Sourdough) (172675)",
+    "maxError": 0.48,
+    "current": {
+      "cal": 136,
+      "pro": 5.4,
+      "fat": 0.9,
+      "sat": 0.2,
+      "carb": 26,
+      "fib": 1.1,
+      "sug": 1.2,
+      "na": 300
+    },
+    "usda": {
+      "cal": 136,
+      "pro": 5.4,
+      "fat": 1.2,
+      "sat": 0.3,
+      "carb": 26,
+      "fib": 1.1,
+      "sug": 2.3,
+      "na": 301
+    }
+  },
+  {
+    "name": "Eggplant",
+    "serving": "1 cup cubed (82 g)",
+    "grams": 82,
+    "usdaRecord": "Eggplant, Raw (2685577)",
+    "maxError": 0.47,
+    "current": {
+      "cal": 20,
+      "pro": 0.8,
+      "fat": 0.1,
+      "sat": 0,
+      "carb": 4.8,
+      "fib": 2.4,
+      "sug": 2.9,
+      "na": 2
+    },
+    "usda": {
+      "cal": 18.4,
+      "pro": 0.7,
+      "fat": 0.1,
+      "sat": null,
+      "carb": 4.4,
+      "fib": 2.1,
+      "sug": 2,
+      "na": 0.3
+    }
+  },
+  {
+    "name": "Greek yogurt, plain whole milk",
+    "serving": "1 container (170 g)",
+    "grams": 170,
+    "usdaRecord": "Yogurt, Greek, Plain, Whole Milk (2259794)",
+    "maxError": 0.47,
+    "current": {
+      "cal": 160,
+      "pro": 16,
+      "fat": 8.5,
+      "sat": 6,
+      "carb": 6,
+      "fib": 0,
+      "sug": 6,
+      "na": 60
+    },
+    "usda": {
+      "cal": 160.7,
+      "pro": 15,
+      "fat": 7.5,
+      "sat": 4.1,
+      "carb": 8.2,
+      "fib": null,
+      "sug": 5.6,
+      "na": 57.5
+    }
+  },
+  {
+    "name": "Parmesan, grated",
+    "serving": "2 tbsp (10 g)",
+    "grams": 10,
+    "usdaRecord": "Cheese, Parmesan, Grated (325036)",
+    "maxError": 0.47,
+    "current": {
+      "cal": 42,
+      "pro": 3.8,
+      "fat": 2.8,
+      "sat": 1.7,
+      "carb": 0.3,
+      "fib": 0,
+      "sug": 0,
+      "na": 150
+    },
+    "usda": {
+      "cal": 42.1,
+      "pro": 3,
+      "fat": 2.8,
+      "sat": 1.6,
+      "carb": 1.2,
+      "fib": null,
+      "sug": 0,
+      "na": 175
+    }
+  },
+  {
+    "name": "Canned diced tomatoes",
+    "serving": "½ cup (121 g)",
+    "grams": 121,
+    "usdaRecord": "Tomatoes, Canned, Red, Ripe, Diced (333281)",
+    "maxError": 0.45,
+    "current": {
+      "cal": 25,
+      "pro": 1,
+      "fat": 0,
+      "sat": 0,
+      "carb": 5,
+      "fib": 1,
+      "sug": 3,
+      "na": 220
+    },
+    "usda": {
+      "cal": 21.8,
+      "pro": 1,
+      "fat": 0.6,
+      "sat": null,
+      "carb": 4,
+      "fib": null,
+      "sug": 3.6,
+      "na": 151.3
+    }
+  },
+  {
+    "name": "Rice cakes",
+    "serving": "1 plain cake (9 g)",
+    "grams": 9,
+    "usdaRecord": "Rice Cake (2708162)",
+    "maxError": 0.45,
+    "current": {
+      "cal": 35,
+      "pro": 0.7,
+      "fat": 0.3,
+      "sat": 0,
+      "carb": 7.3,
+      "fib": 0.4,
+      "sug": 0.1,
+      "na": 29
+    },
+    "usda": {
+      "cal": 35.3,
+      "pro": 0.6,
+      "fat": 0.4,
+      "sat": 0.1,
+      "carb": 7.3,
+      "fib": 0.4,
+      "sug": 0.1,
+      "na": 6.4
+    }
+  },
+  {
+    "name": "Frozen waffles",
+    "serving": "2 waffles (70 g)",
+    "grams": 70,
+    "usdaRecord": "Waffle, Plain, Frozen (2708313)",
+    "maxError": 0.45,
+    "current": {
+      "cal": 180,
+      "pro": 4,
+      "fat": 6,
+      "sat": 1.5,
+      "carb": 28,
+      "fib": 1,
+      "sug": 3,
+      "na": 380
+    },
+    "usda": {
+      "cal": 216.3,
+      "pro": 5.2,
+      "fat": 6.7,
+      "sat": 1.6,
+      "carb": 33.9,
+      "fib": 1.8,
+      "sug": 3.1,
+      "na": 322
+    }
+  },
+  {
+    "name": "Fruit smoothie, bottled",
+    "serving": "15.2 fl oz bottle (450 ml)",
+    "grams": 450,
+    "usdaRecord": "Fruit Smoothie, Bottled (2709339)",
+    "maxError": 0.45,
+    "current": {
+      "cal": 280,
+      "pro": 2,
+      "fat": 1,
+      "sat": 0,
+      "carb": 66,
+      "fib": 3,
+      "sug": 56,
+      "na": 30
+    },
+    "usda": {
+      "cal": 225,
+      "pro": 2.3,
+      "fat": 1.3,
+      "sat": 0.5,
+      "carb": 52.7,
+      "fib": 2.7,
+      "sug": 45.4,
+      "na": 9
+    }
+  },
+  {
+    "name": "Kiwi",
+    "serving": "1 medium (69 g)",
+    "grams": 69,
+    "usdaRecord": "Kiwifruit (Kiwi), Green, Peeled, Raw (2710831)",
+    "maxError": 0.45,
+    "current": {
+      "cal": 42,
+      "pro": 0.8,
+      "fat": 0.4,
+      "sat": 0,
+      "carb": 10.1,
+      "fib": 2.1,
+      "sug": 6.2,
+      "na": 2
+    },
+    "usda": {
+      "cal": 40.4,
+      "pro": 0.7,
+      "fat": 0.4,
+      "sat": null,
+      "carb": 9.5,
+      "fib": 1.4,
+      "sug": 5.9,
+      "na": 1.6
+    }
+  },
+  {
+    "name": "Canned peaches in syrup",
+    "serving": "½ cup (128 g)",
+    "grams": 128,
+    "usdaRecord": "Peach, Canned, in Syrup (2709251)",
+    "maxError": 0.45,
+    "current": {
+      "cal": 95,
+      "pro": 0.6,
+      "fat": 0.1,
+      "sat": 0,
+      "carb": 25,
+      "fib": 1.7,
+      "sug": 23,
+      "na": 8
+    },
+    "usda": {
+      "cal": 69.1,
+      "pro": 0.5,
+      "fat": 0.1,
+      "sat": 0,
+      "carb": 17.4,
+      "fib": 1.5,
+      "sug": 15.9,
+      "na": 3.8
+    }
+  },
+  {
+    "name": "Cantaloupe",
+    "serving": "1 cup diced (160 g)",
+    "grams": 160,
+    "usdaRecord": "Melons, Cantaloupe, Raw (746770)",
+    "maxError": 0.44,
+    "current": {
+      "cal": 54,
+      "pro": 1.3,
+      "fat": 0.3,
+      "sat": 0.1,
+      "carb": 13,
+      "fib": 1.4,
+      "sug": 12.6,
+      "na": 26
+    },
+    "usda": {
+      "cal": 54.4,
+      "pro": 1.3,
+      "fat": 0.3,
+      "sat": null,
+      "carb": 13.1,
+      "fib": 1.3,
+      "sug": 12.6,
+      "na": 48
+    }
+  },
+  {
+    "name": "English muffin, whole wheat",
+    "serving": "1 muffin (66 g)",
+    "grams": 66,
+    "usdaRecord": "Muffins, English, Whole-Wheat (172762)",
+    "maxError": 0.44,
+    "current": {
+      "cal": 134,
+      "pro": 5.8,
+      "fat": 1.4,
+      "sat": 0.2,
+      "carb": 27,
+      "fib": 4.4,
+      "sug": 3,
+      "na": 240
+    },
+    "usda": {
+      "cal": 134,
+      "pro": 5.8,
+      "fat": 1.4,
+      "sat": 0.2,
+      "carb": 26.7,
+      "fib": 4.4,
+      "sug": 5.3,
+      "na": 240.2
+    }
+  },
+  {
+    "name": "Sauerkraut",
+    "serving": "¼ cup (35 g)",
+    "grams": 35,
+    "usdaRecord": "Sauerkraut (2709982)",
+    "maxError": 0.44,
+    "current": {
+      "cal": 7,
+      "pro": 0.3,
+      "fat": 0,
+      "sat": 0,
+      "carb": 1.5,
+      "fib": 1,
+      "sug": 0.6,
+      "na": 230
+    },
+    "usda": {
+      "cal": 14,
+      "pro": 0.3,
+      "fat": 0.9,
+      "sat": 0.4,
+      "carb": 1.5,
+      "fib": 1,
+      "sug": 0.6,
+      "na": 230.7
+    }
+  },
+  {
+    "name": "Green beans",
+    "serving": "1 cup (100 g)",
+    "grams": 100,
+    "usdaRecord": "Beans, Snap, Green, Raw (2346400)",
+    "maxError": 0.43,
+    "current": {
+      "cal": 31,
+      "pro": 1.8,
+      "fat": 0.2,
+      "sat": 0,
+      "carb": 7,
+      "fib": 2.7,
+      "sug": 3.3,
+      "na": 6
+    },
+    "usda": {
+      "cal": 33.6,
+      "pro": 2,
+      "fat": 0.3,
+      "sat": null,
+      "carb": 7.4,
+      "fib": 3,
+      "sug": 2.3,
+      "na": 0
+    }
+  },
+  {
+    "name": "Miso soup",
+    "serving": "1 cup (240 ml)",
+    "grams": 240,
+    "usdaRecord": "Soup, Miso or Tofu (2707455)",
+    "maxError": 0.43,
+    "current": {
+      "cal": 40,
+      "pro": 3,
+      "fat": 1.5,
+      "sat": 0.3,
+      "carb": 5,
+      "fib": 1,
+      "sug": 1.5,
+      "na": 800
+    },
+    "usda": {
+      "cal": 57.6,
+      "pro": 5.3,
+      "fat": 2.2,
+      "sat": 0.5,
+      "carb": 5.5,
+      "fib": 1.4,
+      "sug": 1.9,
+      "na": 1120.8
+    }
+  },
+  {
+    "name": "Margarita",
+    "serving": "1 drink, 8 fl oz (240 g)",
+    "grams": 240,
+    "usdaRecord": "Margarita (2710638)",
+    "maxError": 0.43,
+    "current": {
+      "cal": 280,
+      "pro": 0,
+      "fat": 0,
+      "sat": 0,
+      "carb": 36,
+      "fib": 0,
+      "sug": 34,
+      "na": 280
+    },
+    "usda": {
+      "cal": 292.8,
+      "pro": 0.2,
+      "fat": 0.2,
+      "sat": 0,
+      "carb": 38.6,
+      "fib": 0,
+      "sug": 38.6,
+      "na": 489.6
+    }
+  },
+  {
+    "name": "Chicken thigh, skinless",
+    "serving": "4 oz cooked (113 g)",
+    "grams": 113,
+    "usdaRecord": "Chicken, Thigh, Boneless, Skinless, Raw (2646171)",
+    "maxError": 0.42,
+    "current": {
+      "cal": 200,
+      "pro": 28,
+      "fat": 9.3,
+      "sat": 2.6,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 100
+    },
+    "usda": {
+      "cal": 168.4,
+      "pro": 21,
+      "fat": 8.9,
+      "sat": 1.9,
+      "carb": 0,
+      "fib": null,
+      "sug": null,
+      "na": 70.4
+    }
+  },
+  {
+    "name": "Cod",
+    "serving": "4 oz cooked (113 g)",
+    "grams": 113,
+    "usdaRecord": "Fish, Cod, Pacific, Cooked (175178)",
+    "maxError": 0.42,
+    "current": {
+      "cal": 119,
+      "pro": 26,
+      "fat": 1,
+      "sat": 0.2,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 88
+    },
+    "usda": {
+      "cal": 94.9,
+      "pro": 23.1,
+      "fat": 0.3,
+      "sat": 0,
+      "carb": 0,
+      "fib": null,
+      "sug": null,
+      "na": 151.4
+    }
+  },
+  {
+    "name": "Salmon, canned",
+    "serving": "3 oz drained (85 g)",
+    "grams": 85,
+    "usdaRecord": "Fish, Salmon, Canned (2706291)",
+    "maxError": 0.41,
+    "current": {
+      "cal": 117,
+      "pro": 20,
+      "fat": 4.3,
+      "sat": 1,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 320
+    },
+    "usda": {
+      "cal": 115.6,
+      "pro": 20.9,
+      "fat": 3.6,
+      "sat": 0.6,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 321.3
+    }
+  },
+  {
+    "name": "Peanut sauce",
+    "serving": "2 tbsp (34 g)",
+    "grams": 34,
+    "usdaRecord": "Peanut Sauce (2707546)",
+    "maxError": 0.4,
+    "current": {
+      "cal": 100,
+      "pro": 3,
+      "fat": 7,
+      "sat": 1,
+      "carb": 7,
+      "fib": 1,
+      "sug": 5,
+      "na": 300
+    },
+    "usda": {
+      "cal": 87.4,
+      "pro": 2.1,
+      "fat": 5.4,
+      "sat": 1,
+      "carb": 7.5,
+      "fib": 0.6,
+      "sug": 5.8,
+      "na": 454.9
+    }
+  },
+  {
+    "name": "Swiss cheese",
+    "serving": "1 oz (28 g)",
+    "grams": 28,
+    "usdaRecord": "Cheese, Swiss (746767)",
+    "maxError": 0.4,
+    "current": {
+      "cal": 111,
+      "pro": 7.6,
+      "fat": 8.8,
+      "sat": 5.2,
+      "carb": 0.4,
+      "fib": 0,
+      "sug": 0.4,
+      "na": 54
+    },
+    "usda": {
+      "cal": 110,
+      "pro": 7.6,
+      "fat": 8.7,
+      "sat": 5.1,
+      "carb": 0.4,
+      "fib": null,
+      "sug": 0,
+      "na": 51.8
+    }
+  },
+  {
+    "name": "Peach",
+    "serving": "1 medium (150 g)",
+    "grams": 150,
+    "usdaRecord": "Peaches, Yellow, Raw (325430)",
+    "maxError": 0.39,
+    "current": {
+      "cal": 59,
+      "pro": 1.4,
+      "fat": 0.4,
+      "sat": 0,
+      "carb": 14.3,
+      "fib": 2.3,
+      "sug": 12.6,
+      "na": 0
+    },
+    "usda": {
+      "cal": 63,
+      "pro": 1.4,
+      "fat": 0.5,
+      "sat": null,
+      "carb": 15.2,
+      "fib": 2.3,
+      "sug": 12.6,
+      "na": 19.5
+    }
+  },
+  {
+    "name": "American cheese",
+    "serving": "1 slice (21 g)",
+    "grams": 21,
+    "usdaRecord": "Cheese, American, Restaurant (747429)",
+    "maxError": 0.39,
+    "current": {
+      "cal": 60,
+      "pro": 3,
+      "fat": 4,
+      "sat": 2.5,
+      "carb": 2,
+      "fib": 0,
+      "sug": 1,
+      "na": 250
+    },
+    "usda": {
+      "cal": 78.8,
+      "pro": 3.7,
+      "fat": 6.5,
+      "sat": 3.7,
+      "carb": 1.3,
+      "fib": null,
+      "sug": 0.8,
+      "na": 336
+    }
+  },
+  {
+    "name": "Hummus",
+    "serving": "2 tbsp (30 g)",
+    "grams": 30,
+    "usdaRecord": "Hummus, Commercial (321358)",
+    "maxError": 0.38,
+    "current": {
+      "cal": 70,
+      "pro": 2,
+      "fat": 5,
+      "sat": 0.7,
+      "carb": 4,
+      "fib": 1,
+      "sug": 0,
+      "na": 130
+    },
+    "usda": {
+      "cal": 68.7,
+      "pro": 2.2,
+      "fat": 5.1,
+      "sat": 0.7,
+      "carb": 4.5,
+      "fib": 1.6,
+      "sug": 0.1,
+      "na": 131.4
+    }
+  },
+  {
+    "name": "Nectarine",
+    "serving": "1 medium (142 g)",
+    "grams": 142,
+    "usdaRecord": "Nectarines, Raw (327357)",
+    "maxError": 0.37,
+    "current": {
+      "cal": 62,
+      "pro": 1.5,
+      "fat": 0.5,
+      "sat": 0,
+      "carb": 15,
+      "fib": 2.4,
+      "sug": 11,
+      "na": 0
+    },
+    "usda": {
+      "cal": 55.4,
+      "pro": 1.6,
+      "fat": 0.4,
+      "sat": 0,
+      "carb": 13.1,
+      "fib": 2.1,
+      "sug": 11.2,
+      "na": 18.5
+    }
+  },
+  {
+    "name": "Tomato soup, canned",
+    "serving": "1 cup prepared (245 g)",
+    "grams": 245,
+    "usdaRecord": "Soup, Tomato, Canned (2709759)",
+    "maxError": 0.37,
+    "current": {
+      "cal": 90,
+      "pro": 2,
+      "fat": 0,
+      "sat": 0,
+      "carb": 20,
+      "fib": 1,
+      "sug": 12,
+      "na": 480
+    },
+    "usda": {
+      "cal": 83.3,
+      "pro": 1.5,
+      "fat": 0.7,
+      "sat": 0.2,
+      "carb": 18.9,
+      "fib": 1.5,
+      "sug": 10.3,
+      "na": 644.4
+    }
+  },
+  {
+    "name": "Kombucha",
+    "serving": "16 fl oz bottle (473 ml)",
+    "grams": 473,
+    "usdaRecord": "Tea, Kombucha (2710509)",
+    "maxError": 0.37,
+    "current": {
+      "cal": 60,
+      "pro": 0,
+      "fat": 0,
+      "sat": 0,
+      "carb": 14,
+      "fib": 0,
+      "sug": 12,
+      "na": 20
+    },
+    "usda": {
+      "cal": 75.7,
+      "pro": 0.5,
+      "fat": 0,
+      "sat": 0,
+      "carb": 18.9,
+      "fib": 0,
+      "sug": 18.9,
+      "na": 9.5
+    }
+  },
+  {
+    "name": "Fish sticks, frozen",
+    "serving": "6 sticks (105 g)",
+    "grams": 105,
+    "usdaRecord": "Fish, Fish Sticks, Frozen, Prepared (174195)",
+    "maxError": 0.37,
+    "current": {
+      "cal": 250,
+      "pro": 11,
+      "fat": 12,
+      "sat": 2.5,
+      "carb": 23,
+      "fib": 1,
+      "sug": 2,
+      "na": 450
+    },
+    "usda": {
+      "cal": 290.9,
+      "pro": 11.6,
+      "fat": 17,
+      "sat": 3.9,
+      "carb": 22.8,
+      "fib": 1.6,
+      "sug": 1.8,
+      "na": 422.1
+    }
+  },
+  {
+    "name": "Shredded wheat",
+    "serving": "2 biscuits (47 g)",
+    "grams": 47,
+    "usdaRecord": "Cereal, Shredded Wheat, Plain (2708479)",
+    "maxError": 0.36,
+    "current": {
+      "cal": 170,
+      "pro": 5,
+      "fat": 1,
+      "sat": 0.2,
+      "carb": 40,
+      "fib": 6,
+      "sug": 0.5,
+      "na": 0
+    },
+    "usda": {
+      "cal": 168.3,
+      "pro": 5.6,
+      "fat": 0.8,
+      "sat": 0.1,
+      "carb": 34.7,
+      "fib": 6.1,
+      "sug": 0.1,
+      "na": 0.9
+    }
+  },
+  {
+    "name": "Light beer",
+    "serving": "12 fl oz (355 ml)",
+    "grams": 355,
+    "usdaRecord": "Beer, Light (2710617)",
+    "maxError": 0.36,
+    "current": {
+      "cal": 103,
+      "pro": 0.9,
+      "fat": 0,
+      "sat": 0,
+      "carb": 5.8,
+      "fib": 0,
+      "sug": 0,
+      "na": 14
+    },
+    "usda": {
+      "cal": 103,
+      "pro": 0.7,
+      "fat": 0,
+      "sat": 0,
+      "carb": 5.7,
+      "fib": 0,
+      "sug": 0.4,
+      "na": 14.2
+    }
+  },
+  {
+    "name": "Sirloin steak, lean",
+    "serving": "4 oz cooked (113 g)",
+    "grams": 113,
+    "usdaRecord": "Beef, Top Sirloin, Steak, Separable Lean and Fat, Trimmed to 0\" Fat, C (169458)",
+    "maxError": 0.35,
+    "current": {
+      "cal": 207,
+      "pro": 33,
+      "fat": 8,
+      "sat": 3,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 64
+    },
+    "usda": {
+      "cal": 247.5,
+      "pro": 32.8,
+      "fat": 11.9,
+      "sat": 4.6,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 65.5
+    }
+  },
+  {
+    "name": "Potato chips",
+    "serving": "1 oz (28 g)",
+    "grams": 28,
+    "usdaRecord": "Potato Chips, Nfs (2709421)",
+    "maxError": 0.35,
+    "current": {
+      "cal": 152,
+      "pro": 1.9,
+      "fat": 9.8,
+      "sat": 1.3,
+      "carb": 15,
+      "fib": 1.2,
+      "sug": 0.1,
+      "na": 148
+    },
+    "usda": {
+      "cal": 149,
+      "pro": 1.8,
+      "fat": 9.5,
+      "sat": 1,
+      "carb": 15.1,
+      "fib": 0.9,
+      "sug": 0.1,
+      "na": 147.6
+    }
+  },
+  {
+    "name": "Black olives",
+    "serving": "5 large (22 g)",
+    "grams": 22,
+    "usdaRecord": "Olives, Black (2710090)",
+    "maxError": 0.35,
+    "current": {
+      "cal": 25,
+      "pro": 0.2,
+      "fat": 2.3,
+      "sat": 0.3,
+      "carb": 1.3,
+      "fib": 0.7,
+      "sug": 0,
+      "na": 160
+    },
+    "usda": {
+      "cal": 25.5,
+      "pro": 0.2,
+      "fat": 2.4,
+      "sat": 0.5,
+      "carb": 1.3,
+      "fib": 0.4,
+      "sug": 0,
+      "na": 161.7
+    }
+  },
+  {
+    "name": "Chicken nuggets, frozen",
+    "serving": "5 pieces (85 g)",
+    "grams": 85,
+    "usdaRecord": "Chicken Nuggets, from Frozen (2706096)",
+    "maxError": 0.35,
+    "current": {
+      "cal": 230,
+      "pro": 13,
+      "fat": 14,
+      "sat": 3,
+      "carb": 13,
+      "fib": 1,
+      "sug": 1,
+      "na": 430
+    },
+    "usda": {
+      "cal": 253.3,
+      "pro": 11.4,
+      "fat": 16.3,
+      "sat": 3.4,
+      "carb": 15.2,
+      "fib": 1.5,
+      "sug": 0.7,
+      "na": 510
+    }
+  },
+  {
+    "name": "Graham crackers",
+    "serving": "2 full sheets (31 g)",
+    "grams": 31,
+    "usdaRecord": "Nabisco, Nabisco Grahams Crackers (175083)",
+    "maxError": 0.34,
+    "current": {
+      "cal": 130,
+      "pro": 2,
+      "fat": 3,
+      "sat": 0.5,
+      "carb": 24,
+      "fib": 1,
+      "sug": 8,
+      "na": 135
+    },
+    "usda": {
+      "cal": 131.4,
+      "pro": 2.2,
+      "fat": 3.1,
+      "sat": 0.5,
+      "carb": 23.6,
+      "fib": 1.1,
+      "sug": 7.1,
+      "na": 204.3
+    }
+  },
+  {
+    "name": "Peanut butter cups",
+    "serving": "2 cups (42 g)",
+    "grams": 42,
+    "usdaRecord": "Candies, Reese's Peanut Butter Cups (168763)",
+    "maxError": 0.34,
+    "current": {
+      "cal": 210,
+      "pro": 5,
+      "fat": 13,
+      "sat": 4.5,
+      "carb": 24,
+      "fib": 1,
+      "sug": 22,
+      "na": 150
+    },
+    "usda": {
+      "cal": 216.3,
+      "pro": 4.3,
+      "fat": 12.8,
+      "sat": 4.5,
+      "carb": 23.3,
+      "fib": 1.5,
+      "sug": 19.8,
+      "na": 149.9
+    }
+  },
+  {
+    "name": "Baked beans",
+    "serving": "½ cup (130 g)",
+    "grams": 130,
+    "usdaRecord": "Baked Beans (2707390)",
+    "maxError": 0.34,
+    "current": {
+      "cal": 140,
+      "pro": 6,
+      "fat": 0.5,
+      "sat": 0.1,
+      "carb": 29,
+      "fib": 5,
+      "sug": 12,
+      "na": 550
+    },
+    "usda": {
+      "cal": 136.5,
+      "pro": 5.9,
+      "fat": 1.2,
+      "sat": 0.3,
+      "carb": 28.1,
+      "fib": 5.7,
+      "sug": 10.7,
+      "na": 508.3
+    }
+  },
+  {
+    "name": "Frozen mixed vegetables",
+    "serving": "⅔ cup (91 g)",
+    "grams": 91,
+    "usdaRecord": "Vegetables, Mixed, Frozen, Unprepared (170471)",
+    "maxError": 0.33,
+    "current": {
+      "cal": 50,
+      "pro": 2,
+      "fat": 0,
+      "sat": 0,
+      "carb": 10,
+      "fib": 3,
+      "sug": 3,
+      "na": 35
+    },
+    "usda": {
+      "cal": 65.5,
+      "pro": 3,
+      "fat": 0.5,
+      "sat": 0.1,
+      "carb": 12.3,
+      "fib": 3.6,
+      "sug": null,
+      "na": 42.8
+    }
+  },
+  {
+    "name": "Cheesecake",
+    "serving": "1 slice (80 g)",
+    "grams": 80,
+    "usdaRecord": "Cheesecake, Fruit (2707862)",
+    "maxError": 0.33,
+    "current": {
+      "cal": 257,
+      "pro": 4.4,
+      "fat": 18,
+      "sat": 7.9,
+      "carb": 20.4,
+      "fib": 0.3,
+      "sug": 17,
+      "na": 166
+    },
+    "usda": {
+      "cal": 309.6,
+      "pro": 3.8,
+      "fat": 19.1,
+      "sat": 10.3,
+      "carb": 30.6,
+      "fib": 0.5,
+      "sug": 23,
+      "na": 201.6
+    }
+  },
+  {
+    "name": "Deli roast beef",
+    "serving": "2 oz (56 g)",
+    "grams": 56,
+    "usdaRecord": "Roast Beef, Deli Style, Prepackaged, Sliced (174570)",
+    "maxError": 0.33,
+    "current": {
+      "cal": 70,
+      "pro": 12,
+      "fat": 2,
+      "sat": 0.8,
+      "carb": 1,
+      "fib": 0,
+      "sug": 0,
+      "na": 420
+    },
+    "usda": {
+      "cal": 64.4,
+      "pro": 10.4,
+      "fat": 2.1,
+      "sat": 0.7,
+      "carb": 0.3,
+      "fib": 0,
+      "sug": 0.2,
+      "na": 477.7
+    }
+  },
+  {
+    "name": "Green peas, frozen",
+    "serving": "½ cup cooked (80 g)",
+    "grams": 80,
+    "usdaRecord": "Peas, Green, Frozen, Unprepared (Includes Foods for Usda's Food Distri (170016)",
+    "maxError": 0.33,
+    "current": {
+      "cal": 62,
+      "pro": 4.1,
+      "fat": 0.2,
+      "sat": 0,
+      "carb": 11.4,
+      "fib": 4.4,
+      "sug": 4.5,
+      "na": 58
+    },
+    "usda": {
+      "cal": 61.6,
+      "pro": 4.2,
+      "fat": 0.3,
+      "sat": 0.1,
+      "carb": 10.9,
+      "fib": 3.6,
+      "sug": 4,
+      "na": 86.4
+    }
+  },
+  {
+    "name": "Double cheeseburger, fast food",
+    "serving": "1 burger (165 g)",
+    "grams": 165,
+    "usdaRecord": "Cheeseburger Slider, from Fast Food (2706887)",
+    "maxError": 0.33,
+    "current": {
+      "cal": 450,
+      "pro": 25,
+      "fat": 24,
+      "sat": 11,
+      "carb": 33,
+      "fib": 1,
+      "sug": 7,
+      "na": 1050
+    },
+    "usda": {
+      "cal": 491.7,
+      "pro": 26.7,
+      "fat": 23.6,
+      "sat": 10.4,
+      "carb": 41.3,
+      "fib": 1.5,
+      "sug": 6.6,
+      "na": 833.3
+    }
+  },
+  {
+    "name": "Beets",
+    "serving": "1 cup sliced (136 g)",
+    "grams": 136,
+    "usdaRecord": "Beets, Raw (2685576)",
+    "maxError": 0.33,
+    "current": {
+      "cal": 58,
+      "pro": 2.2,
+      "fat": 0.2,
+      "sat": 0,
+      "carb": 13,
+      "fib": 3.8,
+      "sug": 9.2,
+      "na": 106
+    },
+    "usda": {
+      "cal": 55.8,
+      "pro": 2.3,
+      "fat": 0.4,
+      "sat": null,
+      "carb": 12,
+      "fib": 4.2,
+      "sug": 6.9,
+      "na": 152.3
+    }
+  },
+  {
+    "name": "Chocolate chip cookies",
+    "serving": "3 cookies (34 g)",
+    "grams": 34,
+    "usdaRecord": "Cookie, Chocolate Chip (2707909)",
+    "maxError": 0.32,
+    "current": {
+      "cal": 160,
+      "pro": 2,
+      "fat": 8,
+      "sat": 2.5,
+      "carb": 22,
+      "fib": 1,
+      "sug": 11,
+      "na": 110
+    },
+    "usda": {
+      "cal": 167.3,
+      "pro": 1.7,
+      "fat": 8.4,
+      "sat": 2.8,
+      "carb": 22.2,
+      "fib": 0.7,
+      "sug": 11.2,
+      "na": 105.7
+    }
+  },
+  {
+    "name": "Hot dog bun",
+    "serving": "1 bun (43 g)",
+    "grams": 43,
+    "usdaRecord": "Roll, White, Hot Dog Bun (2707656)",
+    "maxError": 0.32,
+    "current": {
+      "cal": 120,
+      "pro": 4,
+      "fat": 2,
+      "sat": 0.5,
+      "carb": 21,
+      "fib": 1,
+      "sug": 3,
+      "na": 210
+    },
+    "usda": {
+      "cal": 114.8,
+      "pro": 4,
+      "fat": 1.5,
+      "sat": 0.3,
+      "carb": 21.2,
+      "fib": 1,
+      "sug": 2.3,
+      "na": 193.5
+    }
+  },
+  {
+    "name": "Buffalo sauce",
+    "serving": "1 tbsp (15 g)",
+    "grams": 15,
+    "usdaRecord": "Buffalo Sauce (2709751)",
+    "maxError": 0.3,
+    "current": {
+      "cal": 5,
+      "pro": 0,
+      "fat": 0.5,
+      "sat": 0,
+      "carb": 0.5,
+      "fib": 0,
+      "sug": 0,
+      "na": 570
+    },
+    "usda": {
+      "cal": 1.7,
+      "pro": 0.2,
+      "fat": 0.1,
+      "sat": 0,
+      "carb": 0.1,
+      "fib": 0.1,
+      "sug": 0,
+      "na": 437.6
+    }
+  },
+  {
+    "name": "Nacho cheese tortilla chips",
+    "serving": "1 oz (28 g)",
+    "grams": 28,
+    "usdaRecord": "Snacks, Tortilla Chips, Nacho Cheese (167559)",
+    "maxError": 0.3,
+    "current": {
+      "cal": 150,
+      "pro": 2,
+      "fat": 8,
+      "sat": 1,
+      "carb": 18,
+      "fib": 1,
+      "sug": 1,
+      "na": 210
+    },
+    "usda": {
+      "cal": 145.3,
+      "pro": 2.1,
+      "fat": 7.7,
+      "sat": 1.1,
+      "carb": 17,
+      "fib": 1.4,
+      "sug": 0.7,
+      "na": 193.5
+    }
+  },
+  {
+    "name": "Apple pie",
+    "serving": "⅛ of a 9-inch pie (125 g)",
+    "grams": 125,
+    "usdaRecord": "Pie, Apple (2707995)",
+    "maxError": 0.29,
+    "current": {
+      "cal": 300,
+      "pro": 2.4,
+      "fat": 14,
+      "sat": 4.7,
+      "carb": 42,
+      "fib": 2,
+      "sug": 20,
+      "na": 250
+    },
+    "usda": {
+      "cal": 370,
+      "pro": 3.4,
+      "fat": 19.1,
+      "sat": 6.6,
+      "carb": 47,
+      "fib": 2.3,
+      "sug": 19.9,
+      "na": 271.3
+    }
+  },
+  {
+    "name": "Lasagna, frozen",
+    "serving": "1 cup (227 g)",
+    "grams": 227,
+    "usdaRecord": "Lasagna, Cheese, Frozen, Prepared (173333)",
+    "maxError": 0.29,
+    "current": {
+      "cal": 330,
+      "pro": 19,
+      "fat": 13,
+      "sat": 6,
+      "carb": 34,
+      "fib": 3,
+      "sug": 8,
+      "na": 750
+    },
+    "usda": {
+      "cal": 295.1,
+      "pro": 14.8,
+      "fat": 12,
+      "sat": 4.8,
+      "carb": 31.3,
+      "fib": 3.9,
+      "sug": 9.5,
+      "na": 644.7
+    }
+  },
+  {
+    "name": "Chili with beans, canned",
+    "serving": "1 cup (247 g)",
+    "grams": 247,
+    "usdaRecord": "Chili with Beans, Canned (175207)",
+    "maxError": 0.29,
+    "current": {
+      "cal": 267,
+      "pro": 19,
+      "fat": 7,
+      "sat": 3,
+      "carb": 32,
+      "fib": 7,
+      "sug": 3,
+      "na": 990
+    },
+    "usda": {
+      "cal": 254.4,
+      "pro": 15.1,
+      "fat": 9.4,
+      "sat": 2.7,
+      "carb": 32.6,
+      "fib": 8.2,
+      "sug": 4.2,
+      "na": 1044.8
+    }
+  },
+  {
+    "name": "Frozen pepperoni pizza",
+    "serving": "¼ of a 12-inch pizza (130 g)",
+    "grams": 130,
+    "usdaRecord": "Pizza, Pepperoni Topping, Regular Crust, Frozen, Cooked (172096)",
+    "maxError": 0.28,
+    "current": {
+      "cal": 380,
+      "pro": 15,
+      "fat": 18,
+      "sat": 8,
+      "carb": 39,
+      "fib": 2,
+      "sug": 5,
+      "na": 800
+    },
+    "usda": {
+      "cal": 356.2,
+      "pro": 18.7,
+      "fat": 17,
+      "sat": 6.2,
+      "carb": 32.1,
+      "fib": 2.6,
+      "sug": 4.4,
+      "na": 767
+    }
+  },
+  {
+    "name": "Yogurt, flavored low-fat",
+    "serving": "1 container (170 g)",
+    "grams": 170,
+    "usdaRecord": "Yogurt, Vanilla, Low Fat. (170888)",
+    "maxError": 0.28,
+    "current": {
+      "cal": 150,
+      "pro": 6,
+      "fat": 2,
+      "sat": 1.3,
+      "carb": 28,
+      "fib": 0,
+      "sug": 26,
+      "na": 95
+    },
+    "usda": {
+      "cal": 144.5,
+      "pro": 8.3,
+      "fat": 2.2,
+      "sat": 1.4,
+      "carb": 23.5,
+      "fib": 0,
+      "sug": 23.5,
+      "na": 112.2
+    }
+  },
+  {
+    "name": "Black beans, canned",
+    "serving": "½ cup drained (130 g)",
+    "grams": 130,
+    "usdaRecord": "Beans, Black Turtle, Mature Seeds, Canned (175188)",
+    "maxError": 0.28,
+    "current": {
+      "cal": 110,
+      "pro": 7,
+      "fat": 0.5,
+      "sat": 0.1,
+      "carb": 20,
+      "fib": 7,
+      "sug": 0.5,
+      "na": 360
+    },
+    "usda": {
+      "cal": 118.3,
+      "pro": 7.8,
+      "fat": 0.4,
+      "sat": 0.1,
+      "carb": 21.6,
+      "fib": 9,
+      "sug": 0.3,
+      "na": 499.2
+    }
+  },
+  {
+    "name": "Avocado",
+    "serving": "½ medium (75 g)",
+    "grams": 75,
+    "usdaRecord": "Avocados, Raw, California (171706)",
+    "maxError": 0.28,
+    "current": {
+      "cal": 120,
+      "pro": 1.5,
+      "fat": 11,
+      "sat": 1.6,
+      "carb": 6.4,
+      "fib": 5,
+      "sug": 0.5,
+      "na": 5
+    },
+    "usda": {
+      "cal": 125.3,
+      "pro": 1.5,
+      "fat": 11.6,
+      "sat": 1.6,
+      "carb": 6.5,
+      "fib": 5.1,
+      "sug": 0.2,
+      "na": 6
+    }
+  },
+  {
+    "name": "Hamburger bun",
+    "serving": "1 bun (52 g)",
+    "grams": 52,
+    "usdaRecord": "Roll, White, Hamburger Bun (2707657)",
+    "maxError": 0.27,
+    "current": {
+      "cal": 140,
+      "pro": 5,
+      "fat": 2,
+      "sat": 0.5,
+      "carb": 26,
+      "fib": 1,
+      "sug": 3.5,
+      "na": 250
+    },
+    "usda": {
+      "cal": 138.8,
+      "pro": 4.9,
+      "fat": 1.9,
+      "sat": 0.4,
+      "carb": 25.6,
+      "fib": 1.2,
+      "sug": 2.8,
+      "na": 234
+    }
+  },
+  {
+    "name": "Ground pork",
+    "serving": "4 oz raw (113 g)",
+    "grams": 113,
+    "usdaRecord": "Pork, Ground, Raw (2514745)",
+    "maxError": 0.26,
+    "current": {
+      "cal": 297,
+      "pro": 19,
+      "fat": 24,
+      "sat": 9,
+      "carb": 0,
+      "fib": 0,
+      "sug": 0,
+      "na": 63
+    },
+    "usda": {
+      "cal": 263.3,
+      "pro": 20.1,
+      "fat": 19.8,
+      "sat": 7.1,
+      "carb": 0,
+      "fib": null,
+      "sug": null,
+      "na": 60.6
+    }
+  },
+  {
+    "name": "Pumpkin seeds",
+    "serving": "1 oz shelled (28 g)",
+    "grams": 28,
+    "usdaRecord": "Seeds, Pumpkin Seeds (Pepitas), Raw (2515380)",
+    "maxError": 0.26,
+    "current": {
+      "cal": 163,
+      "pro": 8.5,
+      "fat": 13.9,
+      "sat": 2.5,
+      "carb": 4.2,
+      "fib": 1.8,
+      "sug": 0.4,
+      "na": 5
+    },
+    "usda": {
+      "cal": 144.2,
+      "pro": 8.4,
+      "fat": 11.2,
+      "sat": null,
+      "carb": 5.2,
+      "fib": 1.4,
+      "sug": null,
+      "na": 0
+    }
+  },
+  {
+    "name": "Coffee creamer, flavored",
+    "serving": "1 tbsp (15 ml)",
+    "grams": 15,
+    "usdaRecord": "Coffee Creamer, Liquid, Flavored (2705601)",
+    "maxError": 0.26,
+    "current": {
+      "cal": 35,
+      "pro": 0,
+      "fat": 1.5,
+      "sat": 0.5,
+      "carb": 5,
+      "fib": 0,
+      "sug": 5,
+      "na": 5
+    },
+    "usda": {
+      "cal": 37.7,
+      "pro": 0.1,
+      "fat": 2,
+      "sat": 0.4,
+      "carb": 5.3,
+      "fib": 0.2,
+      "sug": 5,
+      "na": 10
+    }
+  },
+  {
+    "name": "Hot dog, beef",
+    "serving": "1 frank (57 g)",
+    "grams": 57,
+    "usdaRecord": "Hot Dog, Beef (2706167)",
+    "maxError": 0.26,
+    "current": {
+      "cal": 180,
+      "pro": 6,
+      "fat": 16,
+      "sat": 6.5,
+      "carb": 2,
+      "fib": 0,
+      "sug": 1,
+      "na": 500
+    },
+    "usda": {
+      "cal": 176.7,
+      "pro": 6.7,
+      "fat": 16,
+      "sat": 6.5,
+      "carb": 1.7,
+      "fib": 0,
+      "sug": 0.7,
+      "na": 472
+    }
+  },
+  {
+    "name": "Thousand Island dressing",
+    "serving": "2 tbsp (32 g)",
+    "grams": 32,
+    "usdaRecord": "Thousand Island Dressing (2710213)",
+    "maxError": 0.26,
+    "current": {
+      "cal": 110,
+      "pro": 0,
+      "fat": 10,
+      "sat": 1.5,
+      "carb": 5,
+      "fib": 0,
+      "sug": 4,
+      "na": 270
+    },
+    "usda": {
+      "cal": 121.3,
+      "pro": 0.4,
+      "fat": 11.2,
+      "sat": 1.6,
+      "carb": 4.7,
+      "fib": 0.3,
+      "sug": 4.9,
+      "na": 307.8
+    }
+  },
+  {
+    "name": "Mixed nuts",
+    "serving": "1 oz, salted (28 g)",
+    "grams": 28,
+    "usdaRecord": "Mixed Nuts, Nfs (2707504)",
+    "maxError": 0.26,
+    "current": {
+      "cal": 170,
+      "pro": 5,
+      "fat": 15,
+      "sat": 2.2,
+      "carb": 7,
+      "fib": 2.5,
+      "sug": 1.3,
+      "na": 110
+    },
+    "usda": {
+      "cal": 170.8,
+      "pro": 5.5,
+      "fat": 15.1,
+      "sat": 2.1,
+      "carb": 5.9,
+      "fib": 2.1,
+      "sug": 1.3,
+      "na": 87.6
+    }
+  },
+  {
+    "name": "Ricotta, part-skim",
+    "serving": "¼ cup (62 g)",
+    "grams": 62,
+    "usdaRecord": "Cheese, Ricotta, Part Skim Milk (171248)",
+    "maxError": 0.25,
+    "current": {
+      "cal": 86,
+      "pro": 7,
+      "fat": 4.9,
+      "sat": 3.1,
+      "carb": 3.2,
+      "fib": 0,
+      "sug": 0.2,
+      "na": 77
+    },
+    "usda": {
+      "cal": 85.6,
+      "pro": 7.1,
+      "fat": 4.9,
+      "sat": 3,
+      "carb": 3.2,
+      "fib": 0,
+      "sug": 0.2,
+      "na": 61.4
+    }
+  },
+  {
+    "name": "Tortilla chips",
+    "serving": "1 oz, about 10 chips (28 g)",
+    "grams": 28,
+    "usdaRecord": "Tortilla Chips, Plain (2708202)",
+    "maxError": 0.25,
+    "current": {
+      "cal": 140,
+      "pro": 2,
+      "fat": 7,
+      "sat": 1,
+      "carb": 18,
+      "fib": 1.5,
+      "sug": 0,
+      "na": 115
+    },
+    "usda": {
+      "cal": 132.2,
+      "pro": 2,
+      "fat": 5.8,
+      "sat": 0.8,
+      "carb": 19,
+      "fib": 1.5,
+      "sug": 0.2,
+      "na": 91.8
+    }
+  },
+  {
+    "name": "Blackberries",
+    "serving": "1 cup (144 g)",
+    "grams": 144,
+    "usdaRecord": "Blackberries, Raw (2727581)",
+    "maxError": 0.25,
+    "current": {
+      "cal": 62,
+      "pro": 2,
+      "fat": 0.7,
+      "sat": 0,
+      "carb": 13.8,
+      "fib": 7.6,
+      "sug": 7,
+      "na": 1
+    },
+    "usda": {
+      "cal": null,
+      "pro": 2.2,
+      "fat": null,
+      "sat": null,
+      "carb": null,
+      "fib": 7.6,
+      "sug": 9.4,
+      "na": 2.3
+    }
+  },
+  {
+    "name": "Canned green beans",
+    "serving": "½ cup drained (68 g)",
+    "grams": 68,
+    "usdaRecord": "Beans, Snap, Green, Canned, Regular Pack, Drained Solids (321611)",
+    "maxError": 0.25,
+    "current": {
+      "cal": 15,
+      "pro": 1,
+      "fat": 0,
+      "sat": 0,
+      "carb": 3,
+      "fib": 1.4,
+      "sug": 1,
+      "na": 240
+    },
+    "usda": {
+      "cal": 14.3,
+      "pro": 0.7,
+      "fat": 0.3,
+      "sat": null,
+      "carb": 2.8,
+      "fib": null,
+      "sug": 0.9,
+      "na": 191.8
+    }
+  }
+]
