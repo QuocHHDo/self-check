@@ -279,7 +279,7 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
 /* grocery list, plate, quiz */
 .lgroup { display: grid; gap: 2px; }
 .lrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--line); }
-.lrow label, .lrow .pname { flex: 1 1 160px; min-width: 0; }
+.lrow label, .lrow .pname { flex: 1 1 0; min-width: 110px; }
 .lrow.done label { text-decoration: line-through; color: var(--muted); }
 .lrow input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); }
 .lrow select { font: 500 14px var(--font-body); color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px; }
@@ -374,6 +374,29 @@ section.box { background: var(--surface); border: 1px solid var(--line); border-
 }
 body:not([data-view="check"]) #shelf, body:not([data-view="check"]) #scanBtn, body:not([data-view="check"]) header .sub { display: none; }
 @media (max-width: 720px) { .toast { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); } }
+
+.ideas { display: grid; gap: 10px; }
+.idea { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 6px; background: var(--paper); }
+.idea-head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-variant-numeric: tabular-nums; }
+.idea-head .cost { font: 700 18px var(--font-display); }
+.idea ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; font-size: 14px; }
+.idea li .muted { font-size: 12.5px; }
+.idea .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.lsec { font: 700 11.5px var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 12px 0 2px; }
+.lsec:first-child { margin-top: 0; }
+.lmeta { flex: 1 0 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding-left: 26px; font-size: 13px; font-variant-numeric: tabular-nums; }
+.lmeta .lprice { color: var(--muted); flex: 1 1 auto; } .lmeta .lprice b { color: var(--ink); }
+.qty { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.qty button { background: transparent; border: 0; width: 32px; height: 30px; font: 600 16px var(--font-body); color: var(--ink); cursor: pointer; }
+.qty button:disabled { color: var(--muted); opacity: .5; cursor: default; }
+.qty span { min-width: 22px; text-align: center; font-weight: 600; }
+.lswap { flex: 1 0 100%; padding-left: 26px; font-size: 13px; color: var(--muted); }
+.ltotal { margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.ltotal .amt { font: 700 18px var(--font-display); color: var(--ink); }
+.bk-paste { display: grid; gap: 6px; }
+.bk-paste textarea { width: 100%; box-sizing: border-box; font: 13px ui-monospace, monospace; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+.bk-preview { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 8px; background: var(--paper); }
+.bk-preview.err { border-color: var(--bad); color: var(--bad); }
 </style>
 </head>
 <body>
@@ -419,13 +442,23 @@ body:not([data-view="check"]) #shelf, body:not([data-view="check"]) #scanBtn, bo
 
   <section class="box view" id="plateBox" data-view="plate" hidden aria-labelledby="hPlate">
     <h2 class="vhead"><span id="hPlate">Plate builder</span><span class="muted" id="plateCount"></span></h2>
-    <p class="vsub">Add foods with “+ to plate” to see what a whole meal adds up to.</p>
     <div class="inner">
       <div id="plateItems" class="lgroup"></div>
       <div class="actions">
         <button class="btn small" type="button" id="plateView">See the plate's verdict</button>
         <button class="btn small ghost" type="button" id="plateClear">Clear plate</button>
       </div>
+    </div>
+  </section>
+
+  <section class="box view" id="meals" data-view="plate" hidden aria-labelledby="hMeals">
+    <h2 class="vhead"><span id="hMeals">Cheap meal ideas</span></h2>
+    <p class="vsub">A protein, a vegetable and a grain that add up to a “Get it” meal, cheapest first.</p>
+    <div class="inner">
+      <div class="chiprow" id="mealBudget" style="margin:0" role="group" aria-label="Budget per meal"></div>
+      <div class="chiprow" id="mealProtein" style="margin:0" role="group" aria-label="Protein per meal"></div>
+      <div id="mealList" class="ideas" aria-live="polite"></div>
+      <p class="fine" id="mealNote"></p>
     </div>
   </section>
 
@@ -480,6 +513,30 @@ body:not([data-view="check"]) #shelf, body:not([data-view="check"]) #scanBtn, bo
     </div>
   </section>
 
+  <section class="box view" id="dataBox" data-view="goals" hidden aria-labelledby="hData">
+    <h2 class="vhead"><span id="hData">Your data</span></h2>
+    <p class="vsub">Goals, favorites, your list and plate, your prices and looked-up foods are saved only in this browser. Back them up, or move them to another phone or computer.</p>
+    <div class="inner">
+      <div class="actions">
+        <button class="btn small" type="button" id="bkDownload">Download backup</button>
+        <button class="btn small ghost" type="button" id="bkCopy">Copy as text</button>
+        <button class="btn small ghost" type="button" id="bkLink" hidden>Copy transfer link</button>
+      </div>
+      <div class="actions">
+        <button class="btn small ghost" type="button" id="bkFileBtn">Restore from file</button>
+        <input type="file" id="bkFile" accept=".json,application/json,text/plain" hidden>
+        <button class="btn small ghost" type="button" id="bkPasteBtn" aria-expanded="false" aria-controls="bkPaste">Paste backup text</button>
+      </div>
+      <div id="bkPaste" class="bk-paste" hidden>
+        <label for="bkText">Backup text</label>
+        <textarea id="bkText" rows="4" spellcheck="false"></textarea>
+        <div><button class="btn small" type="button" id="bkPasteGo">Check this backup</button></div>
+      </div>
+      <div id="bkPreview" role="status" aria-live="polite"></div>
+      <p class="fine">Your USDA key isn't included. A transfer link holds your data in the link itself, so share it only with yourself.</p>
+    </div>
+  </section>
+
   <footer><p class="fine">Built-in values are approximate typical figures for a standard serving; packaged foods vary by brand, so the label on the package wins. USDA results come from USDA FoodData Central; scanned products come from Open Food Facts, a crowd-sourced database that can be incomplete. The label's % Daily Value uses standard FDA values; the bars and verdict use your goals. General nutrition guidance, not medical advice.</p></footer>
 </main>
 
@@ -494,6 +551,8 @@ body:not([data-view="check"]) #shelf, body:not([data-view="check"]) #scanBtn, bo
 <script src="js/sources.js"></script>
 <script src="js/search.js"></script>
 <script src="js/learn.js"></script>
+<script src="js/meals.js"></script>
+<script src="js/backup.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

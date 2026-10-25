@@ -135,6 +135,40 @@ async function openFood(page, name) {
       await shot(page, `15-mobile-${width}`);
       await ctx.close();
     }
+    // New views fit a 320 px phone, and a transfer link copied on one device restores everything on a fresh one.
+    {
+      const a = await newPage(browser, base, 320, 640);
+      const overflow = () => a.page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      for (const n of ["Eggs", "Banana", "Bacon"]) { await openFood(a.page, n); await a.page.click("#out .actions button:nth-child(2)"); }
+      await a.page.click('#tabs [data-view="list"]'); await a.page.waitForSelector(".ltotal");
+      await a.page.click('#glistItems .qty button[aria-label="One more Eggs"]');
+      ok(await overflow() <= 0, `320px list (sections, quantities, swap): no horizontal scroll (${await overflow()} px)`);
+      await shot(a.page, "f2-list-320");
+      await a.page.click('#tabs [data-view="plate"]'); await a.page.waitForSelector("#mealList .idea");
+      ok(await overflow() <= 0, `320px meal ideas: no horizontal scroll (${await overflow()} px)`);
+      await shot(a.page, "f3-meals-320");
+      await a.page.click('#mealList .idea .btn:has-text("Use as my plate")');
+      await a.page.click('#tabs [data-view="goals"]');
+      ok(await overflow() <= 0, `320px goals and backup: no horizontal scroll (${await overflow()} px)`);
+      const link = await a.page.evaluate(async () => location.origin + location.pathname + "#import=" +
+        await SelfCheckBackup.encode(SelfCheckBackup.pack(k => { const v = localStorage.getItem(k); return v ? JSON.parse(v) : undefined; })));
+      const want = await a.page.evaluate(() => ["grocery", "plate", "recents"].map(k => localStorage.getItem(k)));
+      await a.ctx.close();
+      // Another device: a fresh browser profile opens the link cold.
+      const ctx = await browser.newContext({ viewport: { width: 375, height: 740 }, serviceWorkers: "block" });
+      const page = await ctx.newPage();
+      page.on("pageerror", e => { fails++; console.log("FAIL page error: " + e.message); });
+      await page.goto(link); await page.waitForSelector("#bkPreview .bk-preview");
+      const pv = await page.evaluate(() => ({ t: document.getElementById("bkPreview").textContent, view: document.body.dataset.view, hash: location.hash, list: localStorage.getItem("grocery") }));
+      ok(/3 grocery items/.test(pv.t) && pv.view === "goals" && pv.hash === "#goals" && !pv.list, `transfer link opens a preview on Goals and changes nothing yet (${pv.t.slice(0, 70)})`);
+      await shot(page, "f1-import-preview-375");
+      await Promise.all([page.waitForEvent("load"), page.click('#bkPreview .btn:has-text("Restore")')]);
+      await page.waitForSelector("#out h2");
+      const got = await page.evaluate(() => ["grocery", "plate", "recents"].map(k => localStorage.getItem(k)));
+      ok(JSON.stringify(got) === JSON.stringify(want), "Restore brings over the list (with quantities), plate and recents");
+      ok(await page.evaluate(() => document.getElementById("tabListN").textContent === "3" && !location.hash.includes("import")), "after restoring, the List tab shows 3 and the link is cleared");
+      await ctx.close();
+    }
   } finally {
     await browser.close();
     srv.close();

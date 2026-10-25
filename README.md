@@ -14,7 +14,9 @@ Live at **https://quochhdo.github.io/self-check/**. It installs to your phone's 
 - **Compare two foods** side by side, per serving or per 100 calories.
 - **Browse** by category, sorted A–Z, least healthy first or healthiest first, per serving or per 100 calories.
 - **Plate builder**: combine foods at your servings into one meal with a total label and verdict.
-- **Grocery list** with check-off, copy, and "add my Get-it favorites."
+- **Grocery list** grouped by store section, with quantities, an estimated trip total at typical prices, a one-tap swap for "Limit it" items, check-off, copy, and "add my Get-it favorites."
+- **Cheap meal ideas** (on the Plate tab): a protein, a vegetable and a grain that add up to a "Get it" meal within your budget and protein target, cheapest first, from foods with a typical price.
+- **Backup and transfer** (on the Goals tab): download or copy your saved data, restore it from a file or text, or move it to another device with a transfer link. Restores are checked field by field and previewed first; your USDA key is never included.
 - **Learn mode** (under Browse): a quiz built from the app's own data; missed questions come back after 3, 8, then 20 questions.
 - **Serving size** control (½× to 3×), **favorites**, **recent searches**, and **shareable links** (`#salmon`).
 - **Lookups beyond the built-in list**: USDA search and barcode scanning via Open Food Facts on the web version; a Claude lookup in the Claude version.

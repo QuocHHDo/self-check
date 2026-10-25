@@ -332,18 +332,67 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
     ok($("#tabListN").hidden === !toBuy && (!toBuy || text("#tabListN") === String(toBuy)), `List tab counts what's left to buy (${text("#tabListN")} of ${toBuy})`);
     if (MODE === "pages") ok(w.location.hash === "#list", `List view has its own address (${w.location.hash})`);
     click(tab("plate"));
-    ok(shown() === "plateBox" && text("#tabPlateN") === String(JSON.parse(w.localStorage.getItem("plate") || "[]").length), `Plate tab shows the plate and its count (${text("#tabPlateN")})`);
+    ok(shown() === "plateBox,meals" && text("#tabPlateN") === String(JSON.parse(w.localStorage.getItem("plate") || "[]").length), `Plate tab shows the plate and its count (${text("#tabPlateN")})`);
     click(tab("browse"));
     ok(shown() === "learn,browse" && $$("#blist .bitem").length > 400, `Browse shows the quiz and the food list (${shown()}, ${$$("#blist .bitem").length})`);
     click($("#blist .bitem button") || $("#blist .bitem"));
     ok(shown() === "out" && tab("check").getAttribute("aria-current") === "page" && text("#out h2").length > 0, `opening a food from Browse switches to Check (${text("#out h2")})`);
     if (MODE === "pages") {
       w.location.hash = "#goals"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(2);
-      ok(shown() === "profile", `#goals opens the Goals view (${shown()})`);
+      ok(shown() === "profile,dataBox", `#goals opens the Goals view (${shown()})`);
       w.location.hash = "#avocado"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(2);
       ok(shown() === "out" && text("#out h2") === "Avocado", `a food link returns to Check (${text("#out h2")})`);
     }
     click(tab("check"));
+  }
+  // Grocery list: store sections, quantity, trip estimate, swap for a Limit-it item.
+  {
+    w.localStorage.setItem("grocery", "[]");
+    for (const n of ["Bacon", "Banana", "Eggs", "Frozen mixed vegetables"]) { $("#q").value = n; submit("#form"); click(btn("Add to list", $("#out"))); }
+    click($('#tabs [data-view="list"]'));
+    const secs = $$("#glistItems .lsec").map(e => e.textContent);
+    ok(secs.join(",") === "Produce,Meat & seafood,Dairy & eggs,Frozen", `list is grouped by store section in aisle order (${secs.join(", ")})`);
+    const eggsRow = $$("#glistItems .lrow").find(r => /^Eggs/.test(r.querySelector("label").textContent));
+    const before = text(".ltotal .amt");
+    click(eggsRow.querySelector('.qty button[aria-label^="One more"]'));
+    const eggsRow2 = $$("#glistItems .lrow").find(r => /^Eggs/.test(r.querySelector("label").textContent));
+    ok(eggsRow2.querySelector(".qty span").textContent === "2" && (([, t, u]) => Math.abs(t - 2 * u) < 0.011)(eggsRow2.querySelector(".lprice").textContent.match(/\$([\d.]+)\D+\$([\d.]+)/).map(Number)), `quantity goes up and the row price follows (${eggsRow2.querySelector(".lprice").textContent})`);
+    ok(text(".ltotal .amt") !== before && /for 4 items/.test(text(".ltotal")), `trip estimate updates (${before} → ${text(".ltotal .amt")}; ${text(".ltotal").slice(0, 60)})`);
+    const baconSwap = $$("#glistItems .lswap").find(e => /Try/.test(e.textContent));
+    ok(baconSwap && /Try instead/.test(baconSwap.textContent) && /Limit it/i.test(baconSwap.parentElement.querySelector(".vp").textContent), `Limit-it items offer a swap (${baconSwap && baconSwap.textContent})`);
+    const swapTo = baconSwap.querySelector("b").textContent;
+    click(btn("Swap it", baconSwap));
+    ok(JSON.parse(w.localStorage.getItem("grocery")).some(x => x.n === swapTo) && !JSON.parse(w.localStorage.getItem("grocery")).some(x => x.n === "Bacon"), `Swap it replaces the item (${swapTo})`);
+    click($('#tabs [data-view="check"]'));
+  }
+  // Meal ideas: each is a Get it meal under budget; "Use as my plate" fills the plate.
+  {
+    click($('#tabs [data-view="plate"]'));
+    const ideas = $$("#mealList .idea");
+    ok(ideas.length >= 3 && ideas.every(i => /Get it/i.test(i.querySelector(".vp").textContent)), `meal ideas show, each rated Get it (${ideas.length})`);
+    const costs = ideas.map(i => Number(i.querySelector(".cost").textContent.replace(/[^\d.]/g, "")));
+    ok(costs.every((c, i) => c <= 3 && (!i || c >= costs[i - 1])), `ideas are within $3, cheapest first (${costs.join(", ")})`);
+    click(btn("Up to $2", $("#mealBudget")));
+    ok($$("#mealList .cost").every(e => Number(e.textContent.replace(/[^\d.]/g, "")) <= 2), "budget chip narrows the ideas");
+    click(btn("Up to $3", $("#mealBudget")));
+    const first = $$("#mealList .idea li").length && $("#mealList .idea");
+    const names = [...first.querySelectorAll("li")].map(li => li.textContent.replace(/^[\d½.]+ × /, "").replace(/ \(.*$/, ""));
+    click(btn("Use as my plate", first));
+    ok(JSON.stringify(JSON.parse(w.localStorage.getItem("plate")).map(x => x.n)) === JSON.stringify(names), `Use as my plate fills the plate (${names.join(" + ")})`);
+    click(btn("See why", $("#mealList .idea")));
+    ok(text("#out h2") === "Meal idea" && /whole meal/.test(text(".tag")) && !!btn("Use as my plate", $("#out")), `See why opens the meal's verdict (${text("#out h2")})`);
+    click($('#tabs [data-view="check"]'));
+  }
+  // Backup: copied text previews what it holds; junk is refused; nothing changes until Restore.
+  {
+    click($('#tabs [data-view="goals"]'));
+    const B = w.SelfCheckBackup, backup = JSON.stringify(B.pack(k => { const v = w.localStorage.getItem(k); return v ? JSON.parse(v) : undefined; }));
+    click($("#bkPasteBtn")); $("#bkText").value = backup; click($("#bkPasteGo"));
+    ok(/grocery items/.test(text("#bkPreview")) && /plate items/.test(text("#bkPreview")) && !!btn("Restore", $("#bkPreview")), `pasted backup shows what it holds (${text("#bkPreview").slice(0, 120)})`);
+    $("#bkText").value = '{"app":"other"}'; click($("#bkPasteGo"));
+    ok(/isn't a Should I Buy It\? backup/.test(text("#bkPreview")) && !btn("Restore", $("#bkPreview")), `a non-backup is refused (${text("#bkPreview")})`);
+    ok($("#bkLink").hidden === (MODE !== "pages"), `transfer link button ${MODE === "pages" ? "shown" : "hidden"} in ${MODE} mode`);
+    click($('#tabs [data-view="check"]'));
   }
   ok(errors.length === 0, "no script errors" + (errors.length ? ": " + errors.join(" | ") : ""));
 })();

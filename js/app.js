@@ -264,7 +264,7 @@
   const PR = window.SelfCheckPrices;
   let myPrices = store.get("myPrices", {});
   let priceEditing = null;
-  const saveMyPrices = () => { store.set("myPrices", myPrices); renderBrowse(); renderPlate(); if (current) renderResult(current); };
+  const saveMyPrices = () => { store.set("myPrices", myPrices); renderBrowse(); renderPlate(); renderList(); renderMeals(); if (current) renderResult(current); };
   function renderPrice(f) {
     if (!PR) return null;
     const p = PR.price({ ...f, mult }, myPrices);
@@ -372,7 +372,9 @@
     const head = el("div", { class: "result-head" }, el("h2", { text: f.n }), el("span", { class: "cat", text: isPlate ? f.s : CAT_LABEL[f.c] || "" }));
     let seg = null;
     if (isPlate) {
-      head.append(el("button", { class: "icon-btn", type: "button", onclick: () => showView("plate") }, "Edit plate"));
+      head.append(f.idea
+        ? el("button", { class: "icon-btn", type: "button", onclick: () => { useAsPlate(f.idea); showView("plate"); } }, "Use as my plate")
+        : el("button", { class: "icon-btn", type: "button", onclick: () => showView("plate") }, "Edit plate"));
     } else {
       const isFav = favs.includes(f.n), onList = glist.some(x => x.n === f.n);
       const actions = el("div", { class: "actions", role: "group", "aria-label": "Actions" });
@@ -470,6 +472,7 @@
     document.querySelectorAll(".view").forEach(n => { n.hidden = n.dataset.view !== v; });
     document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-current", b.dataset.view === v ? "page" : "false"));
     if (v === "browse") renderBrowse();
+    if (v === "plate") renderMeals();
     if (v !== "check" && !$("scan").hidden) closeScan(); // don't leave the camera running behind another view
     if (PAGES && opts.history !== false) {
       const want = v !== "check" ? "#" + v : current && current.c !== "plate" ? "#" + S.linkId(current, V.slug) : "";
@@ -527,6 +530,44 @@
     if (current && current.c !== "plate") renderResult(current);
     toast(had ? "Removed from grocery list" : "Added to grocery list");
   }
+  // Store sections in a typical walking order. Canned and dried goods go to Pantry, frozen to Frozen.
+  const SECTIONS = ["Produce", "Meat & seafood", "Dairy & eggs", "Bakery & grains", "Pantry", "Frozen", "Deli & prepared", "Drinks", "Other"];
+  function sectionOf(f) {
+    if (!f) return "Other";
+    if (/frozen/i.test(f.n)) return "Frozen";
+    if (/tofu|tempeh|hummus/i.test(f.n)) return "Produce";
+    if (/canned|dried/i.test(f.n) && f.c !== "prepared") return "Pantry";
+    return { fruit: "Produce", veg: "Produce", meat: "Meat & seafood", seafood: "Meat & seafood", dairy: "Dairy & eggs", grains: "Bakery & grains",
+      plant: "Pantry", nuts: "Pantry", condiments: "Pantry", snacks: "Pantry", protein: "Pantry", drinks: "Drinks", prepared: "Deli & prepared" }[f.c] || "Other";
+  }
+  const qtyOf = item => Math.max(1, Math.min(99, Math.round(item.qty || 1)));
+  // Price of one purchase unit (a lb, a dozen, a gallon…), yours when you've set one.
+  const unitCost = f => { const p = f && PR ? PR.price(f, myPrices) : null; return p ? { each: p.unitPrice, unit: p.unitLabel, mine: p.mine } : null; };
+  function listRow(item) {
+    const f = byName(item.n), id = "g-" + V.slug(item.n), q = qtyOf(item), u = unitCost(f);
+    const setQty = n => { item.qty = Math.max(1, Math.min(99, n)); saveList(); };
+    const verdict = f ? V.assess(f, profile) : null;
+    const swap = f && !item.done && verdict.tier === "bad" ? V.findSwaps(f, allFoods(), profile, 1)[0] : null;
+    return el("div", { class: "lrow" + (item.done ? " done" : "") },
+      el("input", { type: "checkbox", id, checked: item.done ? true : null, onchange: e => { item.done = e.target.checked; saveList(); } }),
+      el("label", { for: id, text: item.n }),
+      verdict ? pill(verdict) : null,
+      el("div", { class: "lmeta" },
+        el("span", { class: "qty", role: "group", "aria-label": `Quantity of ${item.n}` },
+          el("button", { type: "button", text: "−", "aria-label": `One less ${item.n}`, disabled: q <= 1 ? true : null, onclick: () => setQty(q - 1) }),
+          el("span", { text: String(q), "aria-live": "polite" }),
+          el("button", { type: "button", text: "+", "aria-label": `One more ${item.n}`, disabled: q >= 99 ? true : null, onclick: () => setQty(q + 1) })),
+        el("span", { class: "lprice" }, u ? el("b", { text: `≈ ${PR.money(u.each * q)}` }) : "no typical price",
+          u ? ` ${PR.money(u.each)}/${u.unit}${u.mine ? " (yours)" : ""}` : null),
+        f ? el("button", { class: "linkish", type: "button", text: "View", "aria-label": `View ${item.n}`, onclick: () => pick(f, { scroll: true }) }) : null,
+        el("button", { class: "linkish", type: "button", text: "Remove", "aria-label": `Remove ${item.n}`, onclick: () => { glist = glist.filter(x => x !== item); saveList(); if (current && current.c !== "plate") renderResult(current); } })),
+      swap ? el("div", { class: "lswap" }, "Try instead: ", el("b", { text: swap.food.n }), " ", pill(swap.verdict), " ",
+        el("button", { class: "linkish", type: "button", text: "Swap it", "aria-label": `Swap ${item.n} for ${swap.food.n}`, onclick: () => {
+          if (glist.some(x => x.n === swap.food.n)) glist = glist.filter(x => x !== item); else { item.n = swap.food.n; item.done = false; }
+          saveList(); toast(`Swapped for ${swap.food.n}`);
+        } })) : null);
+  }
+  // Items to buy grouped by store section, then the ones already in the cart, then an estimated trip total.
   function renderList() {
     const box = $("glistItems");
     box.replaceChildren();
@@ -535,20 +576,35 @@
     $("tabListN").setAttribute("aria-label", `${open} to buy`);
     $("glistCount").textContent = glist.length ? `${open} to buy${glist.length > open ? ` · ${glist.length - open} done` : ""}` : "empty";
     if (!glist.length) box.append(el("p", { class: "muted", text: "Choose “Add to list” on any food, or add your “Get it” favorites below." }));
-    for (const item of [...glist].sort((x, y) => Number(x.done) - Number(y.done))) {
-      const f = byName(item.n);
-      const id = "g-" + V.slug(item.n);
-      box.append(el("div", { class: "lrow" + (item.done ? " done" : "") },
-        el("input", { type: "checkbox", id, checked: item.done ? true : null, onchange: e => { item.done = e.target.checked; saveList(); } }),
-        el("label", { for: id, text: item.n }),
-        f ? pill(V.assess(f, profile)) : null,
-        f ? el("button", { class: "linkish", type: "button", text: "View", "aria-label": `View ${item.n}`, onclick: () => pick(f, { scroll: true }) }) : null,
-        el("button", { class: "linkish", type: "button", text: "Remove", "aria-label": `Remove ${item.n}`, onclick: () => { glist = glist.filter(x => x !== item); saveList(); if (current && current.c !== "plate") renderResult(current); } })));
+    const toBuy = glist.filter(x => !x.done), done = glist.filter(x => x.done);
+    for (const sec of SECTIONS) {
+      const items = toBuy.filter(x => sectionOf(byName(x.n)) === sec);
+      if (!items.length) continue;
+      box.append(el("h3", { class: "lsec", text: sec }));
+      for (const item of items) box.append(listRow(item));
+    }
+    if (done.length) { box.append(el("h3", { class: "lsec", text: "In your cart" })); for (const item of done) box.append(listRow(item)); }
+    if (toBuy.length && PR) {
+      let total = 0, priced = 0;
+      for (const item of toBuy) { const u = unitCost(byName(item.n)); if (u) { total += u.each * qtyOf(item); priced++; } }
+      const missing = toBuy.length - priced;
+      box.append(el("div", { class: "ltotal" }, priced
+        ? el("p", { style: "margin:0" }, "Estimated trip ", el("span", { class: "amt", text: `≈ ${PR.money(total)}` }),
+            el("span", { class: "muted", text: ` for ${priced} item${priced === 1 ? "" : "s"}${missing ? `; ${missing} without a price` : ""}` }))
+        : el("p", { class: "muted", style: "margin:0", text: "None of these items has a typical price yet." }),
+        priced ? el("p", { class: "fine", style: "margin:4px 0 0", text: "One unit of each (a lb, a dozen, a gallon…) times your quantity, at typical South-region or U.S. prices, or your own where you've set one. Your store may differ." }) : null));
     }
     $("glistCopy").disabled = !glist.length; $("glistClear").disabled = !glist.some(x => x.done);
   }
   async function copyList() {
-    const text = glist.filter(x => !x.done).map(x => `- ${x.n}`).join("\n");
+    const lines = [];
+    for (const sec of SECTIONS) {
+      const items = glist.filter(x => !x.done && sectionOf(byName(x.n)) === sec);
+      if (!items.length) continue;
+      lines.push((lines.length ? "\n" : "") + sec);
+      for (const x of items) lines.push(`- ${qtyOf(x) > 1 ? qtyOf(x) + " × " : ""}${x.n}`);
+    }
+    const text = lines.join("\n");
     try { await navigator.clipboard.writeText(text); toast("List copied"); } catch { toast("Couldn't copy here; select the list and copy it instead."); }
   }
   function addGoodFavorites() {
@@ -589,6 +645,7 @@
     $("tabPlateN").setAttribute("aria-label", `${plate.length} on your plate`);
     $("plateCount").textContent = pf ? `${pf.s} · ${V.isLowerBound(pf, "cal") ? "at least " : ""}${Math.round(pf.cal)} cal` : "empty";
     $("plateView").disabled = !pf; $("plateClear").disabled = !pf;
+    $("plateView").parentElement.hidden = !pf; // nothing to do with an empty plate; keeps the meal ideas in view
     if (!pf) { box.append(el("p", { class: "muted", text: "Build a meal: open any food, pick the servings, and choose “Add to plate”." })); return; }
     for (const item of plate) {
       const f = byName(item.n);
@@ -610,6 +667,46 @@
   const L = window.SelfCheckLearn;
   let learn = { asked: 0, correct: 0, streak: 0, missed: [], ...store.get("learn", {}) };
   let quizQ = null, quizChosen = null;
+  // ---------- cheap meal ideas (Plate view) ----------
+  const M = window.SelfCheckMeals;
+  const BUDGETS = [2, 3, 5];
+  let mealBudget = store.get("mealBudget", 3), mealProtein = store.get("mealProtein", null); // null: a third of your goal
+  let mealCache = { key: "", list: [] };
+  function useAsPlate(items) {
+    const had = plate.length;
+    plate = items.map(i => ({ n: i.food.n, mult: i.mult }));
+    savePlate();
+    toast(had ? "Your plate is now this meal" : "Added to your plate");
+  }
+  function ideaFood(items) { const f = V.combine(items, "Meal idea"); f.idea = items; return f; }
+  function renderMeals() {
+    if (!M || !PR || view !== "plate") return;
+    const third = Math.round(profile.pro * V.MEAL_SHARE);
+    const target = mealProtein || third;
+    const chips = (box, label, opts, on, set) => {
+      $(box).replaceChildren(el("span", { class: "lbl", text: label }), ...opts.map(([v, text]) => el("button", { class: "chip" + (v === on ? " on" : ""), type: "button",
+        "aria-pressed": v === on ? "true" : "false", text, onclick: () => { set(v); renderMeals(); } })));
+    };
+    chips("mealBudget", "Budget", BUDGETS.map(b => [b, `Up to $${b}`]), mealBudget, v => { mealBudget = v; store.set("mealBudget", v); });
+    const proteinOpts = [...new Set([25, third, 40])].sort((a, b) => a - b).map(g => [g === third ? null : g, g === third ? `${g} g · ⅓ of goal` : `${g} g`]);
+    chips("mealProtein", "Protein", proteinOpts, mealProtein === third ? null : mealProtein, v => { mealProtein = v; store.set("mealProtein", v); });
+    const key = JSON.stringify([mealBudget, target, profile, myPrices]);
+    if (mealCache.key !== key) mealCache = { key, list: M.ideas(FOODS, profile, { budget: mealBudget, protein: target, own: myPrices, max: 6 }) };
+    const list = $("mealList");
+    list.replaceChildren();
+    if (!mealCache.list.length) list.append(el("p", { class: "muted", text: `No meal up to $${mealBudget} reaches ${target} g protein with a “Get it” verdict. Try a bigger budget or less protein.` }));
+    for (const idea of mealCache.list) {
+      list.append(el("div", { class: "idea" },
+        el("div", { class: "idea-head" }, el("span", { class: "cost", text: `≈ ${PR.money(idea.cost)}` }),
+          el("span", { text: `${Math.round(idea.plate.pro)} g protein · ${Math.round(idea.plate.cal)} cal` }), pill(idea.verdict)),
+        el("ul", {}, ...idea.items.map(({ food, mult }) => el("li", {}, `${multLabel(mult)} × ${food.n} `, el("span", { class: "muted", text: `(${food.s})` })))),
+        el("div", { class: "actions" },
+          el("button", { class: "btn small", type: "button", text: "Use as my plate", onclick: () => useAsPlate(idea.items) }),
+          el("button", { class: "btn small ghost", type: "button", text: "See why", onclick: () => { explainKey = null; renderResult(ideaFood(idea.items)); showView("check"); } }))));
+    }
+    $("mealNote").textContent = `Built from the ${M.roles(FOODS, profile, myPrices).protein.length} protein foods that have a typical price (most fish and many others don't yet). Costs are per serving at typical prices; foods on your skip list${profile.mild ? " and spicy foods" : ""} are left out.`;
+  }
+
   function nextQuestion() {
     const due = L.dueReview(learn);
     const review = due && L.fromId(due.id, FOODS, profile);
@@ -1032,8 +1129,80 @@
     // Only valid numbers are saved; an invalid field keeps its last good value and shows why next to it.
     for (const [k, id] of Object.entries(PF)) if (checkGoal($(id))) profile[k] = Number($(id).value);
     profile.skip = $("p-skip").value; profile.mild = $("p-mild").checked; profile.usdaKey = $("p-usda").value.trim();
-    store.set("profile", profile); $("tabGoalsDot").hidden = true; syncProfileUI(); renderBrowse(); renderChips(); renderList(); renderPlate();
+    store.set("profile", profile); $("tabGoalsDot").hidden = true; syncProfileUI(); renderBrowse(); renderMeals(); renderChips(); renderList(); renderPlate();
     if (current) renderResult(current);
+  }
+
+  // ---------- backup, restore, transfer link (Goals view) ----------
+  const B = window.SelfCheckBackup;
+  const backupNow = () => B.pack(k => store.get(k, undefined));
+  const storageWorks = () => { try { localStorage.setItem("__t", "1"); localStorage.removeItem("__t"); return true; } catch { return false; } };
+  async function copyText(text, ok) {
+    try { await navigator.clipboard.writeText(text); toast(ok); return true; }
+    catch { $("bkPaste").hidden = false; $("bkText").value = text; $("bkText").select(); toast("Couldn't copy here; the text is selected below to copy by hand."); return false; }
+  }
+  function downloadBackup() {
+    const b = backupNow(), name = `should-i-buy-it-backup-${b.saved.slice(0, 10)}.json`;
+    try {
+      const url = URL.createObjectURL(new Blob([JSON.stringify(b, null, 1)], { type: "application/json" }));
+      const a = el("a", { href: url, download: name }); document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      toast("Backup downloaded");
+    } catch { copyText(JSON.stringify(b), "Downloads aren't available here, so the backup was copied as text"); }
+  }
+  async function copyTransferLink() {
+    const link = `${location.origin}${location.pathname}#import=${await B.encode(backupNow())}`;
+    copyText(link, `Transfer link copied (${Math.max(1, Math.round(link.length / 1024))} KB). Open it on your other device.`);
+  }
+  // Shows what a backup holds and asks before replacing anything.
+  function previewBackup(r) {
+    const box = $("bkPreview");
+    box.replaceChildren();
+    if (!r.ok) { box.append(el("div", { class: "bk-preview err", text: r.error })); return; }
+    const when = r.saved ? new Date(r.saved).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : null;
+    const canSave = storageWorks();
+    box.append(el("div", { class: "bk-preview" },
+      el("p", { style: "margin:0" }, el("b", { text: `Backup${when ? ` from ${when}` : ""}: ` }), B.summary(r.data).join(", ") + "."),
+      el("p", { class: "muted", style: "margin:0", text: canSave ? "Restoring replaces what this browser has saved now (your USDA key stays)." : "This browser isn't letting the page save anything, so it can't restore a backup here." }),
+      el("div", { class: "actions" },
+        canSave ? el("button", { class: "btn small", type: "button", text: "Restore", onclick: () => restoreBackup(r.data) }) : null,
+        el("button", { class: "btn small ghost", type: "button", text: "Cancel", onclick: () => box.replaceChildren() }))));
+    showView("goals");
+    box.scrollIntoView({ block: "nearest" });
+  }
+  function restoreBackup(data) {
+    const key = profile.usdaKey;
+    for (const k of Object.keys(B.KEYS)) { try { localStorage.removeItem(k); } catch {} }
+    for (const [k, v] of Object.entries(data)) store.set(k, k === "profile" && key ? { ...v, usdaKey: key } : v);
+    try { sessionStorage.setItem("restored", "1"); } catch {}
+    if (PAGES) { try { history.replaceState(null, "", location.pathname + location.search); } catch {} }
+    location.reload();
+  }
+  async function readBackupFile(file) {
+    if (!file) return;
+    if (file.size > 5e6) return previewBackup({ ok: false, error: "That file is too large to be a backup." });
+    previewBackup(B.parse(await file.text()));
+  }
+  function wireBackup() {
+    if (!B) return;
+    $("bkDownload").addEventListener("click", downloadBackup);
+    $("bkCopy").addEventListener("click", () => copyText(JSON.stringify(backupNow()), "Backup copied. Paste it into “Paste backup text” on your other device."));
+    $("bkLink").hidden = !PAGES;
+    $("bkLink").addEventListener("click", copyTransferLink);
+    $("bkFileBtn").addEventListener("click", () => $("bkFile").click());
+    $("bkFile").addEventListener("change", e => { readBackupFile(e.target.files[0]); e.target.value = ""; });
+    $("bkPasteBtn").addEventListener("click", () => { const open = $("bkPaste").hidden; $("bkPaste").hidden = !open; $("bkPasteBtn").setAttribute("aria-expanded", String(open)); if (open) $("bkText").focus(); });
+    $("bkPasteGo").addEventListener("click", () => previewBackup(B.parse($("bkText").value.trim())));
+    try { if (sessionStorage.getItem("restored")) { sessionStorage.removeItem("restored"); setTimeout(() => toast("Backup restored"), 300); } } catch {}
+  }
+  // #import=… from a transfer link: decode, then show the same preview (nothing changes until Restore).
+  async function importFromHash(hash) {
+    const m = String(hash).match(/^#import=(.+)$/);
+    if (!m || !B) return false;
+    try { history.replaceState(null, "", "#goals"); } catch {}
+    showView("goals", { history: false });
+    previewBackup(await B.decode(m[1]));
+    return true;
   }
 
   // ---------- shared links ----------
@@ -1140,11 +1309,15 @@
     $("plateView").addEventListener("click", showPlate);
     $("plateClear").addEventListener("click", () => { plate = []; afterPlateChange(); });
 
+    wireBackup();
+    const importing = PAGES && /^#import=/.test(location.hash) ? location.hash : null;
     const startView = PAGES ? viewFromHash(location.hash) : null;
-    const opened = PAGES && !startView && openFromHash(location.hash, true);
+    const opened = PAGES && !startView && !importing && openFromHash(location.hash, true);
     if (!opened) pick((recents.length && byName(recents[0])) || FOODS[0], { noHash: true, noRecent: true, stay: true });
     showView(startView || "check", { history: false, scroll: false });
+    if (importing) importFromHash(importing);
     if (PAGES) window.addEventListener("hashchange", () => {
+      if (/^#import=/.test(location.hash)) return importFromHash(location.hash);
       const v = viewFromHash(location.hash);
       if (v) return showView(v, { history: false });
       showView("check", { history: false });
