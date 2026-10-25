@@ -349,6 +349,31 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
 .price-edit { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
 .price-edit input { width: 110px; font: 500 15px var(--font-body); color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
 .price-edit input[aria-invalid="true"] { border-color: var(--bad); }
+
+/* Sections: a tab bar (bottom of the screen on phones, under the header on wider screens). One view shows at a time. */
+section.box { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.vhead { margin: 0; padding: 14px 16px 6px; font: 600 17px var(--font-body); display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.vhead .muted { font-weight: 400; font-size: 13.5px; }
+.vsub { margin: 0; padding: 0 16px 6px; font-size: 13.5px; color: var(--muted); }
+.tabs { display: flex; gap: 4px; z-index: 4; background: var(--paper); }
+.tabs button { position: relative; flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 7px; font: 600 14px var(--font-body); color: var(--muted); background: transparent; border: 0; border-bottom: 2px solid transparent; padding: 10px 6px; cursor: pointer; min-height: 44px; }
+.tabs button[aria-current="page"] { color: var(--ink); border-bottom-color: var(--ink); }
+.tabs button:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; border-radius: 6px; }
+.tabs .badge { font: 700 11px var(--font-body); font-variant-numeric: tabular-nums; min-width: 18px; height: 18px; line-height: 18px; padding: 0 5px; border-radius: 999px; background: var(--ink); color: var(--paper); text-align: center; }
+.tabs .tab-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--mid); }
+@media (min-width: 721px) {
+  .tabs { position: sticky; top: 0; border-bottom: 1px solid var(--line); margin: -8px 0 -6px; padding-top: 4px; }
+}
+@media (max-width: 720px) {
+  body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .tabs { position: fixed; left: 0; right: 0; bottom: 0; gap: 0; background: var(--surface); border-top: 1px solid var(--line); padding: 4px 4px calc(4px + env(safe-area-inset-bottom)); box-shadow: 0 -4px 16px rgba(0,0,0,.06); }
+  .tabs button { flex-direction: column; gap: 2px; font-size: 11.5px; padding: 6px 2px; border-bottom: 0; border-radius: 10px; }
+  .tabs button[aria-current="page"] { background: var(--bar-track); }
+  .tabs .badge, .tabs .tab-dot { position: absolute; top: 3px; left: calc(50% + 7px); }
+  .tabs .badge { min-width: 17px; height: 17px; line-height: 17px; font-size: 10.5px; padding: 0 4px; }
+}
+body:not([data-view="check"]) #shelf, body:not([data-view="check"]) #scanBtn, body:not([data-view="check"]) header .sub { display: none; }
+@media (max-width: 720px) { .toast { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); } }
 </style>
 </head>
 <body>
@@ -357,6 +382,14 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
     <h1>Should I Buy It?</h1>
     <p class="sub">Search or scan a food to see its nutrition label and whether it fits your goals. <span id="foodCount"></span></p>
   </header>
+
+  <nav class="tabs" id="tabs" aria-label="Sections">
+    <button type="button" data-view="check" aria-current="page"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><span class="tl">Check</span></button>
+    <button type="button" data-view="plate"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/></svg><span class="tl">Plate</span><span class="badge" id="tabPlateN" hidden></span></button>
+    <button type="button" data-view="list"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><path d="M4 6.5l1 1 2-2M4 12l1 1 2-2M4 17.5l1 1 2-2"/></svg><span class="tl">List</span><span class="badge" id="tabListN" hidden></span></button>
+    <button type="button" data-view="browse"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg><span class="tl">Browse</span></button>
+    <button type="button" data-view="goals"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><span class="tl">Goals</span><span class="tab-dot" id="tabGoalsDot" hidden></span></button>
+  </nav>
 
   <section class="search" role="search" aria-label="Find a food">
     <form class="search-row" id="form" autocomplete="off">
@@ -382,10 +415,11 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
     </div>
   </section>
 
-  <section id="out" aria-live="polite" aria-label="Result"></section>
+  <section id="out" class="view" data-view="check" aria-live="polite" aria-label="Result"></section>
 
-  <details class="box" id="plateBox">
-    <summary><span>Plate builder</span><span class="muted" id="plateCount"></span></summary>
+  <section class="box view" id="plateBox" data-view="plate" hidden aria-labelledby="hPlate">
+    <h2 class="vhead"><span id="hPlate">Plate builder</span><span class="muted" id="plateCount"></span></h2>
+    <p class="vsub">Add foods with “+ to plate” to see what a whole meal adds up to.</p>
     <div class="inner">
       <div id="plateItems" class="lgroup"></div>
       <div class="actions">
@@ -393,10 +427,10 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
         <button class="btn small ghost" type="button" id="plateClear">Clear plate</button>
       </div>
     </div>
-  </details>
+  </section>
 
-  <details class="box" id="glistBox">
-    <summary><span>Grocery list</span><span class="muted" id="glistCount"></span></summary>
+  <section class="box view" id="glistBox" data-view="list" hidden aria-labelledby="hList">
+    <h2 class="vhead"><span id="hList">Grocery list</span><span class="muted" id="glistCount"></span></h2>
     <div class="inner">
       <div id="glistItems" class="lgroup"></div>
       <div class="actions">
@@ -405,20 +439,9 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
         <button class="btn small ghost" type="button" id="glistFavs">Add my “Get it” favorites</button>
       </div>
     </div>
-  </details>
+  </section>
 
-  <details class="box" id="browse">
-    <summary><span>Browse all foods</span><span class="muted" id="browseCount"></span></summary>
-    <div class="inner">
-      <div class="chiprow" id="cats" style="margin:0"></div>
-      <div class="chiprow" id="bsort" style="margin:0" role="group" aria-label="Sort foods"></div>
-      <div class="chiprow" id="bbasis" style="margin:0" role="group" aria-label="Ranking basis" hidden></div>
-      <p class="fine" id="bsortNote" hidden>Ranked per serving by the same score behind each verdict (lower is less healthy), then by how much of your saturated fat, sodium and added-sugar limits one serving uses.</p>
-      <div class="blist" id="blist"></div>
-    </div>
-  </details>
-
-  <details class="box" id="learn">
+  <details class="box view" id="learn" data-view="browse" hidden>
     <summary><span>Learn: quick quiz</span><span class="muted" id="learnScore"></span></summary>
     <div class="inner">
       <div id="quiz" class="quiz"></div>
@@ -426,8 +449,19 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
     </div>
   </details>
 
-  <details class="box" id="profile">
-    <summary><span>Your goals <span class="muted">(saved in this browser)</span></span><span class="muted" id="profSummary"></span></summary>
+  <section class="box view" id="browse" data-view="browse" hidden aria-labelledby="hBrowse">
+    <h2 class="vhead"><span id="hBrowse">Browse all foods</span><span class="muted" id="browseCount"></span></h2>
+    <div class="inner">
+      <div class="chiprow" id="cats" style="margin:0"></div>
+      <div class="chiprow" id="bsort" style="margin:0" role="group" aria-label="Sort foods"></div>
+      <div class="chiprow" id="bbasis" style="margin:0" role="group" aria-label="Ranking basis" hidden></div>
+      <p class="fine" id="bsortNote" hidden>Ranked per serving by the same score behind each verdict (lower is less healthy), then by how much of your saturated fat, sodium and added-sugar limits one serving uses.</p>
+      <div class="blist" id="blist"></div>
+    </div>
+  </section>
+
+  <section class="box view" id="profile" data-view="goals" hidden aria-labelledby="hGoals">
+    <h2 class="vhead"><span id="hGoals">Your goals <span class="muted">(saved in this browser)</span></span><span class="muted" id="profSummary"></span></h2>
     <div class="inner">
       <div class="pgrid">
         <label>Calories / day<input id="p-cal" type="number" min="800" max="6000" step="10"></label>
@@ -444,7 +478,7 @@ details.box > summary .muted { font-weight: 400; font-size: 13.5px; }
         </label>
       </div>
     </div>
-  </details>
+  </section>
 
   <footer><p class="fine">Built-in values are approximate typical figures for a standard serving; packaged foods vary by brand, so the label on the package wins. USDA results come from USDA FoodData Central; scanned products come from Open Food Facts, a crowd-sourced database that can be incomplete. The label's % Daily Value uses standard FDA values; the bars and verdict use your goals. General nutrition guidance, not medical advice.</p></footer>
 </main>

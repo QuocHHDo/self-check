@@ -8,13 +8,14 @@ Live at **https://quochhdo.github.io/self-check/**. It installs to your phone's 
 
 - **486 built-in foods** across 13 categories, with search and aliases ("boba", "EVOO", "hamburger").
 - **Nutrition label** in FDA format; tap any line to see what it means and how it compares with your daily target.
+- **Tab bar** for Check, Plate, List, Browse and Goals (at the bottom on phones), each with its own link (`#plate`, `#list`, `#browse`, `#goals`).
 - **Personal verdict** scored against your calorie, protein, saturated fat, sodium, added sugar and fiber goals, plus a skip list and a mild-food preference.
 - **Healthier swaps** for anything below "Get it," with the difference spelled out ("5.3 g less saturated fat").
 - **Compare two foods** side by side, per serving or per 100 calories.
 - **Browse** by category, sorted A–Z, least healthy first or healthiest first, per serving or per 100 calories.
 - **Plate builder**: combine foods at your servings into one meal with a total label and verdict.
 - **Grocery list** with check-off, copy, and "add my Get-it favorites."
-- **Learn mode**: a quiz built from the app's own data; missed questions come back after 3, 8, then 20 questions.
+- **Learn mode** (under Browse): a quiz built from the app's own data; missed questions come back after 3, 8, then 20 questions.
 - **Serving size** control (½× to 3×), **favorites**, **recent searches**, and **shareable links** (`#salmon`).
 - **Lookups beyond the built-in list**: USDA search and barcode scanning via Open Food Facts on the web version; a Claude lookup in the Claude version.
 - **Installable and offline** via a service worker.

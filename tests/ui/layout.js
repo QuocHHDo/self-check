@@ -70,7 +70,7 @@ async function openFood(page, name) {
       for (const n of ["Avocado", "Eggs", "Shrimp", "Oatmeal, rolled oats", "Instant ramen"]) { await openFood(page, n); await page.click("#out .result-head .icon-btn[aria-pressed]"); }
       ok(Math.abs(await page.$eval("#shelf", e => e.getBoundingClientRect().height) - shelfH) < 1, `${width}px: favorites shelf keeps its height`);
       // Goal validation: -500 then Tab leaves one consistent state, and the row of inputs doesn't shift.
-      await page.evaluate(() => { document.getElementById("profile").open = true; });
+      await page.click('#tabs [data-view="goals"]');
       const goalBoxes = () => page.$$eval(".pgrid input[type=number]", els => { const t0 = document.querySelector(".pgrid").getBoundingClientRect().top; return els.map(e => { const r = e.getBoundingClientRect(); return [Math.round(r.top - t0), Math.round(r.height)]; }); });
       const g0 = await goalBoxes();
       await page.fill("#p-cal", "-500"); await page.press("#p-cal", "Tab"); await page.waitForTimeout(50);
@@ -80,7 +80,7 @@ async function openFood(page, name) {
       ok(JSON.stringify(g0) === JSON.stringify(g1), `${width}px: goal inputs keep their size and position with an error showing (${JSON.stringify(g0)} → ${JSON.stringify(g1)})`);
       await page.locator("#p-cal").scrollIntoViewIfNeeded(); await shot(page, `r2-6-goal-error-${width}`);
       await page.fill("#p-cal", "2000"); await page.press("#p-cal", "Tab");
-      await page.evaluate(() => { document.getElementById("profile").open = false; });
+      await page.click('#tabs [data-view="check"]');
       await ctx.close();
     }
     // 15. Phones: verdict above the label and above the fold; nothing wider than the screen.
@@ -92,9 +92,9 @@ async function openFood(page, name) {
         "long name": async () => openFood(page, "Bubble milk tea, regular sugar"),
         "compare": async () => { await page.fill("#cmpq", "chicken breast"); await page.waitForSelector(".compare .suggest li"); await page.dispatchEvent(".compare .suggest li", "mousedown"); await page.waitForSelector(".ctable"); },
         "barcode": async () => { await page.fill("#q", "3017620422003"); await page.press("#q", "Enter"); await page.waitForFunction(() => /Nutella/i.test(document.querySelector("#out h2")?.textContent || "")); },
-        "browse": async () => { await page.evaluate(() => { document.getElementById("browse").open = true; }); await page.waitForSelector("#blist .bitem"); },
-        "quiz": async () => { await page.evaluate(() => { document.getElementById("learn").open = true; }); },
-        "plate": async () => { await openFood(page, "Brown rice"); await page.click("#out .actions button:nth-child(3)"); await page.evaluate(() => { document.getElementById("plateBox").open = true; }); await page.click("#plateView"); await page.waitForFunction(() => document.querySelector("#out h2")?.textContent === "Your plate"); },
+        "browse": async () => { await page.click('#tabs [data-view="browse"]'); await page.waitForSelector("#blist .bitem"); },
+        "quiz": async () => { await page.click('#tabs [data-view="browse"]'); await page.click("#learn > summary"); await page.waitForSelector("#quiz button"); },
+        "plate": async () => { await openFood(page, "Brown rice"); await page.click("#out .actions button:nth-child(3)"); await page.click('#tabs [data-view="plate"]'); await page.click("#plateView"); await page.waitForFunction(() => document.querySelector("#out h2")?.textContent === "Your plate"); },
       };
       for (const [name, go] of Object.entries(states)) {
         await go();
@@ -104,10 +104,17 @@ async function openFood(page, name) {
       await page.evaluate(() => window.scrollTo(0, 0));
       const pos = await page.evaluate(() => {
         const t = document.querySelector("#out .tag .verdict").getBoundingClientRect(), l = document.querySelector("#out .label").getBoundingClientRect();
-        return { tagTop: t.top, tagBottom: t.bottom, labelTop: l.top, vh: innerHeight };
+        // On phones the tab bar covers the bottom of the screen, so "above the fold" means above the bar.
+        return { tagTop: t.top, tagBottom: t.bottom, labelTop: l.top, vh: Math.min(innerHeight, document.getElementById("tabs").getBoundingClientRect().top || innerHeight),
+          bar: (() => { const b = document.getElementById("tabs").getBoundingClientRect(); return { top: b.top, bottom: b.bottom, h: b.height }; })(), ih: innerHeight };
       });
       ok(pos.tagTop < pos.labelTop, `${width}px: verdict comes before the label (${Math.round(pos.tagTop)} < ${Math.round(pos.labelTop)})`);
-      ok(pos.tagBottom <= pos.vh, `${width}px: verdict is above the fold (bottom ${Math.round(pos.tagBottom)} of ${pos.vh})`);
+      ok(pos.tagBottom <= pos.vh, `${width}px: verdict is above the fold and the tab bar (bottom ${Math.round(pos.tagBottom)} of ${Math.round(pos.vh)})`);
+      ok(Math.abs(pos.bar.bottom - pos.ih) < 1 && pos.bar.h >= 48 && pos.bar.h <= 80, `${width}px: tab bar sits at the bottom of the screen (${Math.round(pos.bar.top)}–${Math.round(pos.bar.bottom)} of ${pos.ih})`);
+      // Scrolled to the very end, the last content clears the bar.
+      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+      const clear = await page.evaluate(() => document.getElementById("tabs").getBoundingClientRect().top - document.querySelector("footer").getBoundingClientRect().bottom);
+      ok(clear >= 0, `${width}px: the footer isn't hidden behind the tab bar (${Math.round(clear)} px clear)`);
       const shelf = await page.evaluate(() => { const s = document.getElementById("shelf"); return { h: s.getBoundingClientRect().height, scroll: s.scrollWidth > s.clientWidth, style: getComputedStyle(s).overflowX }; });
       ok(shelf.h < 48 && shelf.style === "auto", `${width}px: recents and favorites stay on one scrolling row (${Math.round(shelf.h)} px tall)`);
       // Every action button is fully on screen, with no sideways scroller hiding one.

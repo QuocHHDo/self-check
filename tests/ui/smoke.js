@@ -17,6 +17,7 @@ const errors = [];
 let offMode = "ok";
 const dom = new JSDOM(html, { runScripts: "outside-only", url: "https://quochhdo.github.io/self-check/", pretendToBeVisual: true });
 const w = dom.window;
+w.scrollTo = () => {}; // jsdom has no layout
 w.console.error = (...a) => errors.push(a.join(" "));
 w.addEventListener("error", e => errors.push(String(e.message)));
 w.HTMLElement.prototype.scrollIntoView = () => {};
@@ -100,7 +101,7 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
   ok(!$("#favRow").hidden && text("#favRow").includes(firstSwap.n.split(",")[0]), `saving adds a favorite chip (${text("#favRow")})`);
   ok(!$("#recentRow").hidden || text("#favRow").includes(firstSwap.n), "recents/favorites rows render");
 
-  $("#browse").open = true; await tick(5);
+  click($('#tabs [data-view="browse"]')); await tick(5);
   click(btn("Seafood", $("#cats")));
   ok($$("#blist .bitem").length === w.SelfCheckData.FOODS.filter(f => f.c === "seafood").length, `browse filters by category (${$$("#blist .bitem").length})`);
   click(btn("All", $("#cats"))); click(btn("Least healthy first", $("#bsort")));
@@ -261,6 +262,7 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
   type("#cmpq", "Ground beef 93/7"); $(".compare .suggest li").dispatchEvent(new w.MouseEvent("mousedown", { bubbles: true }));
   click(btn("Per 100 calories", $(".compare")));
   ok(/Per 100 calories/.test(text(".ctable thead")) && /100 calories/.test(text(".ctable thead .sv")), "compare per 100 calories");
+  click($('#tabs [data-view="browse"]'));
   click(btn("Least healthy first", $("#bsort"))); click(btn("Per 100 calories", $("#bbasis")));
   ok(!$("#bbasis").hidden && /nutrient density/.test(text("#bsortNote")), "browse per-100-calorie basis");
   click(btn("A–Z", $("#bsort")));
@@ -294,11 +296,11 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
   $("#q").value = "Chicken breast, grilled"; submit("#form");
   type("#cmpq", "ground beef 80/20"); $(".compare .suggest li").dispatchEvent(new w.MouseEvent("mousedown", { bubbles: true }));
   ok($$(".ctable tr").some(r => /^Typical price\$/.test(r.textContent)), "compare shows typical price");
-  $("#browse").open = true; await tick(5);
+  click($('#tabs [data-view="browse"]')); await tick(5);
   click(btn("All", $("#cats"))); click(btn("Most protein per $", $("#bsort")));
   const firstVal = $("#blist .bitem");
   ok(/g\/\$/.test(firstVal.textContent) && /protein a dollar buys/.test(text("#bsortNote")), `protein-per-dollar sort (${firstVal.textContent})`);
-  click(btn("A–Z", $("#bsort"))); $("#browse").open = false;
+  click(btn("A–Z", $("#bsort"))); click($('#tabs [data-view="check"]'));
   // 16. Small fixes
   $("#q").value = "Avocado"; submit("#form");
   type("#cmpq", "salmon"); $(".compare .suggest li").dispatchEvent(new w.MouseEvent("mousedown", { bubbles: true }));
@@ -320,5 +322,28 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
   const recentChips = $$("#recentRow .chip").map(c => c.textContent);
   ok(recentChips.length <= 6, `recents show at most 6 (${recentChips.length})`);
   ok(new Set(recentChips).size === recentChips.length && recentChips.includes("Greek yogurt, vanilla"), `recent chip labels are unique (${recentChips.join(", ")})`);
+  // Tab bar: one view at a time, counts on the tabs, opening a food from another view goes to Check.
+  {
+    const tab = v => $(`#tabs [data-view="${v}"]`);
+    const shown = () => $$(".view").filter(n => !n.hidden).map(n => n.id).join(",");
+    click(tab("list"));
+    ok(shown() === "glistBox" && tab("list").getAttribute("aria-current") === "page", `List tab shows only the list (${shown()})`);
+    const toBuy = JSON.parse(w.localStorage.getItem("grocery") || "[]").filter(x => !x.done).length;
+    ok($("#tabListN").hidden === !toBuy && (!toBuy || text("#tabListN") === String(toBuy)), `List tab counts what's left to buy (${text("#tabListN")} of ${toBuy})`);
+    if (MODE === "pages") ok(w.location.hash === "#list", `List view has its own address (${w.location.hash})`);
+    click(tab("plate"));
+    ok(shown() === "plateBox" && text("#tabPlateN") === String(JSON.parse(w.localStorage.getItem("plate") || "[]").length), `Plate tab shows the plate and its count (${text("#tabPlateN")})`);
+    click(tab("browse"));
+    ok(shown() === "learn,browse" && $$("#blist .bitem").length > 400, `Browse shows the quiz and the food list (${shown()}, ${$$("#blist .bitem").length})`);
+    click($("#blist .bitem button") || $("#blist .bitem"));
+    ok(shown() === "out" && tab("check").getAttribute("aria-current") === "page" && text("#out h2").length > 0, `opening a food from Browse switches to Check (${text("#out h2")})`);
+    if (MODE === "pages") {
+      w.location.hash = "#goals"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(2);
+      ok(shown() === "profile", `#goals opens the Goals view (${shown()})`);
+      w.location.hash = "#avocado"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(2);
+      ok(shown() === "out" && text("#out h2") === "Avocado", `a food link returns to Check (${text("#out h2")})`);
+    }
+    click(tab("check"));
+  }
   ok(errors.length === 0, "no script errors" + (errors.length ? ": " + errors.join(" | ") : ""));
 })();

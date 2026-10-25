@@ -372,7 +372,7 @@
     const head = el("div", { class: "result-head" }, el("h2", { text: f.n }), el("span", { class: "cat", text: isPlate ? f.s : CAT_LABEL[f.c] || "" }));
     let seg = null;
     if (isPlate) {
-      head.append(el("button", { class: "icon-btn", type: "button", onclick: () => { $("plateBox").open = true; $("plateBox").scrollIntoView({ behavior: "smooth", block: "start" }); } }, "Edit plate"));
+      head.append(el("button", { class: "icon-btn", type: "button", onclick: () => showView("plate") }, "Edit plate"));
     } else {
       const isFav = favs.includes(f.n), onList = glist.some(x => x.n === f.n);
       const actions = el("div", { class: "actions", role: "group", "aria-label": "Actions" });
@@ -441,9 +441,12 @@
     closestFor = opts.closest ? { n: f.n, text: opts.closest, link: opts.fromLink } : null;
     if (!current || current.n !== f.n) priceEditing = null;
     $("q").value = opts.closest || f.n; $("suggest").hidden = true;
+    // Opening a food from another view goes to Check, as a new history entry so Back returns to that view.
+    const fromOther = view !== "check" && !opts.stay;
+    if (fromOther) showView("check", { history: false });
     renderResult(f);
     if (!opts.noRecent) addRecent(f);
-    if (PAGES && !opts.noHash) { try { history.replaceState(null, "", "#" + S.linkId(f, V.slug)); } catch {} }
+    if (PAGES && !opts.noHash) { try { history[fromOther ? "pushState" : "replaceState"](null, "", "#" + S.linkId(f, V.slug)); } catch {} }
     if (opts.scroll) $("out").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -451,6 +454,29 @@
   const stableLabel = (on, off, onText) => el("span", { class: "stable" },
     el("span", { text: off, "aria-hidden": on ? "true" : null, class: on ? "ghost" : null }),
     el("span", { text: onText, "aria-hidden": on ? null : "true", class: on ? null : "ghost" }));
+
+  // ---------- views (tab bar) ----------
+  // One view at a time: Check (search + result), Plate, List, Browse (with the quiz), Goals. On GitHub Pages each
+  // view but Check has its own address (#plate, #list, #browse, #goals), so Back and shared links work.
+  const VIEWS = ["check", "plate", "list", "browse", "goals"];
+  let view = "check";
+  const viewFromHash = h => { const v = String(h || "").replace(/^#/, ""); return v !== "check" && VIEWS.includes(v) ? v : null; };
+  // opts.history: false when the address already says where we are (a hash change or the first load).
+  function showView(v, opts = {}) {
+    if (!VIEWS.includes(v)) v = "check";
+    const changed = v !== view;
+    view = v;
+    document.body.dataset.view = v;
+    document.querySelectorAll(".view").forEach(n => { n.hidden = n.dataset.view !== v; });
+    document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-current", b.dataset.view === v ? "page" : "false"));
+    if (v === "browse") renderBrowse();
+    if (v !== "check" && !$("scan").hidden) closeScan(); // don't leave the camera running behind another view
+    if (PAGES && opts.history !== false) {
+      const want = v !== "check" ? "#" + v : current && current.c !== "plate" ? "#" + S.linkId(current, V.slug) : "";
+      if (location.hash !== want) { try { history.pushState(null, "", want || location.pathname + location.search); } catch {} }
+    }
+    if (changed && opts.scroll !== false) window.scrollTo(0, 0);
+  }
 
   // ---------- favorites, recents, share ----------
   // Recents keep 12 names; the shelf always shows up to 6 that aren't already favorites.
@@ -505,6 +531,8 @@
     const box = $("glistItems");
     box.replaceChildren();
     const open = glist.filter(x => !x.done).length;
+    $("tabListN").textContent = String(open); $("tabListN").hidden = !open;
+    $("tabListN").setAttribute("aria-label", `${open} to buy`);
     $("glistCount").textContent = glist.length ? `${open} to buy${glist.length > open ? ` · ${glist.length - open} done` : ""}` : "empty";
     if (!glist.length) box.append(el("p", { class: "muted", text: "Choose “Add to list” on any food, or add your “Get it” favorites below." }));
     for (const item of [...glist].sort((x, y) => Number(x.done) - Number(y.done))) {
@@ -547,16 +575,18 @@
     if (!pf) return;
     explainKey = null;
     renderResult(pf);
-    $("out").scrollIntoView({ behavior: "smooth", block: "start" });
+    showView("check");
   }
   function afterPlateChange() {
     savePlate();
-    if (current && current.c === "plate") { const pf = plateFood(); if (pf) renderResult(pf); else pick(FOODS[0], { noRecent: true, noHash: true }); }
+    if (current && current.c === "plate") { const pf = plateFood(); if (pf) renderResult(pf); else pick(FOODS[0], { noRecent: true, noHash: true, stay: true }); }
   }
   function renderPlate() {
     const box = $("plateItems");
     box.replaceChildren();
     const pf = plateFood();
+    $("tabPlateN").textContent = String(plate.length); $("tabPlateN").hidden = !plate.length;
+    $("tabPlateN").setAttribute("aria-label", `${plate.length} on your plate`);
     $("plateCount").textContent = pf ? `${pf.s} · ${V.isLowerBound(pf, "cal") ? "at least " : ""}${Math.round(pf.cal)} cal` : "empty";
     $("plateView").disabled = !pf; $("plateClear").disabled = !pf;
     if (!pf) { box.append(el("p", { class: "muted", text: "Build a meal: open any food, pick the servings, and choose “Add to plate”." })); return; }
@@ -631,7 +661,7 @@
   const SORTS = [{ id: "az", label: "A–Z" }, { id: "worst", label: "Least healthy first" }, { id: "best", label: "Healthiest first" }, { id: "value", label: "Most protein per $" }];
   function renderBrowse() {
     $("browseCount").textContent = foodCountText();
-    if (!$("browse").open) return; // built when the panel is opened
+    if (view !== "browse") return; // built when the view is shown
     const cats = $("cats");
     cats.replaceChildren();
     const opts = [{ id: "all", label: "All" }, ...CATEGORIES, ...(lookups.length ? [{ id: "lookup", label: "Looked up" }] : [])];
@@ -1002,7 +1032,7 @@
     // Only valid numbers are saved; an invalid field keeps its last good value and shows why next to it.
     for (const [k, id] of Object.entries(PF)) if (checkGoal($(id))) profile[k] = Number($(id).value);
     profile.skip = $("p-skip").value; profile.mild = $("p-mild").checked; profile.usdaKey = $("p-usda").value.trim();
-    store.set("profile", profile); syncProfileUI(); renderBrowse(); renderChips(); renderList(); renderPlate();
+    store.set("profile", profile); $("tabGoalsDot").hidden = true; syncProfileUI(); renderBrowse(); renderChips(); renderList(); renderPlate();
     if (current) renderResult(current);
   }
 
@@ -1099,19 +1129,27 @@
     Object.values(PF).forEach(id => $(id).addEventListener("input", () => checkGoal($(id))));
     syncProfileUI();
     Object.values(PF).forEach(id => checkGoal($(id))); // creates each field's (empty) message line
-    if (!savedProfile && !CFG.profile) $("profile").open = true;
+    // Goals not set yet: a dot on the Goals tab instead of opening the panel.
+    $("tabGoalsDot").hidden = !!(savedProfile || CFG.profile);
     renderChips(); renderBrowse(); renderList(); renderPlate(); renderQuiz();
     $("learnReset").addEventListener("click", () => { learn = { asked: 0, correct: 0, streak: 0, missed: [] }; store.set("learn", learn); quizQ = null; renderQuiz(); });
-    $("browse").addEventListener("toggle", () => { if ($("browse").open) renderBrowse(); });
+    document.querySelectorAll("#tabs button").forEach(b => b.addEventListener("click", () => showView(b.dataset.view)));
     $("glistCopy").addEventListener("click", copyList);
     $("glistClear").addEventListener("click", () => { glist = glist.filter(x => !x.done); saveList(); });
     $("glistFavs").addEventListener("click", addGoodFavorites);
     $("plateView").addEventListener("click", showPlate);
     $("plateClear").addEventListener("click", () => { plate = []; afterPlateChange(); });
 
-    const opened = PAGES && openFromHash(location.hash, true);
-    if (!opened) pick((recents.length && byName(recents[0])) || FOODS[0], { noHash: true, noRecent: true });
-    if (PAGES) window.addEventListener("hashchange", () => openFromHash(location.hash, false));
+    const startView = PAGES ? viewFromHash(location.hash) : null;
+    const opened = PAGES && !startView && openFromHash(location.hash, true);
+    if (!opened) pick((recents.length && byName(recents[0])) || FOODS[0], { noHash: true, noRecent: true, stay: true });
+    showView(startView || "check", { history: false, scroll: false });
+    if (PAGES) window.addEventListener("hashchange", () => {
+      const v = viewFromHash(location.hash);
+      if (v) return showView(v, { history: false });
+      showView("check", { history: false });
+      if (location.hash) openFromHash(location.hash, false);
+    });
 
     if (PAGES && "serviceWorker" in navigator && location.protocol === "https:") {
       window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
