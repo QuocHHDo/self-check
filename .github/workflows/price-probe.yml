@@ -17,12 +17,12 @@ jobs:
             curl -sS -A "$UA" -o out/$f "https://download.bls.gov/pub/time.series/ap/$f" -w "$f %{http_code} %{size_download}\n" || true
           done
           curl -sSL -A "$UA" -o out/ers.html "https://www.ers.usda.gov/data-products/fruit-and-vegetable-prices" -w "ers page %{http_code}\n" || true
-          grep -oiE 'href="[^"]+\.(csv|xlsx|zip)"' out/ers.html | sed 's/href="//;s/"$//' | sort -u > out/ers-links.txt || true
+          grep -oiE 'href="[^"]*-csv-format[^"]*"' out/ers.html | sed 's/href="//;s/"$//' | sort -u > out/ers-links.txt || true
           cat out/ers-links.txt
           mkdir -p out/ers
           while read -r l; do
             case "$l" in http*) u="$l";; *) u="https://www.ers.usda.gov$l";; esac
-            n=$(basename "$u" | cut -d'?' -f1)
+            n=$(basename "${u%%\?*}")
             curl -sSL -A "$UA" -o "out/ers/$n" "$u" -w "$n %{http_code} %{size_download}\n" || true
           done < out/ers-links.txt
           ls -la out out/ers
