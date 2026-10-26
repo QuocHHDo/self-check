@@ -6,7 +6,7 @@ const ALLOWED = [
 ];
 
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
-  if (msg && msg.type === "options") { chrome.runtime.openOptionsPage(); return false; }
+  if (msg && msg.type === "options") { chrome.runtime.openOptionsPage(() => reply({ ok: !chrome.runtime.lastError })); return true; }
   if (!msg || msg.type !== "fetch" || typeof msg.url !== "string" || !ALLOWED.some(re => re.test(msg.url))) return false;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 9000);

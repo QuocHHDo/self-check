@@ -232,11 +232,12 @@
   // Every additive with what it does; a few flagged with a sourced reason; the NOVA processing level.
   // The label's ingredients in plain groups (js/ingredients.js). Additives get one line each here; their notes are in the panel below.
   function renderIngredients(f) {
-    const r = f && f.ingredients && window.SelfCheckIngredients ? window.SelfCheckIngredients.analyze(f.ingredients) : null;
+    const r = f && f.ingredients && window.SelfCheckIngredients ? window.SelfCheckIngredients.analyze(f.ingredients, f.n) : null;
     if (!r) return null;
     const ord = n => n + (n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] || "th");
     const sec = el("section", { class: "panel ingredients" }, el("h3", { text: "Ingredients" }), el("p", { class: "ing-sum", text: r.summary + "." }));
     if (r.contains) sec.append(el("p", { class: "ing-allergen" }, el("b", { text: "Label says: " }), `Contains ${r.contains}.`));
+    if (r.conflict) sec.append(el("p", { class: "ing-conflict", role: "note" }, el("b", { text: "⚠ " }), r.conflict));
     for (const g of r.groups) {
       sec.append(el("div", { class: "ig " + g.tone },
         el("div", { class: "igh" }, el("span", { class: "gdot", "aria-hidden": "true" }), el("b", { text: g.label }), el("span", { class: "muted", text: ` ${g.items.length}` })),

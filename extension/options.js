@@ -42,6 +42,10 @@
   get(["searchBadges"]).then(s => { $("searchBadges").checked = !!s.searchBadges; });
   $("searchBadges").addEventListener("change", async () => { await set({ searchBadges: $("searchBadges").checked }); status($("searchBadges").checked ? "Search badges on. Reload Walmart search pages to see them." : "Search badges off."); });
 
+  // Card position.
+  get(["corner"]).then(s => { (s.corner === "right" ? $("cornerRight") : $("cornerLeft")).checked = true; });
+  for (const id of ["cornerLeft", "cornerRight"]) $(id).addEventListener("change", async e => { await set({ corner: e.target.value }); status(e.target.value === "right" ? "The card now sits bottom right." : "The card now sits bottom left."); });
+
   // Items waiting to be sent to the app's grocery list.
   const SITE = "https://quochhdo.github.io/should-i-buy-it/";
   async function showList() {

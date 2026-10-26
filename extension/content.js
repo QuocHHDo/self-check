@@ -10,6 +10,8 @@
   let lastUrl = null, run = 0, host = null, dismissed = null;
   let toApp = []; // items waiting to be sent to the app's grocery list: [{ n, qty, food }]
   let redraw = null; // re-renders the current card (after the list changes)
+  let openSet = new Set(); // which sections were open last time (notes, ingredients, about), remembered across pages
+  let corner = "left"; // where the card sits: bottom-left by default, clear of Walmart's buy box on the right
 
   const store = keys => new Promise(r => { try { chrome.storage.local.get(keys, v => r(v || {})); } catch { r({}); } });
   const save = obj => { try { chrome.storage.local.set(obj); } catch {} };
@@ -81,8 +83,8 @@
   :host { all: initial; }
   * { box-sizing: border-box; }
   .wrap { --good:#2b7742; --good-soft:#dff0e2; --mid:#8e5f16; --mid-soft:#f6ead2; --bad:#b23a2f; --bad-soft:#f6dfdb; --ink:#161813; --muted:#5b6157; --line:#e1e4da; --track:#eceee7; --bg:#ffffff;
-    position: fixed; right: 16px; bottom: 88px; z-index: 2147483000; color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  .card { width: 340px; max-width: calc(100vw - 32px); max-height: min(460px, calc(100vh - 120px)); overflow: auto; background: var(--bg); border: 1px solid var(--line);
+    position: fixed; left: 16px; bottom: 24px; z-index: 2147483000; color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .card { width: 340px; max-width: calc(100vw - 32px); max-height: min(460px, calc(100vh - 120px)); overflow: auto; overscroll-behavior: contain; scrollbar-width: auto; scrollbar-gutter: stable; background: var(--bg); border: 1px solid var(--line);
     border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,.16); }
   .top { display: flex; align-items: center; gap: 6px; padding: 10px 10px 0 14px; }
   .brand { font: 700 11px system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); flex: 1; }
@@ -90,7 +92,14 @@
   .ib:hover { background: var(--track); color: var(--ink); }
   .ib:focus-visible, a:focus-visible, .chip:focus-visible, summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   .body { padding: 2px 14px 12px; display: grid; gap: 10px; }
-  .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; background: var(--muted); }
+  .dot { width: 16px; height: 16px; border-radius: 50%; flex: none; background: var(--muted); display: inline-grid; place-items: center; color: #fff; font: 800 10px/1 system-ui, sans-serif; }
+  .dot::before { content: ""; } .good .dot::before { content: "✓"; } .mid .dot::before { content: "~"; font-size: 13px; } .bad .dot::before { content: "!"; } .skip .dot::before { content: "✕"; }
+  .fine .dot { background: transparent; border: 2px solid var(--muted); } /* Fine: a hollow ring, not a color alone */
+  .card::-webkit-scrollbar { width: 10px; } .card::-webkit-scrollbar-thumb { background: #c9cdc2; border-radius: 6px; border: 2px solid var(--bg); }
+  .logo { display: inline-grid; flex: none; }
+  .legend { margin: 2px 0 0; font-size: 11.5px; color: var(--muted); }
+  .flash { margin: 0; font-size: 12.5px; background: var(--track); border-radius: 8px; padding: 5px 9px; }
+  .conflict { margin: 0; font-size: 12.5px; background: var(--bad-soft); color: var(--ink); border-radius: 8px; padding: 6px 9px; }
   .good .dot { background: var(--good); } .mid .dot { background: var(--mid); } .bad .dot, .skip .dot { background: var(--bad); }
   .verdict { font: 800 24px/1.1 system-ui, sans-serif; display: flex; align-items: center; gap: 8px; }
   .good .verdict { color: var(--good); } .mid .verdict { color: var(--mid); } .bad .verdict, .skip .verdict { color: var(--bad); } .fine .verdict { color: var(--muted); }
@@ -123,7 +132,7 @@
   .foot details { flex: 1 1 100%; } .foot p { margin: 0 0 4px; }
   .chip { all: unset; cursor: pointer; display: flex; align-items: center; gap: 8px; max-width: min(340px, calc(100vw - 32px)); padding: 9px 12px 9px 12px; background: var(--bg);
     border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 8px 22px rgba(0,0,0,.16); }
-  .chip .txt { display: grid; min-width: 0; } .chip .w { font: 800 14px system-ui, sans-serif; }
+  .chip .txt { display: grid; min-width: 0; } .chip .w { font: 800 14px system-ui, sans-serif; display: flex; align-items: center; gap: 6px; } .chip .w .dot { width: 14px; height: 14px; }
   .good .chip .w { color: var(--good); } .mid .chip .w { color: var(--mid); } .bad .chip .w, .skip .chip .w { color: var(--bad); } .fine .chip .w { color: var(--muted); }
   .chip .h { font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .chip .chev { color: var(--muted); font-size: 12px; margin-left: auto; }
@@ -169,8 +178,73 @@
     return root;
   }
   function unmount() { if (host) host.remove(); host = null; }
-  function show(tier, ...nodes) { const root = mount(); [...root.children].forEach(c => { if (c.tagName !== "STYLE") c.remove(); }); root.append(el("div", { class: "wrap " + (tier || "") }, ...nodes)); }
-  const openSettings = () => { try { chrome.runtime.sendMessage({ type: "options" }); } catch {} };
+  function show(tier, ...nodes) { const root = mount(); [...root.children].forEach(c => { if (c.tagName !== "STYLE") c.remove(); }); root.append(el("div", { class: "wrap " + (tier || "") }, ...nodes)); place(); }
+
+  // ---------- placement ----------
+  // The card never covers Walmart's checkout buttons. It sits in the chosen bottom corner (left by default, since the
+  // buy box is on the right); if that would cover Add to cart, Buy now or checkout, it moves above them, then to the
+  // other corner, whichever covers nothing.
+  const BUY = /^(?:add to cart|buy now|check ?out|continue to checkout|place order|add to registry|subscribe)$/i;
+  let buyCache = { t: 0, rects: [] };
+  function protectedRects() {
+    if (Date.now() - buyCache.t < 1000) return buyCache.rects;
+    const rects = [];
+    for (const b of document.querySelectorAll("button, a[role=button], [role=button], input[type=submit]")) {
+      const t = (b.innerText || b.value || b.getAttribute("aria-label") || "").trim();
+      if (!t || t.length > 30 || !BUY.test(t)) continue;
+      const r = b.getBoundingClientRect();
+      if (r.width && r.height && r.bottom > 0 && r.top < innerHeight) rects.push({ left: r.left, right: r.right, top: r.top - (/add to cart|buy now/i.test(t) ? 90 : 0), bottom: r.bottom });
+    }
+    buyCache = { t: Date.now(), rects };
+    return rects;
+  }
+  const overlap = (a, b) => Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+  function place() {
+    const wrap = host && host.shadowRoot.querySelector(".wrap");
+    const box = wrap && wrap.firstElementChild;
+    if (!box) return;
+    const w = box.offsetWidth, h = box.offsetHeight, prot = protectedRects();
+    const base = { left: 24, right: 88 }; // bottom-right leaves room for Walmart's own floating help button
+    const rectAt = (side, bottom) => { const x = side === "left" ? 16 : innerWidth - 16 - w; return { left: x, right: x + w, top: innerHeight - bottom - h, bottom: innerHeight - bottom }; };
+    const tries = [];
+    for (const side of [corner, corner === "left" ? "right" : "left"]) {
+      tries.push([side, base[side]]);
+      // Lift above whatever it would cover, if it still fits on screen.
+      for (const pr of prot) { const b = Math.ceil(innerHeight - pr.top + 12); if (b > base[side] && b + h <= innerHeight - 8) tries.push([side, b]); }
+    }
+    let best = null;
+    for (const [side, bottom] of tries) {
+      const r = rectAt(side, bottom), cost = prot.reduce((n, pr) => n + overlap(r, pr), 0);
+      if (!best || cost < best.cost) best = { side, bottom, cost };
+      if (cost === 0) break;
+    }
+    wrap.style.left = best.side === "left" ? "16px" : "auto";
+    wrap.style.right = best.side === "right" ? "16px" : "auto";
+    wrap.style.bottom = best.bottom + "px";
+    wrap.dataset.side = best.side;
+  }
+  let placing = 0;
+  const replace = () => { if (!placing) placing = requestAnimationFrame(() => { placing = 0; buyCache.t = 0; place(); }); };
+  addEventListener("scroll", replace, { passive: true });
+  addEventListener("resize", replace);
+  // Settings open in a new tab. If the extension was updated while this tab stayed open, this page's copy of it is
+  // disconnected and can't open anything, so say so instead of failing silently.
+  const STALE = "The extension was updated since this page opened. Reload the page to use settings.";
+  function flash(msg) {
+    const body = host && host.shadowRoot.querySelector(".card .body, .card");
+    if (!body) return;
+    const old = body.querySelector(".flash"); if (old) old.remove();
+    body.prepend(el("p", { class: "flash", role: "status", text: msg }));
+  }
+  const openSettings = () => {
+    try {
+      if (!chrome.runtime || !chrome.runtime.id) return flash(STALE);
+      chrome.runtime.sendMessage({ type: "options" }, res => {
+        const err = chrome.runtime.lastError;
+        flash(err && /context invalidated|Receiving end does not exist/i.test(err.message || "") ? STALE : res && res.ok === false ? "Couldn't open settings. Use the extension's button in the toolbar instead." : "Settings opened in a new tab.");
+      });
+    } catch { flash(STALE); }
+  };
   const ICON = { pos: "+", neg: "−", warn: "!", note: "i" };
   const reasonItem = x => el("li", { class: x.k }, el("span", { class: "ic", "aria-hidden": "true", text: ICON[x.k] || "i" }), el("span", { text: x.t }));
 
@@ -180,8 +254,10 @@
       collapse ? el("button", { class: "ib", type: "button", title: "Minimize", "aria-label": "Minimize", "aria-expanded": "true", text: "–", onclick: collapse }) : null,
       el("button", { class: "ib", type: "button", title: "Hide for this product", "aria-label": "Hide for this product", text: "×", onclick: () => { dismissed = location.href; unmount(); } }));
   }
+  // The app's mark, so the pill can't be mistaken for one of Walmart's own floating buttons.
+  const logo = () => { const sp = el("span", { class: "logo", "aria-hidden": "true" }); sp.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20"><rect width="24" height="24" rx="6" fill="#2c6a3d"/><rect x="4" y="7" width="16" height="11" rx="2.5" fill="#fff"/><circle cx="7.4" cy="12.5" r="1.3" fill="#2c6a3d"/><path d="M10.5 12.6l2.2 2.2 4.3-4.6" fill="none" stroke="#2c6a3d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; return sp; };
   function renderLoading(collapsed) {
-    if (collapsed) return show("", el("div", { class: "chip", role: "status" }, el("span", { class: "dot" }), el("span", { class: "txt" }, el("span", { class: "h", text: "Checking this product…" }))));
+    if (collapsed) return show("", el("div", { class: "chip", role: "status" }, logo(), el("span", { class: "txt" }, el("span", { class: "h", text: "Checking this product…" }))));
     show("", el("div", { class: "card", role: "region", "aria-label": "Should I Buy It?" }, header(), el("div", { class: "body" }, el("p", { class: "muted", role: "status", text: "Checking this product…" }))));
   }
   function renderNone(msg) {
@@ -191,13 +267,16 @@
   }
 
   // Walmart's product name, not the lookup's: a barcode record can carry another store's brand name.
+  // A collapsible section that reopens the way you left it.
+  const section = (k, summary, ...kids) => el("details", { "data-k": k, open: openSet.has(k) ? true : null,
+    ontoggle: e => { if (e.target.open) openSet.add(k); else openSet.delete(k); save({ openSections: [...openSet] }); } }, summary, ...kids);
   function renderVerdict(r, prod, p, collapsed) {
     const f = r.food, a = V.assess(f, p), name = W.shortName(prod);
     const headline = C.headline(f, p, a);
     if (collapsed) {
-      show(a.tier, el("button", { class: "chip", type: "button", "aria-expanded": "false", "aria-label": `Should I Buy It? ${a.word}: ${headline} Show details`,
+      show(a.tier, el("button", { class: "chip", type: "button", "aria-expanded": "false", title: "Should I Buy It? (browser extension)", "aria-label": `Should I Buy It? ${a.word}: ${headline} Show details`,
         onclick: () => { save({ collapsed: false }); renderVerdict(r, prod, p, false); } },
-        el("span", { class: "dot", "aria-hidden": "true" }), el("span", { class: "txt" }, el("span", { class: "w", text: a.word }), el("span", { class: "h", text: headline })),
+        logo(), el("span", { class: "txt" }, el("span", { class: "w" }, el("span", { class: "dot", "aria-hidden": "true" }), a.word), el("span", { class: "h", text: headline })),
         el("span", { class: "chev", "aria-hidden": "true", text: "▴" })));
       return;
     }
@@ -206,12 +285,13 @@
     const bars = C.limitBars(f, p).map(b => el("div", { class: "bar", title: b.known ? `${b.name}: ${b.value} of your daily limit` : `${b.name}: not listed` },
       el("span", { text: b.name }),
       el("div", { class: "track" + (b.known ? "" : " na") }, b.known ? el("div", { class: "fill " + b.tone, style: `width:${(b.fill * 100).toFixed(1)}%` }) : null,
-        ...b.marks.map(m => el("span", { class: "tick", style: `left:${(m * 100).toFixed(1)}%` }))),
+        ...b.marks.map((m, i) => el("span", { class: "tick", style: `left:${(m * 100).toFixed(1)}%`, title: `${Math.round(b.markShares[i] * 100)}% of your daily limit: ${i === 0 ? "from here it counts against the verdict" : "from here it counts double"}` }))),
       el("span", { class: "val" }, b.known ? el("b", { text: b.value.split(" · ")[0] }) : "not listed", b.known ? ` · ${b.value.split(" · ")[1]}` : null)));
     const adds = ADD && ADD.analyze(f);
-    const why = C.reasons(a, adds ? adds.flagged : []);
+    const why0 = C.reasons(a, adds ? adds.flagged : []);
+    const why = { top: why0.top.filter(x => x.t !== headline), rest: why0.rest.filter(x => x.t !== headline) };
     const sw = a.tier === "good" || a.tier === "fine" ? null : C.swap(f, FOODS, p);
-    const ingr = ING ? ING.analyze(prod.ingredients || f.ingredients) : null;
+    const ingr = ING ? ING.analyze(prod.ingredients || f.ingredients, [prod.name, f.n].filter(Boolean).join(" | ")) : null;
     const listedAs = r.source !== "this page" && !r.typical && f.n && !sameProduct(f.n, prod.name) ? ` It's listed there as “${f.n}”.` : "";
     const facts = `${V.isMissing(f, "cal") ? "—" : Math.round(f.cal)} cal · ${V.isMissing(f, "pro") ? "—" : V.fmt(f.pro) + " g"} protein · per ${f.s}`;
     // Add to the app's grocery list: a built-in food goes by name; a store product carries its label values.
@@ -225,14 +305,15 @@
     if (send) B.encode(B.packAdd(toApp)).then(t => { send.href = SITE + "#add=" + t; });
     show(a.tier, el("div", { class: "card", role: "region", "aria-label": `Should I Buy It? ${a.word}` }, header(collapse),
       el("div", { class: "body" },
-        el("div", {}, el("div", { class: "verdict" }, el("span", { class: "dot", "aria-hidden": "true" }), a.word), el("div", { class: "name", text: name })),
+        el("div", { class: "verdict" }, el("span", { class: "dot", "aria-hidden": "true" }), a.word),
         el("p", { class: "headline", text: headline }),
-        el("div", { class: "bars", role: "group", "aria-label": "Share of your daily limits" }, ...bars),
+        el("div", { class: "bars", role: "group", "aria-label": "Share of your daily limits" }, ...bars,
+          bars.length ? el("p", { class: "legend", text: "Ticks: where one serving starts to count against the verdict, and where it counts double." }) : null),
         el("div", { class: "factrow" }, el("span", { class: "facts", text: facts }), listBtn),
         f.storePrice && f.storePrice.perServing ? el("div", { class: "pricerow" }, el("b", { text: `≈ ${C.money(f.storePrice.perServing)} a serving` }),
           ` at Walmart's price${f.storePrice.unitText ? ` (${f.storePrice.unitText})` : ""}`, C.perDollar(f, f.storePrice.perServing) ? el("span", { class: "pd", text: ` · ${C.perDollar(f, f.storePrice.perServing)}` }) : null) : null,
         why.top.length ? el("ul", {}, ...why.top.map(reasonItem)) : null,
-        why.rest.length ? el("details", {}, el("summary", { text: `${why.rest.length} more note${why.rest.length === 1 ? "" : "s"}` }), el("ul", {}, ...why.rest.map(reasonItem))) : null,
+        why.rest.length ? section("notes", el("summary", { text: `${why.rest.length} more note${why.rest.length === 1 ? "" : "s"}` }), el("ul", {}, ...why.rest.map(reasonItem))) : null,
         ingr ? ingredientsBlock(ingr) : null,
         sw ? el("div", { class: "swap" }, el("span", { class: "lbl", text: sw.lighter ? "A lighter version" : "Try instead" }),
           el("div", { class: "row" }, el("b", { text: sw.food.n }), sw.lighter ? null : el("span", { class: "vp " + sw.verdict.tier, text: sw.verdict.word }),
@@ -242,7 +323,8 @@
         el("div", { class: "foot" },
           el("span", { text: `From ${r.source}` }),
           r.link ? el("a", { href: SITE + r.link, target: "_blank", rel: "noopener", text: "Full breakdown ↗" }) : null,
-          el("details", {}, el("summary", { text: "About this verdict" }),
+          section("about", el("summary", { text: "About this verdict" }),
+            el("p", { text: `For “${prod.name}”.` }),
             el("p", { text: `${r.detail}.${listedAs} ${r.note}`.trim() }),
             el("p", { text: "It doesn't check allergens: read the label if you have a food allergy." }),
             el("p", { text: `Scored against your goals: ${p.cal.toLocaleString("en-US")} cal, ${p.pro} g protein, ≤${p.sat} g saturated fat, ≤${p.na.toLocaleString("en-US")} mg sodium, ≤${p.add} g added sugar.` }),
@@ -265,7 +347,8 @@
             i.pos ? el("span", { class: "pos", text: String(i.pos) }) : null, i.name, i.inside ? el("span", { class: "in", text: ` in ${i.inside.toLowerCase()}` }) : null)))));
     return el("div", { class: "ingr" },
       r.contains ? el("p", { class: "allergen" }, el("b", { text: "Label says: " }), `Contains ${r.contains}.`) : null,
-      el("details", {}, el("summary", {}, el("b", { text: "Ingredients" }), el("span", { class: "sm", text: ` · ${r.summary}` })),
+      r.conflict ? el("p", { class: "conflict", role: "note" }, el("b", { text: "⚠ " }), r.conflict) : null,
+      section("ingr", el("summary", {}, el("b", { text: "Ingredients" }), el("span", { class: "sm", text: ` · ${r.summary}` })),
         el("p", { class: "muted", text: "Numbers are each ingredient's place on the label, from most to least by weight." }),
         ...groups,
         r.may.length ? el("p", { class: "muted", text: r.may.join(" ") }) : null));
@@ -370,7 +453,9 @@
     stopBadges();
     if (dismissed === url) return;
     const mine = ++run;
-    const saved = await store(["profile", "usdaKey", "collapsed", "toApp"]);
+    const saved = await store(["profile", "usdaKey", "collapsed", "toApp", "openSections", "corner"]);
+    openSet = new Set(Array.isArray(saved.openSections) ? saved.openSections : []);
+    corner = saved.corner === "right" ? "right" : "left";
     toApp = Array.isArray(saved.toApp) ? saved.toApp : [];
     redraw = null;
     const p = { ...V.DEFAULT_PROFILE, ...(saved.profile || {}), usdaKey: saved.usdaKey || "" };
@@ -397,6 +482,7 @@
   window.addEventListener("popstate", check);
   // Goals changed in the settings page: redraw.
   try { chrome.storage.onChanged.addListener(changes => {
+    if (changes.corner) { corner = changes.corner.newValue === "right" ? "right" : "left"; place(); }
     if (changes.profile || changes.usdaKey || changes.searchBadges) { if (changes.profile) save({ badgeCache: {} }); lastUrl = null; check(); }
     // The list changed in another tab or in settings: update this card's button and send link.
     else if (changes.toApp) { const next = changes.toApp.newValue || []; if (JSON.stringify(next) !== JSON.stringify(toApp)) { toApp = next; if (redraw && host && host.shadowRoot.querySelector(".card")) redraw(); } }

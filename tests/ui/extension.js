@@ -22,10 +22,20 @@ PAGES.tartar = { props: { pageProps: { initialData: { data: build({ h: "10295140
   rows: ["cal|Calories|120|", "k0|Total Fat|12g|15%", "k0+|Saturated Fat|2g|10%", "k0+|Trans Fat|0g|", "k1|Cholesterol|10mg|3%", "k2|Sodium|230mg|10%", "k3|Total Carbohydrate|3g|1%",
     "k3+|Dietary Fiber|0g|0%", "k3+|Total Sugars|2g|", "k3+>|Added Sugars|1g|2%", "k4|Protein|0g|", "serv|Serving Size|2 Tbsp. (28g)|"] }) } } } };
 BY_ID["10295140"] = "tartar";
+// Caffeine-Free Diet Coke: no Nutrition Facts on the page, so the barcode goes to Open Food Facts, whose crowd-sourced
+// record (like the one the user saw) lists caffeine and leaves out added sugar.
+PAGES.dietcoke = { props: { pageProps: { initialData: { data: { product: { usItemId: "10535186", name: "Coca-Cola Caffeine-Free Diet Coke Soda Pop, 12 fl oz Cans, 12 Pack", upc: "049000006582", brand: "Coca-Cola",
+  category: { path: [{ name: "Food" }, { name: "Beverages" }, { name: "Soda Pop" }, { name: "Diet Soda Pop" }] } }, idml: { nutritionFacts: null } } } } } };
+BY_ID["10535186"] = "dietcoke";
+const OFF_DIETCOKE = { status: 1, product: { product_name: "Diet Coke caffeine free", serving_size: "355 ml", serving_quantity: 355, categories_tags: ["en:beverages", "en:carbonated-drinks", "en:sodas", "en:diet-sodas"],
+  nutriments: { "energy-kcal_serving": 0, fat_serving: 0, "saturated-fat_serving": 0, sodium_serving: 0.04, carbohydrates_serving: 0, sugars_serving: 0, proteins_serving: 0 },
+  ingredients_text: "Carbonated water, caramel color, aspartame, phosphoric acid, potassium benzoate (to protect taste), natural flavors, citric acid, caffeine." } };
 // Prices as shown on the real pages (Oct 25, 2026).
 const withPrice = (k, now, perUnit, text) => { PAGES[k].props.pageProps.initialData.data.product.priceInfo = { currentPrice: { price: now }, unitPrice: { price: perUnit, priceString: text } }; };
 withPrice("peanut-butter", 3.98, 0.1, "10.0 ¢/oz"); withPrice("cheerios", 4.97, 0.276, "27.6 ¢/oz");
-const pageHtml = k => `<!doctype html><html><head><meta charset="utf-8"><title>${k}</title></head><body><h1>${k}</h1><script id="__NEXT_DATA__" type="application/json">${JSON.stringify(PAGES[k])}</script></body></html>`;
+// Each mock product page has a buy box on the right like Walmart's (sticky, with Add to cart and Buy now).
+const BUYBOX = `<div id="buybox" style="position:fixed;right:24px;top:470px;width:320px;background:#f4f4f4;padding:12px"><div>$5.97</div><div>You save $1.00</div><button id="atc" style="display:block;width:100%;height:40px">Add to cart</button><button id="bn" style="display:block;width:100%;height:40px;margin-top:8px">Buy now</button></div>`;
+const pageHtml = k => `<!doctype html><html><head><meta charset="utf-8"><title>${k}</title></head><body><h1>${k}</h1>${PAGES[k] && PAGES[k].noBuyBox ? "" : BUYBOX}<script id="__NEXT_DATA__" type="application/json">${JSON.stringify(PAGES[k])}</script></body></html>`;
 // Open Food Facts record for the peanut butter's barcode. Values and the other store's brand name are as in the card the
 // user saw on a real page (Oct 25, 2026): a barcode record can carry another store's name.
 const OFF_PB = { status: 1, product: { product_name: "Hannaford Peanut butter", serving_size: "2 tbsp. (32 g)", serving_quantity: 32,
@@ -52,7 +62,7 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
       if (id) hits.ip.push({ id, t: Date.now() });
       return BY_ID[id] ? r.fulfill({ contentType: "text/html", body: pageHtml(BY_ID[id]) }) : r.fulfill({ contentType: "text/html", body: "<!doctype html><title>Walmart</title><p>home</p>" });
     });
-    await ctx.route("https://world.openfoodfacts.org/**", r => (hits.off++, r.fulfill({ contentType: "application/json", body: JSON.stringify(/078742370033/.test(r.request().url()) ? OFF_PB : { status: 0 }) })));
+    await ctx.route("https://world.openfoodfacts.org/**", r => (hits.off++, r.fulfill({ contentType: "application/json", body: JSON.stringify(/078742370033/.test(r.request().url()) ? OFF_PB : /049000006582/.test(r.request().url()) ? OFF_DIETCOKE : { status: 0 }) })));
     await ctx.route("https://api.nal.usda.gov/**", r => r.fulfill({ contentType: "application/json", body: JSON.stringify({ foods: [] }) }));
     let sw = ctx.serviceWorkers()[0] || await ctx.waitForEvent("serviceworker", { timeout: 10000 });
     ok(!!sw, "extension loads (background service worker running)");
@@ -64,17 +74,21 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     const card = async () => { await page.waitForFunction(() => { const h = document.getElementById("should-i-buy-it-card"); return h && h.shadowRoot && h.shadowRoot.querySelector(".wrap") && !/Checking this product/.test(h.shadowRoot.textContent); }, null, { timeout: 10000 });
       return page.evaluate(() => document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".wrap").innerText.replace(/\s+/g, " ")); };
     const click = async sel => page.evaluate(s => document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(s).click(), sel);
-    const box = () => page.evaluate(() => { const e = document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".card, .chip"); const r = e.getBoundingClientRect(); return { h: r.height, bottom: innerHeight - r.bottom, right: innerWidth - r.right, chip: e.classList.contains("chip") }; });
+    const box = () => page.evaluate(() => { const e = document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".card, .chip"); const r = e.getBoundingClientRect();
+      const hit = ["atc", "bn"].map(id => document.getElementById(id)).filter(Boolean).some(b => { const q = b.getBoundingClientRect(); return r.left < q.right && r.right > q.left && r.top < q.bottom && r.bottom > q.top; });
+      return { h: r.height, bottom: innerHeight - r.bottom, right: innerWidth - r.right, left: r.left, chip: e.classList.contains("chip"), coversBuy: hit, side: e.parentElement.dataset.side }; });
 
     await page.goto("https://www.walmart.com/ip/Oikos-Pro-23g-Protein-Vanilla-Yogurt/5072512866");
     let t = await card();
     let b = await box();
     ok(b.chip && /^Get it High protein for the calories\./.test(t), `starts compact: verdict and its reason (${t})`);
-    ok(b.bottom >= 80 && b.right >= 12, `sits above the bottom-right corner, clear of Walmart's own button (${Math.round(b.bottom)} px up)`);
-    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext2-chip.png"), clip: { x: 880, y: 560, width: 400, height: 240 } });
+    ok(b.left <= 20 && b.bottom >= 16 && !b.coversBuy, `sits bottom left, clear of the buy box (${Math.round(b.left)} px from the left)`);
+    ok(await page.evaluate(() => !!document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".chip .logo svg")), "the pill carries the app's mark, so it isn't mistaken for Walmart's buttons");
+    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext2-chip.png"), clip: { x: 0, y: 560, width: 420, height: 240 } });
     await click(".chip");
     t = await card(); b = await box();
-    ok(!b.chip && /Oikos Pro 23g Protein Vanilla/.test(t) && /Sat fat 2.5 g · 13%/.test(t) && /From this page/.test(t), `expands to the card: Walmart's name, limit bars, source (${t.slice(0, 160)})`);
+    ok(!b.chip && !b.coversBuy && /Sat fat 2.5 g · 13%/.test(t) && /Ticks: where one serving starts to count against the verdict/.test(t) && /From this page/.test(t), `expands to the card: limit bars with a tick legend, source, clear of Add to cart (${t.slice(0, 160)})`);
+    ok(await page.evaluate(() => /from here it counts against the verdict/.test(document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".tick").title)), "each tick explains itself on hover");
     ok(b.h <= 460, `expanded card stays compact (${Math.round(b.h)} px tall)`);
 
     // Walmart changes pages without a reload: the card follows, and stays open now that it was opened.
@@ -88,14 +102,14 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
 
     await page.goto("https://www.walmart.com/ip/Great-Value-Creamy-Peanut-Butter-40-oz-Jar/10315479");
     t = await card();
-    ok(/Great Value Creamy Peanut Butter, 40 oz/.test(t) && !/Hannaford Peanut butter Mostly/.test(t), `shows Walmart's product name, not the barcode record's (${t.slice(0, 90)})`);
+    ok(!/Hannaford/.test(t), `the barcode record's other-store name isn't shown up top (${t.slice(0, 90)})`);
     ok(/Mostly healthy fats, but 15% of your saturated-fat limit\./.test(t) && /Sat fat 3 g · 15%/.test(t) && /Sodium 135 mg · 6%/.test(t), `peanut butter: one-line reason and bars (${t.slice(0, 200)})`);
     ok(/≈ \$0\.11 a serving at Walmart's price \(10\.0 ¢\/oz\)/.test(t) && !/per \$1/.test(t), `peanut butter: price row without a per-dollar line (${(t.match(/≈[^+]*/) || ["none"])[0]})`);
     ok(/2 more notes/.test(t) && !/Ultra-processed/.test(t) && /TRY INSTEAD Powdered peanut butter/i.test(t), "secondary notes are folded away; a swap is offered");
     await click(".foot details > summary");
     t = await card();
-    ok(/listed there as “Hannaford Peanut butter”/.test(t) && /Open Food Facts' record for barcode 078742370033/.test(t), "About this verdict explains the source, including the other name");
-    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext2-card.png"), clip: { x: 880, y: 140, width: 400, height: 580 } });
+    ok(/For “Great Value Creamy Peanut Butter, 40 oz”/.test(t) && /listed there as “Hannaford Peanut butter”/.test(t) && /Open Food Facts' record for barcode 078742370033/.test(t), "About this verdict explains the source, including the other name");
+    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext2-card.png"), clip: { x: 0, y: 140, width: 420, height: 660 } });
 
     // Add to the app's list: the button toggles, and a send link carries the item to the app.
     await click(".lbtn");
@@ -128,9 +142,36 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
       "the ingredient groups open: foods, sugars with their place on the label, oils, each additive and its job");
     ok(!/Sriracha/.test(t) && /A LIGHTER VERSION Tzatziki/i.test(t) && /77% fewer calories by weight\. Same verdict/.test(t), `a creamy sauce gets a lighter creamy sauce, not a hot sauce (${(t.match(/A lighter version[^.]*\./i) || ["none"])[0]})`);
     await page.evaluate(() => { const c = document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".card"); c.scrollTop = c.querySelector(".ingr").offsetTop - 60; });
-    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext4-ingredients.png"), clip: { x: 880, y: 140, width: 400, height: 580 } });
+    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext4-ingredients.png"), clip: { x: 0, y: 140, width: 420, height: 660 } });
     await page.evaluate(() => { const c = document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".card"); c.scrollTop = c.scrollHeight; });
-    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext5-additives.png"), clip: { x: 880, y: 140, width: 400, height: 580 } });
+    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext5-additives.png"), clip: { x: 0, y: 140, width: 420, height: 660 } });
+
+    // Caffeine-Free Diet Coke: a record that contradicts the product's name is flagged, not listed as fact.
+    await page.goto("https://www.walmart.com/ip/Coca-Cola-Caffeine-Free-Diet-Coke/10535186");
+    t = await card();
+    ok(/^SHOULD I BUY IT\?.*Fine No calories and nothing to flag, so it barely affects your day\./i.test(t), `Fine leads with its reason, not a shrug (${t.slice(0, 110)})`);
+    ok(/Added sugar 0 g · 0%/.test(t) && !/not listed/.test(t) && !/Partial data/.test(t), "0 g of total sugars shows as 0 g added sugar, not missing");
+    ok(/⚠ Ingredient data conflicts with the product name: the list includes Caffeine, but the name says caffeine-free/.test(t), "caffeine in a caffeine-free product is a warning");
+    ok(/Ingredients · 8 ingredients/.test(t) && /Low- and no-calorie sweeteners/.test(t) && !/Caffeine and energy ingredients/.test(t), `the ingredients section reopens as it was left, without caffeine in it (${(t.match(/Ingredients · [^·]+/) || ["none"])[0]})`);
+    ok(await page.evaluate(() => getComputedStyle(document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".verdict .dot")).borderTopWidth !== "0px"), "Fine has its own shape (a ring), not a color alone");
+    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext6-dietcoke.png"), clip: { x: 0, y: 140, width: 420, height: 660 } });
+    // Settings: the gear opens them in a new tab and says so.
+    const tabP = ctx.waitForEvent("page", { timeout: 5000 }).catch(() => null);
+    await click('button[aria-label="Your goals (settings)"]');
+    const tab = await tabP;
+    const gearText = await card();
+    ok(tab && /options\.html/.test(tab.url()) && /Settings opened in a new tab/.test(gearText), `the settings gear opens settings in a new tab and says so (${tab && tab.url()} | ${(gearText.match(/Settings[^.]*\.|The extension[^.]*\./) || ["no message"])[0]})`);
+    if (tab) await tab.close();
+    await page.bringToFront();
+    // Set to the right corner, the open card won't fit beside the buy box, so it moves to the left instead of covering it.
+    await sw.evaluate(() => chrome.storage.local.set({ corner: "right" }));
+    await page.waitForTimeout(400);
+    b = await box();
+    ok(!b.coversBuy && b.side === "left", `set to bottom right, the open card still never covers Add to cart or Buy now (${b.side})`);
+    await click('button[aria-label="Minimize"]'); await page.waitForTimeout(200);
+    b = await box();
+    ok(b.chip && !b.coversBuy && b.side === "right", `the small pill fits bottom right without covering them (${b.side})`);
+    await sw.evaluate(() => chrome.storage.local.set({ corner: "left", collapsed: false }));
 
     await page.goto("https://www.walmart.com/ip/Coca-Cola-Fridge-Pack/12166733");
     t = await card();

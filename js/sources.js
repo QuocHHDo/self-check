@@ -13,7 +13,10 @@
   // otherwise it's shown as "—" and left out of the verdict. A raw food, or one with under 1 g of total sugar, can't be
   // hiding added sugar, so for those the unknown value doesn't block a "Get it" (addLikelyZero).
   function settleAddedSugar(f, reported, raw) {
-    if (!reported || f.missing.includes("sug")) { if (!f.missing.includes("add")) f.missing.push("add"); f.add = 0; }
+    // Added sugar can't exceed total sugars: an exact 0 g of sugar means 0 g added, even if the source left it out.
+    const zeroSugar = !f.missing.includes("sug") && f.sug === 0 && !V.isLowerBound(f, "sug");
+    if (zeroSugar) { f.add = 0; f.missing = f.missing.filter(k => k !== "add"); }
+    else if (!reported || f.missing.includes("sug")) { if (!f.missing.includes("add")) f.missing.push("add"); f.add = 0; }
     f.addLikelyZero = f.missing.includes("add") && (!!raw || (!f.missing.includes("sug") && f.sug < 1));
     f.partial = f.missing.some(k => k !== "trans" && k !== "chol");
     return f;
@@ -27,6 +30,7 @@
     if (PROCESSED.test(f.n)) f.tags.push("processed");
     Object.assign(f, extra);
     f.missing = [...new Set(extra.missing || [])];
+    if (f.missing.includes("add") && !f.missing.includes("sug") && f.sug === 0 && !V.isLowerBound(f, "sug")) { f.add = 0; f.missing = f.missing.filter(k => k !== "add"); }
     // Trans fat and cholesterol are routinely absent from non-US labels: shown as "—" but not worth a partial-data warning.
     f.partial = f.missing.some(k => k !== "trans" && k !== "chol");
     return f;

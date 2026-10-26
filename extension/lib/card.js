@@ -21,7 +21,9 @@
   // One sentence on why: the strongest plus and minus ("Mostly healthy fats, but 15% of your saturated-fat limit.").
   // Falls back to the verdict's own line when something other than the score decided it (skip list, missing data).
   function headline(f, p, a = V.assess(f, p)) {
-    if (a.tier === "skip" || a.tier === "fine") return a.why;
+    if (a.tier === "skip") return a.why;
+    // "Fine": the specific reason ("No calories and nothing to flag…") says more than "No real impact either way."
+    if (a.tier === "fine") { const n = a.reasons.find(r => r.k === "note" && /barely affects/.test(r.t)); return n ? n.t : a.why; }
     const scored = a.reasons.filter(r => r.n && r.d);
     const plus = byWeight(scored.filter(r => r.d > 0)).map(r => label(PLUS, r, f, p)).filter(Boolean);
     const minus = byWeight(scored.filter(r => r.d < 0)).map(r => label(MINUS, r, f, p)).filter(Boolean);
@@ -44,7 +46,7 @@
     if (!b) return [];
     return b.rows.filter(r => LIMITS.includes(r.k)).map(r => ({
       k: r.k, name: { sat: "Sat fat", na: "Sodium", add: "Added sugar" }[r.k], known: r.known,
-      share: r.known ? r.v : null, fill: r.known ? Math.min(1, Math.max(0, r.v) / r.max) : 0, marks: r.marks.filter(m => m < r.max).map(m => m / r.max),
+      share: r.known ? r.v : null, fill: r.known ? Math.min(1, Math.max(0, r.v) / r.max) : 0, marks: r.marks.filter(m => m < r.max).map(m => m / r.max), markShares: r.marks.filter(m => m < r.max),
       tone: !r.known ? "na" : r.points <= -2 ? "bad" : r.points < 0 ? "warn" : "ok",
       value: r.known ? `${r.atLeast ? "≥" : ""}${r.k === "na" ? Math.round(f.na).toLocaleString("en-US") + " mg" : V.fmt(f[r.k]) + " g"} · ${pct(r.v, 1)}%` : "not listed",
     }));

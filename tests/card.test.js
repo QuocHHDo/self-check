@@ -26,7 +26,8 @@ test("headline: when something else decided it, the verdict's own line", () => {
   assert.equal(C.headline(food("Banana"), { ...P, skip: "banana" }), V.assess(food("Banana"), { ...P, skip: "banana" }).why);
   const partial = { ...food("Chicken breast, grilled"), missing: ["na"] };
   assert.equal(C.headline(partial, P), "Looks good on what's known, but key data is missing.");
-  assert.equal(C.headline(food("Coffee, black"), P), V.assess(food("Coffee, black"), P).why);
+  // "Fine" leads with its specific reason, not "No real impact either way."
+  assert.match(C.headline(food("Coffee, black"), P), /calories and nothing to flag, so it barely affects your day\.$/);
 });
 
 test("limit bars use the verdict's cutoffs and points", () => {
@@ -113,4 +114,25 @@ test("a lighter version of the same kind when nothing scores better, labeled as 
   const s = C.swap(tartar, FOODS, P);
   assert.equal(s.food.n, "Tzatziki");
   assert.equal(s.lighter, "77% fewer calories by weight", "servings of different sizes are compared at the same weight");
+});
+
+test("ingredients that contradict the product's name are warned about, not listed", () => {
+  const I = require("../js/ingredients.js");
+  const r = I.analyze("Carbonated water, caramel color, aspartame, phosphoric acid, potassium benzoate, natural flavors, citric acid, caffeine.",
+    "Coca-Cola Caffeine-Free Diet Coke Soda Pop, 12 fl oz Cans, 12 Pack");
+  assert.match(r.conflict, /the list includes Caffeine, but the name says caffeine-free/);
+  assert.ok(!r.groups.some(g => g.key === "stim"), "caffeine isn't listed as an ingredient");
+  assert.equal(I.analyze("Water, caffeine", "Diet Coke").conflict, null);
+  assert.match(I.analyze("Water, sugar, citric acid", "Zero Sugar Lemonade").conflict, /Sugar, but the name says sugar-free/);
+  assert.match(I.analyze("Oats, wheat flour", "Gluten-Free Oat Bars").conflict, /Wheat Flour/);
+  assert.equal(I.analyze("Gluten-free oats, buckwheat flour", "Gluten-Free Oat Bars").conflict, null);
+});
+
+test("an exact 0 g of total sugars means 0 g added, even when the source leaves added sugar out", () => {
+  const S = require("../js/sources.js");
+  const f = S.fromOff("049000050110", { product_name: "Diet Coke caffeine free", serving_size: "355 ml", serving_quantity: 355,
+    nutriments: { "energy-kcal_serving": 0, fat_serving: 0, "saturated-fat_serving": 0, sodium_serving: 0.04, carbohydrates_serving: 0, sugars_serving: 0, proteins_serving: 0 } });
+  assert.equal(f.add, 0);
+  assert.ok(!f.missing.includes("add"));
+  assert.equal(C.limitBars(f, P).find(b => b.k === "add").known, true);
 });

@@ -171,16 +171,33 @@
     return { group: "food" };
   }
 
-  // Everything the card and the app show. null when there's no ingredient text.
-  function analyze(text) {
+  // Claims in the product's name that an ingredient list can contradict. Crowd-sourced records sometimes carry
+  // another variety's ingredients (caffeine in a caffeine-free soda), so a contradiction is shown as a warning,
+  // not listed as fact.
+  const CLAIMS = [
+    { claim: "caffeine-free", name: /caffeine[- ]free|\bdecaf(?:feinated)?\b|no caffeine|zero caffeine|0 ?mg caffeine/i, hit: n => /\bcaffeine\b/i.test(n) && !/decaf/i.test(n) },
+    { claim: "sugar-free", name: /sugar[- ]free|zero sugar|\bno sugar\b|sugarless|no (?:sugar added|added sugars?)/i, hit: (n, c) => c.group === "sugar" },
+    { claim: "gluten-free", name: /gluten[- ]free/i, hit: n => /\b(?:wheat|barley|rye|malt|spelt|triticale|semolina|durum|farina|kamut|seitan)\b/i.test(n) && !/gluten[- ]free|buckwheat|deglutenized/i.test(n) },
+  ];
+
+  // Everything the card and the app show. null when there's no ingredient text. `name` is the product's name (or
+  // several, joined), checked against the list for contradictions.
+  function analyze(text, name = "") {
     const p = parse(text);
     if (!p || !p.items.length) return null;
-    const groups = {}, seen = new Set();
+    const groups = {}, seen = new Set(), conflicts = [];
+    const claims = CLAIMS.filter(c => c.name.test(name || ""));
     let pos = 0;
     const add = (it, sub) => {
       const key = it.name.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
       if (!sub) pos++;
       const c = classify(it.name);
+      const claim = claims.find(x => x.hit(it.name, c));
+      if (claim) {
+        const k = claim.claim, prev = conflicts.find(x => x.claim === k);
+        if (prev) { if (!prev.items.includes(title(it.name))) prev.items.push(title(it.name)); } else conflicts.push({ claim: k, items: [title(it.name)] });
+        return;
+      }
       const dupKey = c.additive ? c.additive.base : key;
       if (seen.has(dupKey)) return;
       seen.add(dupKey);
@@ -228,7 +245,8 @@
     const summary = [`${count} ingredient${count === 1 ? "" : "s"}`,
       additives ? `${additives} additive${additives === 1 ? "" : "s"}${concern ? ` (${concern} to know about)` : ""}` : "no additives found",
       sugars ? `${sugars} added sugar${sugars === 1 ? "" : "s"}` : null].filter(Boolean).join(" · ");
-    return { groups: out, count, additives, sugars, concern, contains: p.contains, may: p.may, summary };
+    const conflict = conflicts.length ? `Ingredient data conflicts with the product name: ${conflicts.map(c => `the list includes ${c.items.join(", ")}, but the name says ${c.claim}`).join("; ")}. Left out below; check the package.` : null;
+    return { groups: out, count, additives, sugars, concern, contains: p.contains, may: p.may, summary, conflicts, conflict };
   }
 
   return { parse, classify, analyze, GROUPS };
