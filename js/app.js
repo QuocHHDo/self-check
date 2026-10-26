@@ -222,8 +222,8 @@
     const list = el("div", { class: "swaps" });
     for (const s of swaps) {
       list.append(el("button", { class: "swap", type: "button", onclick: () => pick(s.food) },
-        el("span", { class: "sn", text: s.food.n }), pill(s.verdict),
-        el("span", { class: "sd", text: swapReason(f, s.food) })));
+        el("span", { class: "sn", text: s.food.n }), s.lighter ? el("span", { class: "vp lite", text: "Lighter" }) : pill(s.verdict),
+        el("span", { class: "sd", text: s.lighter ? `${s.lighter[0].toUpperCase() + s.lighter.slice(1)} (${s.food.s}). Same verdict, but it goes further on your limits.` : swapReason(f, s.food) })));
     }
     return el("section", { class: "panel" }, el("h3", { text: "Try instead" }), list);
   }
@@ -592,7 +592,8 @@
     const f = byName(item.n), id = "g-" + V.slug(item.n), q = qtyOf(item), u = unitCost(f);
     const setQty = n => { item.qty = Math.max(1, Math.min(99, n)); saveList(); };
     const verdict = f ? V.assess(f, profile) : null;
-    const swap = f && !item.done && verdict.tier === "bad" ? V.findSwaps(f, allFoods(), profile, 1)[0] : null;
+    // The list's one-tap swap is for a better verdict only, not a lighter version with the same one.
+    const swap = f && !item.done && verdict.tier === "bad" ? V.findSwaps(f, allFoods(), profile, 3).find(s => !s.lighter) || null : null;
     return el("div", { class: "lrow" + (item.done ? " done" : "") },
       el("input", { type: "checkbox", id, checked: item.done ? true : null, onchange: e => { item.done = e.target.checked; saveList(); } }),
       el("label", { for: id, text: item.n }),

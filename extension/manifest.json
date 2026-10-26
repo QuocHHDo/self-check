@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Should I Buy It? Shopping helper",
   "short_name": "Should I Buy It?",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "See whether a food fits your nutrition goals right on its product page. Free and private: everything runs in your browser.",
   "icons": {
     "16": "icons/icon-16.png",

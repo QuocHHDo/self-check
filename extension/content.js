@@ -116,6 +116,7 @@
   .swap .lbl { font: 700 10.5px system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
   .swap .row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
   .vp { font: 700 10px system-ui, sans-serif; letter-spacing: .05em; text-transform: uppercase; padding: 2px 6px; border-radius: 999px; }
+  .swap .ld { color: var(--muted); font-size: 12px; }
   .vp.good { background: var(--good-soft); color: var(--good); } .vp.mid { background: var(--mid-soft); color: var(--mid); } .vp.bad { background: var(--bad-soft); color: var(--bad); } .vp.fine { background: var(--track); color: var(--muted); }
   a { color: var(--good); font-weight: 600; }
   .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 8px; }
@@ -233,9 +234,10 @@
         why.top.length ? el("ul", {}, ...why.top.map(reasonItem)) : null,
         why.rest.length ? el("details", {}, el("summary", { text: `${why.rest.length} more note${why.rest.length === 1 ? "" : "s"}` }), el("ul", {}, ...why.rest.map(reasonItem))) : null,
         ingr ? ingredientsBlock(ingr) : null,
-        sw ? el("div", { class: "swap" }, el("span", { class: "lbl", text: "Try instead" }),
-          el("div", { class: "row" }, el("b", { text: sw.food.n }), el("span", { class: "vp " + sw.verdict.tier, text: sw.verdict.word }),
-            el("a", { href: C.walmartSearch(sw.query), "aria-label": `Search Walmart for ${sw.query}`, text: "Search Walmart →" }))) : null,
+        sw ? el("div", { class: "swap" }, el("span", { class: "lbl", text: sw.lighter ? "A lighter version" : "Try instead" }),
+          el("div", { class: "row" }, el("b", { text: sw.food.n }), sw.lighter ? null : el("span", { class: "vp " + sw.verdict.tier, text: sw.verdict.word }),
+            el("a", { href: C.walmartSearch(sw.query), "aria-label": `Search Walmart for ${sw.query}`, text: "Search Walmart →" })),
+          sw.lighter ? el("span", { class: "ld", text: `${sw.lighter[0].toUpperCase() + sw.lighter.slice(1)}. Same verdict, but it goes further on your limits.` }) : null) : null,
         send ? el("div", { class: "sendrow" }, send) : null,
         el("div", { class: "foot" },
           el("span", { text: `From ${r.source}` }),

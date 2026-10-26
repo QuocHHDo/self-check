@@ -96,3 +96,21 @@ test("swaps stay within the same kind of food", () => {
   assert.equal(V.kindOf(tartar, "condiments"), "creamy");
   assert.ok(V.findSwaps(tartar, FOODS, P, 3).every(s => V.kindOf(s.food, "condiments") === "creamy"));
 });
+
+test("a lighter version of the same kind when nothing scores better, labeled as lighter", () => {
+  const P = V.DEFAULT_PROFILE, by = n => FOODS.find(f => f.n === n);
+  const first = n => V.findSwaps(by(n), FOODS, P, 1)[0];
+  assert.equal(first("Marinara sauce").food.n, "Marinara sauce, reduced sodium");
+  assert.equal(first("Marinara sauce").lighter, "92% less sodium");
+  assert.equal(first("Jam").food.n, "Jam, reduced sugar");
+  assert.equal(first("Teriyaki sauce").food.n, "Low-sodium teriyaki sauce", "the closer name wins among lighter versions");
+  assert.equal(first("Thousand Island dressing").food.n, "Greek yogurt ranch dressing");
+  assert.equal(first("Ranch dressing").lighter, null, "a better verdict (hand-picked salsa) beats a lighter version");
+  assert.equal(first("Sugar"), undefined, "sugar doesn't swap to jam");
+  assert.equal(first("Extra virgin olive oil"), undefined, "cooking oils aren't swapped for being lighter");
+  const tartar = { n: "Louisiana Fish Fry Creamy Tartar Sauce with Relish & Lemon", c: "lookup", s: "2 Tbsp (28 g)", cal: 120, fat: 12, sat: 2, trans: 0, chol: 10, na: 230, carb: 3, fib: 0, sug: 2, add: 1, pro: 0,
+    src: "walmart", dataType: "Branded", foodCategory: "Food > Pantry > Condiments > Tartar sauce", missing: [] };
+  const s = C.swap(tartar, FOODS, P);
+  assert.equal(s.food.n, "Tzatziki");
+  assert.equal(s.lighter, "77% fewer calories by weight", "servings of different sizes are compared at the same weight");
+});

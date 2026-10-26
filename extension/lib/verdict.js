@@ -518,12 +518,14 @@
   const KINDS = {
     condiments: [
       ["pasta sauce", /marinara|alfredo|pasta sauce|pizza sauce|vodka sauce|pesto/],
+      ["cheese dip", /queso|cheese dip|cheese sauce/],
       ["creamy", /mayo|mayonnaise|aioli|tartar|ranch|caesar|thousand island|blue cheese|tzatziki|queso|remoulade|creamy|honey mustard|sandwich spread/],
       ["burger", /ketchup|catsup|mustard|bbq|barbecue|relish|pickle|steak sauce|worcestershire/],
       ["hot", /sriracha|hot sauce|buffalo|chili sauce|chili garlic|tabasco|harissa|salsa|gochujang|chipotle/],
       ["asian", /soy sauce|teriyaki|hoisin|fish sauce|oyster sauce|miso|peanut sauce|ponzu|tamari|coconut aminos|stir[- ]fry sauce/],
       ["dressing", /vinaigrette|dressing|vinegar/],
-      ["sweet", /sugar|syrup|honey|\bjam\b|jelly|preserves|marmalade|molasses|agave|sweetener|monk fruit|stevia|erythritol|allulose/],
+      ["fruit spread", /\bjam\b|jelly|preserves|marmalade|fruit spread/],
+      ["sweetener", /sugar|syrup|honey|molasses|agave|sweetener|monk fruit|stevia|erythritol|allulose/],
       ["fat", /butter|margarine|ghee|lard|tallow|shortening|\boils?\b|grease|cooking spray/],
       ["gravy", /gravy/],
     ],
@@ -628,6 +630,29 @@
     return best ? SWAP_HINTS[best.n] : null;
   }
 
+  // A lighter version of the same kind of food: at least 40% less of calories, sodium, added sugar or saturated
+  // fat per serving (each counted only where the original has a real amount), and not meaningfully more of any.
+  // Used only when nothing of that kind earns a better verdict; most condiments sit at "In moderation" either way.
+  const LIGHTER = [["cal", "fewer calories", 40, 10], ["na", "less sodium", 140, 40], ["add", "less added sugar", 2, 1], ["sat", "less saturated fat", 1, 0.5]];
+  // Compared at the same weight when both servings give grams (a teaspoon of sugar isn't "lighter" than a tablespoon
+  // of jam). Cooking fats are judged on the kind of fat, not on being lighter, so they're left out.
+  const NONE_WORD = { cal: "almost no calories", na: "almost no sodium", add: "no added sugar", sat: "almost no saturated fat" };
+  function lighterBy(f, g) {
+    if (pureFat(f) || pureFat(g)) return null;
+    const fg = servingGrams(f.s), gg = servingGrams(g.s);
+    const k2 = fg && gg ? fg / gg : 1;
+    let best = null;
+    for (const [k, word, floor, slack] of LIGHTER) {
+      if (isMissing(f, k) || isMissing(g, k)) continue;
+      const gv = g[k] * k2;
+      if (gv > f[k] * 1.25 + slack) return null;
+      const drop = f[k] >= floor ? 1 - gv / f[k] : 0;
+      if (drop >= 0.4 && (!best || drop > best.drop)) best = { drop, text: drop >= 0.95 ? NONE_WORD[k] : `${Math.round(drop * 100)}% ${word}` };
+    }
+    if (best && k2 !== 1) best.text += " by weight";
+    return best;
+  }
+
   // Up to `max` better options from the same category, best verdict first ("Get it" before "In moderation"),
   // then hand-picked hints, name overlap and similar calories. Hand-picked hints are the only cross-category picks.
   function findSwaps(f, foods, p, max = 3) {
@@ -655,7 +680,9 @@
       if (!hinted && HINT_ONLY.has(g.n)) continue;
       if (!hinted && !only && cat && (fKind || STRICT_KIND.has(cat)) && kindOf(g, cat) !== fKind) continue;
       const a = assess(g, p);
-      if (a.tier === "skip" || RANK[a.tier] <= want) continue;
+      if (a.tier === "skip") continue;
+      const lighter = RANK[a.tier] === want && !hinted ? lighterBy(f, g) : null;
+      if (RANK[a.tier] < want || (RANK[a.tier] === want && !lighter)) continue;
       let score = 0;
       const hi = hints.indexOf(g.n);
       if (hi >= 0) score += 100 - hi;
@@ -663,10 +690,13 @@
       score += 8 * tokens(g.n).filter(t => ft.has(t)).length;
       if (score < 20) continue;
       score -= 4 * Math.abs(Math.log((g.cal + 20) / (f.cal + 20)));
-      out.push({ food: g, verdict: a, score, hinted, shared: tokens(g.n).some(t => ft.has(t)) });
+      out.push({ food: g, verdict: a, score: score + (lighter ? 30 * lighter.drop : 0), hinted, shared: tokens(g.n).filter(t => ft.has(t)).length, lighter: lighter ? lighter.text : null });
     }
     // Hand-picked swaps stand alone when any of them apply; the generic search only fills in when there are none.
     const picked = out.filter(o => o.hinted);
+    // A better verdict beats a lighter version; lighter versions show only when nothing scores better.
+    const better = out.filter(o => !o.lighter);
+    if (!picked.length && better.length) out.splice(0, out.length, ...better);
     // Best verdict first; among equal verdicts, a closer substitute (shares a word: "Ground beef 90/10" for ground beef 80/20).
     return (picked.length ? picked : out).sort((x, y) => RANK[y.verdict.tier] - RANK[x.verdict.tier] || (!picked.length && (y.shared - x.shared)) || y.score - x.score).slice(0, max);
   }

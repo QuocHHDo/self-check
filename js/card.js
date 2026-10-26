@@ -64,7 +64,7 @@
   function swap(f, foods, p) {
     const s = V.findSwaps(f, foods, p, 1)[0];
     if (!s) return null;
-    return { food: s.food, verdict: s.verdict, query: searchName(s.food.n) };
+    return { food: s.food, verdict: s.verdict, query: searchName(s.food.n), lighter: s.lighter || null };
   }
   function searchName(n) {
     const [head, ...rest] = String(n).split(",").map(x => x.trim()).filter(Boolean);

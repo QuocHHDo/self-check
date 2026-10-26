@@ -126,7 +126,7 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     t = await card();
     ok(/Foods 5/.test(t) && /Added sugars 1/.test(t) && /6 ?High Fructose Corn Syrup/.test(t) && /Soybean Oil is the 2nd ingredient/.test(t) && /Calcium Disodium EDTA/.test(t) && /Calcium Chloride in dill relish/.test(t),
       "the ingredient groups open: foods, sugars with their place on the label, oils, each additive and its job");
-    ok(!/Sriracha/.test(t), "a creamy sauce isn't offered a hot sauce as a swap");
+    ok(!/Sriracha/.test(t) && /A LIGHTER VERSION Tzatziki/i.test(t) && /77% fewer calories by weight\. Same verdict/.test(t), `a creamy sauce gets a lighter creamy sauce, not a hot sauce (${(t.match(/A lighter version[^.]*\./i) || ["none"])[0]})`);
     await page.evaluate(() => { const c = document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".card"); c.scrollTop = c.querySelector(".ingr").offsetTop - 60; });
     await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext4-ingredients.png"), clip: { x: 880, y: 140, width: 400, height: 580 } });
     await page.evaluate(() => { const c = document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".card"); c.scrollTop = c.scrollHeight; });
