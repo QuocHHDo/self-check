@@ -110,20 +110,28 @@ Values are approximate and vary by brand; the package label wins. Open Food Fact
 
 ## Browser extension (Walmart product pages)
 
-`extension/` is a Chrome extension (Manifest V3) that adds a verdict card to Walmart product pages (`walmart.com/ip/…`). It uses the same verdict code and foods as the site, and it's free: no server, no account.
+`extension/` is a Chrome extension (Manifest V3, Chrome 116+) that shows a verdict on Walmart product pages (`walmart.com/ip/…`). It uses the same verdict code and foods as the site, and it's free: no server, no account.
 
-Where the nutrition comes from, in order:
+It has two levels:
+
+1. **A badge next to the star rating**: the verdict's icon and word and a short reason ("Fine · nothing to flag", "Limit it · 30% of your saturated-fat limit"), with ⚠ only when missing data could change the verdict. It sits in Walmart's rating row in a zero-height slot, so the page doesn't move, and it's a real button in a Shadow DOM. Without a rating row it falls back to a small floating pill that never covers Add to cart, Buy now or checkout. Walmart changes pages without reloading; the badge follows and is never injected twice. Non-food pages get no badge.
+2. **The side panel** (`sidepanel.html`, Chrome's side panel API): the full breakdown for the active tab's product, opened by clicking the badge or the toolbar button. Verdict, daily-limit bars with shaded zones (fine / counts against / counts double), short notes with the full sentence behind "more", ingredients in plain groups (a conflict with the product name, like caffeine in a caffeine-free soda, is marked next to that ingredient), additives, a swap, sources, and your goals. It re-scores with your saved goals, follows tab and product changes, supports dark mode, and shows an empty state on other pages. Where the side panel isn't available, the same view opens in a tab.
+
+The content script hands the product to the panel through the background script, which keeps it per tab in `chrome.storage.session`.
+
+Each verdict has its own color and shape: Get it (green check), Fine (gray dot), In moderation (amber triangle), Limit it (red octagon), Skip (red slashed circle).
+
+Where the numbers come from, in order:
+
 1. **The page's own Nutrition Facts panel** (Walmart's page data), for the exact product.
-2. **Fresh produce and weighed items**: matched by name to the app's built-in foods ("Marketside Fresh Organic Bananas" → Banana). Their codes are produce stickers (PLUs), not real barcodes, and looking them up returns unrelated products.
-3. **Otherwise the barcode** (UPC on the page) in Open Food Facts, then USDA Branded Foods.
-
-The card sits bottom left by default (Walmart's buy box is on the right; settings can move it to the right) and never covers Add to cart, Buy now or checkout: it lifts above them or moves to the other corner. It starts as a small chip (the verdict and one line on why) and opens to show bars for saturated fat, sodium and added sugar against your limits, the reasons that decided it, and a better swap with a Walmart search for it. It always shows Walmart's product name; the source of the numbers is in the footer. Non-food pages get no card. Walmart changes pages without reloading, so the card follows as you browse.
+2. **Fresh produce** matched by name to the app's typical values.
+3. **The barcode** in Open Food Facts, then USDA Branded Foods.
 
 More in the extension:
 - **+ Add to list** on the card; a "Send to your list in the app" link (on the card and in the settings) opens the app, which shows the items and asks before adding them to the grocery list (merged, nothing replaced).
-- **Walmart's own price**: the card works out the cost per serving from the page's unit price (e.g. 18.7 ¢/oz × a 170 g cup ≈ $1.12) and, for protein or fiber picks, how much you get per dollar. Items sent to the app's list, and products opened with the phone bookmark, carry that price, so the trip total uses it. Weight and volume unit prices convert; per-count prices don't.
-- **Ingredient data checked against the name**: when a product's name says caffeine-free, sugar-free or gluten-free and its ingredient list disagrees (crowd-sourced records sometimes carry another variety's list), the card shows a warning and leaves those ingredients out instead of listing them as fact.
-- **Ingredients, sorted**: the card shows the label's own allergen statement (“Contains: Egg”) and opens the ingredient list into plain groups: foods, whole grains, water/salt/vinegar, added sugars, oils and fats (unsaturated or saturated), refined starches, sweeteners, caffeine, flavorings, vitamins, and additives with each one's job and status. Numbers are each ingredient's place on the label. It describes rather than scores: the verdict already counts the amounts that matter. The app shows the same breakdown (`js/ingredients.js`).
+- **Walmart's own price**: the side panel works out the cost per serving from the page's unit price (e.g. 18.7 ¢/oz × a 170 g cup ≈ $1.12) and, for protein or fiber picks, how much you get per dollar. Items sent to the app's list, and products opened with the phone bookmark, carry that price, so the trip total uses it. Weight and volume unit prices convert; per-count prices don't.
+- **Ingredient data checked against the name**: when a product's name says caffeine-free, sugar-free or gluten-free and its ingredient list disagrees, that ingredient is marked ⚠ with a one-line explanation. This happens on Walmart's own listings too: the Caffeine-Free Diet Coke 12-pack's ingredients on walmart.com include caffeine (Oct 2026).
+- **Ingredients, sorted**: the side panel shows the label's own allergen statement (“Contains: Egg”) and opens the ingredient list into plain groups: foods, whole grains, water/salt/vinegar, added sugars, oils and fats (unsaturated or saturated), refined starches, sweeteners, caffeine, flavorings, vitamins, and additives with each one's job and status. Numbers are each ingredient's place on the label. It describes rather than scores: the verdict already counts the amounts that matter. The app shows the same breakdown (`js/ingredients.js`).
 - **Swaps of the same kind**: “Try instead” only offers the same kind of food: a creamy sauce for a creamy sauce, cereal for cereal, a breakfast meat for bacon, an oil for butter (`KINDS` in `js/verdict.js`). Store products borrow the hand-picked swaps of the built-in food their name contains (Oscar Mayer bacon → Bacon's). When nothing of the same kind earns a better verdict, a lighter version of the same kind is offered instead (at least 40% fewer calories or less sodium, added sugar or saturated fat at the same weight, and no more of the others), labeled “A lighter version”. Cooking oils are never swapped for being lighter.
 - **Search badges** (off by default; turn on in the settings): a verdict on each product in Walmart search and category pages. Search pages don't include nutrition, so the extension opens each product page in the background: only products you scroll to, one about every 1.5 seconds, at most 40 per page, remembered for a week.
 - Barcode lookups are cached for 30 days (not found: 1 day; network failures aren't cached).

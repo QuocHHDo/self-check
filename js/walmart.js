@@ -124,7 +124,9 @@
   const isPlu = upc => { const core = String(upc || "").replace(/^0+/, ""); return core.length > 0 && core.length <= 6; };
   const isWeighed = upc => /^0?2\d{10,11}$/.test(String(upc || "")) && String(upc).replace(/^0/, "").length <= 12;
   const FRESH = /fresh produce|fresh fruit|fresh vegetable|meat & seafood|fresh meat|fresh seafood|^produce$/i;
-  const isFood = p => p && (p.category.some(c => /^food$|grocery|beverage|produce|dairy|meat|frozen|pantry|snack|protein/i.test(c)) || !!p.nutrition);
+  // An empty nutrition block doesn't make a page food (non-food pages can carry one with every field null).
+  const hasNutrition = n => !!(n && (n.calorieInfo || (n.keyNutrients && n.keyNutrients.values && n.keyNutrients.values.length)));
+  const isFood = p => p && (p.category.some(c => /^food$|grocery|beverage|produce|dairy|meat|frozen|pantry|snack|protein/i.test(c)) || hasNutrition(p.nutrition));
 
   // How to get this product's nutrition: { kind: "panel" | "name" | "barcode" | "none", ... }.
   function plan(p) {

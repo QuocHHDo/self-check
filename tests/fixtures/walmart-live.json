@@ -1,0 +1,55 @@
+{
+ "_note": "Captured from live walmart.com pages on Oct 26, 2026 (compact form; see walmart-compact.js). Used by tests/ui/extension.js for the four pages the redesign brief names. dietcokecf: Walmart's own ingredient list includes caffeine on a caffeine-free product (the data conflict). honeybuns: a clearly Limit-it snack with a Nutrition Facts panel. reseller: no panel and a reseller-assigned barcode (served as not found in Open Food Facts and USDA). tv: a non-food page.",
+ "pages": {
+  "dietcokecf": {
+   "h": "12166734 ¦ Diet Coke Caffeine-Free Soda Pop Fridge Pack Cans, 12 fl oz, 12 Pack ¦ 049000029345 ¦ Diet Coke ¦ Food > Beverages > Soda Pop > Coca-Cola > Diet Coke",
+   "ing": "CARBONATED WATER, CARAMEL COLOR, ASPARTAME, PHOSPHORIC ACID, POTASSIUM BENZOATE (TO PROTECT TASTE), NATURAL FLAVORS, CITRIC ACID, CAFFEINE",
+   "rows": [],
+   "price": [
+    7.77,
+    "5.4 ¢/fl oz",
+    0.054
+   ]
+  },
+  "honeybuns": {
+   "h": "10295207 ¦ Little Debbie Honey Buns, 10.6 oz, 6 Count ¦ 024300041020 ¦ Little Debbie ¦ Food > Pantry > Back to routines > Day starters",
+   "ing": "ENRICHED BLEACHED FLOUR (WHEAT FLOUR, BARLEY MALT, NIACIN, REDUCED IRON, THIAMIN MONONITRATE [VITAMIN B1], RIBOFLAVIN [VITAMIN B2], FOLIC ACID), WATER, SUGAR, PALM OIL, DEXTROSE, PALM AND SOYBEAN OILS WITH TBHQ AND CITRIC ACID TO PROTECT FLAVOR, YEAST., CORN STARCH, MONO-AND DIGLYCERIDES, SOY FLOUR, NONFAT DRY MILK, SALT, DRIED EGGS, LEAVENING (SODIUM ACID PYROPHOSPHATE, BAKING SODA), WHEAT STARCH, DATEM, PRESERVATIVES (CALCIUM PROPIONATE, SORBIC ACID, POTASSIUM SORBATE), DRIED HONEY, SOY LECITHIN, CALCIUM CARBONATE, CALCIUM STEAROYL LACTYLATE, AGAR, CINNAMON, NATURAL AND ARTIFICIAL FLAVORS (CONTAINS LEMON), CITRIC ACID, SOYBEAN OIL, COCOA, ENZYMES, TITANIUM DIOXIDE (COLOR), ASCORBIC ACID, CALCIUM SULFATE, HYDROGENATED SOYBEAN OIL, CALCIUM PEROXIDE, ANNATTO EXTRACT, TURMERIC EXTRACT",
+   "rows": [
+    "cal|Calories|230|",
+    "k0|Total Fat|13g|17%",
+    "k0+|Saturated Fat|6g|30%",
+    "k0+|Trans Fat|0g|",
+    "k0+|Polyunsaturated Fat|2g|",
+    "k0+|Monounsaturated Fat|4g|",
+    "k1|Cholesterol|<5mg|1%",
+    "k2|Sodium|150mg|7%",
+    "k3|Total Carbohydrate|25g|9%",
+    "k3+|Dietary Fiber|0g|0%",
+    "k3+|Total Sugars|13g|",
+    "k3+>|Added Sugars|13g|26%",
+    "k4|Protein|2g|",
+    "k5|Vit. D|0mcg|0%",
+    "k6|Calcium|80mg|6%",
+    "k7|Iron|0.8mg|4%",
+    "k8|Potas.|50mg|0%",
+    "serv|Servings Per Container|6|",
+    "serv|Serving Size|1 pastry (50g)|"
+   ],
+   "price": [
+    3.18,
+    "30.0 ¢/oz",
+    0.3
+   ]
+  },
+  "reseller": {
+   "h": "345611875 ¦ Diet Coke Caffeine Free Soda 12oz Cans (Pack of 12) ¦ 677937785920 ¦ Diet Coke ¦ Food > Beverages > Soda Pop > All Soda Pop",
+   "ing": "CARBONATED WATER, CARAMEL COLOR, ASPARTAME, PHOSPHORIC ACID, POTASSIUM BENZOATE (TO PROTECT TASTE), NATURAL FLAVORS, CITRIC ACID",
+   "rows": []
+  },
+  "tv": {
+   "h": "683540269 ¦ Sceptre 40\" Class FHD (1080P) LED TV (X405BV-FSR) ¦ 792343240570 ¦ Sceptre ¦ Electronics > TV & Home Theater > All TVs",
+   "ing": "",
+   "rows": []
+  }
+ }
+}

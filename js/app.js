@@ -237,14 +237,15 @@
     const ord = n => n + (n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] || "th");
     const sec = el("section", { class: "panel ingredients" }, el("h3", { text: "Ingredients" }), el("p", { class: "ing-sum", text: r.summary + "." }));
     if (r.contains) sec.append(el("p", { class: "ing-allergen" }, el("b", { text: "Label says: " }), `Contains ${r.contains}.`));
-    if (r.conflict) sec.append(el("p", { class: "ing-conflict", role: "note" }, el("b", { text: "⚠ " }), r.conflict));
     for (const g of r.groups) {
       sec.append(el("div", { class: "ig " + g.tone },
         el("div", { class: "igh" }, el("span", { class: "gdot", "aria-hidden": "true" }), el("b", { text: g.label }), el("span", { class: "muted", text: ` ${g.items.length}` })),
         g.note || g.detail ? el("p", { class: "ign", text: [g.detail, g.note].filter(Boolean).join(" ") }) : null,
         el("div", { class: "ichips" }, ...g.items.map(i => el("span", { class: "ich" + (i.additive ? " st-" + i.additive.status : ""),
           title: [i.pos ? `${ord(i.pos)} ingredient${i.minor ? " (2% or less)" : ""}` : i.inside ? `Part of ${i.inside}` : "", i.additive && (i.additive.role || i.additive.what)].filter(Boolean).join(": ") },
-          i.pos ? el("span", { class: "ipos", text: String(i.pos) }) : null, i.name, i.inside ? el("span", { class: "muted", text: ` in ${i.inside.toLowerCase()}` }) : null)))));
+          i.pos ? el("span", { class: "ipos", text: String(i.pos) }) : null, i.name, i.inside ? el("span", { class: "muted", text: ` in ${i.inside.toLowerCase()}` }) : null,
+          i.conflict ? el("span", { class: "iwarn", role: "img", "aria-label": "Conflicts with the product name", text: "⚠" }) : null))),
+        ...g.items.filter(i => i.conflict).map(i => el("p", { class: "ign iconf", text: `⚠ ${i.name}: ${i.conflict}` }))));
     }
     if (r.may.length) sec.append(el("p", { class: "legend", text: r.may.join(" ") }));
     sec.append(el("details", { class: "ingr" }, el("summary", { text: "The label's full text" }), el("p", { text: f.ingredients })));

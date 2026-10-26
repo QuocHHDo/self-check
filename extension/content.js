@@ -1,21 +1,28 @@
-// Adds a "Should I Buy It?" card to Walmart product pages. Nutrition comes from, in order: the page's own Nutrition
-// Facts panel; for fresh produce, a name match to the app's built-in foods; otherwise the product's barcode in Open
-// Food Facts, then USDA Branded Foods. The verdict is the site's own (lib/verdict.js) with your saved goals.
+// Shows a "Should I Buy It?" verdict on Walmart product pages: a small badge next to the star rating, and the full
+// breakdown in the browser's side panel (sidepanel.html), opened by clicking the badge. Nutrition comes from, in order:
+// the page's own Nutrition Facts panel; for fresh produce, a name match to the app's built-in foods; otherwise the
+// product's barcode in Open Food Facts, then USDA Branded Foods. The verdict is the site's own (lib/verdict.js).
 (() => {
   "use strict";
-  const V = self.SelfCheckVerdict, S = self.SelfCheckSources, W = self.SelfCheckWalmart, ADD = self.SelfCheckAdditives, ING = self.SelfCheckIngredients, C = self.SelfCheckCard, B = self.SelfCheckBackup;
+  const V = self.SelfCheckVerdict, S = self.SelfCheckSources, W = self.SelfCheckWalmart, C = self.SelfCheckCard;
   const { FOODS } = self.SelfCheckData;
-  const SITE = "https://quochhdo.github.io/should-i-buy-it/";
   const firstUrl = location.href; // the embedded page data belongs to this URL; later (client-side) pages are fetched
-  let lastUrl = null, run = 0, host = null, dismissed = null;
-  let toApp = []; // items waiting to be sent to the app's grocery list: [{ n, qty, food }]
-  let redraw = null; // re-renders the current card (after the list changes)
-  let openSet = new Set(); // which sections were open last time (notes, ingredients, about), remembered across pages
-  let corner = "left"; // where the card sits: bottom-left by default, clear of Walmart's buy box on the right
+  let lastUrl = null, run = 0;
 
   const store = keys => new Promise(r => { try { chrome.storage.local.get(keys, v => r(v || {})); } catch { r({}); } });
   const save = obj => { try { chrome.storage.local.set(obj); } catch {} };
   const bg = url => new Promise(r => { try { chrome.runtime.sendMessage({ type: "fetch", url }, res => r(res || { ok: false, status: 0 })); } catch { r({ ok: false, status: 0 }); } });
+  // Hands the product to the side panel (through the background script, kept per tab for this browser session).
+  const publish = data => { try { chrome.runtime.sendMessage({ type: "product", data }, () => void chrome.runtime.lastError); } catch {} };
+  const el = (tag, attrs = {}, ...kids) => {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) { if (v == null || v === false) continue; if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v); }
+    for (const c of kids) if (c != null && c !== false) e.append(c);
+    return e;
+  };
+  // Shared color tokens (the side panel defines the same names). Verdict colors pass WCAG AA as text on white.
+  const VARS = "--ink:#161813;--muted:#5b6157;--line:#dcdfd6;--accent:#2c6a3d;--v-good:#2b7742;--v-fine:#6b7268;--v-mid:#d39a2c;--v-bad:#b23a2f;" +
+    "--v-good-ink:#2b7742;--v-fine-ink:#4f554c;--v-mid-ink:#8a5a0f;--v-bad-ink:#b23a2f;";
 
   // ---------- data ----------
   async function pageProduct(url) {
@@ -77,117 +84,86 @@
     return null; // not a food: no card
   }
 
-  // ---------- card ----------
-  // Light, like Walmart's pages. Sits above the bottom-right corner, where Walmart has its own feedback button.
-  const CSS = `
-  :host { all: initial; }
-  * { box-sizing: border-box; }
-  .wrap { --good:#2b7742; --good-soft:#dff0e2; --mid:#8e5f16; --mid-soft:#f6ead2; --bad:#b23a2f; --bad-soft:#f6dfdb; --ink:#161813; --muted:#5b6157; --line:#e1e4da; --track:#eceee7; --bg:#ffffff;
-    position: fixed; left: 16px; bottom: 24px; z-index: 2147483000; color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  .card { width: 340px; max-width: calc(100vw - 32px); max-height: min(460px, calc(100vh - 120px)); overflow: auto; overscroll-behavior: contain; scrollbar-width: auto; scrollbar-gutter: stable; background: var(--bg); border: 1px solid var(--line);
-    border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,.16); }
-  .top { display: flex; align-items: center; gap: 6px; padding: 10px 10px 0 14px; }
-  .brand { font: 700 11px system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); flex: 1; }
-  .ib { all: unset; cursor: pointer; width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; color: var(--muted); font-size: 16px; }
-  .ib:hover { background: var(--track); color: var(--ink); }
-  .ib:focus-visible, a:focus-visible, .chip:focus-visible, summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-  .body { padding: 2px 14px 12px; display: grid; gap: 10px; }
-  .dot { width: 16px; height: 16px; border-radius: 50%; flex: none; background: var(--muted); display: inline-grid; place-items: center; color: #fff; font: 800 10px/1 system-ui, sans-serif; }
-  .dot::before { content: ""; } .good .dot::before { content: "✓"; } .mid .dot::before { content: "~"; font-size: 13px; } .bad .dot::before { content: "!"; } .skip .dot::before { content: "✕"; }
-  .fine .dot { background: transparent; border: 2px solid var(--muted); } /* Fine: a hollow ring, not a color alone */
-  .card::-webkit-scrollbar { width: 10px; } .card::-webkit-scrollbar-thumb { background: #c9cdc2; border-radius: 6px; border: 2px solid var(--bg); }
-  .logo { display: inline-grid; flex: none; }
-  .legend { margin: 2px 0 0; font-size: 11.5px; color: var(--muted); }
-  .flash { margin: 0; font-size: 12.5px; background: var(--track); border-radius: 8px; padding: 5px 9px; }
-  .conflict { margin: 0; font-size: 12.5px; background: var(--bad-soft); color: var(--ink); border-radius: 8px; padding: 6px 9px; }
-  .good .dot { background: var(--good); } .mid .dot { background: var(--mid); } .bad .dot, .skip .dot { background: var(--bad); }
-  .verdict { font: 800 24px/1.1 system-ui, sans-serif; display: flex; align-items: center; gap: 8px; }
-  .good .verdict { color: var(--good); } .mid .verdict { color: var(--mid); } .bad .verdict, .skip .verdict { color: var(--bad); } .fine .verdict { color: var(--muted); }
-  .name { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
-  .headline { margin: 0; font-weight: 600; }
-  .bars { display: grid; gap: 6px; }
-  .bar { display: grid; grid-template-columns: 78px minmax(0, 1fr) 96px; gap: 8px; align-items: center; font-size: 12.5px; font-variant-numeric: tabular-nums; }
-  .track { position: relative; height: 8px; border-radius: 4px; background: var(--track); }
-  .track.na { background: repeating-linear-gradient(135deg, var(--track) 0 5px, transparent 5px 10px); }
-  .fill { position: absolute; inset: 0 auto 0 0; border-radius: 4px; }
-  .fill.ok { background: #9aa192; } .fill.warn { background: var(--mid); } .fill.bad { background: var(--bad); }
-  .tick { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: var(--ink); opacity: .55; border-radius: 1px; }
-  .val { text-align: right; color: var(--muted); } .val b { color: var(--ink); font-weight: 600; }
-  .facts { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
-  ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 5px; }
-  li { display: grid; grid-template-columns: 14px 1fr; gap: 6px; font-size: 13px; }
-  .ic { font-weight: 800; text-align: center; } .pos .ic { color: var(--good); } .neg .ic { color: var(--bad); } .warn .ic { color: var(--mid); } .note .ic { color: var(--muted); }
-  details > summary { cursor: pointer; color: var(--muted); font-size: 12.5px; list-style: none; }
-  details > summary::-webkit-details-marker { display: none; }
-  details > summary::before { content: "▸ "; } details[open] > summary::before { content: "▾ "; }
-  details[open] > summary { margin-bottom: 6px; }
-  .swap { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; display: grid; gap: 4px; font-size: 13px; }
-  .swap .lbl { font: 700 10.5px system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-  .swap .row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
-  .vp { font: 700 10px system-ui, sans-serif; letter-spacing: .05em; text-transform: uppercase; padding: 2px 6px; border-radius: 999px; }
-  .swap .ld { color: var(--muted); font-size: 12px; }
-  .vp.good { background: var(--good-soft); color: var(--good); } .vp.mid { background: var(--mid-soft); color: var(--mid); } .vp.bad { background: var(--bad-soft); color: var(--bad); } .vp.fine { background: var(--track); color: var(--muted); }
-  a { color: var(--good); font-weight: 600; }
-  .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 8px; }
-  .foot details { flex: 1 1 100%; } .foot p { margin: 0 0 4px; }
-  .chip { all: unset; cursor: pointer; display: flex; align-items: center; gap: 8px; max-width: min(340px, calc(100vw - 32px)); padding: 9px 12px 9px 12px; background: var(--bg);
-    border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 8px 22px rgba(0,0,0,.16); }
-  .chip .txt { display: grid; min-width: 0; } .chip .w { font: 800 14px system-ui, sans-serif; display: flex; align-items: center; gap: 6px; } .chip .w .dot { width: 14px; height: 14px; }
-  .good .chip .w { color: var(--good); } .mid .chip .w { color: var(--mid); } .bad .chip .w, .skip .chip .w { color: var(--bad); } .fine .chip .w { color: var(--muted); }
-  .chip .h { font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .chip .chev { color: var(--muted); font-size: 12px; margin-left: auto; }
-  .muted { color: var(--muted); font-size: 12.5px; margin: 0; }
-  .factrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-  .lbtn { all: unset; cursor: pointer; font: 600 12.5px system-ui, sans-serif; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
-  .lbtn.on { background: var(--good-soft); color: var(--good); border-color: transparent; }
-  .lbtn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-  .pricerow { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; } .pricerow b { color: var(--ink); } .pricerow .pd { color: var(--good); font-weight: 600; }
-  .ingr { display: grid; gap: 6px; }
-  .ingr details > summary { color: var(--ink); font-size: 13px; } .ingr details > summary b { font-weight: 700; }
-  .ingr details[open] { display: grid; gap: 12px; }
-  .ingr details > summary .sm { color: var(--muted); font-size: 12px; }
-  .allergen { margin: 0; font-size: 12.5px; background: var(--mid-soft); border-radius: 8px; padding: 5px 9px; }
-  .ig { display: grid; gap: 5px; } .ig + .ig { border-top: 1px solid var(--line); padding-top: 10px; }
-  .igh { display: flex; align-items: center; gap: 6px; font-size: 13px; } .igh .n { color: var(--muted); font-size: 12px; }
-  .gdot { width: 8px; height: 8px; border-radius: 50%; background: #9aa192; flex: none; }
-  .ig.good .gdot { background: var(--good); } .ig.warn .gdot { background: var(--mid); } .ig.bad .gdot { background: var(--bad); }
-  .ign { margin: 0; font-size: 12px; color: var(--muted); }
-  .chips { display: flex; flex-wrap: wrap; gap: 4px; }
-  .ich { font-size: 12px; border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px 1px 3px; display: inline-flex; align-items: center; gap: 5px; }
-  .ich:not(:has(.pos)) { padding-left: 8px; }
-  .ich .pos { font: 700 10px system-ui, sans-serif; background: var(--track); color: var(--muted); border-radius: 999px; min-width: 16px; height: 16px; display: inline-grid; place-items: center; padding: 0 3px; }
-  .in { color: var(--muted); }
-  .alist { gap: 6px; } .alist li { display: grid; grid-template-columns: 1fr; gap: 1px; font-size: 12.5px; }
-  .arow { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; } .an { font-weight: 600; }
-  .ar { color: var(--muted); font-size: 12px; }
-  .ast { font: 700 10px system-ui, sans-serif; letter-spacing: .03em; text-transform: uppercase; padding: 1px 6px; border-radius: 999px; white-space: nowrap; background: var(--track); color: var(--muted); }
-  .ast.safe { background: var(--good-soft); color: var(--good); } .ast.mixed { background: var(--mid-soft); color: var(--mid); } .ast.removed { background: var(--bad-soft); color: var(--bad); }
-  .sendrow { background: var(--good-soft); border-radius: 10px; padding: 7px 10px; font-size: 13px; }`;
-  const el = (tag, attrs = {}, ...kids) => {
-    const e = document.createElement(tag);
-    for (const [k, v] of Object.entries(attrs)) { if (v == null || v === false) continue; if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v); }
-    for (const c of kids) if (c != null && c !== false) e.append(c);
-    return e;
-  };
-  function mount() {
-    if (host && host.isConnected) return host.shadowRoot;
-    host = el("div", { id: "should-i-buy-it-card" });
-    const root = host.attachShadow({ mode: "open" });
-    root.append(el("style", { text: CSS }));
-    document.documentElement.append(host);
-    return root;
+  // ---------- the badge next to the star rating ----------
+  // In Walmart's rating row (a wrapping flex row under the title), taking only the space left on that line, so it never
+  // wraps, pushes the page down, or touches the price, pack sizes or the buy box. Without that row it falls back to a
+  // small pill at the bottom left that moves out of the way of Add to cart, Buy now and checkout.
+  const HOST_ID = "should-i-buy-it-badge";
+  const BADGE_STYLE = `:host { all: initial; } * { box-sizing: border-box; }
+  .bd { ${VARS} all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-width: 0;
+    height: 24px; padding: 0 10px 0 3px; border-radius: 999px; background: #fff; border: 1px solid var(--line); color: var(--ink);
+    font: 600 13px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; white-space: nowrap; }
+  .bd:hover { border-color: var(--accent); } .bd:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .mark { display: inline-grid; flex: none; } .ic { display: inline-grid; flex: none; }
+  .w { font-weight: 800; flex: none; } .good .w { color: var(--v-good-ink); } .fine .w { color: var(--v-fine-ink); } .mid .w { color: var(--v-mid-ink); } .bad .w, .skip .w { color: var(--v-bad-ink); }
+  .sep { color: var(--muted); flex: none; } .r { color: var(--muted); font-weight: 500; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .warn { color: var(--v-mid-ink); font-weight: 800; flex: none; } .wait .r { font-style: italic; }
+  .pill { position: fixed; left: 16px; bottom: 24px; z-index: 2147483000; box-shadow: 0 6px 18px rgba(0,0,0,.18); height: 34px; padding: 0 12px 0 6px; max-width: min(360px, calc(100vw - 32px)); }`;
+  // The app's mark, so the badge reads as the extension's and not as part of Walmart's page.
+  const MARK = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><rect width="24" height="24" rx="6" fill="#2c6a3d"/><rect x="4" y="7" width="16" height="11" rx="2.5" fill="#fff"/><circle cx="7.4" cy="12.5" r="1.3" fill="#2c6a3d"/><path d="M10.5 12.6l2.2 2.2 4.3-4.6" fill="none" stroke="#2c6a3d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  let badgeState = null; // what the badge shows now: { tier, word, reason, warn, label }
+  const anchor = () => document.querySelector('[data-testid="reviews-and-ratings"]');
+  function hostEl() {
+    let host = document.getElementById(HOST_ID);
+    if (host) return host;
+    host = el("span", { id: HOST_ID });
+    host.attachShadow({ mode: "open" }).append(el("style", { text: BADGE_STYLE }));
+    return host;
   }
-  function unmount() { if (host) host.remove(); host = null; }
-  function show(tier, ...nodes) { const root = mount(); [...root.children].forEach(c => { if (c.tagName !== "STYLE") c.remove(); }); root.append(el("div", { class: "wrap " + (tier || "") }, ...nodes)); place(); }
+  function removeBadge() { const h = document.getElementById(HOST_ID); if (h) h.remove(); badgeState = null; }
+  // Puts the host in the rating row (or floating), at most once, and renders the current state into it.
+  function drawBadge() {
+    if (!badgeState) return;
+    const host = hostEl(), row = anchor();
+    let floating = true;
+    if (row) {
+      if (host.parentElement !== row) row.append(host);
+      // Only what's left on the rating line: flex-basis 0 can't force a wrap. Too little room → float instead.
+      // A zero-height slot centered on the stars' line: the row keeps its exact height (checked on live pages, where
+      // the stars widget is taller than its line), and the button overflows evenly into space that's already there.
+      const stars = row.firstElementChild && row.firstElementChild !== host ? row.firstElementChild.getBoundingClientRect() : null;
+      const mid = stars ? Math.max(0, Math.round((stars.top + stars.bottom) / 2 - row.getBoundingClientRect().top)) : 8;
+      Object.assign(host.style, { display: "inline-flex", flex: "1 1 0", minWidth: "0", marginLeft: "12px", alignItems: "center", height: "0px", overflow: "visible", alignSelf: "flex-start", marginTop: mid + "px" });
+      const room = host.getBoundingClientRect().width;
+      floating = room < 140; // not even the icon and the verdict word fit on the line
+    }
+    if (floating) {
+      if (host.parentElement !== document.documentElement) document.documentElement.append(host);
+      host.removeAttribute("style");
+    }
+    const root = host.shadowRoot;
+    [...root.children].forEach(c => { if (c.tagName !== "STYLE") c.remove(); });
+    const b = badgeState;
+    const ic = el("span", { class: "ic" }); if (b.tier) ic.innerHTML = C.icon(b.tier, 18);
+    const mk = el("span", { class: "mark" }); mk.innerHTML = MARK;
+    const btn = el("button", { class: `bd ${b.tier || "wait"}${floating ? " pill" : ""}`, type: "button", title: b.label + (b.warn ? `\n⚠ ${b.warn}` : "") + "\nClick for the full breakdown",
+      "aria-label": `Should I Buy It? ${b.label}.${b.warn ? ` Warning: ${b.warn}` : ""} Open the full breakdown in the side panel.`,
+      onclick: openPanel },
+      floating ? mk : null, b.tier ? ic : null, b.word ? el("span", { class: "w", text: b.word }) : null, b.word ? el("span", { class: "sep", text: "·" }) : null,
+      el("span", { class: "r", text: b.reason }), b.warn ? el("span", { class: "warn", text: "⚠", "aria-hidden": "true" }) : null);
+    root.append(btn);
+    // A reason cut to a few characters reads worse than none: show just the verdict (the tooltip and panel have the rest).
+    const rs = btn.querySelector(".r");
+    if (rs && rs.scrollWidth > rs.clientWidth && rs.clientWidth < 80) { rs.remove(); const sp = btn.querySelector(".sep"); if (sp) sp.remove(); }
+    if (floating) placePill(btn);
+  }
+  // Opens the side panel. Chrome only allows that right after a click, so the message goes out synchronously.
+  function openPanel() {
+    try {
+      if (!chrome.runtime || !chrome.runtime.id) throw new Error("stale");
+      chrome.runtime.sendMessage({ type: "openPanel" }, res => {
+        const err = chrome.runtime.lastError;
+        if (err && /context invalidated|Receiving end does not exist/i.test(err.message || "")) stale();
+      });
+    } catch { stale(); }
+  }
+  // The extension was updated while this tab stayed open: this page's copy can't reach it any more.
+  function stale() { if (badgeState) { badgeState = { ...badgeState, reason: "reload the page to open details", warn: null }; drawBadge(); } }
 
-  // ---------- placement ----------
-  // The card never covers Walmart's checkout buttons. It sits in the chosen bottom corner (left by default, since the
-  // buy box is on the right); if that would cover Add to cart, Buy now or checkout, it moves above them, then to the
-  // other corner, whichever covers nothing.
-  const BUY = /^(?:add to cart|buy now|check ?out|continue to checkout|place order|add to registry|subscribe)$/i;
-  let buyCache = { t: 0, rects: [] };
+  // The fallback pill never covers Walmart's checkout buttons: it lifts above them or moves to the other corner.
+  const BUY = /^(?:add to cart|buy now|check ?out|continue to checkout|place order|add to registry)$/i;
+  let corner = "left";
   function protectedRects() {
-    if (Date.now() - buyCache.t < 1000) return buyCache.rects;
     const rects = [];
     for (const b of document.querySelectorAll("button, a[role=button], [role=button], input[type=submit]")) {
       const t = (b.innerText || b.value || b.getAttribute("aria-label") || "").trim();
@@ -195,168 +171,51 @@
       const r = b.getBoundingClientRect();
       if (r.width && r.height && r.bottom > 0 && r.top < innerHeight) rects.push({ left: r.left, right: r.right, top: r.top - (/add to cart|buy now/i.test(t) ? 90 : 0), bottom: r.bottom });
     }
-    buyCache = { t: Date.now(), rects };
     return rects;
   }
   const overlap = (a, b) => Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
-  function place() {
-    const wrap = host && host.shadowRoot.querySelector(".wrap");
-    const box = wrap && wrap.firstElementChild;
-    if (!box) return;
-    const w = box.offsetWidth, h = box.offsetHeight, prot = protectedRects();
-    const base = { left: 24, right: 88 }; // bottom-right leaves room for Walmart's own floating help button
+  function placePill(btn) {
+    const w = btn.offsetWidth, h = btn.offsetHeight, prot = protectedRects(), base = { left: 24, right: 88 };
     const rectAt = (side, bottom) => { const x = side === "left" ? 16 : innerWidth - 16 - w; return { left: x, right: x + w, top: innerHeight - bottom - h, bottom: innerHeight - bottom }; };
     const tries = [];
     for (const side of [corner, corner === "left" ? "right" : "left"]) {
       tries.push([side, base[side]]);
-      // Lift above whatever it would cover, if it still fits on screen.
       for (const pr of prot) { const b = Math.ceil(innerHeight - pr.top + 12); if (b > base[side] && b + h <= innerHeight - 8) tries.push([side, b]); }
     }
     let best = null;
     for (const [side, bottom] of tries) {
-      const r = rectAt(side, bottom), cost = prot.reduce((n, pr) => n + overlap(r, pr), 0);
+      const cost = prot.reduce((n, pr) => n + overlap(rectAt(side, bottom), pr), 0);
       if (!best || cost < best.cost) best = { side, bottom, cost };
       if (cost === 0) break;
     }
-    wrap.style.left = best.side === "left" ? "16px" : "auto";
-    wrap.style.right = best.side === "right" ? "16px" : "auto";
-    wrap.style.bottom = best.bottom + "px";
-    wrap.dataset.side = best.side;
+    Object.assign(btn.style, { left: best.side === "left" ? "16px" : "auto", right: best.side === "right" ? "16px" : "auto", bottom: best.bottom + "px" });
+    btn.dataset.side = best.side;
   }
-  let placing = 0;
-  const replace = () => { if (!placing) placing = requestAnimationFrame(() => { placing = 0; buyCache.t = 0; place(); }); };
-  addEventListener("scroll", replace, { passive: true });
-  addEventListener("resize", replace);
-  // Settings open in a new tab. If the extension was updated while this tab stayed open, this page's copy of it is
-  // disconnected and can't open anything, so say so instead of failing silently.
-  const STALE = "The extension was updated since this page opened. Reload the page to use settings.";
-  function flash(msg) {
-    const body = host && host.shadowRoot.querySelector(".card .body, .card");
-    if (!body) return;
-    const old = body.querySelector(".flash"); if (old) old.remove();
-    body.prepend(el("p", { class: "flash", role: "status", text: msg }));
-  }
-  const openSettings = () => {
-    try {
-      if (!chrome.runtime || !chrome.runtime.id) return flash(STALE);
-      chrome.runtime.sendMessage({ type: "options" }, res => {
-        const err = chrome.runtime.lastError;
-        flash(err && /context invalidated|Receiving end does not exist/i.test(err.message || "") ? STALE : res && res.ok === false ? "Couldn't open settings. Use the extension's button in the toolbar instead." : "Settings opened in a new tab.");
-      });
-    } catch { flash(STALE); }
-  };
-  const ICON = { pos: "+", neg: "−", warn: "!", note: "i" };
-  const reasonItem = x => el("li", { class: x.k }, el("span", { class: "ic", "aria-hidden": "true", text: ICON[x.k] || "i" }), el("span", { text: x.t }));
-
-  function header(collapse) {
-    return el("div", { class: "top" }, el("span", { class: "brand", text: "Should I Buy It?" }),
-      el("button", { class: "ib", type: "button", title: "Your goals", "aria-label": "Your goals (settings)", text: "⚙", onclick: openSettings }),
-      collapse ? el("button", { class: "ib", type: "button", title: "Minimize", "aria-label": "Minimize", "aria-expanded": "true", text: "–", onclick: collapse }) : null,
-      el("button", { class: "ib", type: "button", title: "Hide for this product", "aria-label": "Hide for this product", text: "×", onclick: () => { dismissed = location.href; unmount(); } }));
-  }
-  // The app's mark, so the pill can't be mistaken for one of Walmart's own floating buttons.
-  const logo = () => { const sp = el("span", { class: "logo", "aria-hidden": "true" }); sp.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20"><rect width="24" height="24" rx="6" fill="#2c6a3d"/><rect x="4" y="7" width="16" height="11" rx="2.5" fill="#fff"/><circle cx="7.4" cy="12.5" r="1.3" fill="#2c6a3d"/><path d="M10.5 12.6l2.2 2.2 4.3-4.6" fill="none" stroke="#2c6a3d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; return sp; };
-  function renderLoading(collapsed) {
-    if (collapsed) return show("", el("div", { class: "chip", role: "status" }, logo(), el("span", { class: "txt" }, el("span", { class: "h", text: "Checking this product…" }))));
-    show("", el("div", { class: "card", role: "region", "aria-label": "Should I Buy It?" }, header(), el("div", { class: "body" }, el("p", { class: "muted", role: "status", text: "Checking this product…" }))));
-  }
-  function renderNone(msg) {
-    show("", el("div", { class: "card", role: "region", "aria-label": "Should I Buy It?" }, header(),
-      el("div", { class: "body" }, el("p", { class: "headline", text: msg }),
-        el("a", { href: SITE, target: "_blank", rel: "noopener", text: "Look it up by name in the app ↗" }))));
+  let pending = 0;
+  const refloat = () => { if (!pending) pending = requestAnimationFrame(() => { pending = 0; const host = document.getElementById(HOST_ID); const btn = host && host.shadowRoot.querySelector(".pill"); if (btn) placePill(btn); }); };
+  addEventListener("scroll", refloat, { passive: true });
+  addEventListener("resize", () => { refloat(); if (badgeState) drawBadge(); });
+  // Walmart re-renders parts of the page as it loads and as you pick options; put the badge back if it got removed,
+  // or move it into the rating row once that appears.
+  let mo = null;
+  function watchPage() {
+    if (mo) return;
+    let queued = false;
+    mo = new MutationObserver(() => {
+      if (queued || !badgeState) return;
+      queued = true;
+      setTimeout(() => { queued = false; const host = document.getElementById(HOST_ID), row = anchor();
+        if (!host || !host.isConnected || (row && host.parentElement !== row)) drawBadge(); }, 250);
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
   }
 
-  // Walmart's product name, not the lookup's: a barcode record can carry another store's brand name.
-  // A collapsible section that reopens the way you left it.
-  const section = (k, summary, ...kids) => el("details", { "data-k": k, open: openSet.has(k) ? true : null,
-    ontoggle: e => { if (e.target.open) openSet.add(k); else openSet.delete(k); save({ openSections: [...openSet] }); } }, summary, ...kids);
-  function renderVerdict(r, prod, p, collapsed) {
-    const f = r.food, a = V.assess(f, p), name = W.shortName(prod);
-    const headline = C.headline(f, p, a);
-    if (collapsed) {
-      show(a.tier, el("button", { class: "chip", type: "button", "aria-expanded": "false", title: "Should I Buy It? (browser extension)", "aria-label": `Should I Buy It? ${a.word}: ${headline} Show details`,
-        onclick: () => { save({ collapsed: false }); renderVerdict(r, prod, p, false); } },
-        logo(), el("span", { class: "txt" }, el("span", { class: "w" }, el("span", { class: "dot", "aria-hidden": "true" }), a.word), el("span", { class: "h", text: headline })),
-        el("span", { class: "chev", "aria-hidden": "true", text: "▴" })));
-      return;
-    }
-    const collapse = () => { save({ collapsed: true }); renderVerdict(r, prod, p, true); };
-    redraw = () => renderVerdict(r, prod, p, false);
-    const bars = C.limitBars(f, p).map(b => el("div", { class: "bar", title: b.known ? `${b.name}: ${b.value} of your daily limit` : `${b.name}: not listed` },
-      el("span", { text: b.name }),
-      el("div", { class: "track" + (b.known ? "" : " na") }, b.known ? el("div", { class: "fill " + b.tone, style: `width:${(b.fill * 100).toFixed(1)}%` }) : null,
-        ...b.marks.map((m, i) => el("span", { class: "tick", style: `left:${(m * 100).toFixed(1)}%`, title: `${Math.round(b.markShares[i] * 100)}% of your daily limit: ${i === 0 ? "from here it counts against the verdict" : "from here it counts double"}` }))),
-      el("span", { class: "val" }, b.known ? el("b", { text: b.value.split(" · ")[0] }) : "not listed", b.known ? ` · ${b.value.split(" · ")[1]}` : null)));
-    const adds = ADD && ADD.analyze(f);
-    const why0 = C.reasons(a, adds ? adds.flagged : []);
-    const why = { top: why0.top.filter(x => x.t !== headline), rest: why0.rest.filter(x => x.t !== headline) };
-    const sw = a.tier === "good" || a.tier === "fine" ? null : C.swap(f, FOODS, p);
-    const ingr = ING ? ING.analyze(prod.ingredients || f.ingredients, [prod.name, f.n].filter(Boolean).join(" | ")) : null;
-    const listedAs = r.source !== "this page" && !r.typical && f.n && !sameProduct(f.n, prod.name) ? ` It's listed there as “${f.n}”.` : "";
-    const facts = `${V.isMissing(f, "cal") ? "—" : Math.round(f.cal)} cal · ${V.isMissing(f, "pro") ? "—" : V.fmt(f.pro) + " g"} protein · per ${f.s}`;
-    // Add to the app's grocery list: a built-in food goes by name; a store product carries its label values.
-    const itemName = r.typical ? f.n : name;
-    const onList = toApp.some(x => x.n === itemName);
-    const listBtn = el("button", { class: "lbtn" + (onList ? " on" : ""), type: "button", "aria-pressed": onList ? "true" : "false",
-      text: onList ? "✓ Added to list" : "+ Add to list",
-      onclick: () => { toApp = onList ? toApp.filter(x => x.n !== itemName) : [...toApp, { n: itemName, qty: 1, food: r.typical ? null : { ...f, n: itemName } }]; save({ toApp }); renderVerdict(r, prod, p, false); } });
-    const send = toApp.length ? el("a", { class: "send", href: SITE, target: "_blank", rel: "noopener", text: `Send ${toApp.length} to your list in the app ↗`,
-      onclick: () => setTimeout(() => { toApp = []; save({ toApp }); renderVerdict(r, prod, p, false); }, 300) }) : null;
-    if (send) B.encode(B.packAdd(toApp)).then(t => { send.href = SITE + "#add=" + t; });
-    show(a.tier, el("div", { class: "card", role: "region", "aria-label": `Should I Buy It? ${a.word}` }, header(collapse),
-      el("div", { class: "body" },
-        el("div", { class: "verdict" }, el("span", { class: "dot", "aria-hidden": "true" }), a.word),
-        el("p", { class: "headline", text: headline }),
-        el("div", { class: "bars", role: "group", "aria-label": "Share of your daily limits" }, ...bars,
-          bars.length ? el("p", { class: "legend", text: "Ticks: where one serving starts to count against the verdict, and where it counts double." }) : null),
-        el("div", { class: "factrow" }, el("span", { class: "facts", text: facts }), listBtn),
-        f.storePrice && f.storePrice.perServing ? el("div", { class: "pricerow" }, el("b", { text: `≈ ${C.money(f.storePrice.perServing)} a serving` }),
-          ` at Walmart's price${f.storePrice.unitText ? ` (${f.storePrice.unitText})` : ""}`, C.perDollar(f, f.storePrice.perServing) ? el("span", { class: "pd", text: ` · ${C.perDollar(f, f.storePrice.perServing)}` }) : null) : null,
-        why.top.length ? el("ul", {}, ...why.top.map(reasonItem)) : null,
-        why.rest.length ? section("notes", el("summary", { text: `${why.rest.length} more note${why.rest.length === 1 ? "" : "s"}` }), el("ul", {}, ...why.rest.map(reasonItem))) : null,
-        ingr ? ingredientsBlock(ingr) : null,
-        sw ? el("div", { class: "swap" }, el("span", { class: "lbl", text: sw.lighter ? "A lighter version" : "Try instead" }),
-          el("div", { class: "row" }, el("b", { text: sw.food.n }), sw.lighter ? null : el("span", { class: "vp " + sw.verdict.tier, text: sw.verdict.word }),
-            el("a", { href: C.walmartSearch(sw.query), "aria-label": `Search Walmart for ${sw.query}`, text: "Search Walmart →" })),
-          sw.lighter ? el("span", { class: "ld", text: `${sw.lighter[0].toUpperCase() + sw.lighter.slice(1)}. Same verdict, but it goes further on your limits.` }) : null) : null,
-        send ? el("div", { class: "sendrow" }, send) : null,
-        el("div", { class: "foot" },
-          el("span", { text: `From ${r.source}` }),
-          r.link ? el("a", { href: SITE + r.link, target: "_blank", rel: "noopener", text: "Full breakdown ↗" }) : null,
-          section("about", el("summary", { text: "About this verdict" }),
-            el("p", { text: `For “${prod.name}”.` }),
-            el("p", { text: `${r.detail}.${listedAs} ${r.note}`.trim() }),
-            el("p", { text: "It doesn't check allergens: read the label if you have a food allergy." }),
-            el("p", { text: `Scored against your goals: ${p.cal.toLocaleString("en-US")} cal, ${p.pro} g protein, ≤${p.sat} g saturated fat, ≤${p.na.toLocaleString("en-US")} mg sodium, ≤${p.add} g added sugar.` }),
-            el("p", {}, el("a", { href: "#", onclick: e => { e.preventDefault(); openSettings(); }, text: "Change your goals" })))))));
-  }
-  // The label's ingredients, sorted into plain groups. Starts closed; the summary line says what's inside.
-  const ordinal = n => n + (n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] || "th");
-  function ingredientsBlock(r) {
-    const groups = r.groups.map(g => el("div", { class: "ig " + g.tone },
-      el("div", { class: "igh" }, el("span", { class: "gdot", "aria-hidden": "true" }), el("b", { text: g.label }), el("span", { class: "n", text: String(g.items.length) })),
-      g.note || g.detail ? el("p", { class: "ign", text: [g.detail, g.note].filter(Boolean).join(" ") }) : null,
-      g.key === "additive"
-        ? el("ul", { class: "alist" }, ...g.items.map(i => el("li", {},
-            el("div", { class: "arow" }, el("span", { class: "an" }, i.name, i.inside ? el("span", { class: "in", text: ` in ${i.inside.toLowerCase()}` }) : null),
-              i.additive.statusLabel ? el("span", { class: "ast " + i.additive.status, text: i.additive.statusLabel }) : null),
-            i.additive.role || i.additive.what ? el("div", { class: "ar", text: i.additive.role || i.additive.what }) : null,
-            ["mixed", "removed"].includes(i.additive.status) && i.additive.note ? el("div", { class: "ar" }, i.additive.note, i.additive.src ? " " : null,
-              i.additive.src ? el("a", { href: i.additive.src, target: "_blank", rel: "noopener", text: "Source" }) : null) : null)))
-        : el("div", { class: "chips" }, ...g.items.map(i => el("span", { class: "ich", title: i.pos ? `${ordinal(i.pos)} ingredient${i.minor ? " (2% or less)" : ""}` : i.inside ? `Part of ${i.inside}` : "" },
-            i.pos ? el("span", { class: "pos", text: String(i.pos) }) : null, i.name, i.inside ? el("span", { class: "in", text: ` in ${i.inside.toLowerCase()}` }) : null)))));
-    return el("div", { class: "ingr" },
-      r.contains ? el("p", { class: "allergen" }, el("b", { text: "Label says: " }), `Contains ${r.contains}.`) : null,
-      r.conflict ? el("p", { class: "conflict", role: "note" }, el("b", { text: "⚠ " }), r.conflict) : null,
-      section("ingr", el("summary", {}, el("b", { text: "Ingredients" }), el("span", { class: "sm", text: ` · ${r.summary}` })),
-        el("p", { class: "muted", text: "Numbers are each ingredient's place on the label, from most to least by weight." }),
-        ...groups,
-        r.may.length ? el("p", { class: "muted", text: r.may.join(" ") }) : null));
-  }
-  // The lookup's name is mentioned whenever it isn't just Walmart's name (a barcode record can carry another store's brand).
-  function sameProduct(a, b) {
-    const norm = x => String(x).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-    return norm(b).includes(norm(a));
+  // What the badge says for a product.
+  function productBadge(r, p, warn) {
+    const a = V.assess(r.food, p);
+    const partial = C.uncertain(r.food) ? "Some nutrients that decide the verdict aren't listed, so it's less certain." : null;
+    const w = [warn && warn + ".", partial].filter(Boolean).join(" ") || null;
+    return { tier: a.tier, word: a.word, reason: C.badgeReason(r.food, p, a), warn: w, label: `${a.word}: ${C.headline(r.food, p, a).replace(/\.$/, "")}` };
   }
 
   // ---------- verdict badges on search and category pages (opt-in) ----------
@@ -365,10 +224,9 @@
   // 1.5 seconds, at most 40 per page, and each result cached for 7 days.
   const BADGE_GAP = 1500, BADGE_MAX = 40, BADGE_DAYS = 7;
   let badgeQueue = [], badgeBusy = false, badgeCount = 0, badgeObserver = null, badgeMutations = null, badgeProfile = null;
-  const BADGE_CSS = `:host{all:initial} .b{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;background:#fff;
-    box-shadow:0 1px 4px rgba(0,0,0,.18);font:700 11.5px system-ui,sans-serif;color:#161813;white-space:nowrap}
-    .d{width:8px;height:8px;border-radius:50%;background:#9aa192}.good .d{background:#2b7742}.mid .d{background:#8e5f16}.bad .d,.skip .d{background:#b23a2f}
-    .good{color:#2b7742}.mid{color:#8e5f16}.bad,.skip{color:#b23a2f}.wait{color:#5b6157;font-weight:600}`;
+  const BADGE_CSS = `:host{all:initial} .b{${VARS}display:inline-flex;align-items:center;gap:5px;padding:3px 8px 3px 5px;border-radius:999px;background:#fff;
+    box-shadow:0 1px 4px rgba(0,0,0,.18);font:700 11.5px system-ui,sans-serif;color:var(--ink);white-space:nowrap} .b svg{flex:none}
+    .good{color:var(--v-good-ink)}.mid{color:var(--v-mid-ink)}.bad,.skip{color:var(--v-bad-ink)}.wait{color:var(--muted);font-weight:600}`;
   const SHORT = { good: "Get it", mid: "In moderation", bad: "Limit it", fine: "Fine", skip: "Skip" };
   function tileId(tile) { const a = tile.querySelector('a[href*="/ip/"]'); return a ? W.productId(new URL(a.getAttribute("href"), location.origin).href) : null; }
   function badgeFor(tile, state) {
@@ -385,7 +243,8 @@
     b.className = "b " + (state.tier || "wait");
     b.setAttribute("role", "img");
     b.setAttribute("aria-label", state.tier ? `Should I Buy It? ${state.word}` : "Should I Buy It? checking");
-    b.replaceChildren(el("span", { class: "d" }), document.createTextNode(state.tier ? SHORT[state.tier] || state.word : "…"));
+    const ic = el("span", { class: "d" }); if (state.tier) ic.innerHTML = C.icon(state.tier, 14);
+    b.replaceChildren(ic, document.createTextNode(state.tier ? SHORT[state.tier] || state.word : "…"));
     host.title = state.headline || "";
   }
   async function badgeVerdict(id) {
@@ -444,47 +303,59 @@
     if (url === lastUrl) return;
     lastUrl = url;
     if (!W.productId(url)) {
-      unmount();
+      removeBadge();
+      publish(null);
       const s2 = await store(["profile", "usdaKey", "searchBadges"]);
       badgeCount = 0;
       if (s2.searchBadges) startBadges({ ...V.DEFAULT_PROFILE, ...(s2.profile || {}), usdaKey: s2.usdaKey || "" }); else stopBadges();
       return;
     }
     stopBadges();
-    if (dismissed === url) return;
     const mine = ++run;
-    const saved = await store(["profile", "usdaKey", "collapsed", "toApp", "openSections", "corner"]);
-    openSet = new Set(Array.isArray(saved.openSections) ? saved.openSections : []);
+    const saved = await store(["profile", "usdaKey", "corner"]);
     corner = saved.corner === "right" ? "right" : "left";
-    toApp = Array.isArray(saved.toApp) ? saved.toApp : [];
-    redraw = null;
     const p = { ...V.DEFAULT_PROFILE, ...(saved.profile || {}), usdaKey: saved.usdaKey || "" };
-    const collapsed = saved.collapsed !== false; // compact by default; remembers if you prefer it open
-    renderLoading(collapsed);
+    removeBadge();
+    publish({ url, state: "loading" });
     try {
       const prod = await pageProduct(url);
       if (mine !== run) return;
-      const r = await resolve(prod, p);
+      if (!prod) { publish(null); return; }
+      // Non-food pages get no badge; the side panel shows its empty state.
+      const pl = W.plan(prod);
+      if (pl.kind === "none" && !/^No nutrition/.test(pl.why)) { publish(null); return; }
+      badgeState = { tier: null, word: "", reason: "checking…", warn: null, label: "Checking this product" };
+      drawBadge(); watchPage();
+      const r = pl.kind === "none" ? { none: "No nutrition facts on this page, and no barcode to look up." } : await resolve(prod, p);
       if (mine !== run) return;
-      if (!r) return unmount();
-      if (r.none) return renderNone(r.none);
+      if (!r) { removeBadge(); publish(null); return; }
+      const product = { name: prod.name, ingredients: prod.ingredients || "", url };
+      if (r.none) {
+        badgeState = { tier: null, word: "", reason: "no nutrition data", warn: null, label: r.none };
+        drawBadge();
+        publish({ url, state: "none", message: r.none, product });
+        return;
+      }
       // Walmart's own price for this item, per serving (from the page's unit price and the serving size).
       const cost = W.servingCost(prod.price, r.food);
       if (prod.price && (cost || prod.price.now)) r.food = { ...r.food, storePrice: { perServing: cost, item: prod.price.now, unitText: prod.price.text, store: "Walmart", on: new Date().toISOString().slice(0, 10) } };
-      renderVerdict(r, prod, p, collapsed);
+      // An ingredient-list conflict doesn't change the verdict (it's scored on the nutrients), so it shows in the side
+      // panel next to that ingredient; the badge's ⚠ is only for missing data that could change the verdict.
+      badgeState = productBadge(r, p, null);
+      drawBadge();
+      publish({ url, state: "ready", result: { food: r.food, source: r.source, detail: r.detail, note: r.note, link: r.link || null, typical: !!r.typical }, product });
     } catch {
-      if (mine === run) renderNone("Couldn't read this page. Reload it to try again.");
+      if (mine === run) { badgeState = { tier: null, word: "", reason: "couldn't read this page", warn: null, label: "Couldn't read this page. Reload it to try again." }; drawBadge(); publish({ url, state: "none", message: "Couldn't read this page. Reload it to try again." }); }
     }
   }
   check();
   // Walmart changes pages without reloading, so watch the address.
   setInterval(check, 700);
   window.addEventListener("popstate", check);
-  // Goals changed in the settings page: redraw.
-  try { chrome.storage.onChanged.addListener(changes => {
-    if (changes.corner) { corner = changes.corner.newValue === "right" ? "right" : "left"; place(); }
+  try { chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== "local") return;
+    if (changes.corner) { corner = changes.corner.newValue === "right" ? "right" : "left"; refloat(); }
+    // Goals or search settings changed: re-check (the side panel re-scores on its own).
     if (changes.profile || changes.usdaKey || changes.searchBadges) { if (changes.profile) save({ badgeCache: {} }); lastUrl = null; check(); }
-    // The list changed in another tab or in settings: update this card's button and send link.
-    else if (changes.toApp) { const next = changes.toApp.newValue || []; if (JSON.stringify(next) !== JSON.stringify(toApp)) { toApp = next; if (redraw && host && host.shadowRoot.querySelector(".card")) redraw(); } }
   }); } catch {}
 })();

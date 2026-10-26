@@ -120,10 +120,12 @@ test("ingredients that contradict the product's name are warned about, not liste
   const I = require("../js/ingredients.js");
   const r = I.analyze("Carbonated water, caramel color, aspartame, phosphoric acid, potassium benzoate, natural flavors, citric acid, caffeine.",
     "Coca-Cola Caffeine-Free Diet Coke Soda Pop, 12 fl oz Cans, 12 Pack");
-  assert.match(r.conflict, /the list includes Caffeine, but the name says caffeine-free/);
-  assert.ok(!r.groups.some(g => g.key === "stim"), "caffeine isn't listed as an ingredient");
+  assert.match(r.conflict, /Caffeine in a caffeine-free product/);
+  const caf = r.groups.find(g => g.key === "stim").items[0];
+  assert.equal(caf.name, "Caffeine");
+  assert.equal(caf.conflict, "The product name says caffeine-free. Check the package.", "kept in place, with the conflict marked next to it");
   assert.equal(I.analyze("Water, caffeine", "Diet Coke").conflict, null);
-  assert.match(I.analyze("Water, sugar, citric acid", "Zero Sugar Lemonade").conflict, /Sugar, but the name says sugar-free/);
+  assert.match(I.analyze("Water, sugar, citric acid", "Zero Sugar Lemonade").conflict, /Sugar in a sugar-free product/);
   assert.match(I.analyze("Oats, wheat flour", "Gluten-Free Oat Bars").conflict, /Wheat Flour/);
   assert.equal(I.analyze("Gluten-free oats, buckwheat flour", "Gluten-Free Oat Bars").conflict, null);
 });
@@ -135,4 +137,16 @@ test("an exact 0 g of total sugars means 0 g added, even when the source leaves 
   assert.equal(f.add, 0);
   assert.ok(!f.missing.includes("add"));
   assert.equal(C.limitBars(f, P).find(b => b.k === "add").known, true);
+});
+
+test("badge reasons fit in 40 characters and notes in 12 words", () => {
+  for (const f of FOODS) {
+    const a = V.assess(f, P), b = C.badgeReason(f, P, a);
+    assert.ok(b.length <= 40 && b.length > 0, `${f.n}: "${b}"`);
+    for (const r of a.reasons) { const n = C.shortNote(r, f, P); assert.ok(n.short.split(/\s+/).length <= 12, `${f.n}: "${n.short}"`); }
+  }
+  assert.equal(C.badgeReason(food("Coffee, black"), P), "nothing to flag");
+  assert.equal(C.badgeReason(food("Bacon"), P), "processed meat");
+  for (const t of Object.keys(C.TIERS)) assert.match(C.icon(t), /^<svg[^>]*aria-hidden="true"/);
+  assert.notEqual(C.TIERS.good.shape, C.TIERS.bad.shape);
 });

@@ -1,7 +1,8 @@
 // Real-browser check of the extension (Playwright + Chromium with the unpacked extension loaded).
 //   node tests/ui/extension.js
-// walmart.com pages are served from tests/fixtures/walmart-pages.json (real page data), and Open Food Facts from a
-// fixture, so it runs offline.
+// walmart.com pages are served from captured page data, inside a copy of the real product page's layout around the
+// title (h1#main-title, the wrapping reviews-and-ratings row, pack sizes, and the buy box on the right), so the badge's
+// placement is checked against the same structure. Open Food Facts and USDA are served from fixtures; it runs offline.
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
@@ -10,38 +11,40 @@ try { ({ chromium } = require("playwright")); } catch { console.log("SKIP extens
 
 const ROOT = path.join(__dirname, "..", "..");
 const EXT = path.join(ROOT, "extension");
-const PAGES = require(path.join(ROOT, "tests/fixtures/walmart-pages.json")).pages;
-const BY_ID = { "363183524": "cheerios", "10450115": "milk", "5072512866": "oikos", "10315479": "peanut-butter", "51259338": "banana", "12166733": "coke", "99999999": "cable" };
-PAGES.cable = { props: { pageProps: { initialData: { data: { product: { usItemId: "99999999", name: "HDMI Cable, 6 ft", upc: "012345678905", category: { path: [{ name: "Electronics" }] } }, idml: { nutritionFacts: null } } } } } };
-// Tartar sauce: ingredients, price, serving, calories, protein, saturated fat, sodium and added sugar as on the real page the
-// user saw (Oct 25, 2026); total fat, carbohydrate and total sugars weren't visible and are typical for a tartar sauce.
+const SHOTS = process.env.SHOTS_DIR;
 const { build } = require(path.join(ROOT, "tests/fixtures/walmart-compact.js"));
-const TARTAR_ING = "Water, Soybean Oil (Highly Refined), Dill Relish (Cucumber, Distilled Vinegar, Salt, Calcium Chloride, Xanthan Gum, Sodium Benzoate (Preservative <0.1%), Natural Flavors), Salt, Distilled Vinegar, High Fructose Corn Syrup, Egg Yolks, Modified Food Starch (Corn), Salt, Xanthan Gum, Dried Garlic, Dried Onion, Potassium Sorbate and Sodium Benzoate (Preservatives), Dried Parsley, Natural and Artificial Flavor, Calcium Disodium EDTA Added to Protect Flavor. Contains: Egg.";
-PAGES.tartar = { props: { pageProps: { initialData: { data: build({ h: "10295140 ¦ Louisiana Fish Fry Creamy Tartar Sauce with Relish & Lemon, 10.5 oz Bottle ¦ 039153001255 ¦ Louisiana Fish Fry ¦ Food > Pantry > Condiments > Tartar sauce",
-  ing: TARTAR_ING, price: [2.72, "25.9 ¢/oz", 0.259],
-  rows: ["cal|Calories|120|", "k0|Total Fat|12g|15%", "k0+|Saturated Fat|2g|10%", "k0+|Trans Fat|0g|", "k1|Cholesterol|10mg|3%", "k2|Sodium|230mg|10%", "k3|Total Carbohydrate|3g|1%",
-    "k3+|Dietary Fiber|0g|0%", "k3+|Total Sugars|2g|", "k3+>|Added Sugars|1g|2%", "k4|Protein|0g|", "serv|Serving Size|2 Tbsp. (28g)|"] }) } } } };
-BY_ID["10295140"] = "tartar";
-// Caffeine-Free Diet Coke: no Nutrition Facts on the page, so the barcode goes to Open Food Facts, whose crowd-sourced
-// record (like the one the user saw) lists caffeine and leaves out added sugar.
-PAGES.dietcoke = { props: { pageProps: { initialData: { data: { product: { usItemId: "10535186", name: "Coca-Cola Caffeine-Free Diet Coke Soda Pop, 12 fl oz Cans, 12 Pack", upc: "049000006582", brand: "Coca-Cola",
-  category: { path: [{ name: "Food" }, { name: "Beverages" }, { name: "Soda Pop" }, { name: "Diet Soda Pop" }] } }, idml: { nutritionFacts: null } } } } } };
-BY_ID["10535186"] = "dietcoke";
-const OFF_DIETCOKE = { status: 1, product: { product_name: "Diet Coke caffeine free", serving_size: "355 ml", serving_quantity: 355, categories_tags: ["en:beverages", "en:carbonated-drinks", "en:sodas", "en:diet-sodas"],
-  nutriments: { "energy-kcal_serving": 0, fat_serving: 0, "saturated-fat_serving": 0, sodium_serving: 0.04, carbohydrates_serving: 0, sugars_serving: 0, proteins_serving: 0 },
-  ingredients_text: "Carbonated water, caramel color, aspartame, phosphoric acid, potassium benzoate (to protect taste), natural flavors, citric acid, caffeine." } };
-// Prices as shown on the real pages (Oct 25, 2026).
-const withPrice = (k, now, perUnit, text) => { PAGES[k].props.pageProps.initialData.data.product.priceInfo = { currentPrice: { price: now }, unitPrice: { price: perUnit, priceString: text } }; };
-withPrice("peanut-butter", 3.98, 0.1, "10.0 ¢/oz"); withPrice("cheerios", 4.97, 0.276, "27.6 ¢/oz");
-// Each mock product page has a buy box on the right like Walmart's (sticky, with Add to cart and Buy now).
-const BUYBOX = `<div id="buybox" style="position:fixed;right:24px;top:470px;width:320px;background:#f4f4f4;padding:12px"><div>$5.97</div><div>You save $1.00</div><button id="atc" style="display:block;width:100%;height:40px">Add to cart</button><button id="bn" style="display:block;width:100%;height:40px;margin-top:8px">Buy now</button></div>`;
-const pageHtml = k => `<!doctype html><html><head><meta charset="utf-8"><title>${k}</title></head><body><h1>${k}</h1>${PAGES[k] && PAGES[k].noBuyBox ? "" : BUYBOX}<script id="__NEXT_DATA__" type="application/json">${JSON.stringify(PAGES[k])}</script></body></html>`;
-// Open Food Facts record for the peanut butter's barcode. Values and the other store's brand name are as in the card the
-// user saw on a real page (Oct 25, 2026): a barcode record can carry another store's name.
-const OFF_PB = { status: 1, product: { product_name: "Hannaford Peanut butter", serving_size: "2 tbsp. (32 g)", serving_quantity: 32,
-  nutriments: { "energy-kcal_serving": 180, fat_serving: 16, "saturated-fat_serving": 3, "trans-fat_serving": 0, cholesterol_serving: 0, sodium_serving: 0.135,
-    carbohydrates_serving: 7, fiber_serving: 2, sugars_serving: 3, "added-sugars_serving": 2, proteins_serving: 7 }, categories_tags: ["en:spreads", "en:nut-butters", "en:peanut-butters"], nova_group: 4,
-  ingredients_text: "Roasted Peanuts, Sugar, Hydrogenated Vegetable Oil (Rapeseed, Cottonseed, Soybean), Salt, Molasses, Mono-and Diglycerides." } };
+const PAGES = require(path.join(ROOT, "tests/fixtures/walmart-pages.json")).pages;
+// The four pages the redesign was tested on, captured from walmart.com (Oct 26, 2026).
+const LIVE = require(path.join(ROOT, "tests/fixtures/walmart-live.json")).pages;
+for (const [k, v] of Object.entries(LIVE)) PAGES[k] = { props: { pageProps: { initialData: { data: build(v) } } } };
+const BY_ID = { "363183524": "cheerios", "5072512866": "oikos", "10315479": "peanut-butter", "51259338": "banana",
+  "12166733": "coke", "12166734": "dietcokecf", "10295207": "honeybuns", "345611875": "reseller", "683540269": "tv" };
+const nameOf = k => { const d = PAGES[k].props.pageProps.initialData.data.product; return d.name; };
+// Walmart's layout around the title: the rating row is a wrapping flex row 486 px wide whose stars take 183 px; pack sizes
+// follow below it; the buy box (price, You save, Add to cart, Buy now) is a column on the right. `noRating` drops the row.
+const pageHtml = (k, { noRating = false } = {}) => `<!doctype html><html><head><meta charset="utf-8"><title>${k}</title>
+<style>body{margin:0;font:14px Arial,sans-serif} .wrap{display:grid;grid-template-columns:780px 486px 360px;gap:40px;padding:120px 20px 0}
+.gallery{height:520px;background:#eee} .flex{display:flex} .flex-wrap{flex-wrap:wrap} .buy{background:#f6f6f6;padding:16px;border-radius:8px}
+.buy button{display:block;width:100%;height:40px;margin-top:8px;border-radius:20px;border:0;background:#0071dc;color:#fff;font-weight:700}
+.pack button{width:90px;height:56px;margin-right:6px}</style></head><body>
+<div class="wrap"><div class="gallery">photos</div>
+<div><section><a href="#">${nameOf(k).split(" ")[0]}</a></section><section><h1 id="main-title" itemprop="name" style="font-size:20px;margin:4px 0">${nameOf(k)}</h1></section>
+${noRating ? "" : `<div><div data-testid="reviews-and-ratings" class="flex flex-wrap" style="padding-bottom:16px;align-items:center"><div style="width:183px;height:25px;margin-bottom:-9px;white-space:nowrap;font-size:12px;line-height:25px">★★★★★ (4.7) | 6,103 ratings</div></div></div>`}
+<hr><div class="pack"><div>Pack Size: 12 Pack</div><button id="pack">12 Pack $7.77</button><button>2 Pack</button></div>
+<section style="height:900px"><h2>Ingredients</h2></section></div>
+<div><div class="buy" style="position:sticky;top:120px"><div style="font-size:28px;font-weight:700">$7.77</div><div id="yousave">You save $0.89</div><button id="atc">Add to cart</button><button id="bn">Buy now</button></div></div></div>
+<script id="__NEXT_DATA__" type="application/json">${JSON.stringify(PAGES[k])}</script></body></html>`;
+// Open Food Facts: the Diet Coke record (a crowd-sourced one that leaves out added sugar) and the peanut butter record.
+const OFF = {
+  // A cola record that leaves out sodium (a daily limit), so the verdict could change once it's known.
+  "049000028904": { status: 1, product: { product_name: "Coca-Cola", serving_size: "355 ml", serving_quantity: 355, categories_tags: ["en:beverages", "en:sodas"],
+    nutriments: { "energy-kcal_serving": 140, fat_serving: 0, "saturated-fat_serving": 0, carbohydrates_serving: 39, sugars_serving: 39, "added-sugars_serving": 39, proteins_serving: 0 } } },
+  "049000029345": { status: 1, product: { product_name: "Diet Coke caffeine free", serving_size: "355 ml", serving_quantity: 355, categories_tags: ["en:beverages", "en:carbonated-drinks", "en:sodas", "en:diet-sodas"],
+    nutriments: { "energy-kcal_serving": 0, fat_serving: 0, "saturated-fat_serving": 0, sodium_serving: 0.04, carbohydrates_serving: 0, sugars_serving: 0, proteins_serving: 0 } } },
+  "078742370033": { status: 1, product: { product_name: "Hannaford Peanut butter", serving_size: "2 tbsp. (32 g)", serving_quantity: 32,
+    nutriments: { "energy-kcal_serving": 180, fat_serving: 16, "saturated-fat_serving": 3, "trans-fat_serving": 0, cholesterol_serving: 0, sodium_serving: 0.135, carbohydrates_serving: 7, fiber_serving: 2, sugars_serving: 3, "added-sugars_serving": 2, proteins_serving: 7 },
+    categories_tags: ["en:spreads", "en:nut-butters", "en:peanut-butters"], ingredients_text: "Roasted Peanuts, Sugar, Hydrogenated Vegetable Oil (Rapeseed, Cottonseed, Soybean), Salt, Molasses, Mono-and Diglycerides." } },
+};
 
 let fails = 0;
 const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!cond) fails++; };
@@ -50,166 +53,191 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "sib-ext-"));
   let ctx;
   try {
-    ctx = await chromium.launchPersistentContext(dir, { channel: "chromium", headless: true, args: [`--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`] });
+    ctx = await chromium.launchPersistentContext(dir, { channel: "chromium", headless: true, viewport: { width: 1910, height: 912 }, args: [`--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`] });
   } catch (e) { console.log("SKIP extension check: this Chromium can't load extensions (" + e.message.split("\n")[0] + ")"); process.exit(0); }
   try {
     const hits = { ip: [], off: 0 };
-    const SEARCH = `<!doctype html><title>search</title><div style="display:grid;grid-template-columns:repeat(4,240px);gap:12px">${[["Oikos-Pro", "5072512866"], ["Cheerios", "363183524"], ["Bananas", "51259338"], ["HDMI-Cable", "99999999"]]
+    const SEARCH = `<!doctype html><title>search</title><div style="display:grid;grid-template-columns:repeat(4,240px);gap:12px">${[["Oikos-Pro", "5072512866"], ["Cheerios", "363183524"], ["Bananas", "51259338"], ["HDMI-Cable", "683540269"]]
       .map(([n, id]) => `<div data-item-id="T${id}" role="group" style="height:300px;border:1px solid #ddd"><div style="height:200px;background:#eee"><img alt="" width="200" height="200" src="data:image/gif;base64,R0lGODlhAQABAAAAACw="></div><a href="/ip/${n}/${id}">${n}</a></div>`).join("")}</div>`;
+    let variant = {};
     await ctx.route("https://www.walmart.com/**", r => {
       if (/\/search\?/.test(r.request().url())) return r.fulfill({ contentType: "text/html", body: SEARCH });
       const id = (r.request().url().match(/\/ip\/(?:[^/?#]+\/)?(\d+)/) || [])[1];
       if (id) hits.ip.push({ id, t: Date.now() });
-      return BY_ID[id] ? r.fulfill({ contentType: "text/html", body: pageHtml(BY_ID[id]) }) : r.fulfill({ contentType: "text/html", body: "<!doctype html><title>Walmart</title><p>home</p>" });
+      return BY_ID[id] ? r.fulfill({ contentType: "text/html", body: pageHtml(BY_ID[id], variant) }) : r.fulfill({ contentType: "text/html", body: "<!doctype html><title>Walmart</title><p>home</p>" });
     });
-    await ctx.route("https://world.openfoodfacts.org/**", r => (hits.off++, r.fulfill({ contentType: "application/json", body: JSON.stringify(/078742370033/.test(r.request().url()) ? OFF_PB : /049000006582/.test(r.request().url()) ? OFF_DIETCOKE : { status: 0 }) })));
+    await ctx.route("https://world.openfoodfacts.org/**", r => { hits.off++; const code = (r.request().url().match(/product\/(\d+)/) || [])[1]; return r.fulfill({ contentType: "application/json", body: JSON.stringify(OFF[code] || { status: 0 }) }); });
     await ctx.route("https://api.nal.usda.gov/**", r => r.fulfill({ contentType: "application/json", body: JSON.stringify({ foods: [] }) }));
-    let sw = ctx.serviceWorkers()[0] || await ctx.waitForEvent("serviceworker", { timeout: 10000 });
+    const sw = ctx.serviceWorkers()[0] || await ctx.waitForEvent("serviceworker", { timeout: 10000 });
     ok(!!sw, "extension loads (background service worker running)");
+    const extId = sw.url().split("/")[2];
 
     const page = await ctx.newPage();
-    await page.setViewportSize({ width: 1280, height: 800 });
     const errors = []; page.on("pageerror", e => errors.push(e.message));
-    const root = () => page.evaluateHandle(() => document.getElementById("should-i-buy-it-card").shadowRoot);
-    const card = async () => { await page.waitForFunction(() => { const h = document.getElementById("should-i-buy-it-card"); return h && h.shadowRoot && h.shadowRoot.querySelector(".wrap") && !/Checking this product/.test(h.shadowRoot.textContent); }, null, { timeout: 10000 });
-      return page.evaluate(() => document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".wrap").innerText.replace(/\s+/g, " ")); };
-    const click = async sel => page.evaluate(s => document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(s).click(), sel);
-    const box = () => page.evaluate(() => { const e = document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".card, .chip"); const r = e.getBoundingClientRect();
-      const hit = ["atc", "bn"].map(id => document.getElementById(id)).filter(Boolean).some(b => { const q = b.getBoundingClientRect(); return r.left < q.right && r.right > q.left && r.top < q.bottom && r.bottom > q.top; });
-      return { h: r.height, bottom: innerHeight - r.bottom, right: innerWidth - r.right, left: r.left, chip: e.classList.contains("chip"), coversBuy: hit, side: e.parentElement.dataset.side }; });
+    const HOST = "should-i-buy-it-badge";
+    const badge = async (wait = /./) => {
+      try { await page.waitForFunction(re => { const h = document.getElementById("should-i-buy-it-badge"); const b = h && h.shadowRoot.querySelector("button"); return b && !/checking/.test(b.textContent) && new RegExp(re).test(b.textContent); }, wait.source, { timeout: 10000 }); }
+      catch (e) { console.log("badge state:", await page.evaluate(() => { const h = document.getElementById("should-i-buy-it-badge"); return h ? (h.parentElement && h.parentElement.tagName) + " | " + h.shadowRoot.textContent.slice(-160) : "no badge"; }), errors.join(" | ")); throw e; }
+      return page.evaluate(() => {
+        const host = document.getElementById("should-i-buy-it-badge"), b = host.shadowRoot.querySelector("button"), r = b.getBoundingClientRect();
+        const hit = ["atc", "bn", "pack", "yousave"].map(id => document.getElementById(id)).filter(Boolean).some(x => { const q = x.getBoundingClientRect(); return r.left < q.right && r.right > q.left && r.top < q.bottom && r.bottom > q.top; });
+        return { text: b.textContent.replace(/\s+/g, " ").trim(), label: b.getAttribute("aria-label"), inRow: host.parentElement && host.parentElement.dataset.testid === "reviews-and-ratings",
+          floating: b.classList.contains("pill"), left: r.left, bottom: innerHeight - r.bottom, top: r.top, height: r.height, hit, hosts: document.querySelectorAll("#should-i-buy-it-badge").length, tag: b.tagName, side: b.dataset.side };
+      });
+    };
+    const sessionKeys = () => sw.evaluate(() => chrome.storage.session.get(null).then(o => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, v.state]))));
 
-    await page.goto("https://www.walmart.com/ip/Oikos-Pro-23g-Protein-Vanilla-Yogurt/5072512866");
-    let t = await card();
-    let b = await box();
-    ok(b.chip && /^Get it High protein for the calories\./.test(t), `starts compact: verdict and its reason (${t})`);
-    ok(b.left <= 20 && b.bottom >= 16 && !b.coversBuy, `sits bottom left, clear of the buy box (${Math.round(b.left)} px from the left)`);
-    ok(await page.evaluate(() => !!document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".chip .logo svg")), "the pill carries the app's mark, so it isn't mistaken for Walmart's buttons");
-    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext2-chip.png"), clip: { x: 0, y: 560, width: 420, height: 240 } });
-    await click(".chip");
-    t = await card(); b = await box();
-    ok(!b.chip && !b.coversBuy && /Sat fat 2.5 g · 13%/.test(t) && /Ticks: where one serving starts to count against the verdict/.test(t) && /From this page/.test(t), `expands to the card: limit bars with a tick legend, source, clear of Add to cart (${t.slice(0, 160)})`);
-    ok(await page.evaluate(() => /from here it counts against the verdict/.test(document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".tick").title)), "each tick explains itself on hover");
-    ok(b.h <= 460, `expanded card stays compact (${Math.round(b.h)} px tall)`);
+    // ---- 1. Caffeine-Free Diet Coke: badge in the rating row, nothing moved, the conflict as a small ⚠ ----
+    const packTop = async () => page.evaluate(() => document.getElementById("pack").getBoundingClientRect().top);
+    await page.goto("https://www.walmart.com/ip/Caffeine-Free-Diet-Coke-12-fl-oz-12-pack/12166734");
+    let b = await badge(/Fine/);
+    ok(b.inRow && !b.floating && b.tag === "BUTTON" && b.hosts === 1, `Diet Coke: one badge, a button in the rating row next to the stars (${b.text})`);
+    ok(/^Fine\s*·\s*nothing to flag$/.test(b.text) && !/Warning/.test(b.label), `the caffeine conflict doesn't change the verdict, so the badge has no ⚠ (${b.label})`);
+    const withBadge = await packTop();
+    const without = await page.evaluate(() => { const h = document.getElementById("should-i-buy-it-badge"); h.style.display = "none"; const t = document.getElementById("pack").getBoundingClientRect().top; h.style.display = "inline-flex"; return t; });
+    const rowH = await page.evaluate(() => document.querySelector('[data-testid="reviews-and-ratings"]').getBoundingClientRect().height);
+    ok(!b.hit && withBadge === without && rowH === 32, `nothing moves or is covered: the rating row stays ${rowH} px tall, pack sizes stay at ${Math.round(without)} px`);
+    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, "ext7-badge.png"), clip: { x: 780, y: 100, width: 1130, height: 320 } });
+    await page.keyboard.press("Tab");
+    ok(await page.evaluate(async () => { const h = document.getElementById("should-i-buy-it-badge"); for (let i = 0; i < 12 && document.activeElement !== h; i++) await new Promise(r => setTimeout(r, 10)); return true; }), "the badge is a real button, so it's in the keyboard order");
 
-    // Walmart changes pages without a reload: the card follows, and stays open now that it was opened.
-    await page.evaluate(() => history.pushState(null, "", "/ip/Cheerios-Heart-Healthy-Cereal/363183524"));
-    await page.waitForFunction(() => /Cheerios/.test(document.getElementById("should-i-buy-it-card").shadowRoot.textContent), null, { timeout: 10000 });
-    t = await card();
-    ok(/In moderation/.test(t) && /A good fiber source, but 20% of your added-sugar limit\./.test(t), `Cheerios: headline names the trade-off (${t.slice(0, 120)})`);
-    ok(/≈ \$0\.\d\d a serving at Walmart's price \(27\.6 ¢\/oz\) · [\d.]+ g fiber per \$1/.test(t), `Cheerios: cost per serving from Walmart's unit price (${(t.match(/≈[^·]+·[^A-Z]+/) || [""])[0]})`);
-    const swapHref = await page.evaluate(() => { const a = [...document.getElementById("should-i-buy-it-card").shadowRoot.querySelectorAll(".swap a")][0]; return a && a.href; });
-    ok(/TRY INSTEAD Toasted oat cereal, plain GET IT/i.test(t) && swapHref === "https://www.walmart.com/search?q=toasted%20oat%20cereal", `Try instead links to a Walmart search (${swapHref})`);
-
-    await page.goto("https://www.walmart.com/ip/Great-Value-Creamy-Peanut-Butter-40-oz-Jar/10315479");
-    t = await card();
-    ok(!/Hannaford/.test(t), `the barcode record's other-store name isn't shown up top (${t.slice(0, 90)})`);
-    ok(/Mostly healthy fats, but 15% of your saturated-fat limit\./.test(t) && /Sat fat 3 g · 15%/.test(t) && /Sodium 135 mg · 6%/.test(t), `peanut butter: one-line reason and bars (${t.slice(0, 200)})`);
-    ok(/≈ \$0\.11 a serving at Walmart's price \(10\.0 ¢\/oz\)/.test(t) && !/per \$1/.test(t), `peanut butter: price row without a per-dollar line (${(t.match(/≈[^+]*/) || ["none"])[0]})`);
-    ok(/2 more notes/.test(t) && !/Ultra-processed/.test(t) && /TRY INSTEAD Powdered peanut butter/i.test(t), "secondary notes are folded away; a swap is offered");
-    await click(".foot details > summary");
-    t = await card();
-    ok(/For “Great Value Creamy Peanut Butter, 40 oz”/.test(t) && /listed there as “Hannaford Peanut butter”/.test(t) && /Open Food Facts' record for barcode 078742370033/.test(t), "About this verdict explains the source, including the other name");
-    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext2-card.png"), clip: { x: 0, y: 140, width: 420, height: 660 } });
-
-    // Add to the app's list: the button toggles, and a send link carries the item to the app.
-    await click(".lbtn");
-    t = await card();
-    const sendHref = await page.evaluate(async () => { await new Promise(r => setTimeout(r, 300)); const a = document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".send"); return a && a.href; });
-    ok(/✓ Added to list/.test(t) && /Send 1 to your list in the app/.test(t) && /#add=z\./.test(sendHref || ""), `+ Add to list, then a send link for the app (${(sendHref || "").slice(0, 60)}…)`);
-    // Cached: the same product again doesn't ask Open Food Facts a second time.
-    const offBefore = hits.off;
-    await page.goto("https://www.walmart.com/ip/Great-Value-Creamy-Peanut-Butter-40-oz-Jar/10315479"); await card();
-    ok(hits.off === offBefore, `a barcode looked up once is cached (${offBefore} → ${hits.off} Open Food Facts requests)`);
-    await click('button[aria-label="Minimize"]');
-    t = await card();
-    ok((await box()).chip && /^In moderation Mostly healthy fats/.test(t), "minimize returns to the compact chip");
-
-    await page.goto("https://www.walmart.com/ip/Marketside-Fresh-Organic-Bananas-Bunch/51259338");
-    t = await card();
-    ok(/^Get it/.test(t) && (await box()).chip, `stays compact after minimizing (${t})`);
-    await click(".chip"); t = await card();
-    ok(/Marketside Fresh Organic Bananas/.test(t) && /From typical banana/.test(t), `produce: Walmart's name, typical values by name match (${t.slice(0, 140)})`);
-
-    ok(!/a serving at Walmart's price/.test(t), "no price on the page, no price row");
-
-    // Ingredients: the label's own allergen statement shows; the list opens into plain groups.
-    await page.goto("https://www.walmart.com/ip/Louisiana-Fish-Fry-Tartar-Sauce/10295140");
-    t = await card();
-    ok(/Label says: Contains Egg\./.test(t) && /Ingredients · 17 ingredients · 5 additives · 1 added sugar/.test(t), `tartar sauce: allergen line and ingredient summary (${(t.match(/Label says[^·]*·[^·]*·[^·]*·[^A-Z]*/) || ["none"])[0]})`);
-    await click(".ingr details > summary");
-    t = await card();
-    ok(/Foods 5/.test(t) && /Added sugars 1/.test(t) && /6 ?High Fructose Corn Syrup/.test(t) && /Soybean Oil is the 2nd ingredient/.test(t) && /Calcium Disodium EDTA/.test(t) && /Calcium Chloride in dill relish/.test(t),
-      "the ingredient groups open: foods, sugars with their place on the label, oils, each additive and its job");
-    ok(!/Sriracha/.test(t) && /A LIGHTER VERSION Tzatziki/i.test(t) && /77% fewer calories by weight\. Same verdict/.test(t), `a creamy sauce gets a lighter creamy sauce, not a hot sauce (${(t.match(/A lighter version[^.]*\./i) || ["none"])[0]})`);
-    await page.evaluate(() => { const c = document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".card"); c.scrollTop = c.querySelector(".ingr").offsetTop - 60; });
-    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext4-ingredients.png"), clip: { x: 0, y: 140, width: 420, height: 660 } });
-    await page.evaluate(() => { const c = document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".card"); c.scrollTop = c.scrollHeight; });
-    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext5-additives.png"), clip: { x: 0, y: 140, width: 420, height: 660 } });
-
-    // Caffeine-Free Diet Coke: a record that contradicts the product's name is flagged, not listed as fact.
-    await page.goto("https://www.walmart.com/ip/Coca-Cola-Caffeine-Free-Diet-Coke/10535186");
-    t = await card();
-    ok(/^SHOULD I BUY IT\?.*Fine No calories and nothing to flag, so it barely affects your day\./i.test(t), `Fine leads with its reason, not a shrug (${t.slice(0, 110)})`);
-    ok(/Added sugar 0 g · 0%/.test(t) && !/not listed/.test(t) && !/Partial data/.test(t), "0 g of total sugars shows as 0 g added sugar, not missing");
-    ok(/⚠ Ingredient data conflicts with the product name: the list includes Caffeine, but the name says caffeine-free/.test(t), "caffeine in a caffeine-free product is a warning");
-    ok(/Ingredients · 8 ingredients/.test(t) && /Low- and no-calorie sweeteners/.test(t) && !/Caffeine and energy ingredients/.test(t), `the ingredients section reopens as it was left, without caffeine in it (${(t.match(/Ingredients · [^·]+/) || ["none"])[0]})`);
-    ok(await page.evaluate(() => getComputedStyle(document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".verdict .dot")).borderTopWidth !== "0px"), "Fine has its own shape (a ring), not a color alone");
-    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext6-dietcoke.png"), clip: { x: 0, y: 140, width: 420, height: 660 } });
-    // Settings: the gear opens them in a new tab and says so.
-    const tabP = ctx.waitForEvent("page", { timeout: 5000 }).catch(() => null);
-    await click('button[aria-label="Your goals (settings)"]');
-    const tab = await tabP;
-    const gearText = await card();
-    ok(tab && /options\.html/.test(tab.url()) && /Settings opened in a new tab/.test(gearText), `the settings gear opens settings in a new tab and says so (${tab && tab.url()} | ${(gearText.match(/Settings[^.]*\.|The extension[^.]*\./) || ["no message"])[0]})`);
-    if (tab) await tab.close();
-    await page.bringToFront();
-    // Set to the right corner, the open card won't fit beside the buy box, so it moves to the left instead of covering it.
-    await sw.evaluate(() => chrome.storage.local.set({ corner: "right" }));
-    await page.waitForTimeout(400);
-    b = await box();
-    ok(!b.coversBuy && b.side === "left", `set to bottom right, the open card still never covers Add to cart or Buy now (${b.side})`);
-    await click('button[aria-label="Minimize"]'); await page.waitForTimeout(200);
-    b = await box();
-    ok(b.chip && !b.coversBuy && b.side === "right", `the small pill fits bottom right without covering them (${b.side})`);
-    await sw.evaluate(() => chrome.storage.local.set({ corner: "left", collapsed: false }));
-
+    // Missing data that could change the verdict does get a ⚠ on the badge.
     await page.goto("https://www.walmart.com/ip/Coca-Cola-Fridge-Pack/12166733");
-    t = await card();
-    ok(/Open Food Facts and USDA don't have its barcode/.test(t), `not found anywhere: says so (${t.slice(0, 100)})`);
+    b = await badge(/Limit it/);
+    ok(/⚠$/.test(b.text) && /Warning: Some nutrients that decide the verdict aren't listed/.test(b.label), `missing sodium makes the verdict less certain: the badge shows ⚠ (${b.text})`);
+    await page.goto("https://www.walmart.com/ip/Caffeine-Free-Diet-Coke-12-fl-oz-12-pack/12166734"); b = await badge(/Fine/);
 
-    await page.goto("https://www.walmart.com/ip/HDMI-Cable/99999999"); await page.waitForTimeout(1500);
-    ok(await page.evaluate(() => !document.getElementById("should-i-buy-it-card")), "non-food products get no card");
+    // ---- 2. The side panel: what the click opens ----
+    const keys = await sessionKeys();
+    const tabKey = Object.keys(keys).find(k => keys[k] === "ready");
+    ok(!!tabKey, `the product is handed to the side panel through session storage (${JSON.stringify(keys)})`);
+    const tabId = Number(tabKey.split(":")[1]);
+    // A real click (Chrome opens the side panel only in response to one).
+    const bb = await page.evaluate(() => { const r = document.getElementById("should-i-buy-it-badge").shadowRoot.querySelector("button").getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+    await page.mouse.click(bb.x, bb.y);
+    await page.waitForTimeout(800);
+    const last = await sw.evaluate(() => chrome.storage.session.get("lastOpen").then(o => o.lastOpen));
+    ok(last && last.tabId === tabId && ["panel", "tab"].includes(last.via), `clicking the badge opens the breakdown for this tab (via ${last && last.via})`);
+    for (const pg of ctx.pages()) if (/sidepanel\.html/.test(pg.url())) await pg.close();
 
-    // Search badges: off by default; when on, only visible products, one request at a time, at least 1.5 s apart.
+    const panel = await ctx.newPage();
+    await panel.setViewportSize({ width: 380, height: 900 });
+    panel.on("pageerror", e => errors.push("panel: " + e.message));
+    await panel.goto(`chrome-extension://${extId}/sidepanel.html?tab=${tabId}`);
+    const ptext = async (re) => { if (re) await panel.waitForFunction(s => new RegExp(s).test(document.body.innerText), re.source, { timeout: 10000 }); return panel.evaluate(() => document.body.innerText.replace(/\s+/g, " ")); };
+    let pt = await ptext(/Fine/);
+    ok(/^SHOULD I BUY IT\? Fine No calories and nothing to flag, so it barely affects your day\. Diet Coke Caffeine-Free Soda Pop/i.test(pt), `panel opens on the verdict, then the reason and the product (${pt.slice(0, 120)})`);
+    const shape = await panel.evaluate(() => { const s = document.querySelector(".verdict svg"); return s && /<circle[^>]*r="9.5"[^>]*fill="var\(--v-fine\)"/.test(s.innerHTML) && (s.innerHTML.match(/<circle/g) || []).length === 1; });
+    ok(shape, "Fine has its own solid icon (a filled dot), not an empty circle");
+    ok(/YOUR DAILY LIMITS, ONE SERVING Sat fat 0 g · 0% Sodium 40 mg · 2% Added sugar 0 g · 0%/.test(pt) && !/Ticks:/.test(pt) && await panel.evaluate(() => document.querySelectorAll(".bar .zone.warn").length === 3 && document.querySelectorAll(".bar .zone.bad").length === 3), "bars show shaded zones instead of ticks and a legend sentence; 0 g sugar means 0 g added");
+    const tip = await panel.evaluate(() => { const b = document.querySelector(".bar"); return b.tabIndex === 0 && b.getAttribute("aria-label"); });
+    ok(/counts against the verdict from 15% and counts double from 30%/.test(tip || ""), `each bar explains itself on hover or focus (${tip})`);
+    ok(/Carbonated Water/.test(pt) && /⚠ Caffeine: The product name says caffeine-free\. Check the package\./.test(pt) && !(await panel.$(".banner")), "the conflict sits next to Caffeine, with no banner (it doesn't change the verdict)");
+    const noteWords = await panel.evaluate(() => [...document.querySelectorAll(".notes li > span:nth-child(2)")].map(s => s.firstChild.textContent.trim().split(/\s+/).length));
+    ok(noteWords.every(n => n <= 12), `notes are short (${noteWords.join(", ")} words)`);
+    const order = await panel.evaluate(() => [...document.querySelectorAll("main > section")].map(s => s.getAttribute("aria-label") || (s.querySelector("h2") || {}).textContent || s.className).join(" › "));
+    ok(/^Verdict › Your daily limits[^›]* › Serving and price › Why › Ingredients › About this verdict$/.test(order), `order: verdict, bars, notes, ingredients, sources (${order})`);
+    if (SHOTS) await panel.screenshot({ path: path.join(SHOTS, "ext8-panel-dietcoke.png"), fullPage: true });
+
+    // ---- 3. Same tab, next product (Walmart changes pages without reloading): badge and panel follow ----
+    await page.bringToFront();
+    await page.evaluate(() => history.pushState(null, "", "/ip/Little-Debbie-Honey-Buns-10-6-oz-6-count/10295207"));
+    // Walmart re-renders the page for the new product; here the new page's markup arrives the same way.
+    b = await badge(/Limit it/);
+    ok(b.hosts === 1 && /^Limit it\s*·\s*\S/.test(b.text), `honey buns: the badge follows the product and isn't duplicated (${b.text})`);
+    pt = await ptext(/Limit it/);
+    ok(/Limit it/.test(pt) && await panel.evaluate(() => (document.querySelector(".verdict svg") || {}).innerHTML.includes("M7.6 1h8.8")), "the side panel follows the tab: Limit it with its red octagon");
+    ok(/Titanium Dioxide/i.test(pt) && /Removed by regulators/i.test(pt), "honey buns: titanium dioxide shows as removed by regulators");
+    if (SHOTS) await panel.screenshot({ path: path.join(SHOTS, "ext9-panel-honeybuns.png"), fullPage: true });
+
+    // ---- 4. A product Open Food Facts and USDA don't have ----
+    await page.goto("https://www.walmart.com/ip/Diet-Coke-Caffeine-Free-Soda-12oz-Cans-Pack-of-12/345611875");
+    b = await badge(/no nutrition data/);
+    ok(b.hosts === 1 && /^no nutrition data$/.test(b.text), `not in Open Food Facts or USDA: the badge says so (${b.text})`);
+    const k2 = Object.entries(await sessionKeys()).find(([, v]) => v === "none");
+    const p2 = await ctx.newPage(); await p2.goto(`chrome-extension://${extId}/sidepanel.html?tab=${k2 ? k2[0].split(":")[1] : 0}`);
+    const t2 = await p2.evaluate(async () => { await new Promise(r => setTimeout(r, 400)); return document.body.innerText.replace(/\s+/g, " "); });
+    ok(/Open Food Facts and USDA don't have its barcode/.test(t2) && /look it up by name in the app/.test(t2), `the panel explains and offers the app instead (${t2.slice(0, 120)})`);
+    await p2.close();
+
+    // ---- 5. A non-food page: no badge, and the panel's empty state ----
+    await page.goto("https://www.walmart.com/ip/Sceptre-40-TV/683540269"); await page.waitForTimeout(1500);
+    ok(await page.evaluate(() => !document.getElementById("should-i-buy-it-badge")), "non-food page: no badge");
+    const p3 = await ctx.newPage(); await p3.goto(`chrome-extension://${extId}/sidepanel.html?tab=${tabId}`);
+    await page.goto("https://www.walmart.com/ip/Sceptre-40-TV/683540269?x=1"); await page.waitForTimeout(1200);
+    const t3 = await p3.evaluate(async () => { await new Promise(r => setTimeout(r, 400)); return document.body.innerText; });
+    ok(/Open a Walmart food product to see a verdict\./.test(t3), "non-food page: the side panel shows its empty state");
+    await p3.close();
+
+    // ---- 6. No rating row to sit in: a small pill at the bottom left, clear of the buy box ----
+    variant = { noRating: true };
+    await page.goto("https://www.walmart.com/ip/Oikos-Pro-23g-Protein-Vanilla-Yogurt/5072512866");
+    b = await badge(/Get it/);
+    ok(b.floating && b.left <= 20 && !b.hit && b.hosts === 1, `no rating row: a floating pill bottom left, not over Add to cart or Buy now (${b.text})`);
+    await sw.evaluate(() => chrome.storage.local.set({ corner: "right" })); await page.waitForTimeout(300);
+    b = await badge(/Get it/);
+    ok(b.floating && !b.hit, `set to the right corner, it still never covers the buy box (${b.side})`);
+    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, "ext10-pill.png"), clip: { x: 1200, y: 500, width: 710, height: 412 } });
+    await sw.evaluate(() => chrome.storage.local.set({ corner: "left" }));
+    variant = {};
+
+    // ---- 7. Goals change: the panel re-scores at once ----
+    await page.goto("https://www.walmart.com/ip/Little-Debbie-Honey-Buns-10-6-oz-6-count/10295207"); await badge(/Limit it/);
+    await sw.evaluate(() => chrome.storage.local.set({ profile: { cal: 2000, pro: 100, sat: 20, na: 2300, add: 50, fib: 28, skip: "honey", mild: false } }));
+    pt = await ptext(/Skip/);
+    ok(/Skip/.test(pt) && /on your skip list/i.test(pt), "a skip term saved in settings shows in the open panel right away");
+    b = await badge(/Skip/);
+    ok(/^Skip\s*·\s*on your skip list$/.test(b.text), `and on the badge (${b.text})`);
+    await sw.evaluate(() => chrome.storage.local.set({ profile: null }));
+
+    // ---- 8. Add to list from the panel ----
+    await page.goto("https://www.walmart.com/ip/Caffeine-Free-Diet-Coke-12-fl-oz-12-pack/12166734"); await badge(/Fine/);
+    await ptext(/Fine/);
+    await panel.click("text=+ Add to list");
+    pt = await ptext(/On your list/);
+    const send = await panel.evaluate(async () => { await new Promise(r => setTimeout(r, 300)); const a = [...document.querySelectorAll("a")].find(x => /Send 1 to your list/.test(x.textContent)); return a && a.href; });
+    ok(/#add=z\./.test(send || ""), "+ Add to list, then a send link for the app");
+    await sw.evaluate(() => chrome.storage.local.set({ toApp: [] }));
+
+    // ---- 9. Accessibility and dark mode ----
+    const axeSrc = fs.readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
+    const css = fs.readFileSync(path.join(EXT, "sidepanel.css"), "utf8");
+    const copy = await ctx.newPage(); await copy.setViewportSize({ width: 380, height: 900 });
+    const html = await panel.evaluate(() => document.body.innerHTML.replace(/<script[\s\S]*?<\/script>/g, ""));
+    await copy.setContent(`<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Should I Buy It?</title><style>${css}</style></head><body>${html}</body></html>`);
+    await copy.addScriptTag({ content: axeSrc });
+    for (const scheme of ["light", "dark"]) {
+      await panel.emulateMedia({ colorScheme: scheme }); await copy.emulateMedia({ colorScheme: scheme });
+      const v = await copy.evaluate(async () => (await axe.run(document, { runOnly: ["wcag2a", "wcag2aa"] })).violations.map(x => `${x.id} (${x.nodes.length}): ${x.nodes[0].target}`));
+      ok(!v.length, `side panel, ${scheme}: no WCAG A/AA violations, contrast included${v.length ? ": " + v.join(", ") : ""}`);
+      if (SHOTS && scheme === "dark") await panel.screenshot({ path: path.join(SHOTS, "ext11-panel-dark.png"), fullPage: true });
+    }
+    await panel.emulateMedia({ colorScheme: "light" });
+    await page.bringToFront();
+    await page.addScriptTag({ content: axeSrc });
+    const vb = await page.evaluate(async () => (await axe.run(document.getElementById("should-i-buy-it-badge").shadowRoot.querySelector("button"), { runOnly: ["wcag2a", "wcag2aa"] })).violations.map(x => x.id));
+    ok(!vb.length, `badge: no WCAG A/AA violations${vb.length ? ": " + vb.join(", ") : ""}`);
+
+    // ---- 10. Search badges: off by default; when on, only visible products, one request at a time ----
     await page.goto("https://www.walmart.com/search?q=yogurt"); await page.waitForTimeout(2000);
     ok(await page.evaluate(() => !document.querySelector(".sib-badge")), "search badges are off by default");
-    await page.goto("about:blank"); // leave the search page first, so turning badges on doesn't start it badging too
+    await page.goto("about:blank");
     await sw.evaluate(() => chrome.storage.local.set({ searchBadges: true, badgeCache: {} }));
     hits.ip = [];
     await page.goto("https://www.walmart.com/search?q=yogurt");
     await page.waitForFunction(() => document.querySelectorAll(".sib-badge").length >= 3 && [...document.querySelectorAll(".sib-badge")].every(b => !/…/.test(b.shadowRoot.textContent)), null, { timeout: 20000 });
     const badges = await page.evaluate(() => [...document.querySelectorAll("[data-item-id]")].map(t => { const b = t.querySelector(".sib-badge"); return b ? b.shadowRoot.querySelector(".b").textContent : "-"; }));
-    ok(badges[0] === "Get it" && badges[1] === "In moderation" && badges[2] === "Get it" && badges[3] === "-", `badges show each product's verdict; non-food gets none (${badges.join(" | ")})`);
+    ok(badges[0] === "Get it" && badges[1] === "In moderation" && badges[2] === "Get it" && badges[3] === "-", `search badges show each product's verdict; non-food gets none (${badges.join(" | ")})`);
     const gaps = hits.ip.slice(1).map((h, i) => h.t - hits.ip[i].t);
     ok(hits.ip.length === 4 && gaps.every(g => g >= 1400), `one product page at a time, ${gaps.map(g => (g / 1000).toFixed(1) + " s").join(", ")} apart`);
-    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext3-badges.png"), clip: { x: 0, y: 0, width: 1000, height: 330 } });
-    hits.ip = [];
-    await page.goto("https://www.walmart.com/search?q=yogurt");
-    await page.waitForFunction(() => document.querySelectorAll(".sib-badge").length >= 3, null, { timeout: 10000 });
-    ok(hits.ip.length === 0, `badges come from the cache on the next visit (${hits.ip.length} page requests)`);
     await sw.evaluate(() => chrome.storage.local.set({ searchBadges: false }));
 
-    // Goals from the settings page change the verdict live (a low sodium limit and a skip term).
-    const extId = sw.url().split("/")[2];
-    await page.goto("https://www.walmart.com/ip/Cheerios-Heart-Healthy-Cereal/363183524"); await card();
+    // ---- 11. Settings page: goals typed in and imported from the app still work ----
     const opts = await ctx.newPage();
     await opts.goto(`chrome-extension://${extId}/options.html`);
     await opts.fill("#skip", "cheerios"); await opts.click("button[type=submit]");
     await opts.waitForFunction(() => /Saved/.test(document.getElementById("status").textContent));
-    await page.bringToFront();
-    await page.waitForFunction(() => /Skip/.test(document.getElementById("should-i-buy-it-card").shadowRoot.textContent), null, { timeout: 10000 });
-    ok(await page.evaluate(() => document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".verdict, .w").textContent.includes("Skip")) && /on your skip list/.test(await card()), "a skip term saved in settings turns Cheerios into Skip on the open page");
-    // Import goals from the app's transfer link.
+    ok(await sw.evaluate(() => chrome.storage.local.get("profile").then(o => o.profile && o.profile.skip === "cheerios")), "goals saved in settings");
     const link = await opts.evaluate(async () => "https://quochhdo.github.io/should-i-buy-it/#import=" + await SelfCheckBackup.encode(SelfCheckBackup.pack(k => k === "profile" ? { cal: 1850, pro: 140, sat: 13, na: 2300, add: 36, fib: 30, skip: "", mild: true } : undefined)));
     await opts.fill("#paste", link); await opts.click("#importBtn");
     await opts.waitForFunction(() => /imported/.test(document.getElementById("status").textContent));
@@ -217,5 +245,5 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     ok(errors.length === 0, "no page errors" + (errors.length ? ": " + errors.join(" | ") : ""));
   } finally { await ctx.close(); fs.rmSync(dir, { recursive: true, force: true }); }
   console.log(fails ? `${fails} extension check(s) failed` : "All extension checks passed");
-  process.exitCode = fails ? 1 : 0;
+  process.exit(fails ? 1 : 0);
 })();

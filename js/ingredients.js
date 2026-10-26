@@ -112,7 +112,7 @@
     [/^(?:di|tri)?sodium phosphates?$/, "e339"], [/^glycerol ester of (?:wood )?rosin$/, "e445"], [/^polydextrose$/, "e1200"],
     [/^fumaric acid$/, "e297"], [/^malic acid$/, "e296"], [/^bha$/, "e320"], [/^bht$/, "e321"], [/^tbhq$/, "e319"],
     [/^sodium erythorbate$/, "e316"], [/^annatto(?: extract| color)?$/, "e160b"], [/^(?:oleoresin of paprika|paprika (?:extract|oleoresin)|extractives of paprika)$/, "e160c"],
-    [/^sodium stearoyl lactylate$/, "e481"], [/^azodicarbonamide$/, "e927a"], [/^cellulose gum$/, "e466"], [/^(?:microcrystalline |powdered )?cellulose$/, "e460"],
+    [/^sodium stearoyl lactylate$/, "e481"], [/^calcium stearoyl lactylate$/, "e482"], [/^agar(?:[- ]agar)?$/, "e406"], [/^azodicarbonamide$/, "e927a"], [/^cellulose gum$/, "e466"], [/^(?:microcrystalline |powdered )?cellulose$/, "e460"],
     [/^gellan gum$/, "e418"], [/^locust bean gum$/, "e410"], [/^pectin$/, "e440"], [/^silicon dioxide$/, "e551"], [/^calcium sulfate$/, "e516"],
   ];
   // Entries that name a job, not a substance ("Leavening", "Artificial Color").
@@ -196,15 +196,19 @@
       if (claim) {
         const k = claim.claim, prev = conflicts.find(x => x.claim === k);
         if (prev) { if (!prev.items.includes(title(it.name))) prev.items.push(title(it.name)); } else conflicts.push({ claim: k, items: [title(it.name)] });
-        return;
       }
       const dupKey = c.additive ? c.additive.base : key;
       if (seen.has(dupKey)) return;
       seen.add(dupKey);
       const g = groups[c.group] || (groups[c.group] = { key: c.group, ...GROUPS[c.group], items: [] });
-      g.items.push({ name: title(it.name), pos: sub ? null : pos, inside: sub || null, minor: it.minor, note: it.note && !ROLE_NOTE.test(it.note) ? it.note : "", kind: c.kind || null, additive: c.additive || null });
+      g.items.push({ name: title(it.name), pos: sub ? it.headed || null : pos, inside: it.headed ? null : sub || null, minor: it.minor, note: it.note && !ROLE_NOTE.test(it.note) ? it.note : "", kind: c.kind || null, additive: c.additive || null,
+        // Listed, but marked: the product's name says otherwise, so the list (or the name) is likely wrong.
+        conflict: claim ? `The product name says ${claim.claim}. Check the package.` : null });
     };
-    for (const it of p.items) add(it);
+    // A heading like "Preservatives (Calcium Propionate, Sorbic Acid)" or "Leavening (Baking Soda, …)" isn't an
+    // ingredient of its own: what's inside is listed instead (still counted in the label's order).
+    const heading = it => it.sub.length && /^(?:preservatives?|leavening(?: agents?)?|emulsifiers?|stabilizers?|thickeners?|colou?rs?|colou?rings?|dough conditioners?|vitamins and minerals|spices?)$/i.test(it.name);
+    for (const it of p.items) { if (heading(it)) { pos++; it.sub.forEach(x => { x.headed = pos; }); continue; } add(it); }
     // Sub-ingredients ("Dill Relish (Cucumber, Vinegar, Salt, Xanthan Gum ...)"): only the additives, sugars and fats inside
     // are worth listing separately; the rest is what the named food is made of. Top-level entries go first, so an
     // ingredient listed both ways keeps its place in the list.
@@ -213,6 +217,8 @@
     for (const it of p.items) subs(it, title(it.name));
     // Notes that depend on what's there.
     const out = ORDER.filter(k => groups[k]).map(k => groups[k]);
+    // Label order inside each group; ingredients only found inside another one go last.
+    for (const g of out) g.items.sort((x, y) => (x.pos || 999) - (y.pos || 999));
     for (const g of out) {
       if (g.key === "sugar") {
         const first = g.items.find(i => i.pos);
@@ -245,7 +251,8 @@
     const summary = [`${count} ingredient${count === 1 ? "" : "s"}`,
       additives ? `${additives} additive${additives === 1 ? "" : "s"}${concern ? ` (${concern} to know about)` : ""}` : "no additives found",
       sugars ? `${sugars} added sugar${sugars === 1 ? "" : "s"}` : null].filter(Boolean).join(" · ");
-    const conflict = conflicts.length ? `Ingredient data conflicts with the product name: ${conflicts.map(c => `the list includes ${c.items.join(", ")}, but the name says ${c.claim}`).join("; ")}. Left out below; check the package.` : null;
+    // A short line for a tooltip; the details sit next to each marked ingredient.
+    const conflict = conflicts.length ? `Ingredient list conflicts with the name (${conflicts.map(c => `${c.items.join(", ")} in a ${c.claim} product`).join("; ")})` : null;
     return { groups: out, count, additives, sugars, concern, contains: p.contains, may: p.may, summary, conflicts, conflict };
   }
 

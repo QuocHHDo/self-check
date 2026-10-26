@@ -1,0 +1,200 @@
+// The side panel: the full breakdown for the product in the active tab. The content script works out the product and
+// its nutrition (see content.js) and the background keeps it per tab; this page re-scores it with your saved goals, so
+// a goal change shows up at once. Order: verdict, daily-limit bars, notes, ingredients, then sources and settings.
+(() => {
+  "use strict";
+  const V = self.SelfCheckVerdict, C = self.SelfCheckCard, ADD = self.SelfCheckAdditives, ING = self.SelfCheckIngredients, B = self.SelfCheckBackup;
+  const { FOODS } = self.SelfCheckData;
+  const SITE = "https://quochhdo.github.io/should-i-buy-it/";
+  const $ = id => document.getElementById(id);
+  const get = keys => new Promise(r => chrome.storage.local.get(keys, v => r(v || {})));
+  const set = obj => new Promise(r => chrome.storage.local.set(obj, r));
+  const el = (tag, attrs = {}, ...kids) => {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) { if (v == null || v === false) continue; if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else if (k === "html") e.innerHTML = v; else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v); }
+    for (const c of kids) if (c != null && c !== false) e.append(c);
+    return e;
+  };
+  const cap = s => s ? s[0].toUpperCase() + s.slice(1) : s;
+  const ordinal = n => n + (n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] || "th");
+
+  // Which tab this panel follows: the active tab in its window, or a fixed one (?tab=…, when opened as a tab).
+  const fixed = Number(new URLSearchParams(location.search).get("tab")) || null;
+  let tabId = fixed, winId = null, data = null, profile = V.DEFAULT_PROFILE, toApp = [], openSet = new Set(["ingr"]);
+
+  async function follow() {
+    if (fixed) return;
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    tabId = tab ? tab.id : null;
+    if (tab) winId = tab.windowId;
+  }
+  async function load() {
+    const local = await get(["profile", "toApp", "panelSections"]);
+    profile = { ...V.DEFAULT_PROFILE, ...(local.profile || {}) };
+    toApp = Array.isArray(local.toApp) ? local.toApp : [];
+    if (Array.isArray(local.panelSections)) openSet = new Set(local.panelSections);
+    const k = "tab:" + tabId;
+    data = tabId != null ? (await chrome.storage.session.get(k))[k] || null : null;
+    render();
+  }
+
+  // ---------- states ----------
+  function empty() {
+    return el("div", { class: "empty" },
+      el("span", { html: C.icon("fine", 36).replace('aria-hidden="true"', 'aria-hidden="true" style="opacity:.5"') }),
+      el("p", { class: "big", text: "Open a Walmart food product to see a verdict." }),
+      el("p", { class: "small", text: "On a product page, the verdict sits next to the star rating. Click it to see the details here." }));
+  }
+  function render() {
+    const main = $("main");
+    if (!data) return main.replaceChildren(empty());
+    if (data.state === "loading") return main.replaceChildren(el("p", { class: "small", role: "status", text: "Checking this product…" }));
+    if (data.state === "none") return main.replaceChildren(el("section", {},
+      data.product ? el("p", { class: "pname", text: data.product.name }) : null,
+      el("p", { class: "headline", text: data.message }),
+      el("p", { class: "small" }, "You can still ", el("a", { href: SITE, target: "_blank", rel: "noopener", text: "look it up by name in the app ↗" }), ".")));
+    main.replaceChildren(...ready(data.result, data.product || {}));
+  }
+
+  // ---------- the breakdown ----------
+  function ready(r, prod) {
+    const f = r.food, a = V.assess(f, profile);
+    const ingr = ING ? ING.analyze(prod.ingredients || f.ingredients, [prod.name, f.n].filter(Boolean).join(" | ")) : null;
+    const adds = ADD && ADD.analyze(f);
+    return [verdict(f, a, prod), bars(f), facts(f, r, prod), notes(f, a, adds), swap(f, a), ingr ? ingredients(ingr) : null, foot(r, prod, f)].filter(Boolean);
+  }
+
+  function verdict(f, a, prod) {
+    const missing = C.uncertain(f);
+    return el("section", { class: "verdict " + a.tier, "aria-label": "Verdict" },
+      el("div", { class: "vrow" }, el("span", { html: C.icon(a.tier, 30) }), el("span", { class: "vword", text: a.word })),
+      el("p", { class: "headline", text: C.headline(f, profile, a) }),
+      el("p", { class: "pname", text: prod.name || f.n }),
+      // Only something that changes how far to trust the verdict itself gets a banner.
+      missing ? el("p", { class: "banner", role: "note" }, el("b", { text: "⚠ " }), "Some nutrients that decide the verdict aren't listed, so it's less certain.") : null);
+  }
+
+  function bars(f) {
+    const list = C.limitBars(f, profile);
+    if (!list.length) return null;
+    const rows = list.map(b => {
+      const [t1, t2] = b.marks, [s1, s2] = b.markShares || [];
+      const tip = b.known
+        ? `${b.name}: ${b.value} of your daily limit. One serving counts against the verdict from ${Math.round(s1 * 100)}% and counts double from ${Math.round(s2 * 100)}%.`
+        : `${b.name}: not listed for this product.`;
+      return el("div", { class: "bar", tabindex: "0", role: "group", title: tip, "aria-label": tip },
+        el("span", { text: b.name }),
+        el("div", { class: "track" + (b.known ? "" : " na"), "aria-hidden": "true" },
+          t1 != null ? el("span", { class: "zone warn", style: `left:${(t1 * 100).toFixed(1)}%;right:${t2 != null ? ((1 - t2) * 100).toFixed(1) : 0}%` }) : null,
+          t2 != null ? el("span", { class: "zone bad", style: `left:${(t2 * 100).toFixed(1)}%;right:0` }) : null,
+          b.known ? el("span", { class: "fill", style: `width:${(b.fill * 100).toFixed(1)}%` }) : null),
+        el("span", { class: "val" }, b.known ? el("b", { text: b.value.split(" · ")[0] }) : "not listed", b.known ? ` · ${b.value.split(" · ")[1]}` : null));
+    });
+    return el("section", { "aria-labelledby": "hLimits" }, el("h2", { id: "hLimits", text: "Your daily limits, one serving" }),
+      el("div", { class: "bars" }, ...rows),
+      el("div", { class: "zkey", "aria-hidden": "true" }, el("span", {}, el("i", { class: "k0" }), "fine"), el("span", {}, el("i", { class: "k1" }), "counts against"), el("span", {}, el("i", { class: "k2" }), "counts double")));
+  }
+
+  function facts(f, r, prod) {
+    const itemName = r.typical ? f.n : prod.name || f.n;
+    const onList = toApp.some(x => x.n === itemName);
+    const listBtn = el("button", { class: "btn" + (onList ? " on" : ""), type: "button", "aria-pressed": onList ? "true" : "false", text: onList ? "✓ On your list" : "+ Add to list",
+      onclick: async () => { toApp = onList ? toApp.filter(x => x.n !== itemName) : [...toApp, { n: itemName, qty: 1, food: r.typical ? null : { ...f, n: itemName } }]; await set({ toApp }); } });
+    const send = toApp.length ? el("a", { class: "btn primary", href: SITE, target: "_blank", rel: "noopener", text: `Send ${toApp.length} to your list in the app ↗`,
+      onclick: () => setTimeout(() => set({ toApp: [] }), 300) }) : null;
+    if (send) B.encode(B.packAdd(toApp)).then(t => { send.href = SITE + "#add=" + t; });
+    const sp = f.storePrice, per = sp && sp.perServing ? C.perDollar(f, sp.perServing) : null;
+    return el("section", { "aria-label": "Serving and price" },
+      el("div", { class: "facts" }, el("span", { text: `${V.isMissing(f, "cal") ? "—" : Math.round(f.cal)} cal · ${V.isMissing(f, "pro") ? "—" : V.fmt(f.pro) + " g"} protein · per ${f.s}` }), listBtn),
+      sp && sp.perServing ? el("p", { class: "price" }, el("b", { text: `≈ ${C.money(sp.perServing)} a serving` }), ` at Walmart's price${sp.unitText ? ` (${sp.unitText})` : ""}`, per ? ` · ${per}` : null) : null,
+      send);
+  }
+
+  const NIC = { pos: "+", neg: "−", warn: "!", note: "i" };
+  function notes(f, a, adds) {
+    const head = C.headline(f, profile, a);
+    // Flagged additives the verdict already explains aren't repeated.
+    const flagged = ((adds && adds.flagged) || []).filter(x => !a.reasons.some(r => r.t.toLowerCase().includes(x.name.toLowerCase())))
+      .map(x => ({ k: "warn", t: `${x.name}${x.code ? ` (${x.code})` : ""}: ${x.flag.t}` }));
+    const list = [...a.reasons, ...flagged].filter(r => r.t !== head);
+    if (!list.length) return null;
+    const items = list.map(r => {
+      const n = C.shortNote(r, f, profile);
+      const full = el("p", { class: "full", hidden: true, text: n.full });
+      const more = n.more ? el("button", { class: "more", type: "button", "aria-expanded": "false", text: "more",
+        onclick: e => { const open = full.hidden; full.hidden = !open; e.target.setAttribute("aria-expanded", String(open)); e.target.textContent = open ? "less" : "more"; } }) : null;
+      return el("li", { class: r.k }, el("span", { class: "nic", "aria-hidden": "true", text: NIC[r.k] || "i" }), el("span", {}, n.short, more), more ? full : null);
+    });
+    return el("section", { "aria-labelledby": "hWhy" }, el("h2", { id: "hWhy", text: "Why" }), el("ul", { class: "notes" }, ...items));
+  }
+
+  function swap(f, a) {
+    if (a.tier === "good" || a.tier === "fine") return null;
+    const sw = C.swap(f, FOODS, profile);
+    if (!sw) return null;
+    return el("section", { class: "swap", "aria-label": sw.lighter ? "A lighter version" : "Try instead" },
+      el("h2", { text: sw.lighter ? "A lighter version" : "Try instead" }),
+      el("div", { class: "row" }, el("b", { text: sw.food.n }),
+        sw.lighter ? null : el("span", { class: "vp " + sw.verdict.tier }, el("span", { html: C.icon(sw.verdict.tier, 14) }), sw.verdict.word),
+        el("a", { href: C.walmartSearch(sw.query), target: "_blank", rel: "noopener", "aria-label": `Search Walmart for ${sw.query}`, text: "Search Walmart →" })),
+      sw.lighter ? el("p", { class: "small", text: `${cap(sw.lighter)}. Same verdict, but it goes further on your limits.` }) : null);
+  }
+
+  // A disclosure that reopens as you left it.
+  const disclosure = (k, title, summaryExtra, ...kids) => el("details", { class: "disc", open: openSet.has(k) ? true : null,
+    ontoggle: e => { if (e.target.open) openSet.add(k); else openSet.delete(k); set({ panelSections: [...openSet] }); } },
+    el("summary", {}, el("h2", { text: title }), summaryExtra ? el("span", { class: "small", text: ` · ${summaryExtra}` }) : null), ...kids);
+
+  function ingredients(r) {
+    const groups = r.groups.map(g => {
+      const conflicts = g.items.filter(i => i.conflict);
+      const body = g.key === "additive"
+        ? el("ul", { class: "alist" }, ...g.items.map(i => el("li", {},
+            el("div", { class: "arow" }, el("span", { class: "an" }, i.name, i.inside ? el("span", { class: "in", text: ` in ${i.inside.toLowerCase()}` }) : null, i.conflict ? el("span", { class: "cw", title: i.conflict, text: " ⚠" }) : null),
+              i.additive.statusLabel ? el("span", { class: "ast " + i.additive.status, text: i.additive.statusLabel }) : null),
+            i.additive.role || i.additive.what ? el("span", { class: "ar", text: i.additive.role || i.additive.what }) : null,
+            ["mixed", "removed"].includes(i.additive.status) && i.additive.note ? el("span", { class: "ar" }, i.additive.note, i.additive.src ? " " : null,
+              i.additive.src ? el("a", { href: i.additive.src, target: "_blank", rel: "noopener", text: "Source" }) : null) : null)))
+        : el("div", { class: "chips" }, ...g.items.map(i => el("span", { class: "ich" + (i.pos ? "" : " nopos") + (i.conflict ? " conflict" : ""),
+            title: [i.pos ? `${ordinal(i.pos)} ingredient${i.minor ? " (2% or less)" : ""}` : i.inside ? `Part of ${i.inside}` : "", i.conflict].filter(Boolean).join(". ") },
+            i.pos ? el("span", { class: "pos", text: String(i.pos) }) : null, i.name, i.inside ? el("span", { class: "in", text: ` in ${i.inside.toLowerCase()}` }) : null,
+            i.conflict ? el("span", { class: "cw", "aria-label": "conflicts with the product name", text: "⚠" }) : null)));
+      return el("div", { class: "ig " + g.tone },
+        el("div", { class: "igh" }, el("span", { class: "gdot", "aria-hidden": "true" }), g.label, el("span", { class: "n", text: String(g.items.length) })),
+        g.note || g.detail ? el("p", { class: "ign", text: [g.detail, g.note].filter(Boolean).join(" ") }) : null,
+        body,
+        ...conflicts.map(i => el("p", { class: "cnote" }, el("span", { class: "cw", "aria-hidden": "true", text: "⚠ " }), `${i.name}: ${i.conflict}`)));
+    });
+    return el("section", {},
+      r.contains ? el("p", { class: "allergen" }, el("b", { text: "Label says: " }), `Contains ${r.contains}.`) : null,
+      disclosure("ingr", "Ingredients", r.summary,
+        el("p", { class: "small", text: "Numbers are each ingredient's place on the label, most to least by weight." }),
+        ...groups,
+        r.may.length ? el("p", { class: "small", text: r.may.join(" ") }) : null));
+  }
+
+  function foot(r, prod, f) {
+    const listedAs = !r.typical && f.n && prod.name && !String(prod.name).toLowerCase().includes(String(f.n).toLowerCase()) && r.source !== "this page" ? ` It's listed there as “${f.n}”.` : "";
+    return el("section", { class: "foot" },
+      el("p", {}, el("b", { text: "Source: " }), `${r.detail}.${listedAs}${r.note ? " " + r.note : ""}`),
+      disclosure("about", "About this verdict", null,
+        el("p", { text: "It doesn't check allergens: read the label if you have a food allergy." }),
+        el("p", { text: `Scored against your goals: ${profile.cal.toLocaleString("en-US")} cal, ${profile.pro} g protein, ≤${profile.sat} g saturated fat, ≤${profile.na.toLocaleString("en-US")} mg sodium, ≤${profile.add} g added sugar.` }),
+        el("p", { text: "General nutrition guidance, not medical advice." })),
+      el("div", { class: "links" },
+        el("button", { class: "btn", type: "button", text: "Change your goals", onclick: () => chrome.runtime.openOptionsPage() }),
+        r.link ? el("a", { href: SITE + r.link, target: "_blank", rel: "noopener", text: "Open in the app ↗" }) : null));
+  }
+
+  // ---------- staying current ----------
+  $("gear").addEventListener("click", () => chrome.runtime.openOptionsPage());
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "session" && tabId != null && changes["tab:" + tabId]) { data = changes["tab:" + tabId].newValue || null; render(); }
+    if (area === "local" && (changes.profile || changes.toApp)) load();
+  });
+  if (!fixed) {
+    chrome.tabs.onActivated.addListener(info => { if (winId == null || info.windowId === winId) { tabId = info.tabId; winId = info.windowId; load(); } });
+    chrome.windows.onFocusChanged.addListener(() => follow().then(load), { windowTypes: ["normal"] });
+  }
+  follow().then(load);
+})();

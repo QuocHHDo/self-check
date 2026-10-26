@@ -577,7 +577,9 @@
     return null;
   }
   // A packaged product's own name can say more than its store category ("Frosted Flakes" filed under "Pantry meal essentials").
-  const NAME_TARGET = [[/\b(?:cereal|frosted flakes|corn flakes|cheerios|bran flakes|muesli)\b(?!.*\bbars?\b)/i, "group:cereal"]];
+  const NAME_TARGET = [[/\b(?:cereal|frosted flakes|corn flakes|cheerios|bran flakes|muesli)\b(?!.*\bbars?\b)/i, "group:cereal"],
+    // Baked sweets: "Honey Buns" are a pastry, not honey.
+    [/\b(?:honey buns?|donuts?|doughnuts?|pastr(?:y|ies)|cinnamon rolls?|muffins?|danish|cupcakes?|snack cakes?|brownies?|cookies?|zebra cakes|swiss rolls?|oatmeal creme pies?)\b/i, "snacks"]];
   const toTarget = (v, via) => !v ? null : v.startsWith("group:") ? { ...SWAP_GROUPS[v.slice(6)], group: v.slice(6), via } : { cat: v, via };
 
   // Where to look for swaps. Built-ins use their category. A lookup uses its Open Food Facts tags or USDA food

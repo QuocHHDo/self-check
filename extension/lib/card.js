@@ -85,5 +85,66 @@
   }
   const money = v => `$${v.toFixed(2)}`;
 
-  return { headline, limitBars, reasons, swap, searchName, walmartSearch, perDollar, money };
+  // ---------- short copy for the badge and the side panel ----------
+  const words = t => String(t).trim().split(/\s+/).filter(Boolean);
+  const trimTo = (t, max) => { const w = words(t); return w.length <= max ? t.trim() : w.slice(0, max).join(" ").replace(/[,;:]$/, "") + "…"; };
+  // The badge's reason: one short phrase, at most 40 characters ("nothing to flag", "high protein for the calories").
+  function badgeReason(f, p, a = V.assess(f, p)) {
+    if (a.tier === "skip") return "on your skip list";
+    if (a.tier === "fine") return "nothing to flag";
+    const scored = a.reasons.filter(r => r.n && r.d);
+    const lead = a.tier === "good" ? byWeight(scored.filter(r => r.d > 0)) : byWeight(scored.filter(r => r.d < 0));
+    const fromLabel = lead.map(r => label(a.tier === "good" ? PLUS : MINUS, r, f, p)).find(t => t && t.length <= 40);
+    if (fromLabel && !a.reasons.some(r => r.k === "warn" && /^Can't (rate it|be) "Get it"/.test(r.t))) return fromLabel;
+    // Otherwise the first clause of the headline, cut at a word boundary.
+    const h = headline(f, p, a).replace(/\.$/, "").replace(/^Not much fiber or protein for its .*/, "little protein or fiber")
+      .replace(/^Only \d+ calories, but .*/, "a small serving, still not free").replace(/^Looks good on what's known, but key data is missing$/, "good so far, but data is missing");
+    const clause = h.split(/, (?:but|despite|so|and) |: |; /)[0];
+    const t = clause.length <= 40 ? clause : clause.slice(0, 39).replace(/\s+\S*$/, "") + "…";
+    return t[0].toLowerCase() + t.slice(1);
+  }
+  // A note in at most 12 words, with the full sentence kept for a "more" disclosure. Scored reasons use their short
+  // label ("30% of your saturated-fat limit"); other notes keep their first clause.
+  function shortNote(r, f, p) {
+    const full = r.t;
+    let short = r.n && r.d ? label(r.d > 0 ? PLUS : MINUS, r, f, p) : "";
+    if (short) short = cap(short);
+    else {
+      // "Partial data: Open Food Facts didn't report fiber." → "Open Food Facts didn't report fiber".
+      const body = full.replace(/^Partial data: /, "");
+      let first = body.split(/(?<=[a-z0-9%)])[.;:] |, so |, which |, but | — /)[0].replace(/\.$/, "");
+      // "Titanium dioxide (E171): Banned as a food additive in the EU since 2022." keeps what follows a short name.
+      const named = body.match(/^([^:]{2,40}): (.+)$/);
+      if (named && words(named[1]).length <= 4) first = `${named[1]}: ${named[2].split(/(?<=[a-z0-9%)])[.;] |, so |, which |, but /)[0].replace(/\.$/, "")}`;
+      short = trimTo(first, 12);
+    }
+    short = trimTo(short, 12).replace(/\.$/, "");
+    return { short, full, more: full.replace(/\.$/, "") !== short };
+  }
+  // Each verdict has its own shape as well as its own color, so color is never the only cue.
+  const TIERS = {
+    good: { shape: "check", label: "Get it" },
+    fine: { shape: "dot", label: "Fine" },
+    mid: { shape: "triangle", label: "In moderation" },
+    bad: { shape: "octagon", label: "Limit it" },
+    skip: { shape: "slash", label: "Skip" },
+  };
+  // Inline SVG for a verdict's icon (24×24 viewBox). Colors come from CSS custom properties set by the page.
+  function icon(tier, size = 20) {
+    const S = {
+      check: '<circle cx="12" cy="12" r="11" fill="var(--v-good)"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="var(--v-glyph, #fff)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
+      dot: '<circle cx="12" cy="12" r="9.5" fill="var(--v-fine)"/>',
+      triangle: '<path d="M12 2.2L23 21.3H1z" fill="var(--v-mid)" stroke="var(--v-mid)" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 9v5.6" stroke="#1d1a12" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="18" r="1.4" fill="#1d1a12"/>',
+      octagon: '<path d="M7.6 1h8.8L23 7.6v8.8L16.4 23H7.6L1 16.4V7.6z" fill="var(--v-bad)"/><path d="M6.5 12h11" stroke="var(--v-glyph, #fff)" stroke-width="2.8" stroke-linecap="round"/>',
+      slash: '<circle cx="12" cy="12" r="10" fill="none" stroke="var(--v-bad)" stroke-width="2.8"/><path d="M5.2 18.8L18.8 5.2" stroke="var(--v-bad)" stroke-width="2.8" stroke-linecap="round"/>',
+    };
+    const t = TIERS[tier] || TIERS.fine;
+    return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true" focusable="false">${S[t.shape]}</svg>`;
+  }
+
+  // Missing data that could change the verdict: calories, protein, or a daily limit. A missing fiber value can only
+  // cost a food a plus, so it doesn't make the verdict less certain on its own.
+  const uncertain = f => ["cal", "pro", "sat", "na", "add"].some(k => V.isMissing(f, k));
+
+  return { headline, limitBars, reasons, swap, searchName, walmartSearch, perDollar, money, badgeReason, shortNote, TIERS, icon, uncertain };
 });

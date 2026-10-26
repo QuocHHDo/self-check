@@ -1,5 +1,6 @@
 // Makes the Chrome Web Store images (store/): three 1280×800 screenshots of the real extension running in Chromium
-// on a neutral mock store page (no store branding), and the 440×280 promo tile.
+// on a neutral mock store page (no store branding), and the 440×280 promo tile. Screenshot 1 puts the product page and
+// the extension's side panel side by side, the way they appear in Chrome.
 //   node scripts/store-assets.js
 const fs = require("node:fs"), os = require("node:os"), path = require("node:path");
 const { chromium } = require("playwright");
@@ -36,10 +37,11 @@ const shell = (body) => `<!doctype html><html><head><meta charset="utf-8"><title
 const productHtml = id => shell(`<div class="bar">Grocery<div class="s">Search groceries</div></div>
   <div style="display:grid;grid-template-columns:420px 1fr;gap:40px;padding:36px 28px">
     <img src="${jar("#b07a3c", "PEANUT")}" width="420" height="420" alt="">
-    <div><div style="color:#666">Pantry › Peanut butter</div><h1 style="font-size:28px;margin:6px 0 10px">${pageData[id].product.name}</h1>
+    <div><div style="color:#666">Pantry › Peanut butter</div><section><h1 id="main-title" style="font-size:28px;margin:6px 0 6px">${pageData[id].product.name}</h1></section>
+      <div><div data-testid="reviews-and-ratings" style="display:flex;flex-wrap:wrap;padding-bottom:14px"><div style="height:18px;color:#555;white-space:nowrap">★★★★★ (4.6) | 2,140 ratings</div></div></div>
       <div style="font:700 30px system-ui">$2.48</div><div style="color:#666;margin:6px 0 18px">15.5¢/oz</div>
       <button style="font:700 16px system-ui;background:#2f6fd6;color:#fff;border:0;border-radius:22px;padding:12px 34px">Add to cart</button></div></div>
-  <div class="cap">A verdict on every food product page<small>Scored against your own goals, with the reasons and a better swap.</small></div>`)
+  `)
   .replace("__DATA__", JSON.stringify({ props: { pageProps: { initialData: { data: pageData[id] } } } }));
 const searchHtml = () => shell(`<div class="bar">Grocery<div class="s">snacks and staples</div></div>
   <div style="display:grid;grid-template-columns:repeat(4,280px);gap:22px;padding:28px">${PRODUCTS.map(([id, , name, c]) =>
@@ -49,7 +51,7 @@ const searchHtml = () => shell(`<div class="bar">Grocery<div class="s">snacks an
 
 (async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "sib-store-"));
-  const ctx = await chromium.launchPersistentContext(dir, { channel: "chromium", headless: true, viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1,
+  const ctx = await chromium.launchPersistentContext(dir, { channel: "chromium", headless: true, viewport: { width: 900, height: 800 }, deviceScaleFactor: 1,
     args: [`--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`] });
   try {
     await ctx.route("https://www.walmart.com/**", r => {
@@ -58,19 +60,33 @@ const searchHtml = () => shell(`<div class="bar">Grocery<div class="s">snacks an
       return r.fulfill({ contentType: "text/html", body: id && pageData[id] ? productHtml(id) : "<!doctype html><p>home" });
     });
     const sw = ctx.serviceWorkers()[0] || await ctx.waitForEvent("serviceworker");
-    await sw.evaluate(() => chrome.storage.local.set({ collapsed: false, searchBadges: true, badgeCache: {} }));
+    await sw.evaluate(() => chrome.storage.local.set({ searchBadges: true, badgeCache: {}, panelSections: ["ingr"] }));
     const page = await ctx.newPage();
-    // 1. product page, card open, with "About this verdict" closed.
+    const extId = sw.url().split("/")[2];
+    // 1. product page with the badge, next to the side panel.
     await page.goto("https://www.walmart.com/ip/Creamy-Peanut-Butter/500100");
-    await page.waitForFunction(() => { const h = document.getElementById("should-i-buy-it-card"); return h && h.shadowRoot.querySelector(".card .verdict"); });
+    await page.waitForFunction(() => { const h = document.getElementById("should-i-buy-it-badge"); const b = h && h.shadowRoot.querySelector("button"); return b && !/checking/.test(b.textContent); });
     await page.waitForTimeout(400);
-    await page.screenshot({ path: path.join(OUT, "screenshot-1-card.png") });
+    const left = await page.screenshot();
+    const keys = await sw.evaluate(() => chrome.storage.session.get(null).then(o => Object.keys(o).filter(k => /^tab:/.test(k))));
+    const panel = await ctx.newPage(); await panel.setViewportSize({ width: 380, height: 800 });
+    await panel.goto(`chrome-extension://${extId}/sidepanel.html?tab=${keys[0].split(":")[1]}`);
+    await panel.waitForFunction(() => document.querySelector(".verdict .vword"));
+    await panel.waitForTimeout(300);
+    const right = await panel.screenshot();
+    await panel.close();
+    const comp = await ctx.newPage(); await comp.setViewportSize({ width: 1280, height: 800 });
+    await comp.setContent(`<body style="margin:0;display:flex;width:1280px;height:800px;overflow:hidden;background:#fff"><img src="data:image/png;base64,${left.toString("base64")}" width="900" height="800">
+      <div style="width:0;border-left:1px solid #d9dcd3"></div><img src="data:image/png;base64,${right.toString("base64")}" width="379" height="800">
+      <div style="position:absolute;left:28px;bottom:28px;max-width:520px;background:#1d1f1a;color:#fff;border-radius:14px;padding:16px 20px;font:600 22px/1.3 system-ui">A verdict next to the rating<small style="display:block;font:400 15px/1.4 system-ui;color:#cfd3c8;margin-top:6px">Click it for the full breakdown in Chrome's side panel: limits, reasons, ingredients.</small></div></body>`);
+    await comp.screenshot({ path: path.join(OUT, "screenshot-1-card.png") });
+    await comp.close();
+    await page.setViewportSize({ width: 1280, height: 800 });
     // 2. search page with badges.
     await page.goto("https://www.walmart.com/search?q=snacks");
     await page.waitForFunction(() => document.querySelectorAll(".sib-badge").length >= 8 && ![...document.querySelectorAll(".sib-badge")].some(b => /…/.test(b.shadowRoot.textContent)), null, { timeout: 30000 });
     await page.screenshot({ path: path.join(OUT, "screenshot-2-search.png") });
     // 3. settings.
-    const extId = sw.url().split("/")[2];
     await page.goto(`chrome-extension://${extId}/options.html`);
     await page.waitForTimeout(400);
     await page.screenshot({ path: path.join(OUT, "screenshot-3-settings.png") });

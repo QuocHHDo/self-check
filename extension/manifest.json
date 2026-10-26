@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Should I Buy It? Shopping helper",
   "short_name": "Should I Buy It?",
-  "version": "1.3.6",
+  "version": "1.4.0",
   "description": "See whether a food fits your nutrition goals right on its product page. Free and private: everything runs in your browser.",
   "icons": {
     "16": "icons/icon-16.png",
@@ -11,7 +11,8 @@
     "128": "icons/icon-128.png"
   },
   "permissions": [
-    "storage"
+    "storage",
+    "sidePanel"
   ],
   "host_permissions": [
     "https://world.openfoodfacts.org/*",
@@ -21,7 +22,7 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Should I Buy It? settings",
+    "default_title": "Should I Buy It? Open the side panel",
     "default_icon": {
       "16": "icons/icon-16.png",
       "32": "icons/icon-32.png"
@@ -44,11 +45,14 @@
         "lib/sources.js",
         "lib/search.js",
         "lib/walmart.js",
-        "lib/backup.js",
         "content.js"
       ],
       "run_at": "document_idle"
     }
   ],
-  "homepage_url": "https://quochhdo.github.io/should-i-buy-it/"
+  "homepage_url": "https://quochhdo.github.io/should-i-buy-it/",
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "minimum_chrome_version": "116"
 }
