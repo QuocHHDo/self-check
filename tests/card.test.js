@@ -74,3 +74,25 @@ test("per-dollar line: none without a cost or for foods that are neither protein
   assert.equal(C.perDollar({ cal: 140, pro: 0, fib: 0 }, 0.65), null);
   assert.equal(C.money(1.121), "$1.12");
 });
+
+test("swaps stay within the same kind of food", () => {
+  const W = require("../js/walmart.js"), { data } = require("./fixtures/walmart-compact.js");
+  const P = V.DEFAULT_PROFILE;
+  const sw = k => { const p = W.product(data(k)), pl = W.plan(p), f = pl.food || W.byName(pl.query, FOODS), s = C.swap(f, FOODS, P); return s ? s.food.n : null; };
+  assert.equal(sw("frosted flakes"), "Toasted oat cereal, plain", "a cereal filed under 'Pantry meal essentials' still swaps with cereals");
+  assert.equal(sw("great value orange juice"), "Orange", "juice: the whole fruit, not an energy drink");
+  assert.equal(sw("great value salted butter"), "Extra virgin olive oil", "butter: an oil, not mayonnaise");
+  assert.equal(sw("oscar mayer bacon"), "Turkey breast, roasted", "bacon borrows Bacon's hand-picked swaps, not chicken nuggets");
+  assert.equal(sw("lays classic potato chips"), "Popcorn, air-popped");
+  assert.equal(sw("great value white bread"), "Whole wheat bread");
+  assert.equal(sw("great value large white eggs 12 count"), "Egg whites");
+  const by = n => FOODS.find(f => f.n === n);
+  const one = n => (V.findSwaps(by(n), FOODS, P, 1)[0] || { food: { n: null } }).food.n;
+  assert.equal(one("Alfredo sauce, jarred"), "Marinara sauce");
+  for (const n of ["Marinara sauce", "Jam", "Teriyaki sauce", "Brown gravy", "Sugar", "Queso dip"]) assert.notEqual(one(n), "Sriracha", n);
+  // A creamy sauce never gets a hot sauce, whatever its name.
+  const tartar = { n: "Louisiana Fish Fry Creamy Tartar Sauce with Relish & Lemon, 10.5 oz", c: "lookup", s: "2 Tbsp (28 g)", cal: 120, fat: 12, sat: 2, trans: 0, chol: 10, na: 230, carb: 3, fib: 0, sug: 2, add: 1, pro: 0,
+    src: "walmart", dataType: "Branded", foodCategory: "Food > Pantry > Condiments > Tartar sauce", missing: [] };
+  assert.equal(V.kindOf(tartar, "condiments"), "creamy");
+  assert.ok(V.findSwaps(tartar, FOODS, P, 3).every(s => V.kindOf(s.food, "condiments") === "creamy"));
+});

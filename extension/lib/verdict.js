@@ -397,7 +397,7 @@
     "White rice": ["Brown rice", "Quinoa"],
     "Jasmine rice": ["Brown rice", "Quinoa"],
     "Pasta": ["Whole wheat pasta"],
-    "White bread": ["Pita, whole wheat", "English muffin, whole wheat"],
+    "White bread": ["Whole wheat bread", "Pita, whole wheat", "English muffin, whole wheat"],
     "Flour tortilla": ["Corn tortillas", "Low-carb tortilla"],
     "Instant ramen": ["Soba noodles", "Beef pho"],
     "Mac and cheese, boxed": ["Whole wheat pasta"],
@@ -513,6 +513,69 @@
     [/dinner|entree|entrée|meal|pizza|soup|sandwich|prepared|side dish/i, "prepared"],
   ];
   const NUT_NAME = /almond|peanut|cashew|pistachio|walnut|pecan|macadamia|hazelnut|\bnuts?\b|\bseeds?\b|trail mix/i;
+  // Kinds inside a category: a swap has to be the same kind of food (tartar sauce for a creamy sauce, not Sriracha;
+  // bacon for another processed meat, not chicken nuggets). First match wins, so specific kinds come first.
+  const KINDS = {
+    condiments: [
+      ["pasta sauce", /marinara|alfredo|pasta sauce|pizza sauce|vodka sauce|pesto/],
+      ["creamy", /mayo|mayonnaise|aioli|tartar|ranch|caesar|thousand island|blue cheese|tzatziki|queso|remoulade|creamy|honey mustard|sandwich spread/],
+      ["burger", /ketchup|catsup|mustard|bbq|barbecue|relish|pickle|steak sauce|worcestershire/],
+      ["hot", /sriracha|hot sauce|buffalo|chili sauce|chili garlic|tabasco|harissa|salsa|gochujang|chipotle/],
+      ["asian", /soy sauce|teriyaki|hoisin|fish sauce|oyster sauce|miso|peanut sauce|ponzu|tamari|coconut aminos|stir[- ]fry sauce/],
+      ["dressing", /vinaigrette|dressing|vinegar/],
+      ["sweet", /sugar|syrup|honey|\bjam\b|jelly|preserves|marmalade|molasses|agave|sweetener|monk fruit|stevia|erythritol|allulose/],
+      ["fat", /butter|margarine|ghee|lard|tallow|shortening|\boils?\b|grease|cooking spray/],
+      ["gravy", /gravy/],
+    ],
+    drinks: [
+      ["broth", /broth|stock/],
+      ["energy", /energy/],
+      ["sports", /sports drink|electrolyte|gatorade|powerade|bodyarmor|coconut water|hydration/],
+      ["coffee and tea", /coffee|latte|macchiato|cold brew|espresso|mocha|\btea\b|matcha|chai|horchata/],
+      ["juice", /juice|smoothie|nectar/],
+      ["fizzy and sweet", /soda|cola|lemonade|punch|kombucha|sparkling|seltzer|tonic|root beer|ginger ale|sweet tea|soft drink/],
+    ],
+    snacks: [
+      ["sweet", /ice cream|cookie|oreo|chocolate|donut|doughnut|muffin|brownie|cheesecake|\bpie\b|popsicle|sorbet|gumm|fruit snacks|candy|candies|\bbars?\b|treat|cake|mochi|cinnamon roll|milkshake|cocoa|hazelnut spread|fig|graham|pastr|frozen yogurt|pudding|wafer|s'mores/],
+      ["salty", /chips|crisps|crackers|pretzel|popcorn|pork rinds|veggie straws|seaweed|puffs|beef stick|kettle corn|snack mix|cheese curls|doritos|cheetos/],
+    ],
+    meat: [
+      ["meat snack", /jerky|beef stick|meat stick|meat snack/],
+      ["breakfast meat", /bacon|breakfast sausage|sausage links|sausage patt/],
+      ["deli meat", /deli|salami|pepperoni|bologna|\bham\b|lunch ?meat|prosciutto|spam|corned beef|roast beef|luncheon/],
+      ["sausage", /sausage|hot dog|frank|kielbasa|chorizo|bratwurst/],
+      ["ground", /ground|burger|patty|patties|meatball/],
+      ["breaded", /nugget|tender|breaded|popcorn chicken|fried chicken|wings/],
+    ],
+    dairy: [
+      ["eggs", /\beggs?\b|egg whites/],
+      ["yogurt", /yogurt|skyr|kefir/],
+      ["cream", /cream cheese|sour cream|whipped|heavy cream|half and half|creamer/],
+      ["cheese", /cheese|mozzarella|cheddar|parmesan|feta|brie|ricotta|swiss|provolone|colby|monterey/],
+      ["milk", /milk/],
+    ],
+    grains: [
+      ["breakfast", /cereal|flakes|granola|muesli|bran|oatmeal|\boats\b|cream of wheat|grits|cheerios/],
+      ["bread", /bread|\bbuns?\b|\brolls?\b|bagel|muffin|pita|naan|croissant|biscuit|toast|waffle|pancake|tortilla|wrap|cornbread/],
+      ["pasta and rice", /pasta|spaghetti|penne|noodle|macaroni|\brice\b|quinoa|couscous|farro|barley|bulgur|udon|soba/],
+    ],
+    prepared: [
+      ["soup", /soup|chili|\bpho\b|ramen|congee|stew/],
+      ["salad", /salad/],
+    ],
+  };
+  // Categories so broad that an unknown kind means no generic swap at all.
+  const STRICT_KIND = new Set(["condiments", "drinks", "snacks"]);
+  function kindOf(f, cat) {
+    const list = KINDS[cat];
+    if (!list) return null;
+    const name = [f.n, ...(f.a || [])].join(" | ").toLowerCase();
+    if (cat === "condiments" && pureFat(f) && !/mayo|aioli|dressing/.test(name)) return "fat";
+    for (const [k, re] of list) if (re.test(name)) return k;
+    return null;
+  }
+  // A packaged product's own name can say more than its store category ("Frosted Flakes" filed under "Pantry meal essentials").
+  const NAME_TARGET = [[/\b(?:cereal|frosted flakes|corn flakes|cheerios|bran flakes|muesli)\b(?!.*\bbars?\b)/i, "group:cereal"]];
   const toTarget = (v, via) => !v ? null : v.startsWith("group:") ? { ...SWAP_GROUPS[v.slice(6)], group: v.slice(6), via } : { cat: v, via };
 
   // Where to look for swaps. Built-ins use their category. A lookup uses its Open Food Facts tags or USDA food
@@ -521,6 +584,7 @@
   function swapTarget(f, foods) {
     if (f.c === "plate") return null;
     if (f.c && f.c !== "lookup") return { cat: f.c, via: "category" };
+    for (const [re, c] of NAME_TARGET) if (re.test(f.n)) return toTarget(c, "name");
     for (const [re, c] of OFF_CATEGORY) if ((f.categories || []).some(tag => re.test(tag))) return toTarget(c, "off");
     if (f.foodCategory && f.dataType === "Branded") {
       // "Popcorn, Peanuts, Seeds & Related Snacks" holds both: nuts swap with nuts, popcorn with snacks.
@@ -550,19 +614,36 @@
   }
   const swapCategory = (f, foods) => (swapTarget(f, foods) || {}).cat || null;
 
+  // A store product borrows the hand-picked swaps of the built-in food its name contains in full
+  // ("Oscar Mayer Naturally Hardwood Smoked Bacon" → Bacon's), when that food is in the same category.
+  function borrowedHints(f, foods, target) {
+    if ((f.c && f.c !== "lookup") || !target) return null;
+    const ft = new Set(tokens(f.n));
+    let best = null, bestLen = 0;
+    for (const g of foods) {
+      if (!SWAP_HINTS[g.n] || g.c !== target.cat) continue;
+      const gt = tokens(g.n.split(",")[0]);
+      if (gt.length && gt.every(t => ft.has(t)) && gt.length > bestLen) { best = g; bestLen = gt.length; }
+    }
+    return best ? SWAP_HINTS[best.n] : null;
+  }
+
   // Up to `max` better options from the same category, best verdict first ("Get it" before "In moderation"),
   // then hand-picked hints, name overlap and similar calories. Hand-picked hints are the only cross-category picks.
   function findSwaps(f, foods, p, max = 3) {
     const base = assess(f, p);
     const want = base.tier === "skip" ? 0 : RANK[base.tier];
     if (base.tier === "good" || base.tier === "fine") return [];
-    const hints = SWAP_HINTS[f.n] || [];
     const target = swapTarget(f, foods);
+    const hints = SWAP_HINTS[f.n] || borrowedHints(f, foods, target) || [];
     const cat = target && target.cat, only = target && target.foods ? new Set(target.foods) : null;
     // Drink or not: from the name for built-ins, from the source's category for lookups ("Coca-Cola" has no drink word).
     const fLiquid = target && (target.via === "off" || target.via === "usda") ? cat === "drinks" || LIQUID.test(f.n) : LIQUID.test(f.n);
     if (!cat && !hints.length) return [];
     const ft = new Set(tokens(f.n));
+    const fKind = cat && !only ? kindOf(f, cat) : null;
+    // A food of unknown kind in a broad category gets only its hand-picked swaps.
+    if (cat && !only && !fKind && STRICT_KIND.has(cat) && !hints.length) return [];
     const out = [];
     for (const g of foods) {
       if (g.n === f.n) continue;
@@ -572,6 +653,7 @@
       if (!hinted && !only && LIQUID.test(g.n) !== fLiquid) continue;
       if (!hinted && pureFat(g) !== pureFat(f)) continue;
       if (!hinted && HINT_ONLY.has(g.n)) continue;
+      if (!hinted && !only && cat && (fKind || STRICT_KIND.has(cat)) && kindOf(g, cat) !== fKind) continue;
       const a = assess(g, p);
       if (a.tier === "skip" || RANK[a.tier] <= want) continue;
       let score = 0;
@@ -581,11 +663,12 @@
       score += 8 * tokens(g.n).filter(t => ft.has(t)).length;
       if (score < 20) continue;
       score -= 4 * Math.abs(Math.log((g.cal + 20) / (f.cal + 20)));
-      out.push({ food: g, verdict: a, score, hinted });
+      out.push({ food: g, verdict: a, score, hinted, shared: tokens(g.n).some(t => ft.has(t)) });
     }
     // Hand-picked swaps stand alone when any of them apply; the generic search only fills in when there are none.
     const picked = out.filter(o => o.hinted);
-    return (picked.length ? picked : out).sort((x, y) => RANK[y.verdict.tier] - RANK[x.verdict.tier] || y.score - x.score).slice(0, max);
+    // Best verdict first; among equal verdicts, a closer substitute (shares a word: "Ground beef 90/10" for ground beef 80/20).
+    return (picked.length ? picked : out).sort((x, y) => RANK[y.verdict.tier] - RANK[x.verdict.tier] || (!picked.length && (y.shared - x.shared)) || y.score - x.score).slice(0, max);
   }
 
   // Why a swap is better, in a fair unit: per serving when the two servings have similar calories, otherwise
@@ -700,5 +783,5 @@
     return { rows, other, score: a.score, tier: a.tier, word: a.word, byScore, override, note, meal };
   }
 
-  return { breakdown, CUT, DENSITY, MEAL_CUT, NEGLIGIBLE_KCAL, RANK, DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, skipMatch, healthyFatSource, servingGrams, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, assessMeal, MEAL_SHARE, swapCategory, swapTarget, SWAP_GROUPS, swapDiffs, meaningfulDiff, FDA_DV, POS_FLOOR, HEAVY_SHARE, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, legacySlug, foldAccents, fmt };
+  return { breakdown, CUT, DENSITY, MEAL_CUT, NEGLIGIBLE_KCAL, RANK, DEFAULT_PROFILE, NUM_KEYS, NUTRIENT_WORD, skipMatch, healthyFatSource, servingGrams, isMissing, isLowerBound, missingNote, assess, explain, scale, findSwaps, kindOf, assessMeal, MEAL_SHARE, swapCategory, swapTarget, SWAP_GROUPS, swapDiffs, meaningfulDiff, FDA_DV, POS_FLOOR, HEAVY_SHARE, health, per100kcal, combine, KCAL_MIN, SWAP_HINTS, EVIDENCE, NOTES, slug, legacySlug, foldAccents, fmt };
 });
