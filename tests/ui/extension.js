@@ -13,6 +13,15 @@ const EXT = path.join(ROOT, "extension");
 const PAGES = require(path.join(ROOT, "tests/fixtures/walmart-pages.json")).pages;
 const BY_ID = { "363183524": "cheerios", "10450115": "milk", "5072512866": "oikos", "10315479": "peanut-butter", "51259338": "banana", "12166733": "coke", "99999999": "cable" };
 PAGES.cable = { props: { pageProps: { initialData: { data: { product: { usItemId: "99999999", name: "HDMI Cable, 6 ft", upc: "012345678905", category: { path: [{ name: "Electronics" }] } }, idml: { nutritionFacts: null } } } } } };
+// Tartar sauce: ingredients, price, serving, calories, protein, saturated fat, sodium and added sugar as on the real page the
+// user saw (Oct 25, 2026); total fat, carbohydrate and total sugars weren't visible and are typical for a tartar sauce.
+const { build } = require(path.join(ROOT, "tests/fixtures/walmart-compact.js"));
+const TARTAR_ING = "Water, Soybean Oil (Highly Refined), Dill Relish (Cucumber, Distilled Vinegar, Salt, Calcium Chloride, Xanthan Gum, Sodium Benzoate (Preservative <0.1%), Natural Flavors), Salt, Distilled Vinegar, High Fructose Corn Syrup, Egg Yolks, Modified Food Starch (Corn), Salt, Xanthan Gum, Dried Garlic, Dried Onion, Potassium Sorbate and Sodium Benzoate (Preservatives), Dried Parsley, Natural and Artificial Flavor, Calcium Disodium EDTA Added to Protect Flavor. Contains: Egg.";
+PAGES.tartar = { props: { pageProps: { initialData: { data: build({ h: "10295140 ¦ Louisiana Fish Fry Creamy Tartar Sauce with Relish & Lemon, 10.5 oz Bottle ¦ 039153001255 ¦ Louisiana Fish Fry ¦ Food > Pantry > Condiments > Tartar sauce",
+  ing: TARTAR_ING, price: [2.72, "25.9 ¢/oz", 0.259],
+  rows: ["cal|Calories|120|", "k0|Total Fat|12g|15%", "k0+|Saturated Fat|2g|10%", "k0+|Trans Fat|0g|", "k1|Cholesterol|10mg|3%", "k2|Sodium|230mg|10%", "k3|Total Carbohydrate|3g|1%",
+    "k3+|Dietary Fiber|0g|0%", "k3+|Total Sugars|2g|", "k3+>|Added Sugars|1g|2%", "k4|Protein|0g|", "serv|Serving Size|2 Tbsp. (28g)|"] }) } } } };
+BY_ID["10295140"] = "tartar";
 // Prices as shown on the real pages (Oct 25, 2026).
 const withPrice = (k, now, perUnit, text) => { PAGES[k].props.pageProps.initialData.data.product.priceInfo = { currentPrice: { price: now }, unitPrice: { price: perUnit, priceString: text } }; };
 withPrice("peanut-butter", 3.98, 0.1, "10.0 ¢/oz"); withPrice("cheerios", 4.97, 0.276, "27.6 ¢/oz");
@@ -108,6 +117,19 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     ok(/Marketside Fresh Organic Bananas/.test(t) && /From typical banana/.test(t), `produce: Walmart's name, typical values by name match (${t.slice(0, 140)})`);
 
     ok(!/a serving at Walmart's price/.test(t), "no price on the page, no price row");
+
+    // Ingredients: the label's own allergen statement shows; the list opens into plain groups.
+    await page.goto("https://www.walmart.com/ip/Louisiana-Fish-Fry-Tartar-Sauce/10295140");
+    t = await card();
+    ok(/Label says: Contains Egg\./.test(t) && /Ingredients · 17 ingredients · 5 additives · 1 added sugar/.test(t), `tartar sauce: allergen line and ingredient summary (${(t.match(/Label says[^·]*·[^·]*·[^·]*·[^A-Z]*/) || ["none"])[0]})`);
+    await click(".ingr details > summary");
+    t = await card();
+    ok(/Foods 5/.test(t) && /Added sugars 1/.test(t) && /6 ?High Fructose Corn Syrup/.test(t) && /Soybean Oil is the 2nd ingredient/.test(t) && /Calcium Disodium EDTA/.test(t) && /Calcium Chloride in dill relish/.test(t),
+      "the ingredient groups open: foods, sugars with their place on the label, oils, each additive and its job");
+    await page.evaluate(() => { const c = document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".card"); c.scrollTop = c.querySelector(".ingr").offsetTop - 60; });
+    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext4-ingredients.png"), clip: { x: 880, y: 140, width: 400, height: 580 } });
+    await page.evaluate(() => { const c = document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".card"); c.scrollTop = c.scrollHeight; });
+    await page.screenshot({ path: path.join(process.env.SHOTS_DIR || dir, "ext5-additives.png"), clip: { x: 880, y: 140, width: 400, height: 580 } });
 
     await page.goto("https://www.walmart.com/ip/Coca-Cola-Fridge-Pack/12166733");
     t = await card();

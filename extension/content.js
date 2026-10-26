@@ -3,7 +3,7 @@
 // Food Facts, then USDA Branded Foods. The verdict is the site's own (lib/verdict.js) with your saved goals.
 (() => {
   "use strict";
-  const V = self.SelfCheckVerdict, S = self.SelfCheckSources, W = self.SelfCheckWalmart, ADD = self.SelfCheckAdditives, C = self.SelfCheckCard, B = self.SelfCheckBackup;
+  const V = self.SelfCheckVerdict, S = self.SelfCheckSources, W = self.SelfCheckWalmart, ADD = self.SelfCheckAdditives, ING = self.SelfCheckIngredients, C = self.SelfCheckCard, B = self.SelfCheckBackup;
   const { FOODS } = self.SelfCheckData;
   const SITE = "https://quochhdo.github.io/should-i-buy-it/";
   const firstUrl = location.href; // the embedded page data belongs to this URL; later (client-side) pages are fetched
@@ -132,6 +132,26 @@
   .lbtn.on { background: var(--good-soft); color: var(--good); border-color: transparent; }
   .lbtn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   .pricerow { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; } .pricerow b { color: var(--ink); } .pricerow .pd { color: var(--good); font-weight: 600; }
+  .ingr { display: grid; gap: 6px; }
+  .ingr details > summary { color: var(--ink); font-size: 13px; } .ingr details > summary b { font-weight: 700; }
+  .ingr details[open] { display: grid; gap: 12px; }
+  .ingr details > summary .sm { color: var(--muted); font-size: 12px; }
+  .allergen { margin: 0; font-size: 12.5px; background: var(--mid-soft); border-radius: 8px; padding: 5px 9px; }
+  .ig { display: grid; gap: 5px; } .ig + .ig { border-top: 1px solid var(--line); padding-top: 10px; }
+  .igh { display: flex; align-items: center; gap: 6px; font-size: 13px; } .igh .n { color: var(--muted); font-size: 12px; }
+  .gdot { width: 8px; height: 8px; border-radius: 50%; background: #9aa192; flex: none; }
+  .ig.good .gdot { background: var(--good); } .ig.warn .gdot { background: var(--mid); } .ig.bad .gdot { background: var(--bad); }
+  .ign { margin: 0; font-size: 12px; color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .ich { font-size: 12px; border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px 1px 3px; display: inline-flex; align-items: center; gap: 5px; }
+  .ich:not(:has(.pos)) { padding-left: 8px; }
+  .ich .pos { font: 700 10px system-ui, sans-serif; background: var(--track); color: var(--muted); border-radius: 999px; min-width: 16px; height: 16px; display: inline-grid; place-items: center; padding: 0 3px; }
+  .in { color: var(--muted); }
+  .alist { gap: 6px; } .alist li { display: grid; grid-template-columns: 1fr; gap: 1px; font-size: 12.5px; }
+  .arow { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; } .an { font-weight: 600; }
+  .ar { color: var(--muted); font-size: 12px; }
+  .ast { font: 700 10px system-ui, sans-serif; letter-spacing: .03em; text-transform: uppercase; padding: 1px 6px; border-radius: 999px; white-space: nowrap; background: var(--track); color: var(--muted); }
+  .ast.safe { background: var(--good-soft); color: var(--good); } .ast.mixed { background: var(--mid-soft); color: var(--mid); } .ast.removed { background: var(--bad-soft); color: var(--bad); }
   .sendrow { background: var(--good-soft); border-radius: 10px; padding: 7px 10px; font-size: 13px; }`;
   const el = (tag, attrs = {}, ...kids) => {
     const e = document.createElement(tag);
@@ -190,6 +210,7 @@
     const adds = ADD && ADD.analyze(f);
     const why = C.reasons(a, adds ? adds.flagged : []);
     const sw = a.tier === "good" || a.tier === "fine" ? null : C.swap(f, FOODS, p);
+    const ingr = ING ? ING.analyze(prod.ingredients || f.ingredients) : null;
     const listedAs = r.source !== "this page" && !r.typical && f.n && !sameProduct(f.n, prod.name) ? ` It's listed there as “${f.n}”.` : "";
     const facts = `${V.isMissing(f, "cal") ? "—" : Math.round(f.cal)} cal · ${V.isMissing(f, "pro") ? "—" : V.fmt(f.pro) + " g"} protein · per ${f.s}`;
     // Add to the app's grocery list: a built-in food goes by name; a store product carries its label values.
@@ -211,6 +232,7 @@
           ` at Walmart's price${f.storePrice.unitText ? ` (${f.storePrice.unitText})` : ""}`, C.perDollar(f, f.storePrice.perServing) ? el("span", { class: "pd", text: ` · ${C.perDollar(f, f.storePrice.perServing)}` }) : null) : null,
         why.top.length ? el("ul", {}, ...why.top.map(reasonItem)) : null,
         why.rest.length ? el("details", {}, el("summary", { text: `${why.rest.length} more note${why.rest.length === 1 ? "" : "s"}` }), el("ul", {}, ...why.rest.map(reasonItem))) : null,
+        ingr ? ingredientsBlock(ingr) : null,
         sw ? el("div", { class: "swap" }, el("span", { class: "lbl", text: "Try instead" }),
           el("div", { class: "row" }, el("b", { text: sw.food.n }), el("span", { class: "vp " + sw.verdict.tier, text: sw.verdict.word }),
             el("a", { href: C.walmartSearch(sw.query), "aria-label": `Search Walmart for ${sw.query}`, text: "Search Walmart →" }))) : null,
@@ -223,6 +245,28 @@
             el("p", { text: "It doesn't check allergens: read the label if you have a food allergy." }),
             el("p", { text: `Scored against your goals: ${p.cal.toLocaleString("en-US")} cal, ${p.pro} g protein, ≤${p.sat} g saturated fat, ≤${p.na.toLocaleString("en-US")} mg sodium, ≤${p.add} g added sugar.` }),
             el("p", {}, el("a", { href: "#", onclick: e => { e.preventDefault(); openSettings(); }, text: "Change your goals" })))))));
+  }
+  // The label's ingredients, sorted into plain groups. Starts closed; the summary line says what's inside.
+  const ordinal = n => n + (n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] || "th");
+  function ingredientsBlock(r) {
+    const groups = r.groups.map(g => el("div", { class: "ig " + g.tone },
+      el("div", { class: "igh" }, el("span", { class: "gdot", "aria-hidden": "true" }), el("b", { text: g.label }), el("span", { class: "n", text: String(g.items.length) })),
+      g.note || g.detail ? el("p", { class: "ign", text: [g.detail, g.note].filter(Boolean).join(" ") }) : null,
+      g.key === "additive"
+        ? el("ul", { class: "alist" }, ...g.items.map(i => el("li", {},
+            el("div", { class: "arow" }, el("span", { class: "an" }, i.name, i.inside ? el("span", { class: "in", text: ` in ${i.inside.toLowerCase()}` }) : null),
+              i.additive.statusLabel ? el("span", { class: "ast " + i.additive.status, text: i.additive.statusLabel }) : null),
+            i.additive.role || i.additive.what ? el("div", { class: "ar", text: i.additive.role || i.additive.what }) : null,
+            ["mixed", "removed"].includes(i.additive.status) && i.additive.note ? el("div", { class: "ar" }, i.additive.note, i.additive.src ? " " : null,
+              i.additive.src ? el("a", { href: i.additive.src, target: "_blank", rel: "noopener", text: "Source" }) : null) : null)))
+        : el("div", { class: "chips" }, ...g.items.map(i => el("span", { class: "ich", title: i.pos ? `${ordinal(i.pos)} ingredient${i.minor ? " (2% or less)" : ""}` : i.inside ? `Part of ${i.inside}` : "" },
+            i.pos ? el("span", { class: "pos", text: String(i.pos) }) : null, i.name, i.inside ? el("span", { class: "in", text: ` in ${i.inside.toLowerCase()}` }) : null)))));
+    return el("div", { class: "ingr" },
+      r.contains ? el("p", { class: "allergen" }, el("b", { text: "Label says: " }), `Contains ${r.contains}.`) : null,
+      el("details", {}, el("summary", {}, el("b", { text: "Ingredients" }), el("span", { class: "sm", text: ` · ${r.summary}` })),
+        el("p", { class: "muted", text: "Numbers are each ingredient's place on the label, from most to least by weight." }),
+        ...groups,
+        r.may.length ? el("p", { class: "muted", text: r.may.join(" ") }) : null));
   }
   // The lookup's name is mentioned whenever it isn't just Walmart's name (a barcode record can carry another store's brand).
   function sameProduct(a, b) {

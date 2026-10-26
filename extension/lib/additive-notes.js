@@ -103,6 +103,7 @@
     e621: { what: "Monosodium glutamate (MSG), the savory taste in tomatoes and parmesan.", status: "safe", note: "The FDA considers MSG safe. Some people report mild, short-lived symptoms after 3 g or more without food; a typical serving has well under half a gram.", src: SRC.msg },
     e627: { what: "Disodium guanylate, a savory flavor booster used with MSG.", status: "safe" },
     e631: { what: "Disodium inosinate, a savory flavor booster used with MSG.", status: "safe" },
+    e385: { what: "Calcium disodium EDTA, which binds traces of metal.", role: "Keeps flavor and color from going stale, mainly in dressings, mayonnaise, sauces and canned foods.", status: "safe", note: "The FDA allows it in specific foods with set maximums (for example 75 ppm in mayonnaise and dressings).", src: "https://www.ecfr.gov/current/title-21/chapter-I/subchapter-B/part-172/subpart-B/section-172.120" },
     e211: { what: "Sodium benzoate, a preservative in acidic foods and drinks.", role: "Prevents mold in acidic foods like soda and pickles.", status: "safe", note: "With vitamin C it can form traces of benzene; the FDA found almost all drinks had none or under 5 ppb and says the levels aren't a safety concern.", src: SRC.benzene },
     e212: { what: "Potassium benzoate, a preservative in acidic foods and drinks.", role: "Prevents mold in acidic foods and drinks.", status: "safe", note: "With vitamin C it can form traces of benzene; the FDA says the levels found aren't a safety concern.", src: SRC.benzene },
     // Mixed evidence

@@ -230,6 +230,27 @@
 
   // ---------- additives (scanned products) ----------
   // Every additive with what it does; a few flagged with a sourced reason; the NOVA processing level.
+  // The label's ingredients in plain groups (js/ingredients.js). Additives get one line each here; their notes are in the panel below.
+  function renderIngredients(f) {
+    const r = f && f.ingredients && window.SelfCheckIngredients ? window.SelfCheckIngredients.analyze(f.ingredients) : null;
+    if (!r) return null;
+    const ord = n => n + (n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] || "th");
+    const sec = el("section", { class: "panel ingredients" }, el("h3", { text: "Ingredients" }), el("p", { class: "ing-sum", text: r.summary + "." }));
+    if (r.contains) sec.append(el("p", { class: "ing-allergen" }, el("b", { text: "Label says: " }), `Contains ${r.contains}.`));
+    for (const g of r.groups) {
+      sec.append(el("div", { class: "ig " + g.tone },
+        el("div", { class: "igh" }, el("span", { class: "gdot", "aria-hidden": "true" }), el("b", { text: g.label }), el("span", { class: "muted", text: ` ${g.items.length}` })),
+        g.note || g.detail ? el("p", { class: "ign", text: [g.detail, g.note].filter(Boolean).join(" ") }) : null,
+        el("div", { class: "ichips" }, ...g.items.map(i => el("span", { class: "ich" + (i.additive ? " st-" + i.additive.status : ""),
+          title: [i.pos ? `${ord(i.pos)} ingredient${i.minor ? " (2% or less)" : ""}` : i.inside ? `Part of ${i.inside}` : "", i.additive && (i.additive.role || i.additive.what)].filter(Boolean).join(": ") },
+          i.pos ? el("span", { class: "ipos", text: String(i.pos) }) : null, i.name, i.inside ? el("span", { class: "muted", text: ` in ${i.inside.toLowerCase()}` }) : null)))));
+    }
+    if (r.may.length) sec.append(el("p", { class: "legend", text: r.may.join(" ") }));
+    sec.append(el("details", { class: "ingr" }, el("summary", { text: "The label's full text" }), el("p", { text: f.ingredients })));
+    sec.append(el("p", { class: "legend", text: "Numbers are each ingredient's place on the label, from most to least by weight. Groups describe what each ingredient is; the verdict already counts the amounts that matter (added sugar, saturated fat, sodium)." }));
+    return sec;
+  }
+
   function renderAdditives(f) {
     const info = window.SelfCheckAdditives && window.SelfCheckAdditives.analyze(f);
     if (!info) return null;
@@ -257,7 +278,7 @@
         sec.append(list);
       }
     }
-    if (f.ingredients) sec.append(el("details", { class: "ingr" }, el("summary", { text: "Ingredients" }), el("p", { text: f.ingredients })));
+    if (f.ingredients && !window.SelfCheckIngredients) sec.append(el("details", { class: "ingr" }, el("summary", { text: "Ingredients" }), el("p", { text: f.ingredients })));
     sec.append(el("p", { class: "legend", text: (info.fromText ? "Found by name in the ingredient list, so an additive listed under an unusual name can be missed. " : "From Open Food Facts. ") + "Tap an additive for what it is and what the evidence says. Most approved additives are judged safe at normal amounts; “Mixed evidence” means approved but questioned, with the source. Add any you avoid to your skip list (for example “sucralose” or “E407”)." }));
     return sec;
   }
@@ -437,6 +458,7 @@
           renderWhy(f),
           isPlate ? null : renderSwaps(f),
           el("section", { class: "panel" }, el("h3", { text: "Why" }), reasons),
+          isPlate ? null : renderIngredients(f),
           isPlate ? null : renderAdditives(f),
           isPlate ? null : renderCompare(f)
         ))

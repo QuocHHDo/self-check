@@ -425,6 +425,7 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
     const payload = JSON.stringify({ app: "should-i-buy-it", v: 1, kind: "walmart", data: data("chobani greek yogurt") });
     w.location.hash = "#wm=j." + Buffer.from(payload).toString("base64url"); w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(8);
     ok(/Chobani Non-Fat Greek Yogurt/.test(text("#out h2")) && /Get it/.test(text(".tag .verdict")) && /Walmart's Nutrition Facts panel/.test(text(".src")), `#wm= shows the Walmart product's verdict (${text("#out h2")})`);
+    ok(/1 ingredient · no additives found/.test(text(".ingredients .ing-sum")) && /Cultured Nonfat Milk/.test(text(".ingredients")), `the Walmart product's ingredients are grouped (${text(".ingredients .ing-sum")})`);
     ok(/Walmart's price/.test(text("#out")) && /\$1\.12 per serving/.test(text("#out")) && /\$5\.97/.test(text("#out")), `#wm= shows the price from the Walmart page (${(text("#out").match(/≈[^.]*\.[^.]*/) || [""])[0].slice(0, 90)})`);
     click($('#tabs [data-view="goals"]'));
     ok(/^javascript:/.test($("#bmLink").getAttribute("href")) && !!$("#bmCopy"), "Goals offers the phone bookmark");
