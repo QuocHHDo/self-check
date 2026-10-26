@@ -49,7 +49,7 @@ test("no-panel and produce pages carry what the app needs (barcode, category)", 
 test("anywhere else it explains instead of sending anything", async () => {
   const out = await runOn({ host: "www.example.com", path: "/ip/x/123", pageData: data("oreo cookies") });
   assert.equal(out.href, null);
-  assert.match(out.alerts[0], /Open a Walmart product page first/);
+  assert.match(out.alerts[0], /Open a Walmart or Sam's Club product page first/);
   const search = await runOn({ path: "/search", pageData: null });
   assert.equal(search.href, null);
 });
@@ -58,4 +58,13 @@ test("the app refuses anything that isn't a bookmarklet product", async () => {
   assert.equal(await B.decodeProduct("j." + Buffer.from('{"app":"other"}').toString("base64url")), null);
   assert.equal(await B.decodeProduct("z.abc"), null);
   assert.equal(await B.decodeProduct("j.%%%"), null);
+});
+
+test("on Sam's Club it works the same and says which store", async () => {
+  const S = require("./fixtures/samsclub-live.json").pages;
+  const { build } = require("./fixtures/walmart-compact.js");
+  const out = await runOn({ host: "www.samsclub.com", path: "/ip/Cheerios-Cereal-40-7-oz/1600043509", pageData: build(S.cheerios) });
+  const d = await B.decodeProduct(token(out.href));
+  assert.equal(d.store, "sams");
+  assert.equal(W.plan(W.product(d)).kind, "panel");
 });

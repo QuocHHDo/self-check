@@ -1255,13 +1255,14 @@
     const plan = WM ? WM.plan(prod) : { kind: "none" };
     if (plan.kind === "panel") {
       const f = plan.food, cost = WM.servingCost(prod.price, f);
-      if (prod.price && (cost || prod.price.now)) Object.assign(f, { spServing: cost || undefined, spItem: prod.price.now || undefined, spUnit: prod.price.text || undefined, spStore: "Walmart", spOn: new Date().toISOString().slice(0, 10) });
-      saveLookup(f); pick(f); toast("From the Walmart page's Nutrition Facts"); return;
+      const storeName = WM.STORES && WM.STORES[data.store] ? WM.STORES[data.store].name : "Walmart";
+      if (prod.price && (cost || prod.price.now)) Object.assign(f, { spServing: cost || undefined, spItem: prod.price.now || undefined, spUnit: prod.price.text || undefined, spStore: storeName, spOn: new Date().toISOString().slice(0, 10) });
+      saveLookup(f); pick(f); toast(`From the ${storeName} page's Nutrition Facts`); return;
     }
     if (plan.kind === "supplement" && window.SelfCheckSupplement) { renderSupplement(prod, plan); return; }
     if (plan.kind === "name") { const f = WM.byName(plan.query, FOODS); if (f) { pick(f, { closest: prod.name }); return; } if (plan.fallback) { barcodeLookup(plan.fallback); return; } }
     if (plan.kind === "barcode") { barcodeLookup(plan.code); return; }
-    toast(prod ? "That Walmart page isn't a food the app can check." : "Couldn't read that Walmart page. Tap the bookmark again on the product page.");
+    toast(prod ? "That page isn't a food the app can check." : "Couldn't read that page. Tap the bookmark again on the product page.");
   }
   // A supplement from a Walmart page: not scored like food. Caffeine against the FDA's 400 mg a day, sodium and sugar,
   // what the label lists, sweeteners, and a note that the app doesn't judge whether it works (js/supplement.js).

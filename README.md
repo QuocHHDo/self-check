@@ -23,7 +23,7 @@ Live at **https://quochhdo.github.io/should-i-buy-it/**. It installs to your pho
 - **Installable and offline** via a service worker.
 
 - **Works like a phone app**: install it to the home screen (Android shows an Install button; iPhone gets the Share → Add to Home Screen steps; Goals has both). The installed app opens on a big Scan button with your recent scans and their verdicts, starts the camera right away when it's already allowed, and has Scan and Grocery list shortcuts on its icon. No app store needed.
-- **Phone bookmark for Walmart** (Goals tab): tap it on a Walmart product page to open its verdict here.
+- **Phone bookmark for Walmart and Sam's Club** (Goals tab): tap it on a Walmart product page to open its verdict here.
 - **Browser extension for Walmart product pages** (`extension/`): a card with the verdict, the main reasons and any flagged additives, using your goals. See below.
 
 Everything runs in the browser. Goals, favorites, lists and lookups live in your browser's local storage; there is no account and no server.
@@ -109,9 +109,11 @@ scripts/build-single.mjs   single-file build
 
 Values are approximate and vary by brand; the package label wins. Open Food Facts is crowd-sourced and can be incomplete. The scoring thresholds are rules of thumb, not a clinical standard. General nutrition guidance, not medical advice.
 
-## Browser extension (Walmart product pages)
+## Browser extension (Walmart and Sam's Club product pages)
 
 `extension/` is a Chrome extension (Manifest V3, Chrome 116+) that shows a verdict on Walmart product pages (`walmart.com/ip/…`). It uses the same verdict code and foods as the site, and it's free: no server, no account.
+
+It works the same on **Sam's Club** (`samsclub.com/ip/…`), which runs on Walmart's platform: the same product URLs, page data, title and rating row, so one reader serves both (`STORES` in `js/walmart.js`); wording, swap searches and prices name the store. Search badges stay off on Sam's Club, which checks for robots more readily; if a store asks for that check, the badge says to reload instead of failing.
 
 It has two levels:
 

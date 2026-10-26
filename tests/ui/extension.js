@@ -17,6 +17,10 @@ const PAGES = require(path.join(ROOT, "tests/fixtures/walmart-pages.json")).page
 // The four pages the redesign was tested on, captured from walmart.com (Oct 26, 2026).
 const LIVE = require(path.join(ROOT, "tests/fixtures/walmart-live.json")).pages;
 for (const [k, v] of Object.entries(LIVE)) PAGES[k] = { props: { pageProps: { initialData: { data: build(v) } } } };
+// Sam's Club pages, captured from samsclub.com (Oct 26, 2026); the site runs on Walmart's platform.
+const SAMS = require(path.join(ROOT, "tests/fixtures/samsclub-live.json")).pages;
+for (const [k, v] of Object.entries(SAMS)) PAGES["sams-" + k] = { props: { pageProps: { initialData: { data: build(v) } } } };
+const SAMS_ID = { "1600043509": "sams-cheerios", "18638953319": "sams-bananas", "15390012477": "sams-towels", "18691360382": "sams-redcon1" };
 // A pre-workout (Supplement Facts), built from the label on the real page the user checked.
 const SUPPS = require(path.join(ROOT, "tests/fixtures/walmart-supplements.json")).pages;
 for (const [k, v] of Object.entries(SUPPS)) PAGES["supp-" + k] = { props: { pageProps: { initialData: { data: build(v) } } } };
@@ -68,6 +72,12 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
       const id = (r.request().url().match(/\/ip\/(?:[^/?#]+\/)?(\d+)/) || [])[1];
       if (id) hits.ip.push({ id, t: Date.now() });
       return BY_ID[id] ? r.fulfill({ contentType: "text/html", body: pageHtml(BY_ID[id], variant) }) : r.fulfill({ contentType: "text/html", body: "<!doctype html><title>Walmart</title><p>home</p>" });
+    });
+    await ctx.route("https://www.samsclub.com/**", r => {
+      if (/\/search\?/.test(r.request().url())) { hits.samsSearch = (hits.samsSearch || 0) + 1; return r.fulfill({ contentType: "text/html", body: SEARCH.replace(/\/ip\/[^"]+\/(\d+)/g, (m, id) => m) }); }
+      const id = (r.request().url().match(/\/ip\/(?:[^/?#]+\/)?(\d+)/) || [])[1];
+      if (id) hits.samsIp = (hits.samsIp || 0) + 1;
+      return SAMS_ID[id] ? r.fulfill({ contentType: "text/html", body: pageHtml(SAMS_ID[id]) }) : r.fulfill({ contentType: "text/html", body: "<!doctype html><title>Sam's Club</title><p>home</p>" });
     });
     await ctx.route("https://world.openfoodfacts.org/**", r => { hits.off++; const code = (r.request().url().match(/product\/(\d+)/) || [])[1]; return r.fulfill({ contentType: "application/json", body: JSON.stringify(OFF[code] || { status: 0 }) }); });
     await ctx.route("https://api.nal.usda.gov/**", r => r.fulfill({ contentType: "application/json", body: JSON.stringify({ foods: [] }) }));
@@ -169,7 +179,7 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     const p3 = await ctx.newPage(); await p3.goto(`chrome-extension://${extId}/sidepanel.html?tab=${tabId}`);
     await page.goto("https://www.walmart.com/ip/Sceptre-40-TV/683540269?x=1"); await page.waitForTimeout(1200);
     const t3 = await p3.evaluate(async () => { await new Promise(r => setTimeout(r, 400)); return document.body.innerText; });
-    ok(/Open a Walmart food product to see a verdict\./.test(t3), "non-food page: the side panel shows its empty state");
+    ok(/Open a Walmart or Sam's Club food product to see a verdict\./.test(t3), "non-food page: the side panel shows its empty state");
     await p3.close();
 
     // ---- 6. No rating row to sit in: a small pill at the bottom left, clear of the buy box ----
@@ -217,6 +227,30 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     pt = await ptext(/only as a photo/);
     ok(/Caffeine 200 mg/.test(pt) && /caffeine amount comes from the product's name/.test(pt) && !/Sodium/.test(pt), "label only in a photo: caffeine from the name, no made-up sodium");
 
+    // ---- 8c. Sam's Club: the same badge and panel, in its own words ----
+    await page.goto("https://www.samsclub.com/ip/Cheerios-Cereal-40-7-oz/1600043509");
+    b = await badge(/Get it/);
+    ok(b.inRow && b.hosts === 1 && /^Get it\s*·\s*\S/.test(b.text) && !b.hit, `Sam's Club Cheerios: the badge sits in the rating row (${b.text})`);
+    pt = await ptext(/Get it/);
+    ok(/Source: The Nutrition Facts on this Sam's Club page\./.test(pt) && !/a serving at the/.test(pt), "the panel names Sam's Club as the source; no per-serving price from a per-box unit price");
+    await page.goto("https://www.samsclub.com/ip/Bananas-3-lbs/18638953319");
+    b = await badge(/Get it/);
+    ok(/Get it/.test(b.text), `Sam's Club bananas: typical values by name (${b.text})`);
+    await page.goto("https://www.samsclub.com/ip/Member-s-Mark-Paper-Towel/15390012477"); await page.waitForTimeout(1500);
+    ok(await page.evaluate(() => !document.getElementById("should-i-buy-it-badge")), "Sam's Club paper towels: no badge");
+    await page.goto("https://www.samsclub.com/ip/Redcon1-Total-War-Pre-workout/18691360382");
+    b = await badge(/Supplement/);
+    ok(/^Supplement\s*·\s*350 mg caffeine$/.test(b.text), `Sam's Club pre-workout: the supplement view, caffeine from its name (${b.text})`);
+    pt = await ptext(/350 mg/);
+    ok(/This Sam's Club page's name and ingredients/.test(pt) && /Sweetened with sucralose/.test(pt), "and the panel says where its numbers come from");
+    // A swap links to the store the product came from.
+    await page.goto("https://www.samsclub.com/ip/Cheerios-Cereal-40-7-oz/1600043509"); await badge(/Get it/);
+    await sw.evaluate(() => chrome.storage.local.set({ profile: { cal: 2000, pro: 100, sat: 20, na: 300, add: 50, fib: 28, skip: "", mild: false } }));
+    pt = await ptext(/Search Sam's Club/).catch(() => "");
+    const swapHref = await panel.evaluate(() => { const a = [...document.querySelectorAll("a")].find(x => /Search Sam's Club/.test(x.textContent)); return a && a.href; });
+    ok(/^https:\/\/www\.samsclub\.com\/search\?q=/.test(swapHref || ""), `swaps search Sam's Club, not Walmart (${swapHref})`);
+    await sw.evaluate(() => chrome.storage.local.set({ profile: null }));
+
     // ---- 9. Accessibility and dark mode ----
     const axeSrc = fs.readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
     const css = fs.readFileSync(path.join(EXT, "sidepanel.css"), "utf8");
@@ -248,6 +282,10 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     ok(badges[0] === "Get it" && badges[1] === "In moderation" && badges[2] === "Get it" && badges[3] === "-", `search badges show each product's verdict; non-food gets none (${badges.join(" | ")})`);
     const gaps = hits.ip.slice(1).map((h, i) => h.t - hits.ip[i].t);
     ok(hits.ip.length === 4 && gaps.every(g => g >= 1400), `one product page at a time, ${gaps.map(g => (g / 1000).toFixed(1) + " s").join(", ")} apart`);
+    // Not on Sam's Club, which checks for robots more readily: no background page loads there.
+    hits.samsIp = 0;
+    await page.goto("https://www.samsclub.com/search?q=yogurt"); await page.waitForTimeout(3000);
+    ok(await page.evaluate(() => !document.querySelector(".sib-badge")) && hits.samsIp === 0, "search badges stay off on Sam's Club (no background page loads)");
     await sw.evaluate(() => chrome.storage.local.set({ searchBadges: false }));
 
     // ---- 11. Settings page: goals typed in and imported from the app still work ----

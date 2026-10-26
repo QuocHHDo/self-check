@@ -1,0 +1,50 @@
+{
+ "_note": "Captured from live samsclub.com pages on Oct 26, 2026 (compact form; see walmart-compact.js). Sam's Club runs on Walmart's platform: same /ip/ URLs, __NEXT_DATA__ product/idml data, h1#main-title and reviews-and-ratings row. cheerios: Nutrition Facts panel, unit price per each. bananas: fresh produce, no panel. towels: non-food with an empty nutrition block. redcon1: a pre-workout whose Supplement Facts are only in the label photos (no label lines in the data).",
+ "pages": {
+  "cheerios": {
+   "h": "1600043509 ¦ Cheerios Cereal, 40.7 oz. ¦ 016000435094 ¦ Cheerios ¦ Grocery > Pantry > Cereal & Breakfast Foods > Cereal & Granola",
+   "ing": "",
+   "rows": [
+    "cal|Calories|140|",
+    "k0|Total Fat|2.5g|4%",
+    "k0+|Saturated Fat|0.5g|4%",
+    "k0+|Trans Fat|0g|",
+    "k0+|Polyunsaturated Fat|1g|",
+    "k0+|Monounsaturated Fat|1g|",
+    "k1|Cholesterol|0mg|1%",
+    "k2|Sodium|190mg|8%",
+    "k3|Total Carbohydrate|29g|10%",
+    "k3+|Dietary Fiber|4g|15%",
+    "k3+|Soluble Fiber|2g|",
+    "k3+|Sugars|2g|2%",
+    "k4|Protein|5g|",
+    "serv|Servings Per Container|About 15 servings|"
+   ],
+   "price": [
+    6.88,
+    "$3.44/ea",
+    3.44
+   ]
+  },
+  "bananas": {
+   "h": "18638953319 ¦ Bananas, 3 lbs. ¦ 400001984673 ¦ Dole ¦ Grocery > Fresh Food > Produce > Fresh Fruit",
+   "ing": "",
+   "rows": [],
+   "price": [
+    1.56,
+    "52.0 ¢/lb",
+    0.52
+   ]
+  },
+  "towels": {
+   "h": "15390012477 ¦ Member's Mark Select & Tear 2-Ply Paper Towel 15 rolls, 150 sheets/roll ¦ 078742235035 ¦ Member's Mark ¦ All Departments > Household Essentials > Disposable Paper Products > Paper Towels & Napkins",
+   "ing": "",
+   "rows": []
+  },
+  "redcon1": {
+   "h": "18691360382 ¦ Redcon1 Total War Pre-workout with 5g Creatine, 350mg Caffeine, 40 servings, 2 pk. ¦ 810197251150 ¦ Redcon1 ¦ Pharmacy, Health & Wellness > Protein & Nutrition Essentials > Sports Nutrition & Supplements",
+   "ing": "Other Ingredients: Disodium Phosphate, Silicon Dioxide, Natural and Artificial Flavors, Calcium Silicate, Sucralose, Potassium Chloride, Vegetable Fruit Powder",
+   "rows": []
+  }
+ }
+}

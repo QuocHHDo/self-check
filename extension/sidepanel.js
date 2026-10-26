@@ -42,7 +42,7 @@
   function empty() {
     return el("div", { class: "empty" },
       el("span", { html: C.icon("fine", 36).replace('aria-hidden="true"', 'aria-hidden="true" style="opacity:.5"') }),
-      el("p", { class: "big", text: "Open a Walmart food product to see a verdict." }),
+      el("p", { class: "big", text: "Open a Walmart or Sam's Club food product to see a verdict." }),
       el("p", { class: "small", text: "On a product page, the verdict sits next to the star rating. Click it to see the details here." }));
   }
   function render() {
@@ -106,7 +106,7 @@
   }
 
   function verdict(f, a, prod) {
-    const missing = C.uncertain(f);
+    const missing = C.uncertain(f, profile);
     return el("section", { class: "verdict " + a.tier, "aria-label": "Verdict" },
       el("div", { class: "vrow" }, el("span", { html: C.icon(a.tier, 30) }), el("span", { class: "vword", text: a.word })),
       el("p", { class: "headline", text: C.headline(f, profile, a) }),
@@ -147,7 +147,7 @@
     const sp = f.storePrice, per = sp && sp.perServing ? C.perDollar(f, sp.perServing) : null;
     return el("section", { "aria-label": "Serving and price" },
       el("div", { class: "facts" }, el("span", { text: `${V.isMissing(f, "cal") ? "—" : Math.round(f.cal)} cal · ${V.isMissing(f, "pro") ? "—" : V.fmt(f.pro) + " g"} protein · per ${f.s}` }), listBtn),
-      sp && sp.perServing ? el("p", { class: "price" }, el("b", { text: `≈ ${C.money(sp.perServing)} a serving` }), ` at Walmart's price${sp.unitText ? ` (${sp.unitText})` : ""}`, per ? ` · ${per}` : null) : null,
+      sp && sp.perServing ? el("p", { class: "price" }, el("b", { text: `≈ ${C.money(sp.perServing)} a serving` }), ` at the ${sp.store || "store"} price${sp.unitText ? ` (${sp.unitText})` : ""}`, per ? ` · ${per}` : null) : null,
       send);
   }
 
@@ -169,6 +169,9 @@
     return el("section", { "aria-labelledby": "hWhy" }, el("h2", { id: "hWhy", text: "Why" }), el("ul", { class: "notes" }, ...items));
   }
 
+  // "Search Walmart →" or "Search Sam's Club →", for the store the product came from.
+  const storeLink = q => { const st = (data && data.product && data.product.store) || { id: "walmart", name: "Walmart" };
+    return el("a", { href: self.SelfCheckWalmart ? self.SelfCheckWalmart.storeSearch(q, st.id) : C.walmartSearch(q), target: "_blank", rel: "noopener", "aria-label": `Search ${st.name} for ${q}`, text: `Search ${st.name} →` }); };
   function swap(f, a) {
     if (a.tier === "good" || a.tier === "fine") return null;
     const sw = C.swap(f, FOODS, profile);
@@ -177,7 +180,7 @@
       el("h2", { text: sw.lighter ? "A lighter version" : "Try instead" }),
       el("div", { class: "row" }, el("b", { text: sw.food.n }),
         sw.lighter ? null : el("span", { class: "vp " + sw.verdict.tier }, el("span", { html: C.icon(sw.verdict.tier, 14) }), sw.verdict.word),
-        el("a", { href: C.walmartSearch(sw.query), target: "_blank", rel: "noopener", "aria-label": `Search Walmart for ${sw.query}`, text: "Search Walmart →" })),
+        storeLink(sw.query)),
       sw.lighter ? el("p", { class: "small", text: `${cap(sw.lighter)}. Same verdict, but it goes further on your limits.` }) : null);
   }
 

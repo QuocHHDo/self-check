@@ -146,7 +146,10 @@
 
   // Missing data that could change the verdict: calories, protein, or a daily limit. A missing fiber value can only
   // cost a food a plus, so it doesn't make the verdict less certain on its own.
-  const uncertain = f => ["cal", "pro", "sat", "na", "add"].some(k => V.isMissing(f, k));
+  // Missing added sugar doesn't count when total sugars are too low for it to matter: the same rule the verdict uses
+  // (below the share of your limit where added sugar starts to count).
+  const uncertain = (f, p = V.DEFAULT_PROFILE) => ["cal", "pro", "sat", "na"].some(k => V.isMissing(f, k)) ||
+    (V.isMissing(f, "add") && !f.addLikelyZero && !(!V.isMissing(f, "sug") && !V.isLowerBound(f, "sug") && f.sug < p.add * V.CUT.add[0]));
 
   return { headline, limitBars, reasons, swap, searchName, walmartSearch, perDollar, money, badgeReason, shortNote, TIERS, icon, uncertain };
 });

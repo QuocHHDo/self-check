@@ -1,4 +1,4 @@
-// Shows a "Should I Buy It?" verdict on Walmart product pages: a small badge next to the star rating, and the full
+// Shows a "Should I Buy It?" verdict on Walmart and Sam's Club product pages (Sam's Club runs on Walmart's platform): a small badge next to the star rating, and the full
 // breakdown in the browser's side panel (sidepanel.html), opened by clicking the badge. Nutrition comes from, in order:
 // the page's own Nutrition Facts panel; for fresh produce, a name match to the app's built-in foods; otherwise the
 // product's barcode in Open Food Facts, then USDA Branded Foods. The verdict is the site's own (lib/verdict.js).
@@ -6,6 +6,7 @@
   "use strict";
   const V = self.SelfCheckVerdict, S = self.SelfCheckSources, W = self.SelfCheckWalmart, C = self.SelfCheckCard;
   const { FOODS } = self.SelfCheckData;
+  const STORE = W.storeOf(location.hostname); // { id, name, search }
   const firstUrl = location.href; // the embedded page data belongs to this URL; later (client-side) pages are fetched
   let lastUrl = null, run = 0;
 
@@ -28,7 +29,10 @@
   async function pageProduct(url) {
     if (url === firstUrl) { const p = W.product(W.nextData(document)); if (p) return p; }
     const res = await fetch(url, { credentials: "include" });
-    return W.product(W.nextData(await res.text()));
+    const html = await res.text();
+    // The store asked to check for a robot (it can, after many page loads in a row): say so instead of "can't read".
+    if (/are-you-human|not a robot/i.test(res.url + html.slice(0, 4000))) throw Object.assign(new Error("challenge"), { challenge: true });
+    return W.product(W.nextData(html));
   }
   // Barcode lookups are cached in this browser: found for 30 days, not found for a day (in case a record gets added).
   const DAY = 864e5, KEEP = 300;
@@ -77,9 +81,9 @@
       const stub = { n: p.name, a: [], c: "lookup", src: "walmart", s: plan.serving || "1 serving", ingredients: p.ingredients || undefined, missing: [], cal: 0, fat: 0, sat: 0, trans: 0, chol: 0, na: 0, carb: 0, fib: 0, sug: 0, add: 0, pro: 0 };
       const a = V.assess(stub, profile);
       return { supplement: supp, skip: a.tier === "skip" ? a : null, source: "this page",
-        detail: plan.rows.length ? "The Supplement Facts on this Walmart page" : "This Walmart page's name and ingredients (its Supplement Facts are only in the label photo)" };
+        detail: plan.rows.length ? `The Supplement Facts on this ${STORE.name} page` : `This ${STORE.name} page's name and ingredients (its Supplement Facts are only in the label photos)` };
     }
-    if (plan.kind === "panel") return { food: plan.food, source: "this page", detail: "The Nutrition Facts on this Walmart page", note: "" };
+    if (plan.kind === "panel") return { food: plan.food, source: "this page", detail: `The Nutrition Facts on this ${STORE.name} page`, note: "" };
     if (plan.kind === "name") {
       const f = W.byName(plan.query, FOODS);
       if (f) return { food: f, source: `typical ${f.n.toLowerCase()}`, detail: `Typical values for “${f.n}” from the app`, note: "Fresh foods have no label here, so this uses the app's typical values.", link: "#" + V.slug(f.n), typical: true };
@@ -223,7 +227,7 @@
   // What the badge says for a product.
   function productBadge(r, p, warn) {
     const a = V.assess(r.food, p);
-    const partial = C.uncertain(r.food) ? "Some nutrients that decide the verdict aren't listed, so it's less certain." : null;
+    const partial = C.uncertain(r.food, p) ? "Some nutrients that decide the verdict aren't listed, so it's less certain." : null;
     const w = [warn && warn + ".", partial].filter(Boolean).join(" ") || null;
     return { tier: a.tier, word: a.word, reason: C.badgeReason(r.food, p, a), warn: w, label: `${a.word}: ${C.headline(r.food, p, a).replace(/\.$/, "")}` };
   }
@@ -318,7 +322,8 @@
       publish(null);
       const s2 = await store(["profile", "usdaKey", "searchBadges"]);
       badgeCount = 0;
-      if (s2.searchBadges) startBadges({ ...V.DEFAULT_PROFILE, ...(s2.profile || {}), usdaKey: s2.usdaKey || "" }); else stopBadges();
+      // Search badges load product pages in the background; Sam's Club checks for robots more readily, so not there.
+      if (s2.searchBadges && STORE.id === "walmart") startBadges({ ...V.DEFAULT_PROFILE, ...(s2.profile || {}), usdaKey: s2.usdaKey || "" }); else stopBadges();
       return;
     }
     stopBadges();
@@ -340,7 +345,7 @@
       const r = pl.kind === "none" ? { none: "No nutrition facts on this page, and no barcode to look up." } : await resolve(prod, p);
       if (mine !== run) return;
       if (!r) { removeBadge(); publish(null); return; }
-      const product = { name: prod.name, ingredients: prod.ingredients || "", url };
+      const product = { name: prod.name, ingredients: prod.ingredients || "", url, store: { id: STORE.id, name: STORE.name } };
       if (r.supplement) {
         const sp = r.supplement;
         badgeState = r.skip ? { tier: "skip", word: "Skip", reason: "on your skip list", warn: null, label: `Skip: ${r.skip.why}` }
@@ -357,13 +362,14 @@
       }
       // Walmart's own price for this item, per serving (from the page's unit price and the serving size).
       const cost = W.servingCost(prod.price, r.food);
-      if (prod.price && (cost || prod.price.now)) r.food = { ...r.food, storePrice: { perServing: cost, item: prod.price.now, unitText: prod.price.text, store: "Walmart", on: new Date().toISOString().slice(0, 10) } };
+      if (prod.price && (cost || prod.price.now)) r.food = { ...r.food, storePrice: { perServing: cost, item: prod.price.now, unitText: prod.price.text, store: STORE.name, on: new Date().toISOString().slice(0, 10) } };
       // An ingredient-list conflict doesn't change the verdict (it's scored on the nutrients), so it shows in the side
       // panel next to that ingredient; the badge's ⚠ is only for missing data that could change the verdict.
       badgeState = productBadge(r, p, null);
       drawBadge();
       publish({ url, state: "ready", result: { food: r.food, source: r.source, detail: r.detail, note: r.note, link: r.link || null, typical: !!r.typical }, product });
-    } catch {
+    } catch (e) {
+      if (mine === run && e && e.challenge) { badgeState = { tier: null, word: "", reason: "reload the page to check", warn: null, label: `${STORE.name} asked to check you're not a robot. Reload the page to see the verdict.` }; drawBadge(); publish({ url, state: "none", message: `${STORE.name} asked to check you're not a robot. Reload the page to see the verdict.` }); return; }
       if (mine === run) { badgeState = { tier: null, word: "", reason: "couldn't read this page", warn: null, label: "Couldn't read this page. Reload it to try again." }; drawBadge(); publish({ url, state: "none", message: "Couldn't read this page. Reload it to try again." }); }
     }
   }

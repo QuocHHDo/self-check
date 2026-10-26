@@ -6,6 +6,15 @@
   if (typeof module === "object" && module.exports) module.exports = factory(require("./verdict.js"), require("./sources.js"), require("./search.js"), require("./supplement.js"));
   else root.SelfCheckWalmart = factory(root.SelfCheckVerdict, root.SelfCheckSources, root.SelfCheckSearch, root.SelfCheckSupplement);
 })(typeof self !== "undefined" ? self : this, function (V, S, Q, SUP) {
+  // The stores the extension works on. Sam's Club runs on Walmart's platform: the same /ip/ product URLs, page data,
+  // title and rating row, so one reader serves both; only names and search links differ.
+  const STORES = {
+    walmart: { id: "walmart", name: "Walmart", search: "https://www.walmart.com/search?q=" },
+    sams: { id: "sams", name: "Sam's Club", search: "https://www.samsclub.com/search?q=" },
+  };
+  const storeOf = host => /(^|\.)samsclub\.com$/i.test(String(host || "")) ? STORES.sams : STORES.walmart;
+  const storeSearch = (q, store) => (STORES[store] || STORES.walmart).search + encodeURIComponent(q);
+
   // Product id from a product URL: /ip/Some-Name/10315479 → "10315479".
   const productId = url => { const m = String(url).match(/\/ip\/(?:[^/?#]+\/)?(\d{4,15})(?:[/?#]|$)/); return m ? m[1] : null; };
 
@@ -180,5 +189,5 @@
     return r.kind === "open" || r.kind === "closest" ? r.food : null;
   }
 
-  return { priceOf, servingCost, productId, nextData, product, amount, keyOf, rows, fromPanel, plan, produceQuery, byName, isPlu, isWeighed, shortName };
+  return { priceOf, servingCost, productId, nextData, product, amount, keyOf, rows, fromPanel, plan, produceQuery, byName, isPlu, isWeighed, shortName, STORES, storeOf, storeSearch };
 });
