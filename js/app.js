@@ -16,6 +16,8 @@
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
   };
   const savedProfile = store.get("profile", null);
+  // Until someone saves their own goals, verdicts say they're for the standard ones.
+  let goalsSet = !!savedProfile;
   let profile = { ...V.DEFAULT_PROFILE, ...(CFG.profile || {}), ...(savedProfile || {}) };
   // Barcode products saved before serving sizes were read correctly (no `missing` list) are dropped; rescanning refreshes them.
   let lookups = store.get("lookups", []).filter(f => f && f.n && typeof f.cal === "number" && !(f.src === "off" && !Array.isArray(f.missing)));
@@ -425,10 +427,12 @@
       closestBanner(f),
       head,
       el("div", { class: "result" },
-        el("div", { class: "leftcol" }, seg, partial, label, box, src),
+        el("div", { class: "leftcol" }, seg, partial, label, box, src, PAGES && !isPlate ? el("p", { class: "report" }, el("a", { href: reportUrl(f, a), target: "_blank", rel: "noopener", text: "Wrong number or verdict? Report it" })) : null),
         el("div", { class: "side" },
-          el("div", { class: "tag " + a.tier }, el("div", { class: "for", text: isPlate ? "For you · whole meal" : "For you" }), el("div", { class: "verdict", text: a.word }), a.spicy ? el("span", { class: "vp spicy flag", text: "Spicy" }) : null, el("p", { class: "why", text: a.why }),
+          el("div", { class: "tag " + a.tier }, el("div", { class: "for" }, goalsSet ? (isPlate ? "For you · whole meal" : "For you") : (isPlate ? "Standard goals · whole meal · " : "Standard goals · "),
+            goalsSet ? null : el("button", { class: "linkbtn", type: "button", text: "Set yours", onclick: () => showView("goals") })), el("div", { class: "verdict", text: a.word }), a.spicy ? el("span", { class: "vp spicy flag", text: "Spicy" }) : null, el("p", { class: "why", text: a.why }),
             mult !== 1 ? el("p", { class: "per", text: "The verdict is for one standard serving; the label and bars show your amount." }) : null),
+          el("p", { class: "allergy", text: "Doesn't check allergens: read the label if you have a food allergy." }),
           isPlate ? renderPlatePrice() : renderPrice(f),
           renderWhy(f),
           isPlate ? null : renderSwaps(f),
@@ -438,6 +442,11 @@
         ))
     ].filter(Boolean));
   }
+
+  // Problem reports go to the GitHub issue tracker, prefilled with the food and its verdict.
+  const REPORT = "https://github.com/QuocHHDo/should-i-buy-it/issues/new";
+  const reportUrl = (f, a) => REPORT + "?" + new URLSearchParams({ title: `Wrong verdict or number: ${f.n}`.slice(0, 120),
+    body: `Food: ${f.n}${f.s ? ` (${f.s})` : ""}\nSource: ${f.src || "built-in"}\nVerdict: ${a.word}\n\nWhat the package label says (a photo helps):\n\nWhat you expected:\n` });
 
   // When Enter found only a loose match ("kirkland protein bar" → Protein bar), say so above the result.
   let closestFor = null;
@@ -1143,7 +1152,7 @@
     // Only valid numbers are saved; an invalid field keeps its last good value and shows why next to it.
     for (const [k, id] of Object.entries(PF)) if (checkGoal($(id))) profile[k] = Number($(id).value);
     profile.skip = $("p-skip").value; profile.mild = $("p-mild").checked; profile.usdaKey = $("p-usda").value.trim();
-    store.set("profile", profile); $("tabGoalsDot").hidden = true; syncProfileUI(); renderBrowse(); renderMeals(); renderChips(); renderList(); renderPlate();
+    store.set("profile", profile); goalsSet = true; $("tabGoalsDot").hidden = true; if (current) renderResult(current); syncProfileUI(); renderBrowse(); renderMeals(); renderChips(); renderList(); renderPlate();
     if (current) renderResult(current);
   }
 

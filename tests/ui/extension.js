@@ -119,6 +119,7 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     // Search badges: off by default; when on, only visible products, one request at a time, at least 1.5 s apart.
     await page.goto("https://www.walmart.com/search?q=yogurt"); await page.waitForTimeout(2000);
     ok(await page.evaluate(() => !document.querySelector(".sib-badge")), "search badges are off by default");
+    await page.goto("about:blank"); // leave the search page first, so turning badges on doesn't start it badging too
     await sw.evaluate(() => chrome.storage.local.set({ searchBadges: true, badgeCache: {} }));
     hits.ip = [];
     await page.goto("https://www.walmart.com/search?q=yogurt");

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How it works · Should I Buy It?</title>
+<meta name="description" content="How Should I Buy It? decides its verdicts, where its numbers come from, and what it doesn't check.">
+<meta property="og:title" content="How Should I Buy It? works">
+<meta property="og:description" content="How the verdicts are decided, where the numbers come from, and what it doesn't check.">
+<meta property="og:image" content="https://quochhdo.github.io/should-i-buy-it/icons/og.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<style>
+:root { --ink:#161813; --muted:#5b6157; --line:#d8dccf; --bg:#f5f6f1; --surface:#fff; --accent:#2c6a3d;
+  --good:#2b7742; --good-soft:#dff0e2; --mid:#8e5f16; --mid-soft:#f6ead2; --bad:#b23a2f; --bad-soft:#f6dfdb; --fine-soft:#e7eae1; color-scheme: light dark; }
+@media (prefers-color-scheme: dark) { :root { --ink:#e8ebe2; --muted:#a1a898; --line:#30352b; --bg:#121410; --surface:#1b1e18; --accent:#7cc08d;
+  --good:#6fc487; --good-soft:#1c3322; --mid:#e0a94a; --mid-soft:#3a2e17; --bad:#ef8577; --bad-soft:#3d201c; --fine-soft:#2a2f25; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding: 32px 16px 64px; }
+main { max-width: 720px; margin: 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px 24px 28px; }
+h1 { margin: 0 0 4px; font-size: 28px; line-height: 1.2; } h2 { margin: 28px 0 8px; font-size: 19px; } h3 { margin: 16px 0 4px; font-size: 16px; }
+p, li { margin: 0 0 10px; } ul { padding-left: 20px; margin: 0 0 10px; }
+.muted { color: var(--muted); font-size: 14px; } a { color: var(--accent); }
+.back { display: inline-block; margin-bottom: 14px; font-size: 14px; }
+.callout { border: 1px solid var(--bad); background: var(--bad-soft); border-radius: 10px; padding: 12px 14px; margin: 16px 0; }
+.callout p:last-child { margin: 0; }
+.scale { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 12px 0 6px; }
+.scale div { border-radius: 8px; padding: 10px 10px 8px; font-size: 14px; line-height: 1.35; }
+.scale b { display: block; font-size: 15px; }
+.scale .bad { background: var(--bad-soft); } .scale .bad b { color: var(--bad); }
+.scale .mid { background: var(--mid-soft); } .scale .mid b { color: var(--mid); }
+.scale .good { background: var(--good-soft); } .scale .good b { color: var(--good); }
+.also { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+.also div { background: var(--fine-soft); border-radius: 8px; padding: 10px; font-size: 14px; line-height: 1.35; } .also b { display: block; }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; } th, td { text-align: left; border-top: 1px solid var(--line); padding: 8px 6px; vertical-align: top; }
+th { font-weight: 600; }
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.log li { margin-bottom: 6px; } .log b { font-variant-numeric: tabular-nums; }
+@media (max-width: 520px) { main { padding: 18px 16px 22px; } .scale, .also { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="./">← Back to the app</a>
+  <h1>How it works</h1>
+  <p class="muted">Should I Buy It? · Free, no account, runs in your browser</p>
+
+  <p>Search for a food or scan a barcode, and the app shows its Nutrition Facts label and a verdict: does it fit <em>your</em> goals? The verdict uses the calories, protein, fiber and limits you set on the Goals tab. Until you set them, it uses standard ones: 2,000 calories, 100 g protein, 28 g fiber, and at most 20 g saturated fat, 2,300 mg sodium and 50 g added sugar a day.</p>
+
+  <div class="callout" role="note">
+    <p><b>It doesn't check allergens or medical needs.</b> A “Get it” means the nutrition fits your goals, not that the food is safe for you. If you have a food allergy, read the ingredient list on the package. If you have a condition that affects what you eat (diabetes, kidney disease, pregnancy and others), follow your doctor's or dietitian's advice. This is general nutrition guidance, not medical advice.</p>
+  </div>
+
+  <h2>How a verdict is decided</h2>
+  <p>Each serving gets points for what helps and loses points for what works against your goals. Every point shows up as a reason under <b>Why</b>, and the <b>What decided it</b> chart shows how they add up.</p>
+  <div class="scale" aria-label="Verdict scale">
+    <div class="bad"><b>Limit it</b>−2 points or lower. Works against your goals as a regular buy.</div>
+    <div class="mid"><b>In moderation</b>In between, or a good food with one real drawback.</div>
+    <div class="good"><b>Get it</b>+2 points or higher, with nothing serious against it.</div>
+  </div>
+  <div class="also">
+    <div><b>Fine</b>Too small to matter either way (a splash of sauce, a spice).</div>
+    <div><b>Skip</b>It matches something on your skip list.</div>
+  </div>
+
+  <h3>What adds points</h3>
+  <ul>
+    <li><b>Protein for the calories:</b> +1 when at least 20% of the calories come from protein, +2 at 40% (and at least 5 g).</li>
+    <li><b>Fiber:</b> +2 at 2.8 g or more a serving (10% of the Daily Value, the FDA's “good source” bar).</li>
+    <li><b>Whole fruit, vegetables and whole grains:</b> +2.</li>
+    <li><b>Unsaturated fats</b> (nuts, avocado, olive oil, fatty fish) and lots of food for very few calories: small bonuses.</li>
+  </ul>
+  <h3>What takes points away</h3>
+  <ul>
+    <li><b>Saturated fat and added sugar:</b> −1 when one serving is 15% of your daily limit, −2 at 30%.</li>
+    <li><b>Sodium:</b> −1 at 20% of your daily limit, −2 at 35%.</li>
+    <li><b>Treats</b> (desserts, candy, fried snacks): −1. <b>Processed meat</b> (bacon, deli meat, hot dogs): −2.</li>
+    <li><b>Empty calories:</b> 100 calories or more with little protein or fiber. <b>A big share of your day</b> (20% of your calories) with little protein: −1.</li>
+  </ul>
+  <h3>A few safeguards</h3>
+  <ul>
+    <li><b>Missing numbers stay unknown, not zero.</b> A product with no saturated-fat figure can't earn “Get it” just because the number is missing.</li>
+    <li><b>Meals on the Plate tab</b> are judged against a third of your day. A meal that uses up a third of the day's saturated fat, sodium or added sugar can't be “Get it”.</li>
+    <li>The verdict is always for one standard serving. The servings buttons change the label and the bars, not the verdict.</li>
+  </ul>
+
+  <h2 id="sources">Where the numbers come from</h2>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Data</th><th>Source</th><th>License</th><th>As of</th></tr>
+    <tr><td>Built-in foods (480+)</td><td>Typical values written for this app and spot-checked against <a href="https://fdc.nal.usda.gov/">USDA FoodData Central</a>. Brands vary; the package label wins.</td><td>USDA data is public domain</td><td class="num">Oct 2026</td></tr>
+    <tr><td>Food search and packaged products</td><td><a href="https://fdc.nal.usda.gov/">USDA FoodData Central</a>, looked up live</td><td>Public domain (CC0)</td><td>Live</td></tr>
+    <tr><td>Scanned barcodes</td><td><a href="https://world.openfoodfacts.org/">Open Food Facts</a>, a crowd-sourced database by its contributors. It can be incomplete or out of date.</td><td><a href="https://opendatacommons.org/licenses/odbl/1-0/">ODbL 1.0</a> (database), <a href="https://opendatacommons.org/licenses/dbcl/1-0/">DbCL</a> (contents)</td><td>Live</td></tr>
+    <tr><td>Additive names and notes</td><td>Open Food Facts additive taxonomy. Notes written for this app link the regulator review or study each one is based on.</td><td>ODbL 1.0</td><td class="num">Oct 2026</td></tr>
+    <tr><td>Typical prices</td><td><a href="https://www.bls.gov/cpi/factsheets/average-prices.htm">BLS Average Price Data</a> (South region where available) and USDA ERS fruit and vegetable prices</td><td>Public domain</td><td class="num">Sep 2026</td></tr>
+    <tr><td>Walmart products (extension and phone bookmark)</td><td>The Nutrition Facts and price on the Walmart page you're looking at, read in your browser</td><td>Shown, not stored or shared</td><td>When you look</td></tr>
+  </table>
+  </div>
+  <p class="muted">Data from Open Food Facts is © Open Food Facts contributors and available under the Open Database License. Should I Buy It? is an independent project and isn't affiliated with or endorsed by USDA, BLS, Open Food Facts or Walmart.</p>
+
+  <h2>Privacy</h2>
+  <p>No accounts, no tracking, no analytics. Your goals and lists stay in your browser. See the <a href="privacy.html">privacy policy</a> for exactly what's sent where.</p>
+
+  <h2 id="report">Spot a wrong verdict or number?</h2>
+  <p><a id="reportLink" href="https://github.com/QuocHHDo/should-i-buy-it/issues/new?title=Wrong+verdict%3A+">Report it</a>. Say which food, what the package label says, and what you expected. Photos of the label help most. (This opens GitHub, which needs a free account.)</p>
+
+  <h2>What's new</h2>
+  <ul class="log">
+    <li><b>Oct 25, 2026</b> · Walmart's own price on the extension card and in the app. A browser extension for Walmart product pages and a phone bookmark. Backup and transfer between devices, a smarter grocery list and cheap meal ideas. A “What decided it” chart and 37 more foods.</li>
+    <li><b>Oct 24, 2026</b> · Typical prices and protein per dollar. USDA packaged-product search and barcode fallback. Additives and processing level for scanned products. Plate builder, grocery list, swaps and compare.</li>
+    <li><b>Oct 23, 2026</b> · First version: 375 built-in foods with a personal verdict.</li>
+  </ul>
+
+  <h2>Open source</h2>
+  <p>The code is on <a href="https://github.com/QuocHHDo/should-i-buy-it">GitHub</a> under the MIT License. The data keeps its own licenses, listed above.</p>
+</main>
+</body>
+</html>

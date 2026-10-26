@@ -220,6 +220,7 @@
           r.link ? el("a", { href: SITE + r.link, target: "_blank", rel: "noopener", text: "Full breakdown ↗" }) : null,
           el("details", {}, el("summary", { text: "About this verdict" }),
             el("p", { text: `${r.detail}.${listedAs} ${r.note}`.trim() }),
+            el("p", { text: "It doesn't check allergens: read the label if you have a food allergy." }),
             el("p", { text: `Scored against your goals: ${p.cal.toLocaleString("en-US")} cal, ${p.pro} g protein, ≤${p.sat} g saturated fat, ≤${p.na.toLocaleString("en-US")} mg sodium, ≤${p.add} g added sugar.` }),
             el("p", {}, el("a", { href: "#", onclick: e => { e.preventDefault(); openSettings(); }, text: "Change your goals" })))))));
   }

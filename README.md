@@ -141,3 +141,10 @@ Phones: Chrome on Android and iOS doesn't run extensions.
 **Permissions:** storage (your goals), Walmart pages (to show the card), and Open Food Facts and USDA (barcode lookups, without cookies). Nothing is sent anywhere else.
 
 **For development:** `extension/lib/` holds copies of the app code; after changing `js/`, run `npm run sync:extension` (a test fails if the copies are out of date). `node tests/ui/extension.js` loads the extension in Chromium against saved Walmart page data (`tests/fixtures/walmart-pages.json`).
+
+## About, data and license
+
+- `about.html` explains how verdicts are decided, where each kind of data comes from and its license, what the app doesn't check (allergens, medical needs), and what's new. `privacy.html` is the privacy policy.
+- Every result notes that allergens aren't checked, says whether it's using standard goals or yours, and links to a prefilled GitHub issue for reporting a wrong number or verdict.
+- `icons/og.png` is the link-preview image (`node scripts/og-image.js` remakes it).
+- Code: MIT License (`LICENSE`). Data keeps its own license: USDA FoodData Central and BLS are public domain; Open Food Facts data, including the additive taxonomy, is ODbL 1.0, © Open Food Facts contributors.

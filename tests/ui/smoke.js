@@ -396,6 +396,16 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
     ok($("#bkLink").hidden === (MODE !== "pages"), `transfer link button ${MODE === "pages" ? "shown" : "hidden"} in ${MODE} mode`);
     click($('#tabs [data-view="check"]'));
   }
+  // Public-site basics: allergen line, standard-goals hint, report link, footer links.
+  if (MODE === "pages") {
+    w.location.hash = "#greek-yogurt-plain-nonfat"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(4);
+    ok(/Doesn't check allergens/.test(text(".allergy")), "every result says allergens aren't checked");
+    const rep = $(".report a");
+    ok(rep && /issues\/new\?title=Wrong\+verdict/.test(rep.href) && /Verdict%3A/.test(rep.href), "a prefilled report link sits under the label");
+    ok($$("footer .footlinks a").map(a => a.getAttribute("href")).includes("about.html"), "footer links to How it works");
+    const forText = text(".tag .for");
+    ok(/^(For you|Standard goals · Set yours)$/.test(forText), `the verdict says whose goals it uses (${forText})`);
+  }
   // Links from the extension (#add=) and the phone bookmarklet (#wm=), on the GitHub Pages version.
   if (MODE === "pages") {
     const B = w.SelfCheckBackup, { data } = require("../fixtures/walmart-compact.js");
