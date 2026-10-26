@@ -1,0 +1,125 @@
+// The site as a phone app: the installed app's start page, the scan-first home, recent scans, the install prompt
+// (Android's Install button and the iPhone how-to), and the Scan shortcut. Playwright + Chromium at phone size.
+//   node tests/ui/app.js
+const http = require("node:http");
+const fs = require("node:fs");
+const path = require("node:path");
+let chromium;
+try { ({ chromium } = require("playwright")); } catch { console.log("SKIP app checks: playwright is not installed"); process.exit(0); }
+
+const ROOT = path.join(__dirname, "..", "..");
+const SHOTS = process.env.SHOTS_DIR;
+const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".png": "image/png", ".webmanifest": "application/manifest+json" };
+const fixture = n => fs.readFileSync(path.join(ROOT, "tests", "fixtures", n), "utf8");
+let fails = 0;
+const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!cond) fails++; };
+const IPHONE_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
+
+const serve = () => new Promise(resolve => {
+  const srv = http.createServer((req, res) => {
+    let p = decodeURIComponent(new URL(req.url, "http://x").pathname);
+    if (p.endsWith("/")) p += "index.html";
+    const file = path.join(ROOT, p);
+    if (!file.startsWith(ROOT) || !fs.existsSync(file)) { res.writeHead(404); return res.end(); }
+    res.writeHead(200, { "content-type": TYPES[path.extname(file)] || "application/octet-stream" });
+    fs.createReadStream(file).pipe(res);
+  }).listen(0, () => resolve(srv));
+});
+
+(async () => {
+  const srv = await serve();
+  const base = `http://localhost:${srv.address().port}/`;
+  // A fake camera, so "already allowed" can be tested.
+  const browser = await chromium.launch({ args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"] });
+  const open = async (url, opts = {}) => {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, serviceWorkers: "block", ...opts });
+    const page = await ctx.newPage();
+    page.on("pageerror", e => { fails++; console.log("FAIL page error: " + e.message); });
+    await page.route("**/world.openfoodfacts.org/**", r => r.fulfill({ contentType: "application/json", body: fixture("off-nutella.json") }));
+    await page.route("**/api.nal.usda.gov/**", r => r.fulfill({ contentType: "application/json", body: JSON.stringify({ foods: [] }) }));
+    if (opts.seed) await page.addInitScript(s => { for (const [k, v] of Object.entries(s)) localStorage.setItem(k, JSON.stringify(v)); }, opts.seed);
+    await page.goto(base + url);
+    await page.waitForSelector("#out h2");
+    return { ctx, page };
+  };
+  const visible = (page, sel) => page.evaluate(s => { const e = document.querySelector(s); if (!e || e.hidden) return false; const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).display !== "none"; }, sel);
+  try {
+    const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "manifest.webmanifest"), "utf8"));
+    ok(manifest.start_url === "./?source=app" && manifest.display === "standalone" && manifest.shortcuts.some(s => s.url === "./?source=app#scan"), "the installed app starts at the app home and has a Scan shortcut");
+
+    // 1. Launched from the home screen: the scan-first home.
+    let { ctx, page } = await open("?source=app");
+    ok(await visible(page, "#scanBig") && await page.evaluate(() => document.getElementById("scanBig").getBoundingClientRect().top < 400), "the app opens on a big Scan button near the top");
+    const hit = await page.evaluate(() => { const r = document.getElementById("scanBig").getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; });
+    ok(hit[0] >= 300 && hit[1] >= 56, `easy to hit with a thumb (${hit.join(" × ")} px)`);
+    ok(!(await visible(page, "#installBar")), "no install prompt inside the installed app's own start (no browser offer, not iPhone)");
+    await ctx.close();
+
+    // 2. Camera already allowed: straight to the scanner. Not allowed yet: no surprise permission prompt.
+    ({ ctx, page } = await open("?source=app", { permissions: ["camera"] }));
+    await page.waitForFunction(() => !document.getElementById("scan").hidden, null, { timeout: 8000 }).catch(() => {});
+    ok(await visible(page, "#scan"), "camera already allowed: the app opens with the scanner running");
+    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, "app2-scanner.png") });
+    await ctx.close();
+    ({ ctx, page } = await open("?source=app"));
+    await page.waitForTimeout(800);
+    ok(!(await visible(page, "#scan")), "camera not allowed yet: it waits for a tap instead of prompting on launch");
+    await ctx.close();
+
+    // 3. The Scan shortcut (long-press on the app icon).
+    ({ ctx, page } = await open("?source=app#scan", { permissions: ["camera"] }));
+    await page.waitForFunction(() => !document.getElementById("scan").hidden, null, { timeout: 8000 }).catch(() => {});
+    ok(await visible(page, "#scan"), "the Scan shortcut opens the scanner");
+    ok(await page.evaluate(() => !location.hash), "no #scan left in the address");
+    await ctx.close();
+
+    // 4. Recent scans, with verdicts; opening one steps the home aside; tapping Check again brings it back.
+    const nut = JSON.parse(fixture("off-nutella.json"));
+    ({ ctx, page } = await open("?source=app", { seed: {} }));
+    // A real scan: the code typed into the scanner's box goes through the same lookup.
+    await page.click("#scanBig");
+    await page.fill("#code", "3017620422003"); await page.click("#codeForm button[type=submit]");
+    await page.waitForFunction(() => /Nutella/i.test((document.querySelector("#out h2") || {}).textContent || ""), null, { timeout: 8000 });
+    ok(!(await visible(page, "#appHome")), "after a scan the result comes first: the home steps aside");
+    await page.click('#tabs [data-view="check"]');
+    await page.waitForTimeout(300);
+    const rows = await page.evaluate(() => [...document.querySelectorAll("#scanRecent button")].map(b => b.getAttribute("aria-label")));
+    ok(await visible(page, "#appHome") && rows.length === 1 && /Nutella.*: (Limit it|In moderation|Skip)/i.test(rows[0]), `tapping Check again shows the home with the scan and its verdict (${rows.join(" | ")})`);
+    ok(await page.evaluate(() => !!document.querySelector("#scanRecent svg")), "each recent scan shows its verdict icon");
+    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, "app1-home.png") });
+    await page.click("#scanRecent button");
+    ok(/Nutella/i.test(await page.textContent("#out h2")), "tapping a recent scan opens it");
+    await ctx.close();
+
+    // 5. Android: the browser offers installing → a real Install button; Not now hides it for 30 days.
+    ({ ctx, page } = await open(""));
+    await page.evaluate(() => { const e = new Event("beforeinstallprompt"); e.prompt = () => { window.__prompted = true; }; e.userChoice = Promise.resolve({ outcome: "accepted" }); dispatchEvent(e); });
+    ok(await visible(page, "#installBar") && await visible(page, "#installBtn"), "Android: an install banner with an Install button");
+    await page.click("#installBtn");
+    ok(await page.evaluate(() => window.__prompted === true), "Install opens the browser's own install prompt");
+    await page.evaluate(() => { const e = new Event("beforeinstallprompt"); e.prompt = () => {}; e.userChoice = Promise.resolve({ outcome: "dismissed" }); dispatchEvent(e); });
+    await page.click("#installNo");
+    ok(!(await visible(page, "#installBar")), "Not now hides the banner");
+    await page.reload(); await page.waitForSelector("#out h2");
+    await page.evaluate(() => { const e = new Event("beforeinstallprompt"); e.prompt = () => {}; dispatchEvent(e); });
+    ok(!(await visible(page, "#installBar")), "and it stays hidden after a reload");
+    await ctx.close();
+
+    // 6. iPhone Safari: no install button exists there, so the banner shows the Share steps.
+    ({ ctx, page } = await open("", { userAgent: IPHONE_UA }));
+    const t = await page.evaluate(() => document.getElementById("installBar").hidden ? "" : document.getElementById("installTxt").textContent);
+    ok(/Add it to your home screen: tap\s+Share, then Add to Home Screen\./.test(t) && !(await visible(page, "#installBtn")), `iPhone: the banner shows the Share → Add to Home Screen steps (${t})`);
+    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, "app3-iphone-banner.png") });
+    await page.click('#tabs [data-view="goals"]');
+    ok(/iPhone or iPad \(Safari\): tap\s+Share/.test(await page.textContent("#installHow")), "Goals always has the full install steps");
+    await ctx.close();
+
+    // 7. On a computer the phone home stays out of the way.
+    const c = await browser.newContext({ viewport: { width: 1280, height: 800 }, serviceWorkers: "block" });
+    const pc = await c.newPage(); await pc.goto(base); await pc.waitForSelector("#out h2");
+    ok(!(await visible(pc, "#appHome")) && !(await visible(pc, "#installBar")), "on a computer: no scan home and no install banner");
+    await c.close();
+  } finally { await browser.close(); srv.close(); }
+  console.log(fails ? `${fails} app check(s) failed` : "All app checks passed");
+  process.exit(fails ? 1 : 0);
+})();

@@ -37,7 +37,8 @@
     const e = document.createElement(tag);
     for (const [k, v] of Object.entries(attrs)) {
       if (v == null || v === false) continue;
-      if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else if (k === "style") e.style.cssText = v;
+      // "html" is only for the app's own fixed SVG icons, never for text from users or lookups.
+      if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else if (k === "html") e.innerHTML = v; else if (k === "style") e.style.cssText = v;
       else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v === true ? "" : v);
     }
     for (const c of kids) if (c != null && c !== false) e.append(c);
@@ -491,6 +492,7 @@
     // Opening a food from another view goes to Check, as a new history entry so Back returns to that view.
     const fromOther = view !== "check" && !opts.stay;
     if (fromOther) showView("check", { history: false });
+    if (!opts.stay && homeMode) { homeMode = false; renderAppHome(); }
     renderResult(f);
     if (!opts.noRecent) addRecent(f);
     if (PAGES && !opts.noHash) { try { history[fromOther ? "pushState" : "replaceState"](null, "", "#" + S.linkId(f, V.slug)); } catch {} }
@@ -1027,7 +1029,7 @@
       if (data.status === 1 && data.product) {
         const f = S.fromOff(clean, data.product);
         // "No nutrition data" means nothing was reported, not that everything is zero (diet soda, water).
-        if (!["cal", "fat", "carb", "pro"].every(k => V.isMissing(f, k))) { saveLookup(f); pick(f); return; }
+        if (!["cal", "fat", "carb", "pro"].every(k => V.isMissing(f, k))) { saveLookup(f); addScan(f); pick(f); return; }
         offEmpty = f.n;
       }
     } catch (e) { offErr = e; }
@@ -1036,7 +1038,7 @@
     let usdaErr = null;
     try {
       const f = await usdaByUpc(clean);
-      if (f) { saveLookup(f); pick(f); return; }
+      if (f) { saveLookup(f); addScan(f); pick(f); return; }
     } catch (e) { usdaErr = e; }
 
     const offline = navigator.onLine === false;
@@ -1368,6 +1370,67 @@
     return !msg;
   }
 
+  // ---------- app feel: scan-first home, recent scans, install ----------
+  // On phones and in the installed app, the Check view opens with a big Scan button and the last products scanned.
+  const SCANS_KEEP = 20, SCANS_SHOW = 6;
+  let scans = store.get("scans", []).filter(x => x && x.n);
+  const standalone = () => { try { return matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; } catch { return false; } };
+  const phone = () => { try { return matchMedia("(max-width: 720px)").matches; } catch { return false; } };
+  const fromApp = PAGES && (new URLSearchParams(location.search).get("source") === "app" || standalone());
+  // The scan home is the starting screen; it steps aside once a food is opened and comes back when you tap Check again.
+  let homeMode = true;
+  function addScan(f) { scans = [{ n: f.n, t: Date.now() }, ...scans.filter(x => x.n !== f.n)].slice(0, SCANS_KEEP); store.set("scans", scans); renderAppHome(); }
+  function renderAppHome() {
+    if (!PAGES) return;
+    $("appHome").hidden = !(homeMode && (fromApp || phone()));
+    document.body.classList.toggle("home", !$("appHome").hidden);
+    const C = window.SelfCheckCard;
+    const items = scans.map(x => byName(x.n)).filter(Boolean).slice(0, SCANS_SHOW);
+    $("scanRecentBox").hidden = !items.length;
+    $("scanRecent").replaceChildren(...items.map(f => {
+      const a = V.assess(f, profile);
+      return el("li", {}, el("button", { type: "button", "aria-label": `${f.n}: ${a.word}`, onclick: () => pick(f, { scroll: true }) },
+        el("span", { "aria-hidden": "true", html: C ? C.icon(a.tier, 20) : "" }), el("span", { class: "sn", text: f.n }), el("span", { class: "sv", text: a.word })));
+    }));
+  }
+  function startScanFromHome() { showView("check", { history: false }); openScan(); $("scan").scrollIntoView({ behavior: "smooth", block: "start" }); }
+  function goHome() { homeMode = true; renderAppHome(); scrollTo({ top: 0, behavior: "smooth" }); }
+
+  // Installing: a real Install button where the browser offers one (Chrome, Edge, Samsung Internet on Android, and
+  // desktop Chrome); on iPhone and iPad, the Share → Add to Home Screen steps. The banner shows on phones only, can be
+  // dismissed for 30 days, and the Goals tab always has the full instructions.
+  let installEvent = null;
+  const ios = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const SHARE_ICON = '<svg class="share-ic" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 00-1 1v8a1 1 0 001 1h14a1 1 0 001-1v-8a1 1 0 00-1-1h-1"/></svg>';
+  async function install() {
+    if (!installEvent) return;
+    installEvent.prompt();
+    try { const c = await installEvent.userChoice; if (c && c.outcome === "accepted") toast("Installed. Find Should I Buy It? on your home screen."); } catch {}
+    installEvent = null; renderInstall();
+  }
+  function renderInstall() {
+    if (!PAGES) return;
+    const dismissed = Date.now() - (store.get("installDismissed", 0) || 0) < 30 * 864e5;
+    const can = !!installEvent, iosHow = ios() && !standalone();
+    $("installBar").hidden = standalone() || dismissed || !phone() || !(can || iosHow);
+    $("installBtn").hidden = !can;
+    $("installTxt").replaceChildren(...(can ? ["Install the app to scan from your home screen."]
+      : [el("span", { text: "Add it to your home screen: tap " }), el("span", { html: SHARE_ICON }), el("span", { text: " Share, then " }), el("b", { text: "Add to Home Screen" }), el("span", { text: "." })]));
+    const how = $("installHow");
+    if (standalone()) how.replaceChildren(el("p", { text: "You're using the installed app." }));
+    else how.replaceChildren(...[
+      can ? el("p", {}, el("button", { class: "btn", type: "button", text: "Install the app", onclick: install })) : null,
+      el("p", { class: "muted", text: "Or by hand:" }),
+      el("ol", { class: "install-steps" },
+        el("li", {}, el("b", { text: "iPhone or iPad (Safari): " }), "tap ", el("span", { html: SHARE_ICON }), " Share, scroll down, tap ", el("b", { text: "Add to Home Screen" }), ", then ", el("b", { text: "Add" }), "."),
+        el("li", {}, el("b", { text: "Android (Chrome): " }), "tap the ⋮ menu, then ", el("b", { text: "Install app" }), " (or ", el("b", { text: "Add to Home screen" }), ")."),
+        el("li", {}, el("b", { text: "Computer (Chrome or Edge): " }), "click the install icon at the right end of the address bar."))].filter(Boolean));
+  }
+  if (PAGES) {
+    window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvent = e; renderInstall(); });
+    window.addEventListener("appinstalled", () => { installEvent = null; store.set("installDismissed", Date.now()); renderInstall(); });
+  }
+
   // ---------- boot ----------
   function init() {
     updateCount();
@@ -1402,7 +1465,11 @@
     $("tabGoalsDot").hidden = !!(savedProfile || CFG.profile);
     renderChips(); renderBrowse(); renderList(); renderPlate(); renderQuiz();
     $("learnReset").addEventListener("click", () => { learn = { asked: 0, correct: 0, streak: 0, missed: [] }; store.set("learn", learn); quizQ = null; renderQuiz(); });
-    document.querySelectorAll("#tabs button").forEach(b => b.addEventListener("click", () => showView(b.dataset.view)));
+    document.querySelectorAll("#tabs button").forEach(b => b.addEventListener("click", () => {
+      // Tapping Check while already there returns to the scan home (phones and the installed app).
+      if (PAGES && b.dataset.view === "check" && view === "check" && !homeMode && (fromApp || phone())) return goHome();
+      showView(b.dataset.view);
+    }));
     $("glistCopy").addEventListener("click", copyList);
     $("glistClear").addEventListener("click", () => { glist = glist.filter(x => !x.done); saveList(); });
     $("glistFavs").addEventListener("click", addGoodFavorites);
@@ -1410,13 +1477,27 @@
     $("plateClear").addEventListener("click", () => { plate = []; afterPlateChange(); });
 
     wireBackup(); wireBookmarklet();
+    if (PAGES) {
+      $("scanBig").addEventListener("click", startScanFromHome);
+      $("installBtn").addEventListener("click", install);
+      $("installNo").addEventListener("click", () => { store.set("installDismissed", Date.now()); renderInstall(); });
+      try { matchMedia("(max-width: 720px)").addEventListener("change", () => { renderAppHome(); renderInstall(); }); } catch {}
+      renderAppHome(); renderInstall();
+    }
+    // "#scan" (the installed app's Scan shortcut): open the scanner, then tidy the address.
+    const wantScan = PAGES && location.hash === "#scan";
+    if (wantScan) { try { history.replaceState(null, "", location.pathname + location.search); } catch {} }
     const importing = PAGES && /^#(import|add|wm)=/.test(location.hash) ? location.hash : null;
     const startView = PAGES ? viewFromHash(location.hash) : null;
     const opened = PAGES && !startView && !importing && openFromHash(location.hash, true);
     if (!opened) pick((recents.length && byName(recents[0])) || FOODS[0], { noHash: true, noRecent: true, stay: true });
     showView(startView || "check", { history: false, scroll: false });
     if (importing) { if (/^#wm=/.test(importing)) openWalmartProduct(importing.slice(4)); else importFromHash(importing); }
+    // Opened from the home screen: straight to the camera when it's already allowed (no surprise permission prompt).
+    if (wantScan) openScan();
+    else if (fromApp && !location.hash && !importing) (async () => { try { const st = navigator.permissions && await navigator.permissions.query({ name: "camera" }); if (st && st.state === "granted") openScan(); } catch {} })();
     if (PAGES) window.addEventListener("hashchange", () => {
+      if (location.hash === "#scan") { try { history.replaceState(null, "", location.pathname + location.search); } catch {} return startScanFromHome(); }
       if (/^#wm=/.test(location.hash)) return openWalmartProduct(location.hash.slice(4));
       if (/^#(import|add)=/.test(location.hash)) return importFromHash(location.hash);
       const v = viewFromHash(location.hash);

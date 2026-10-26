@@ -279,7 +279,8 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
   // Check text nodes one by one: a stray "null" node next to other text doesn't have word boundaries in textContent.
   const nullText = (root = w.document.body) => [root, ...root.querySelectorAll("*")].some(e => [...e.childNodes].some(n => n.nodeType === 3 && /^\s*(null|undefined)\s*$|\bnull\b|\bundefined\b/.test(n.textContent)));
   ok(!nullText(w.document.getElementById("quiz")), "quiz never renders the text null");
-  ok(!nullText(), "no null or undefined text anywhere on the page");
+  const where = [...w.document.body.querySelectorAll("*")].filter(e => [...e.childNodes].some(n => n.nodeType === 3 && /\bnull\b|\bundefined\b/.test(n.textContent))).map(e => (e.id || e.className || e.tagName) + ": " + e.textContent.slice(0, 60));
+  ok(!nullText(), "no null or undefined text anywhere on the page" + (where.length ? ` (${where.join(" | ")})` : ""));
   // Prices: typical price and value on the result, your own price, compare row, value sort, plate total.
   w.localStorage.removeItem("myPrices");
   $("#q").value = "Eggs"; submit("#form");
@@ -341,7 +342,7 @@ const btn = (label, root = w.document) => [...root.querySelectorAll("button")].f
     ok(shown() === "out" && tab("check").getAttribute("aria-current") === "page" && text("#out h2").length > 0, `opening a food from Browse switches to Check (${text("#out h2")})`);
     if (MODE === "pages") {
       w.location.hash = "#goals"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(2);
-      ok(shown() === "profile,dataBox,phoneBox", `#goals opens the Goals view (${shown()})`);
+      ok(shown() === "profile,dataBox,installBox,phoneBox", `#goals opens the Goals view (${shown()})`);
       w.location.hash = "#avocado"; w.dispatchEvent(new w.HashChangeEvent("hashchange")); await tick(2);
       ok(shown() === "out" && text("#out h2") === "Avocado", `a food link returns to Check (${text("#out h2")})`);
     }

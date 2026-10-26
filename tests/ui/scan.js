@@ -32,7 +32,8 @@ const srv = http.createServer((req, res) => {
     await page.route("**/world.openfoodfacts.org/**", r => { asked = r.request().url(); r.fulfill({ contentType: "application/json", body: fs.readFileSync(path.join(ROOT, "tests/fixtures/off-nutella.json"), "utf8") }); });
     await page.goto(base); await page.waitForSelector("#out h2");
     const hasDetector = await page.evaluate(() => "BarcodeDetector" in window);
-    await page.click("#scanBtn");
+    // On phones the big Scan button on the home replaces the small one; on wider screens it's the small one.
+    await page.click((await page.isVisible("#scanBig")) ? "#scanBig" : "#scanBtn");
     await page.waitForFunction(() => /Nutella/i.test(document.querySelector("#out h2")?.textContent || ""), null, { timeout: 20000 }).catch(() => {});
     ok(asked && asked.includes("/product/3017620422003"), `camera decoded EAN-13 3017620422003 using ${hasDetector ? "BarcodeDetector" : "the bundled ZXing decoder (no BarcodeDetector)"}`);
     ok(/Nutella/i.test(await page.$eval("#out h2", e => e.textContent).catch(() => "")), "scanned product opens");

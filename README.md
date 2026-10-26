@@ -22,6 +22,7 @@ Live at **https://quochhdo.github.io/should-i-buy-it/**. It installs to your pho
 - **Lookups beyond the built-in list**: USDA search and barcode scanning via Open Food Facts on the web version; a Claude lookup in the Claude version.
 - **Installable and offline** via a service worker.
 
+- **Works like a phone app**: install it to the home screen (Android shows an Install button; iPhone gets the Share → Add to Home Screen steps; Goals has both). The installed app opens on a big Scan button with your recent scans and their verdicts, starts the camera right away when it's already allowed, and has Scan and Grocery list shortcuts on its icon. No app store needed.
 - **Phone bookmark for Walmart** (Goals tab): tap it on a Walmart product page to open its verdict here.
 - **Browser extension for Walmart product pages** (`extension/`): a card with the verdict, the main reasons and any flagged additives, using your goals. See below.
 
