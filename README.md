@@ -2,7 +2,7 @@
 
 Search or scan a food and see its nutrition label plus a verdict for *your* goals: **Get it**, **In moderation**, **Limit it**, or **Skip**. Every verdict comes with the reasons behind it, so using the app teaches the handful of principles (saturated fat, protein per calorie, fiber, sodium, added sugar) that explain most food choices.
 
-Live at **https://quochhdo.github.io/self-check/**. It installs to your phone's home screen and works offline.
+Live at **https://quochhdo.github.io/should-i-buy-it/**. It installs to your phone's home screen and works offline.
 
 ## Features
 

@@ -33,7 +33,7 @@ await bls("cu/cu.data.11.USFoodBeverage", "cu.data.11.USFoodBeverage");
 fs.copyFileSync(path.join(ROOT, "data/prices/bls-items.tsv"), path.join(out, "ap.item"));
 
 // ERS: links carry a version query (?v=…), so read them from the data page. Keep the committed copy on failure.
-const UA = { "user-agent": "self-check price refresh (https://github.com/QuocHHDo/self-check)" };
+const UA = { "user-agent": "self-check price refresh (https://github.com/QuocHHDo/should-i-buy-it)" };
 try {
   const page = await (await fetch("https://www.ers.usda.gov/data-products/fruit-and-vegetable-prices", { headers: UA })).text();
   for (const [kind, file] of [["fruits", "ers-fruit-prices.csv"], ["vegetables", "ers-vegetable-prices.csv"]]) {

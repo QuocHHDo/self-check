@@ -5,7 +5,7 @@
   "use strict";
   const V = self.SelfCheckVerdict, S = self.SelfCheckSources, W = self.SelfCheckWalmart, ADD = self.SelfCheckAdditives, C = self.SelfCheckCard, B = self.SelfCheckBackup;
   const { FOODS } = self.SelfCheckData;
-  const SITE = "https://quochhdo.github.io/self-check/";
+  const SITE = "https://quochhdo.github.io/should-i-buy-it/";
   const firstUrl = location.href; // the embedded page data belongs to this URL; later (client-side) pages are fetched
   let lastUrl = null, run = 0, host = null, dismissed = null;
   let toApp = []; // items waiting to be sent to the app's grocery list: [{ n, qty, food }]

@@ -43,7 +43,7 @@
   $("searchBadges").addEventListener("change", async () => { await set({ searchBadges: $("searchBadges").checked }); status($("searchBadges").checked ? "Search badges on. Reload Walmart search pages to see them." : "Search badges off."); });
 
   // Items waiting to be sent to the app's grocery list.
-  const SITE = "https://quochhdo.github.io/self-check/";
+  const SITE = "https://quochhdo.github.io/should-i-buy-it/";
   async function showList() {
     const { toApp = [] } = await get(["toApp"]);
     $("listItems").replaceChildren(...toApp.map(i => Object.assign(document.createElement("li"), { textContent: i.n })));

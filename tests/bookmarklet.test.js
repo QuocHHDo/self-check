@@ -7,7 +7,7 @@ const B = require("../js/backup.js");
 const W = require("../js/walmart.js");
 const V = require("../js/verdict.js");
 const { data } = require("./fixtures/walmart-compact.js");
-const SITE = "https://quochhdo.github.io/self-check/";
+const SITE = "https://quochhdo.github.io/should-i-buy-it/";
 
 // A minimal Walmart product page for the bookmarklet's code: its page data, address, and alert/fetch.
 function runOn({ host = "www.walmart.com", path, pageData, fetched }) {

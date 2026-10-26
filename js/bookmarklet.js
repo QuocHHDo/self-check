@@ -16,6 +16,6 @@ const q=p.priceInfo||{},o={app:'should-i-buy-it',v:1,kind:'walmart',data:{produc
 location.href='SITE#wm=j.'+btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,'')
 }catch(e){alert('Couldn\\'t read this page. Reload it and tap the bookmark again.')}})()`;
   // The javascript: URL to save as a bookmark, pointing at the given app address.
-  const url = (site = "https://quochhdo.github.io/self-check/") => "javascript:" + encodeURIComponent(SOURCE.replace(/\n/g, "").replace("SITE", site));
+  const url = (site = "https://quochhdo.github.io/should-i-buy-it/") => "javascript:" + encodeURIComponent(SOURCE.replace(/\n/g, "").replace("SITE", site));
   return { SOURCE, url };
 });

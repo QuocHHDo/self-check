@@ -145,7 +145,7 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     await page.waitForFunction(() => /Skip/.test(document.getElementById("should-i-buy-it-card").shadowRoot.textContent), null, { timeout: 10000 });
     ok(await page.evaluate(() => document.getElementById("should-i-buy-it-card").shadowRoot.querySelector(".verdict, .w").textContent.includes("Skip")) && /on your skip list/.test(await card()), "a skip term saved in settings turns Cheerios into Skip on the open page");
     // Import goals from the app's transfer link.
-    const link = await opts.evaluate(async () => "https://quochhdo.github.io/self-check/#import=" + await SelfCheckBackup.encode(SelfCheckBackup.pack(k => k === "profile" ? { cal: 1850, pro: 140, sat: 13, na: 2300, add: 36, fib: 30, skip: "", mild: true } : undefined)));
+    const link = await opts.evaluate(async () => "https://quochhdo.github.io/should-i-buy-it/#import=" + await SelfCheckBackup.encode(SelfCheckBackup.pack(k => k === "profile" ? { cal: 1850, pro: 140, sat: 13, na: 2300, add: 36, fib: 30, skip: "", mild: true } : undefined)));
     await opts.fill("#paste", link); await opts.click("#importBtn");
     await opts.waitForFunction(() => /imported/.test(document.getElementById("status").textContent));
     ok(await opts.evaluate(() => document.getElementById("pro").value === "140" && document.getElementById("mild").checked), "a transfer link from the app imports the goals");

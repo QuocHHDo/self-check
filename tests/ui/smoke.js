@@ -15,7 +15,7 @@ html = html.replace('window.SELF_CHECK_CONFIG = { mode: "pages" };', MODE === "c
   : 'window.SELF_CHECK_CONFIG = { mode: "pages", cameraTimeoutMs: 400, cameraStartMs: 60, cameraWaitMs: 30, lookupTimeoutMs: 80 };');
 const errors = [];
 let offMode = "ok";
-const dom = new JSDOM(html, { runScripts: "outside-only", url: "https://quochhdo.github.io/self-check/", pretendToBeVisual: true });
+const dom = new JSDOM(html, { runScripts: "outside-only", url: "https://quochhdo.github.io/should-i-buy-it/", pretendToBeVisual: true });
 const w = dom.window;
 w.scrollTo = () => {}; // jsdom has no layout
 // Browser APIs jsdom lacks, used by backups and links: taken from Node, which has the same ones.

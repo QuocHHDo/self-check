@@ -3,7 +3,7 @@ const { JSDOM } = require("jsdom");
 const REPO = path.join(__dirname, "..", "..");
 const read = p => fs.readFileSync(path.join(REPO, p), "utf8");
 let html = read("index.html").replace(/<script src="[^"]+"><\/script>/g, "").replace(/<link [^>]*>/g, "");
-const dom = new JSDOM(html, { runScripts: "outside-only", url: "https://quochhdo.github.io/self-check/", pretendToBeVisual: true });
+const dom = new JSDOM(html, { runScripts: "outside-only", url: "https://quochhdo.github.io/should-i-buy-it/", pretendToBeVisual: true });
 const w = dom.window;
 w.scrollTo = () => {};
 w.HTMLElement.prototype.scrollIntoView = () => {};
