@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Should I Buy It? Shopping helper",
   "short_name": "Should I Buy It?",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "See whether a food fits your nutrition goals right on its product page. Free and private: everything runs in your browser.",
   "icons": {
     "16": "icons/icon-16.png",
@@ -40,6 +40,7 @@
         "lib/additive-notes.js",
         "lib/additives.js",
         "lib/ingredients.js",
+        "lib/supplement.js",
         "lib/verdict.js",
         "lib/card.js",
         "lib/sources.js",

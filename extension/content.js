@@ -69,6 +69,16 @@
   }
   async function resolve(p, profile) {
     const plan = W.plan(p);
+    // Supplements aren't scored like food: their own view, from the page's label lines, name and ingredients.
+    if (plan.kind === "supplement") {
+      const SUP = self.SelfCheckSupplement;
+      const supp = SUP.analyze({ name: p.name, rows: plan.rows, ingredients: p.ingredients, serving: plan.serving });
+      // The skip list still applies ("pre-workout", "sucralose").
+      const stub = { n: p.name, a: [], c: "lookup", src: "walmart", s: plan.serving || "1 serving", ingredients: p.ingredients || undefined, missing: [], cal: 0, fat: 0, sat: 0, trans: 0, chol: 0, na: 0, carb: 0, fib: 0, sug: 0, add: 0, pro: 0 };
+      const a = V.assess(stub, profile);
+      return { supplement: supp, skip: a.tier === "skip" ? a : null, source: "this page",
+        detail: plan.rows.length ? "The Supplement Facts on this Walmart page" : "This Walmart page's name and ingredients (its Supplement Facts are only in the label photo)" };
+    }
     if (plan.kind === "panel") return { food: plan.food, source: "this page", detail: "The Nutrition Facts on this Walmart page", note: "" };
     if (plan.kind === "name") {
       const f = W.byName(plan.query, FOODS);
@@ -95,7 +105,7 @@
     font: 600 13px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; white-space: nowrap; }
   .bd:hover { border-color: var(--accent); } .bd:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .mark { display: inline-grid; flex: none; } .ic { display: inline-grid; flex: none; }
-  .w { font-weight: 800; flex: none; } .good .w { color: var(--v-good-ink); } .fine .w { color: var(--v-fine-ink); } .mid .w { color: var(--v-mid-ink); } .bad .w, .skip .w { color: var(--v-bad-ink); }
+  .w { font-weight: 800; flex: none; } .good .w { color: var(--v-good-ink); } .fine .w { color: var(--v-fine-ink); } .supp .w { color: var(--accent); } .mid .w { color: var(--v-mid-ink); } .bad .w, .skip .w { color: var(--v-bad-ink); }
   .sep { color: var(--muted); flex: none; } .r { color: var(--muted); font-weight: 500; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
   .warn { color: var(--v-mid-ink); font-weight: 800; flex: none; } .wait .r { font-style: italic; }
   .pill { position: fixed; left: 16px; bottom: 24px; z-index: 2147483000; box-shadow: 0 6px 18px rgba(0,0,0,.18); height: 34px; padding: 0 12px 0 6px; max-width: min(360px, calc(100vw - 32px)); }`;
@@ -227,7 +237,7 @@
   const BADGE_CSS = `:host{all:initial} .b{${VARS}display:inline-flex;align-items:center;gap:5px;padding:3px 8px 3px 5px;border-radius:999px;background:#fff;
     box-shadow:0 1px 4px rgba(0,0,0,.18);font:700 11.5px system-ui,sans-serif;color:var(--ink);white-space:nowrap} .b svg{flex:none}
     .good{color:var(--v-good-ink)}.mid{color:var(--v-mid-ink)}.bad,.skip{color:var(--v-bad-ink)}.wait{color:var(--muted);font-weight:600}`;
-  const SHORT = { good: "Get it", mid: "In moderation", bad: "Limit it", fine: "Fine", skip: "Skip" };
+  const SHORT = { good: "Get it", mid: "In moderation", bad: "Limit it", fine: "Fine", skip: "Skip", supp: "Supplement" };
   function tileId(tile) { const a = tile.querySelector('a[href*="/ip/"]'); return a ? W.productId(new URL(a.getAttribute("href"), location.origin).href) : null; }
   function badgeFor(tile, state) {
     let host = tile.querySelector(".sib-badge");
@@ -255,7 +265,8 @@
     if (!res.ok) return null;
     const prod = W.product(W.nextData(await res.text()));
     const r = prod ? await resolve(prod, badgeProfile) : null;
-    if (!r || r.none) { badgeCache[id] = { t: Date.now(), tier: null }; }
+    if (r && r.supplement) { badgeCache[id] = { t: Date.now(), tier: r.skip ? "skip" : "supp", word: r.skip ? "Skip" : "Supplement", headline: r.supplement.reason }; }
+    else if (!r || r.none) { badgeCache[id] = { t: Date.now(), tier: null }; }
     else { const a = V.assess(r.food, badgeProfile); badgeCache[id] = { t: Date.now(), tier: a.tier, word: a.word, headline: C.headline(r.food, badgeProfile, a) }; }
     const keys = Object.keys(badgeCache);
     if (keys.length > 600) keys.sort((x, y) => badgeCache[x].t - badgeCache[y].t).slice(0, keys.length - 600).forEach(k => delete badgeCache[k]);
@@ -330,6 +341,14 @@
       if (mine !== run) return;
       if (!r) { removeBadge(); publish(null); return; }
       const product = { name: prod.name, ingredients: prod.ingredients || "", url };
+      if (r.supplement) {
+        const sp = r.supplement;
+        badgeState = r.skip ? { tier: "skip", word: "Skip", reason: "on your skip list", warn: null, label: `Skip: ${r.skip.why}` }
+          : { tier: "supp", word: "Supplement", reason: sp.reason, warn: null, label: `Supplement, not scored like food${sp.caffeine && sp.caffeine.mg != null ? `: ${sp.caffeine.mg} mg caffeine per serving` : ""}` };
+        drawBadge();
+        publish({ url, state: "supplement", supplement: sp, skip: r.skip ? { why: r.skip.why, note: (r.skip.reasons[0] || {}).t } : null, detail: r.detail, product });
+        return;
+      }
       if (r.none) {
         badgeState = { tier: null, word: "", reason: "no nutrition data", warn: null, label: r.none };
         drawBadge();

@@ -1258,9 +1258,31 @@
       if (prod.price && (cost || prod.price.now)) Object.assign(f, { spServing: cost || undefined, spItem: prod.price.now || undefined, spUnit: prod.price.text || undefined, spStore: "Walmart", spOn: new Date().toISOString().slice(0, 10) });
       saveLookup(f); pick(f); toast("From the Walmart page's Nutrition Facts"); return;
     }
+    if (plan.kind === "supplement" && window.SelfCheckSupplement) { renderSupplement(prod, plan); return; }
     if (plan.kind === "name") { const f = WM.byName(plan.query, FOODS); if (f) { pick(f, { closest: prod.name }); return; } if (plan.fallback) { barcodeLookup(plan.fallback); return; } }
     if (plan.kind === "barcode") { barcodeLookup(plan.code); return; }
     toast(prod ? "That Walmart page isn't a food the app can check." : "Couldn't read that Walmart page. Tap the bookmark again on the product page.");
+  }
+  // A supplement from a Walmart page: not scored like food. Caffeine against the FDA's 400 mg a day, sodium and sugar,
+  // what the label lists, sweeteners, and a note that the app doesn't judge whether it works (js/supplement.js).
+  function renderSupplement(prod, plan) {
+    const SUP = window.SelfCheckSupplement, C = window.SelfCheckCard;
+    const sp = SUP.analyze({ name: prod.name, rows: plan.rows, ingredients: prod.ingredients, serving: plan.serving });
+    if (homeMode) { homeMode = false; renderAppHome(); }
+    current = null;
+    const facts = [
+      sp.caffeine && sp.caffeine.mg != null ? `${sp.caffeine.mg} mg caffeine (${Math.round(sp.caffeine.share * 100)}% of the FDA's 400 mg a day)` : sp.caffeine ? "contains caffeine" : null,
+      sp.sodium != null ? `${Math.round(sp.sodium)} mg sodium (${Math.round(sp.sodium / profile.na * 100)}% of your limit)` : null,
+      sp.added != null ? `${V.fmt(sp.added)} g added sugar` : sp.sugar != null ? `${V.fmt(sp.sugar)} g sugar` : null,
+      sp.calories != null ? `${Math.round(sp.calories)} calories` : null].filter(Boolean);
+    $("out").replaceChildren(el("div", { class: "head" }, el("h2", { text: prod.name })),
+      el("div", { class: "result" }, el("div", { class: "side" },
+        el("div", { class: "tag supp" }, el("div", { class: "for", text: "Supplement" }), el("div", { class: "verdict" }, el("span", { "aria-hidden": "true", html: C ? C.icon("supp", 30) : "" }), " Not scored like food"),
+          el("p", { class: "why", text: facts.length ? `Per serving${sp.serving ? ` (${sp.serving})` : ""}: ${facts.join(" · ")}.` : "This page has the Supplement Facts only as a photo; check the label for amounts." })),
+        el("section", { class: "panel" }, el("h3", { text: "Good to know" }), el("ul", { class: "reasons" }, ...SUP.notes(sp).map(n => el("li", { class: n.k }, el("span", { class: "ic", "aria-hidden": "true", text: n.k === "warn" ? "!" : "i" }), el("span", {}, n.short + ". ", el("span", { class: "muted", text: n.full })))))),
+        sp.actives.length ? el("section", { class: "panel" }, el("h3", { text: "What's in a serving, as listed" }), el("ul", { class: "reasons" }, ...sp.actives.map(x => el("li", { class: "note" }, el("span", { class: "ic", "aria-hidden": "true", text: "·" }), el("span", { text: [x.name, x.amount, x.dvp && x.dvp !== "**" ? `${x.dvp} DV` : ""].filter(Boolean).join(" · ") }))))) : null,
+        prod.ingredients ? renderIngredients({ n: prod.name, ingredients: prod.ingredients }) : null)));
+    toast("A supplement: shown, not scored");
   }
   function wireBookmarklet() {
     if (!BM || !PAGES) { $("phoneBox").remove(); return; }

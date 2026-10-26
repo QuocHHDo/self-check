@@ -120,6 +120,8 @@ It has two levels:
 
 The content script hands the product to the panel through the background script, which keeps it per tab in `chrome.storage.session`.
 
+**Supplements** (pre-workouts, vitamins, capsules: a Supplement Facts label, or a supplement category or name) aren't scored like food. The badge says "Supplement · 200 mg caffeine", and the panel shows caffeine per serving against the 400 mg a day the FDA cites for healthy adults, sodium, sugar and calories (nutrients left off a Supplement Facts label count as 0, since the FDA lets labels omit amounts that round to zero), the sweeteners, everything the label lists, and a note that the app doesn't judge whether a supplement works. Products with a real Nutrition Facts panel and 20+ calories (protein powder, meal shakes) stay foods. When the page has the label only as a photo, caffeine comes from the product's name and nothing else is guessed (`js/supplement.js`).
+
 Each verdict has its own color and shape: Get it (green check), Fine (gray dot), In moderation (amber triangle), Limit it (red octagon), Skip (red slashed circle).
 
 Where the numbers come from, in order:

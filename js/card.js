@@ -128,6 +128,7 @@
     mid: { shape: "triangle", label: "In moderation" },
     bad: { shape: "octagon", label: "Limit it" },
     skip: { shape: "slash", label: "Skip" },
+    supp: { shape: "capsule", label: "Supplement" },
   };
   // Inline SVG for a verdict's icon (24×24 viewBox). Colors come from CSS custom properties set by the page.
   function icon(tier, size = 20) {
@@ -136,6 +137,7 @@
       dot: '<circle cx="12" cy="12" r="9.5" fill="var(--v-fine)"/>',
       triangle: '<path d="M12 2.2L23 21.3H1z" fill="var(--v-mid)" stroke="var(--v-mid)" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 9v5.6" stroke="#1d1a12" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="18" r="1.4" fill="#1d1a12"/>',
       octagon: '<path d="M7.6 1h8.8L23 7.6v8.8L16.4 23H7.6L1 16.4V7.6z" fill="var(--v-bad)"/><path d="M6.5 12h11" stroke="var(--v-glyph, #fff)" stroke-width="2.8" stroke-linecap="round"/>',
+      capsule: '<g transform="rotate(-40 12 12)"><rect x="2.5" y="7.2" width="19" height="9.6" rx="4.8" fill="var(--v-supp, #2c6a3d)"/><path d="M12 7.6v8.8" stroke="var(--v-glyph, #fff)" stroke-width="1.8"/></g>',
       slash: '<circle cx="12" cy="12" r="10" fill="none" stroke="var(--v-bad)" stroke-width="2.8"/><path d="M5.2 18.8L18.8 5.2" stroke="var(--v-bad)" stroke-width="2.8" stroke-linecap="round"/>',
     };
     const t = TIERS[tier] || TIERS.fine;

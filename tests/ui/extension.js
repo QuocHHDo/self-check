@@ -17,8 +17,11 @@ const PAGES = require(path.join(ROOT, "tests/fixtures/walmart-pages.json")).page
 // The four pages the redesign was tested on, captured from walmart.com (Oct 26, 2026).
 const LIVE = require(path.join(ROOT, "tests/fixtures/walmart-live.json")).pages;
 for (const [k, v] of Object.entries(LIVE)) PAGES[k] = { props: { pageProps: { initialData: { data: build(v) } } } };
+// A pre-workout (Supplement Facts), built from the label on the real page the user checked.
+const SUPPS = require(path.join(ROOT, "tests/fixtures/walmart-supplements.json")).pages;
+for (const [k, v] of Object.entries(SUPPS)) PAGES["supp-" + k] = { props: { pageProps: { initialData: { data: build(v) } } } };
 const BY_ID = { "363183524": "cheerios", "5072512866": "oikos", "10315479": "peanut-butter", "51259338": "banana",
-  "12166733": "coke", "12166734": "dietcokecf", "10295207": "honeybuns", "345611875": "reseller", "683540269": "tv" };
+  "12166733": "coke", "12166734": "dietcokecf", "16435600213": "supp-labeled", "16435600214": "supp-photo", "10295207": "honeybuns", "345611875": "reseller", "683540269": "tv" };
 const nameOf = k => { const d = PAGES[k].props.pageProps.initialData.data.product; return d.name; };
 // Walmart's layout around the title: the rating row is a wrapping flex row 486 px wide whose stars take 183 px; pack sizes
 // follow below it; the buy box (price, You save, Add to cart, Buy now) is a column on the right. `noRating` drops the row.
@@ -198,6 +201,21 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     const send = await panel.evaluate(async () => { await new Promise(r => setTimeout(r, 300)); const a = [...document.querySelectorAll("a")].find(x => /Send 1 to your list/.test(x.textContent)); return a && a.href; });
     ok(/#add=z\./.test(send || ""), "+ Add to list, then a send link for the app");
     await sw.evaluate(() => chrome.storage.local.set({ toApp: [] }));
+
+    // ---- 8b. A supplement: its own view, not a food verdict ----
+    await page.goto("https://www.walmart.com/ip/RAW-Nutrition-Pre-Workout/16435600213");
+    b = await badge(/Supplement/);
+    ok(/^Supplement\s*·\s*200 mg caffeine$/.test(b.text) && b.hosts === 1, `pre-workout: a Supplement badge with its caffeine (${b.text})`);
+    pt = await ptext(/Supplement/);
+    ok(/Supplement Not scored like food/.test(pt) && !/YOUR DAILY LIMITS/.test(pt), "the panel shows the supplement view, not food bars");
+    ok(/PER SERVING · 1 Scoop \(13\.2g\) Caffeine 200 mg · 50% Sodium 75 mg · 3% Added sugar 0 g Calories 0/i.test(pt), `per serving: caffeine against 400 mg, sodium, sugar, calories (${(pt.match(/PER SERVING[^.]*/) || [""])[0]})`);
+    ok(/200 mg caffeine: 50% of the FDA's 400 mg daily figure/.test(pt) && /Sweetened with sucralose/.test(pt) && /doesn't judge whether a supplement works/.test(pt), "notes: caffeine, sweetener, and what the app doesn't judge");
+    ok(/L-Citrulline\s*4g/.test(pt) && /Vitamin B12 \(as Methylcobalamin\)\s*5mcg · 208% DV/.test(pt), "what's in a serving, as the label lists it");
+    if (SHOTS) await panel.screenshot({ path: path.join(SHOTS, "ext12-panel-supplement.png"), fullPage: true });
+    await page.goto("https://www.walmart.com/ip/RAW-Nutrition-Pre-Workout/16435600214");
+    b = await badge(/Supplement/);
+    pt = await ptext(/only as a photo/);
+    ok(/Caffeine 200 mg/.test(pt) && /caffeine amount comes from the product's name/.test(pt) && !/Sodium/.test(pt), "label only in a photo: caffeine from the name, no made-up sodium");
 
     // ---- 9. Accessibility and dark mode ----
     const axeSrc = fs.readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");

@@ -3,9 +3,9 @@
 // page data. Walmart's panel comes in several shapes ("Saturated Fat" or "Sat. Fat", on its own line or nested under
 // Total Fat), so nutrients are found by name anywhere in it.
 (function (root, factory) {
-  if (typeof module === "object" && module.exports) module.exports = factory(require("./verdict.js"), require("./sources.js"), require("./search.js"));
-  else root.SelfCheckWalmart = factory(root.SelfCheckVerdict, root.SelfCheckSources, root.SelfCheckSearch);
-})(typeof self !== "undefined" ? self : this, function (V, S, Q) {
+  if (typeof module === "object" && module.exports) module.exports = factory(require("./verdict.js"), require("./sources.js"), require("./search.js"), require("./supplement.js"));
+  else root.SelfCheckWalmart = factory(root.SelfCheckVerdict, root.SelfCheckSources, root.SelfCheckSearch, root.SelfCheckSupplement);
+})(typeof self !== "undefined" ? self : this, function (V, S, Q, SUP) {
   // Product id from a product URL: /ip/Some-Name/10315479 → "10315479".
   const productId = url => { const m = String(url).match(/\/ip\/(?:[^/?#]+\/)?(\d{4,15})(?:[/?#]|$)/); return m ? m[1] : null; };
 
@@ -29,8 +29,28 @@
       // Fresh produce pages sometimes hold a recipe or a seller's note here, not ingredients.
       ingredients: ing && typeof ing.value === "string" && !((p.category && p.category.path) || []).some(c => c && /fresh produce/i.test(c.name)) ? ing.value : "",
       nutrition: idml.nutritionFacts || null,
+      labelRows: labelRows(idml),
       price: priceOf(p.priceInfo),
     };
+  }
+
+  // Every "name + amount" line in the page's label data, wherever it sits. Supplement Facts come in shapes that differ
+  // from Nutrition Facts, so this doesn't assume one: it collects lines from anything that isn't ingredients, warnings
+  // or directions.
+  const SKIP_KEYS = /^(?:ingredients|warnings?|directions|indications|instructions|productHighlights|specifications)$/i;
+  function labelRows(idml) {
+    const out = [], seen = new Set();
+    const visit = (n, depth) => {
+      if (!n || typeof n !== "object" || depth > 7) return;
+      if (Array.isArray(n)) { n.forEach(x => visit(x, depth + 1)); return; }
+      if (typeof n.name === "string" && (typeof n.amount === "string" || typeof n.amount === "number") && String(n.amount).trim() !== "") {
+        const k = n.name.trim().toLowerCase();
+        if (!seen.has(k)) { seen.add(k); out.push({ name: n.name.trim(), amount: String(n.amount).trim(), dvp: n.dvp != null ? String(n.dvp) : "" }); }
+      }
+      for (const [k, v] of Object.entries(n)) if (!SKIP_KEYS.test(k)) visit(v, depth + 1);
+    };
+    visit(idml, 0);
+    return out;
   }
 
   // Walmart's price on the page: { now: $ for the item, perUnit: $ per unit, unit: "oz" | "fl oz" | "lb" | …, text }.
@@ -126,12 +146,16 @@
   const FRESH = /fresh produce|fresh fruit|fresh vegetable|meat & seafood|fresh meat|fresh seafood|^produce$/i;
   // An empty nutrition block doesn't make a page food (non-food pages can carry one with every field null).
   const hasNutrition = n => !!(n && (n.calorieInfo || (n.keyNutrients && n.keyNutrients.values && n.keyNutrients.values.length)));
-  const isFood = p => p && (p.category.some(c => /^food$|grocery|beverage|produce|dairy|meat|frozen|pantry|snack|protein/i.test(c)) || hasNutrition(p.nutrition));
+  const isFood = p => p && (SUP && SUP.isSupplement({ category: p.category, name: p.name, ingredients: p.ingredients }) ||p.category.some(c => /^food$|grocery|beverage|produce|dairy|meat|frozen|pantry|snack|protein/i.test(c)) || hasNutrition(p.nutrition));
 
   // How to get this product's nutrition: { kind: "panel" | "name" | "barcode" | "none", ... }.
   function plan(p) {
     if (!p) return { kind: "none", why: "Not a product page." };
     const f = fromPanel(p);
+    // Supplements (a Supplement Facts label, or a supplement category or name) get their own view, not a food verdict.
+    // A real Nutrition Facts panel with calories (protein powder, a meal shake) keeps it a food.
+    if (SUP && SUP.isSupplement({ category: p.category, name: p.name, ingredients: p.ingredients, rows: p.labelRows || [], hasNutritionFacts: !!(f && f.cal >= 20) }))
+      return { kind: "supplement", rows: p.labelRows || [], serving: servingOf(p.nutrition) || ((p.labelRows || []).find(r => /serving size/i.test(r.name)) || {}).amount || "" };
     if (f) return { kind: "panel", food: f };
     if (!isFood(p)) return { kind: "none", why: "Not a food." };
     const fresh = p.category.some(c => FRESH.test(c));

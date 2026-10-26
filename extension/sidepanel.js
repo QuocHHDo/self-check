@@ -53,7 +53,48 @@
       data.product ? el("p", { class: "pname", text: data.product.name }) : null,
       el("p", { class: "headline", text: data.message }),
       el("p", { class: "small" }, "You can still ", el("a", { href: SITE, target: "_blank", rel: "noopener", text: "look it up by name in the app ↗" }), ".")));
+    if (data.state === "supplement") return main.replaceChildren(...supplement(data));
     main.replaceChildren(...ready(data.result, data.product || {}));
+  }
+
+  // ---------- supplements: their own view, not a food verdict ----------
+  function supplement(d) {
+    const S = d.supplement, prod = d.product || {}, SUP = self.SelfCheckSupplement;
+    const tier = d.skip ? "skip" : "supp";
+    const head = el("section", { class: "verdict " + tier, "aria-label": "Verdict" },
+      el("div", { class: "vrow" }, el("span", { html: C.icon(tier, 30) }), el("span", { class: "vword", text: d.skip ? "Skip" : "Supplement" })),
+      el("p", { class: "headline", text: d.skip ? d.skip.why : "Not scored like food. Here's what a serving holds." }),
+      el("p", { class: "pname", text: prod.name || "" }));
+    // Per serving: caffeine against the FDA's 400 mg a day, then sodium, sugar and calories when known.
+    const rows = [];
+    if (S.caffeine && S.caffeine.mg != null) {
+      const share = S.caffeine.share, tip = `Caffeine: ${S.caffeine.mg} mg, ${Math.round(share * 100)}% of the 400 mg a day the FDA cites for healthy adults.`;
+      rows.push(el("div", { class: "bar", tabindex: "0", role: "group", title: tip, "aria-label": tip }, el("span", { text: "Caffeine" }),
+        el("div", { class: "track", "aria-hidden": "true" }, el("span", { class: "zone warn", style: "left:50%;right:0" }), el("span", { class: "fill", style: `width:${(Math.min(1, share) * 100).toFixed(1)}%` })),
+        el("span", { class: "val" }, el("b", { text: `${S.caffeine.mg} mg` }), ` · ${Math.round(share * 100)}%`)));
+    }
+    const line = (label, value, tip) => el("div", { class: "bar", tabindex: "0", role: "group", title: tip, "aria-label": tip }, el("span", { text: label }), el("span", {}), el("span", { class: "val" }, el("b", { text: value })));
+    if (S.sodium != null) rows.push(line("Sodium", `${Math.round(S.sodium)} mg · ${Math.round(S.sodium / profile.na * 100)}%`, `Sodium: ${Math.round(S.sodium)} mg, ${Math.round(S.sodium / profile.na * 100)}% of your daily limit.`));
+    if (S.added != null) rows.push(line("Added sugar", `${V.fmt(S.added)} g`, `Added sugar: ${V.fmt(S.added)} g.`));
+    else if (S.sugar != null) rows.push(line("Sugar", `${V.fmt(S.sugar)} g`, `Sugar: ${V.fmt(S.sugar)} g.`));
+    if (S.calories != null) rows.push(line("Calories", String(Math.round(S.calories)), `Calories: ${Math.round(S.calories)}.`));
+    const per = rows.length ? el("section", { "aria-labelledby": "hPer" }, el("h2", { id: "hPer", text: `Per serving${S.serving ? ` · ${S.serving}` : ""}` }), el("div", { class: "bars" }, ...rows),
+      el("p", { class: "small", text: S.fromLabel ? "A Supplement Facts label leaves out nutrients that round to zero, so those show as 0." : S.caffeine && S.caffeine.from === "name" ? "This page has the Supplement Facts only as a photo, so the caffeine amount comes from the product's name. Check the label." : "This page has the Supplement Facts only as a photo; check the label for amounts." }))
+      : el("section", {}, el("p", { class: "small", text: "This page has the Supplement Facts only as a photo; check the label for amounts." }));
+    // Notes.
+    const notes = SUP.notes(S).map(n => {
+      const full = el("p", { class: "full", hidden: true }, n.full, n.src ? " " : null, n.src ? el("a", { href: n.src, target: "_blank", rel: "noopener", text: "Source" }) : null);
+      const more = el("button", { class: "more", type: "button", "aria-expanded": "false", text: "more",
+        onclick: e => { const open = full.hidden; full.hidden = !open; e.target.setAttribute("aria-expanded", String(open)); e.target.textContent = open ? "less" : "more"; } });
+      return el("li", { class: n.k }, el("span", { class: "nic", "aria-hidden": "true", text: n.k === "warn" ? "!" : "i" }), el("span", {}, n.short, more), full);
+    });
+    // What's in it, as the label lists it.
+    const actives = S.actives.length ? el("section", { "aria-labelledby": "hAct" }, el("h2", { id: "hAct", text: "What's in a serving, as listed" }),
+      el("ul", { class: "alist" }, ...S.actives.map(x => el("li", {}, el("div", { class: "arow" }, el("span", { class: "an", text: x.name }), el("span", { class: "ar", text: [x.amount, x.dvp && x.dvp !== "**" ? `${x.dvp} DV` : ""].filter(Boolean).join(" · ") })))))) : null;
+    return [head, per, el("section", { "aria-labelledby": "hWhy" }, el("h2", { id: "hWhy", text: "Good to know" }), el("ul", { class: "notes" }, ...notes)),
+      actives, S.ingredients ? ingredients(S.ingredients) : null,
+      el("section", { class: "foot" }, el("p", {}, el("b", { text: "Source: " }), `${d.detail}.`),
+        el("div", { class: "links" }, el("button", { class: "btn", type: "button", text: "Change your goals", onclick: () => chrome.runtime.openOptionsPage() })))].filter(Boolean);
   }
 
   // ---------- the breakdown ----------

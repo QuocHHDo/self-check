@@ -1,0 +1,30 @@
+{
+ "_note": "Built from the Supplement Facts label in the user's screenshot of a walmart.com page (RAW Nutrition X GBRS Essentials Pre Workout, Oct 26, 2026). Walmart's exact page-data shape for Supplement Facts wasn't captured, so 'labeled' puts the lines in the Nutrition Facts block without calories (one plausible shape; the reader collects name+amount lines from anywhere), and 'photo' has none (the label only in images), which is how the extension behaved on the real page.",
+ "pages": {
+  "labeled": {
+   "h": "16435600213 ¦ RAW Nutrition X GBRS Essentials Pre Workout Powder, 200mg Caffeine, Hard to Kill Strawberry Lemonade, 20 Servings ¦ 850049475026 ¦ RAW Nutrition ¦ Health > Sports Nutrition > Pre-Workout",
+   "ing": "Other Ingredients: Citric Acid, Natural Flavors, Malic Acid, Sucralose, Ticaloid Ultra Smooth Powder, Calcium Silicate, Silicon Dioxide. Contains 0% Fruit Juice.",
+   "rows": [
+    "k0|Vitamin B12 (as Methylcobalamin)|5mcg|208%",
+    "k1|Sodium (from Himalayan Pink Salt)|75mg|3%",
+    "k2|L-Citrulline|4g|**",
+    "k3|Beta-alanine|3.2g|**",
+    "k4|L-Tyrosine|2g|**",
+    "k5|Taurine|1g|**",
+    "k6|Caffeine (as Green Coffee (Coffea spp.) (Bean) Extract)|200mg|**",
+    "k7|Himalayan Pink Salt|200mg|**",
+    "serv|Serving Size|1 Scoop (13.2g)|"
+   ],
+   "price": [
+    21.37,
+    "$2.14/oz",
+    2.14
+   ]
+  },
+  "photo": {
+   "h": "16435600214 ¦ RAW Nutrition X GBRS Essentials Pre Workout Powder, 200mg Caffeine, Hard to Kill Strawberry Lemonade, 20 Servings ¦ 850049475026 ¦ RAW Nutrition ¦ Health > Sports Nutrition > Pre-Workout",
+   "ing": "Other Ingredients: Citric Acid, Natural Flavors, Malic Acid, Sucralose, Ticaloid Ultra Smooth Powder, Calcium Silicate, Silicon Dioxide. Contains 0% Fruit Juice.",
+   "rows": []
+  }
+ }
+}

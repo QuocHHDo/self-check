@@ -179,6 +179,8 @@ button { font: inherit; color: inherit; }
 .tag.mid { --tag-c: var(--mid); --tag-soft: var(--mid-soft); }
 .tag.bad, .tag.skip { --tag-c: var(--bad); --tag-soft: var(--bad-soft); }
 .tag.fine { --tag-c: var(--muted); --tag-soft: var(--bar-track); }
+.tag.supp { --tag-c: var(--accent); --tag-soft: var(--accent-soft); } .tag.supp .verdict { display: flex; align-items: center; gap: 8px; font-size: 26px; }
+:root { --v-supp: var(--accent); }
 .tag .for { font: 700 11.5px var(--font-display); letter-spacing: .12em; text-transform: uppercase; color: var(--tag-c); }
 .tag .verdict { font-family: var(--font-display); font-weight: 900; font-stretch: 75%; font-size: clamp(34px, 6vw, 46px); line-height: 1; color: var(--tag-c); margin: 4px 0 6px; }
 .tag .why { margin: 0; }
@@ -637,6 +639,7 @@ body:not([data-view="check"]) #appHome, body:not([data-view="check"]) #installBa
 <script src="js/additive-notes.js"></script>
 <script src="js/additives.js"></script>
 <script src="js/ingredients.js"></script>
+<script src="js/supplement.js"></script>
 <script src="js/verdict.js"></script>
 <script src="js/sources.js"></script>
 <script src="js/search.js"></script>

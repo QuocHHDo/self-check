@@ -73,7 +73,8 @@
           if (j > 0) raws.splice(i, j - i + 1, raws.slice(i, j + 1).join(", "));
         }
       }
-      for (const raw of raws.filter(r => !/^\W*(?:to|for)\s+(?:preserve|protect|maintain|retain|promote|prevent|keep)\b/i.test(r))) {
+      // Footnotes and label statements aren't ingredients: "*to preserve quality", "Contains 0% fruit juice".
+      for (const raw of raws.filter(r => !/^\W*(?:to|for)\s+(?:preserve|protect|maintain|retain|promote|prevent|keep)\b/i.test(r) && !/^\W*contains\s+(?:less than\s+)?\d+(?:\.\d+)?\s*%\s+(?:fruit\s+)?juice\b/i.test(r))) {
         const e = entry(raw, pi > 0);
         if (e) items.push(e);
       }
@@ -122,6 +123,7 @@
     [/^enzymes?$/, "Enzymes", "Proteins that help process the food; mostly inactive by the time you eat it."],
     [/^anti-?caking (?:blend|agents?)$/, "Anti-caking agent", "Keeps shredded or powdered food from clumping, often a starch or cellulose."],
     [/^(?:dough conditioners?|yeast nutrients?)$/, "Dough conditioner", "Helps bread dough rise and stay soft."],
+    [/^ticaloid\b.*$/, "Gum blend (Ticaloid)", "A blend of food gums that thickens drinks and powders."],
     [/^carbon monoxide$/, "Carbon monoxide", "A packaging treatment that keeps fish and meat looking red; it doesn't stop spoilage, so go by the date and smell."],
   ];
   const STIM = /\b(?:caffeine|taurine|guarana|ginseng|l-?carnitine|carnitine|creatine|glucuronolactone|yerba mate extract|green tea extract|green coffee extract|theanine|inositol)\b/i;
