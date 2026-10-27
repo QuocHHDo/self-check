@@ -42,7 +42,7 @@
   function empty() {
     return el("div", { class: "empty" },
       el("span", { html: C.icon("fine", 36).replace('aria-hidden="true"', 'aria-hidden="true" style="opacity:.5"') }),
-      el("p", { class: "big", text: "Open a Walmart or Sam's Club food product to see a verdict." }),
+      el("p", { class: "big", text: "Open a Walmart, Sam's Club or Costco food product to see a verdict." }),
       el("p", { class: "small", text: "On a product page, the verdict sits next to the star rating. Click it to see the details here." }));
   }
   function render() {

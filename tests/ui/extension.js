@@ -21,11 +21,23 @@ for (const [k, v] of Object.entries(LIVE)) PAGES[k] = { props: { pageProps: { in
 const SAMS = require(path.join(ROOT, "tests/fixtures/samsclub-live.json")).pages;
 for (const [k, v] of Object.entries(SAMS)) PAGES["sams-" + k] = { props: { pageProps: { initialData: { data: build(v) } } } };
 const SAMS_ID = { "1600043509": "sams-cheerios", "18638953319": "sams-bananas", "15390012477": "sams-towels", "18691360382": "sams-redcon1" };
+// Costco pages, rebuilt from live costco.com pages (Oct 26, 2026): JSON-LD and the item's record, no Nutrition Facts.
+// Its layout: the title, then a full-width review block whose stars widget renders after load, then price and Add to cart.
+const CO = require(path.join(ROOT, "tests/fixtures/costco-live.js"));
+const CO_ID = Object.fromEntries(Object.entries(CO.ITEMS).map(([k, v]) => [v.pageId, k]));
+const costcoHtml = k => CO.html(k, { layout: `<style>body{margin:0;font:14px Arial,sans-serif} .wrap{display:grid;grid-template-columns:700px 539px;gap:40px;padding:120px 20px 0}
+.gallery{height:520px;background:#eee} button{display:block;width:100%;height:44px;margin-top:8px;border:0;background:#005dab;color:#fff;font-weight:700}</style>
+<div class="wrap"><div class="gallery">photos</div><div><h1 style="font-size:24px;margin:4px 0">${CO.ITEMS[k].name}</h1>
+<div id="CostcoBVReviewContainer" data-bv-show="rating_summary" style="height:28px"></div>
+<style>[data-bv-show=rating_summary] div, [data-bv-show=rating_summary] span { position: static !important; display: block !important; margin: 0 !important }</style>
+<div id="price" style="font-size:28px;font-weight:700;margin-top:12px">$${CO.ITEMS[k].price}</div><button id="atc">Add to Cart</button><section style="height:900px"></section></div></div>
+<script>setTimeout(() => { document.getElementById("CostcoBVReviewContainer").innerHTML = '<span style="display:inline-flex;gap:6px;height:28px;align-items:center;width:316px;white-space:nowrap">★★★★★ 4.8 (512) <a href="#">Write a review</a></span>'; }, 600);</script>` });
 // A pre-workout (Supplement Facts), built from the label on the real page the user checked.
 const SUPPS = require(path.join(ROOT, "tests/fixtures/walmart-supplements.json")).pages;
 for (const [k, v] of Object.entries(SUPPS)) PAGES["supp-" + k] = { props: { pageProps: { initialData: { data: build(v) } } } };
 const BY_ID = { "363183524": "cheerios", "5072512866": "oikos", "10315479": "peanut-butter", "51259338": "banana",
   "12166733": "coke", "12166734": "dietcokecf", "16435600213": "supp-labeled", "16435600214": "supp-photo", "10295207": "honeybuns", "345611875": "reseller", "683540269": "tv" };
+const C_ID = u => (String(u).match(/\/p\/-\/[^/?#]+\/(\d+)/) || [])[1];
 const nameOf = k => { const d = PAGES[k].props.pageProps.initialData.data.product; return d.name; };
 // Walmart's layout around the title: the rating row is a wrapping flex row 486 px wide whose stars take 183 px; pack sizes
 // follow below it; the buy box (price, You save, Add to cart, Buy now) is a column on the right. `noRating` drops the row.
@@ -48,6 +60,9 @@ const OFF = {
     nutriments: { "energy-kcal_serving": 140, fat_serving: 0, "saturated-fat_serving": 0, carbohydrates_serving: 39, sugars_serving: 39, "added-sugars_serving": 39, proteins_serving: 0 } } },
   "049000029345": { status: 1, product: { product_name: "Diet Coke caffeine free", serving_size: "355 ml", serving_quantity: 355, categories_tags: ["en:beverages", "en:carbonated-drinks", "en:sodas", "en:diet-sodas"],
     nutriments: { "energy-kcal_serving": 0, fat_serving: 0, "saturated-fat_serving": 0, sodium_serving: 0.04, carbohydrates_serving: 0, sugars_serving: 0, proteins_serving: 0 } } },
+  // Cheerios as Costco sells them (the 2-count box's barcode).
+  "016000435094": { status: 1, product: { product_name: "Cheerios", serving_size: "1.5 cup (39 g)", serving_quantity: 39, categories_tags: ["en:breakfast-cereals"],
+    nutriments: { "energy-kcal_serving": 140, fat_serving: 2.5, "saturated-fat_serving": 0.5, "trans-fat_serving": 0, sodium_serving: 0.19, carbohydrates_serving: 29, fiber_serving: 4, sugars_serving: 2, "added-sugars_serving": 2, proteins_serving: 5 } } },
   "078742370033": { status: 1, product: { product_name: "Hannaford Peanut butter", serving_size: "2 tbsp. (32 g)", serving_quantity: 32,
     nutriments: { "energy-kcal_serving": 180, fat_serving: 16, "saturated-fat_serving": 3, "trans-fat_serving": 0, cholesterol_serving: 0, sodium_serving: 0.135, carbohydrates_serving: 7, fiber_serving: 2, sugars_serving: 3, "added-sugars_serving": 2, proteins_serving: 7 },
     categories_tags: ["en:spreads", "en:nut-butters", "en:peanut-butters"], ingredients_text: "Roasted Peanuts, Sugar, Hydrogenated Vegetable Oil (Rapeseed, Cottonseed, Soybean), Salt, Molasses, Mono-and Diglycerides." } },
@@ -78,6 +93,10 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
       const id = (r.request().url().match(/\/ip\/(?:[^/?#]+\/)?(\d+)/) || [])[1];
       if (id) hits.samsIp = (hits.samsIp || 0) + 1;
       return SAMS_ID[id] ? r.fulfill({ contentType: "text/html", body: pageHtml(SAMS_ID[id]) }) : r.fulfill({ contentType: "text/html", body: "<!doctype html><title>Sam's Club</title><p>home</p>" });
+    });
+    await ctx.route("https://www.costco.com/**", r => {
+      const id = C_ID(r.request().url());
+      return CO_ID[id] ? r.fulfill({ contentType: "text/html", body: costcoHtml(CO_ID[id]) }) : r.fulfill({ contentType: "text/html", body: "<!doctype html><title>Costco</title><p>home</p>" });
     });
     await ctx.route("https://world.openfoodfacts.org/**", r => { hits.off++; const code = (r.request().url().match(/product\/(\d+)/) || [])[1]; return r.fulfill({ contentType: "application/json", body: JSON.stringify(OFF[code] || { status: 0 }) }); });
     await ctx.route("https://api.nal.usda.gov/**", r => r.fulfill({ contentType: "application/json", body: JSON.stringify({ foods: [] }) }));
@@ -179,7 +198,7 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     const p3 = await ctx.newPage(); await p3.goto(`chrome-extension://${extId}/sidepanel.html?tab=${tabId}`);
     await page.goto("https://www.walmart.com/ip/Sceptre-40-TV/683540269?x=1"); await page.waitForTimeout(1200);
     const t3 = await p3.evaluate(async () => { await new Promise(r => setTimeout(r, 400)); return document.body.innerText; });
-    ok(/Open a Walmart or Sam's Club food product to see a verdict\./.test(t3), "non-food page: the side panel shows its empty state");
+    ok(/Open a Walmart, Sam's Club or Costco food product to see a verdict\./.test(t3), "non-food page: the side panel shows its empty state");
     await p3.close();
 
     // ---- 6. No rating row to sit in: a small pill at the bottom left, clear of the buy box ----
@@ -246,10 +265,43 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     // A swap links to the store the product came from.
     await page.goto("https://www.samsclub.com/ip/Cheerios-Cereal-40-7-oz/1600043509"); await badge(/Get it/);
     await sw.evaluate(() => chrome.storage.local.set({ profile: { cal: 2000, pro: 100, sat: 20, na: 300, add: 50, fib: 28, skip: "", mild: false } }));
-    pt = await ptext(/Search Sam's Club/).catch(() => "");
+    await badge(/In moderation|Limit it/);
+    pt = await ptext(/Search Sam's Club/).catch(async () => { console.log("panel:", (await ptext()).slice(0, 600)); return ""; });
     const swapHref = await panel.evaluate(() => { const a = [...document.querySelectorAll("a")].find(x => /Search Sam's Club/.test(x.textContent)); return a && a.href; });
     ok(/^https:\/\/www\.samsclub\.com\/search\?q=/.test(swapHref || ""), `swaps search Sam's Club, not Walmart (${swapHref})`);
     await sw.evaluate(() => chrome.storage.local.set({ profile: null }));
+
+    // ---- 8d. Costco: no Nutrition Facts on the page, so the barcode; the badge right of the stars ----
+    const coBadge = () => page.evaluate(() => {
+      const host = document.getElementById("should-i-buy-it-badge"), b = host.shadowRoot.querySelector("button"), r = b.getBoundingClientRect();
+      const row = document.getElementById("CostcoBVReviewContainer"), rr = row.getBoundingClientRect(), stars = row.firstElementChild && row.firstElementChild.getBoundingClientRect();
+      const hit = ["atc", "price"].map(id => document.getElementById(id)).some(x => { const q = x.getBoundingClientRect(); return r.left < q.right && r.right > q.left && r.top < q.bottom && r.bottom > q.top; });
+      return { text: b.textContent.replace(/\s+/g, " ").trim(), inRow: host.parentElement === row, floating: b.classList.contains("pill"), rowH: rr.height,
+        rightOfStars: !!stars && r.left >= stars.right, inside: r.right <= rr.right + 1 && r.top >= rr.top - 8 && r.bottom <= rr.bottom + 8, hit, hosts: document.querySelectorAll("#should-i-buy-it-badge").length };
+    });
+    await page.goto(CO.url("cheerios"));
+    await badge(/Get it/); await page.waitForTimeout(1200);
+    b = await coBadge();
+    ok(b.inRow && !b.floating && b.rightOfStars && b.inside && b.rowH === 28 && !b.hit && b.hosts === 1, `Costco Cheerios: the badge sits right of the stars, the page doesn't move (${JSON.stringify(b)})`);
+    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, "ext12-costco.png") });
+    pt = await ptext(/Get it/);
+    ok(/Open Food Facts/.test(pt) && /Costco/.test(pt), "the panel says the numbers came from the barcode, on a Costco page");
+    await page.goto(CO.url("bananas"));
+    b = await badge(/Get it/);
+    ok(/Get it/.test(b.text), `Costco bananas: typical values by name (${b.text})`);
+    await page.goto(CO.url("towels")); await page.waitForTimeout(1500);
+    ok(await page.evaluate(() => !document.getElementById("should-i-buy-it-badge")), "Costco paper towels: no badge");
+    await page.goto(CO.url("d3"));
+    b = await badge(/Supplement/);
+    ok(/^Supplement/.test(b.text), `Costco vitamin D3: the supplement view (${b.text})`);
+    await page.goto(CO.url("cheerios")); await badge(/Get it/);
+    await sw.evaluate(() => chrome.storage.local.set({ profile: { cal: 2000, pro: 100, sat: 20, na: 300, add: 50, fib: 28, skip: "", mild: false } }));
+    await badge(/In moderation|Limit it/);
+    pt = await ptext(/Search Costco/).catch(async () => { console.log("panel:", (await ptext()).slice(0, 600)); return ""; });
+    const coSwap = await panel.evaluate(() => { const a = [...document.querySelectorAll("a")].find(x => /Search Costco/.test(x.textContent)); return a && a.href; });
+    ok(/^https:\/\/www\.costco\.com\/s\?keyword=/.test(coSwap || ""), `swaps search Costco (${coSwap})`);
+    await sw.evaluate(() => chrome.storage.local.set({ profile: null }));
+    await page.waitForTimeout(1500); await badge(/Get it/); // the goals change re-checks the page
 
     // ---- 9. Accessibility and dark mode ----
     const axeSrc = fs.readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");

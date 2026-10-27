@@ -1,4 +1,5 @@
-// Shows a "Should I Buy It?" verdict on Walmart and Sam's Club product pages (Sam's Club runs on Walmart's platform): a small badge next to the star rating, and the full
+// Shows a "Should I Buy It?" verdict on Walmart, Sam's Club and Costco product pages (Sam's Club runs on Walmart's
+// platform; Costco has its own reader, js/costco.js): a small badge next to the star rating, and the full
 // breakdown in the browser's side panel (sidepanel.html), opened by clicking the badge. Nutrition comes from, in order:
 // the page's own Nutrition Facts panel; for fresh produce, a name match to the app's built-in foods; otherwise the
 // product's barcode in Open Food Facts, then USDA Branded Foods. The verdict is the site's own (lib/verdict.js).
@@ -7,6 +8,11 @@
   const V = self.SelfCheckVerdict, S = self.SelfCheckSources, W = self.SelfCheckWalmart, C = self.SelfCheckCard;
   const { FOODS } = self.SelfCheckData;
   const STORE = W.storeOf(location.hostname); // { id, name, search }
+  // How to read this store's pages. Costco's pages have no Nutrition Facts text; its reader finds the barcode instead.
+  const CO = self.SelfCheckCostco;
+  const READ = STORE.id === "costco"
+    ? { productId: CO.productId, product: src => CO.product(src), plan: CO.plan }
+    : { productId: W.productId, product: src => W.product(W.nextData(src)), plan: W.plan };
   const firstUrl = location.href; // the embedded page data belongs to this URL; later (client-side) pages are fetched
   let lastUrl = null, run = 0;
 
@@ -27,12 +33,12 @@
 
   // ---------- data ----------
   async function pageProduct(url) {
-    if (url === firstUrl) { const p = W.product(W.nextData(document)); if (p) return p; }
+    if (url === firstUrl) { const p = READ.product(document); if (p) return p; }
     const res = await fetch(url, { credentials: "include" });
     const html = await res.text();
     // The store asked to check for a robot (it can, after many page loads in a row): say so instead of "can't read".
     if (/are-you-human|not a robot/i.test(res.url + html.slice(0, 4000))) throw Object.assign(new Error("challenge"), { challenge: true });
-    return W.product(W.nextData(html));
+    return READ.product(html);
   }
   // Barcode lookups are cached in this browser: found for 30 days, not found for a day (in case a record gets added).
   const DAY = 864e5, KEEP = 300;
@@ -72,7 +78,7 @@
     return failed ? { failed: true } : null;
   }
   async function resolve(p, profile) {
-    const plan = W.plan(p);
+    const plan = READ.plan(p);
     // Supplements aren't scored like food: their own view, from the page's label lines, name and ingredients.
     if (plan.kind === "supplement") {
       const SUP = self.SelfCheckSupplement;
@@ -116,7 +122,7 @@
   // The app's mark, so the badge reads as the extension's and not as part of Walmart's page.
   const MARK = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><rect width="24" height="24" rx="6" fill="#2c6a3d"/><rect x="4" y="7" width="16" height="11" rx="2.5" fill="#fff"/><circle cx="7.4" cy="12.5" r="1.3" fill="#2c6a3d"/><path d="M10.5 12.6l2.2 2.2 4.3-4.6" fill="none" stroke="#2c6a3d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   let badgeState = null; // what the badge shows now: { tier, word, reason, warn, label }
-  const anchor = () => document.querySelector('[data-testid="reviews-and-ratings"]');
+  const anchor = () => STORE.id === "costco" ? document.getElementById("CostcoBVReviewContainer") : document.querySelector('[data-testid="reviews-and-ratings"]');
   function hostEl() {
     let host = document.getElementById(HOST_ID);
     if (host) return host;
@@ -126,11 +132,31 @@
   }
   function removeBadge() { const h = document.getElementById(HOST_ID); if (h) h.remove(); badgeState = null; }
   // Puts the host in the rating row (or floating), at most once, and renders the current state into it.
+  // Costco's review widget fills in after load: redraw only when the rating block's content changes size.
+  let lastSig = "";
+  const costcoSig = row => { const r = row.getBoundingClientRect(), f = row.firstElementChild && row.firstElementChild.id !== HOST_ID ? row.firstElementChild.getBoundingClientRect() : null;
+    return [r.width, r.height, row.childElementCount, f ? Math.round(f.right) : 0].join(); };
   function drawBadge() {
     if (!badgeState) return;
     const host = hostEl(), row = anchor();
     let floating = true;
-    if (row) {
+    if (row && STORE.id === "costco") {
+      // Costco's rating sits in its own full-width block, so the badge floats in the empty space right of the stars
+      // (absolutely positioned: nothing on the page moves). The review widget fills in after load; this re-measures.
+      if (host.parentElement !== row) row.append(host);
+      if (getComputedStyle(row).position === "static") row.style.position = "relative";
+      const rr = row.getBoundingClientRect();
+      let right = rr.left;
+      for (const e of row.querySelectorAll("*")) { if (e === host) continue; const q = e.getBoundingClientRect(); if (q.width > 0 && q.height > 0 && q.width < rr.width - 5) right = Math.max(right, q.right); }
+      const left = Math.round(right - rr.left + 12), room = Math.round(rr.right - right - 12);
+      lastSig = costcoSig(row);
+      // !important inline: the review widget's own reset (`[data-bv-show] div { position: static !important }`) would
+      // otherwise put the badge on a new line under the stars (checked on costco.com).
+      host.removeAttribute("style");
+      for (const [k, v] of Object.entries({ position: "absolute", left: left + "px", top: "50%", height: "0px", width: Math.max(0, room) + "px", display: "flex", "align-items": "center", overflow: "visible", margin: "0", padding: "0" }))
+        host.style.setProperty(k, v, "important");
+      floating = room < 140 || rr.height === 0;
+    } else if (row) {
       if (host.parentElement !== row) row.append(host);
       // Only what's left on the rating line: flex-basis 0 can't force a wrap. Too little room → float instead.
       // A zero-height slot centered on the stars' line: the row keeps its exact height (checked on live pages, where
@@ -144,6 +170,7 @@
     if (floating) {
       if (host.parentElement !== document.documentElement) document.documentElement.append(host);
       host.removeAttribute("style");
+      if (row && STORE.id === "costco" && row.style.position === "relative") row.style.position = "";
     }
     const root = host.shadowRoot;
     [...root.children].forEach(c => { if (c.tagName !== "STYLE") c.remove(); });
@@ -219,7 +246,7 @@
       if (queued || !badgeState) return;
       queued = true;
       setTimeout(() => { queued = false; const host = document.getElementById(HOST_ID), row = anchor();
-        if (!host || !host.isConnected || (row && host.parentElement !== row)) drawBadge(); }, 250);
+        if (!host || !host.isConnected || (row && host.parentElement !== row) || (STORE.id === "costco" && row && costcoSig(row) !== lastSig)) drawBadge(); }, 250);
     });
     mo.observe(document.body, { childList: true, subtree: true });
   }
@@ -317,7 +344,7 @@
     const url = location.href;
     if (url === lastUrl) return;
     lastUrl = url;
-    if (!W.productId(url)) {
+    if (!READ.productId(url)) {
       removeBadge();
       publish(null);
       const s2 = await store(["profile", "usdaKey", "searchBadges"]);
@@ -338,7 +365,7 @@
       if (mine !== run) return;
       if (!prod) { publish(null); return; }
       // Non-food pages get no badge; the side panel shows its empty state.
-      const pl = W.plan(prod);
+      const pl = READ.plan(prod);
       if (pl.kind === "none" && !/^No nutrition/.test(pl.why)) { publish(null); return; }
       badgeState = { tier: null, word: "", reason: "checking…", warn: null, label: "Checking this product" };
       drawBadge(); watchPage();

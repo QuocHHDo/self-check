@@ -11,8 +11,9 @@
   const STORES = {
     walmart: { id: "walmart", name: "Walmart", search: "https://www.walmart.com/search?q=" },
     sams: { id: "sams", name: "Sam's Club", search: "https://www.samsclub.com/search?q=" },
+    costco: { id: "costco", name: "Costco", search: "https://www.costco.com/s?keyword=" },
   };
-  const storeOf = host => /(^|\.)samsclub\.com$/i.test(String(host || "")) ? STORES.sams : STORES.walmart;
+  const storeOf = host => /(^|\.)samsclub\.com$/i.test(String(host || "")) ? STORES.sams : /(^|\.)costco\.com$/i.test(String(host || "")) ? STORES.costco : STORES.walmart;
   const storeSearch = (q, store) => (STORES[store] || STORES.walmart).search + encodeURIComponent(q);
 
   // Product id from a product URL: /ip/Some-Name/10315479 → "10315479".

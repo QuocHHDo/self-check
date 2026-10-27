@@ -109,11 +109,13 @@ scripts/build-single.mjs   single-file build
 
 Values are approximate and vary by brand; the package label wins. Open Food Facts is crowd-sourced and can be incomplete. The scoring thresholds are rules of thumb, not a clinical standard. General nutrition guidance, not medical advice.
 
-## Browser extension (Walmart and Sam's Club product pages)
+## Browser extension (Walmart, Sam's Club and Costco product pages)
 
 `extension/` is a Chrome extension (Manifest V3, Chrome 116+) that shows a verdict on Walmart product pages (`walmart.com/ip/…`). It uses the same verdict code and foods as the site, and it's free: no server, no account.
 
 It works the same on **Sam's Club** (`samsclub.com/ip/…`), which runs on Walmart's platform: the same product URLs, page data, title and rating row, so one reader serves both (`STORES` in `js/walmart.js`); wording, swap searches and prices name the store. Search badges stay off on Sam's Club, which checks for robots more readily; if a store asks for that check, the badge says to reload instead of failing.
+
+On **Costco** (`costco.com/p/-/…/<id>`) a separate reader, `js/costco.js`, returns the same product shape. Costco's pages carry no Nutrition Facts as text (the label is a photo), so the route is the barcode: the page's structured data (JSON-LD) gives the name, item number, brand, price and category, and the item's record in the page data gives its UPC, department and size (for the price per ounce). Costco's department decides what's food (it files paper towels under Grocery); produce goes by name, and vitamins get the supplement view. The badge sits in the empty space right of the star rating, absolutely positioned so nothing moves. Search badges and the phone bookmark don't cover Costco.
 
 It has two levels:
 
@@ -154,7 +156,7 @@ Phones can't run extensions, so Goals → **Walmart on your phone** gives a book
 
 Phones: Chrome on Android and iOS doesn't run extensions.
 
-**Permissions:** storage (your goals), Walmart pages (to show the card), and Open Food Facts and USDA (barcode lookups, without cookies). Nothing is sent anywhere else.
+**Permissions:** storage (your goals), the side panel, Walmart, Sam's Club and Costco pages (to show the badge), and Open Food Facts and USDA (barcode lookups, without cookies). Nothing is sent anywhere else.
 
 **For development:** `extension/lib/` holds copies of the app code; after changing `js/`, run `npm run sync:extension` (a test fails if the copies are out of date). `node tests/ui/extension.js` loads the extension in Chromium against saved Walmart page data (`tests/fixtures/walmart-pages.json`).
 

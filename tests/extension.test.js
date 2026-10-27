@@ -17,18 +17,18 @@ test("every file the manifest names exists, in a load order that works", () => {
   const files = [manifest.background.service_worker, manifest.options_page, ...Object.values(manifest.icons), ...manifest.content_scripts.flatMap(c => c.js)];
   for (const f of files) assert.ok(fs.existsSync(path.join(EXT, f)), f);
   const js = manifest.content_scripts[0].js;
-  for (const [dep, user] of [["lib/verdict.js", "lib/sources.js"], ["lib/sources.js", "lib/walmart.js"], ["lib/search.js", "lib/walmart.js"], ["lib/walmart.js", "content.js"], ["lib/foods.js", "content.js"]])
+  for (const [dep, user] of [["lib/verdict.js", "lib/sources.js"], ["lib/sources.js", "lib/walmart.js"], ["lib/search.js", "lib/walmart.js"], ["lib/walmart.js", "lib/costco.js"], ["lib/costco.js", "content.js"], ["lib/foods.js", "content.js"]])
     assert.ok(js.indexOf(dep) < js.indexOf(user), `${dep} loads before ${user}`);
 });
 
-test("permissions stay narrow: storage, the side panel, Walmart and Sam's Club pages, and the two nutrition sources", () => {
+test("permissions stay narrow: storage, the side panel, Walmart, Sam's Club and Costco pages, and the two nutrition sources", () => {
   assert.deepEqual(manifest.permissions, ["storage", "sidePanel"]);
   assert.equal(manifest.side_panel.default_path, "sidepanel.html");
   assert.ok(fs.existsSync(path.join(EXT, "sidepanel.html")) && fs.existsSync(path.join(EXT, "sidepanel.js")));
   // Every script the side panel loads exists.
   for (const m of fs.readFileSync(path.join(EXT, "sidepanel.html"), "utf8").matchAll(/src="([^"]+)"/g)) assert.ok(fs.existsSync(path.join(EXT, m[1])), m[1]);
   assert.deepEqual(manifest.host_permissions, ["https://world.openfoodfacts.org/*", "https://api.nal.usda.gov/*"]);
-  assert.deepEqual(manifest.content_scripts[0].matches, ["https://www.walmart.com/*", "https://www.samsclub.com/*"]);
+  assert.deepEqual(manifest.content_scripts[0].matches, ["https://www.walmart.com/*", "https://www.samsclub.com/*", "https://www.costco.com/*"]);
   const bg = fs.readFileSync(path.join(EXT, manifest.background.service_worker), "utf8");
   assert.match(bg, /credentials: "omit"/);
 });
