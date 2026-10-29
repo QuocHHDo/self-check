@@ -1,0 +1,323 @@
+{
+ "source": "OCR text from Tesseract.js 5.1.1 (eng, best_int) on photos of Nutrition Facts labels from Open Food Facts (images CC BY-SA 3.0, Open Food Facts contributors), read Oct 26, 2026. Each label: the three passes the app runs (as-is in block mode, grayscale with contrast stretched, and grayscale at 1.5x in sparse mode), and what the photo actually says.",
+ "labels": {
+  "cheerios-old": {
+   "truth": {
+    "cal": 100,
+    "fat": 2,
+    "sat": 0.5,
+    "trans": 0,
+    "chol": 0,
+    "na": 140,
+    "carb": 20,
+    "fib": 3,
+    "sug": 1
+   },
+   "texts": [
+    "Nutrition Facts\nServing Size 1 cup (28g)\nChildren Under 4 - 34 cup (21g)\nServings Per Container about 18\nChildren Under 4 - about 24\nwith | Cereal for\nY2 cup     Children\nAmount Per Serving Cheerios skim milk  | Under 4\nCalories                 100       [0M 80\nCalories from Fat       15         20          10\nTT\nTotal Fat 2g*         3%      3% | 15g\nSaturated Fat 0.59 3%       3% | 0g\nTrans Fat Og                    A          |         Og\nPolyunsaturated Fat 0.5g             |      0.59\nMonounsaturated Fat 0.5g           |      0.5g\nCholesterol Omg     0%      1% |     Omg\nSodium 140mg      6%     8% |  105mg\nPotassium 180mg 5%     11% | 135mg\nTotal\nCarbohydrate 20g 7%       9% |       15g\nDietary Fiber 3g    11%    11% |      2g\nSoluble Fiber 1g                       |         Og\nSugars 1g                              |        1g\nOther Carbohvdrate 168.                        4\n",
+    "Serving Size 1 cup (28g)\n\nCalories                          100\nCalories from Fat           15\n\nTotal Fat 2¢*           3%\nSaturated Fat 0.59 3%\nTrans Fat Og\nPolyunsaturated Fat 0.5g\nMonounsaturated Fat 0.5g\n\nCholesterol Omg     0%\n\nSodium 140mg       6%\n\nPotassium 180mg 8%\n\nTotal\nCarbohydrate  20g 7%\n\nDietary Fiber 3g       11%\nSoluble Fiber 1g\n\nSugars 1g\n\nOther Carbohvdrate 1G8~\n\nNutrition Facts\n\nChildren Under 4 - 34 cup (21g)\nServings Per Container about 18\nChildren Under 4 - about 24\n\nwith | Cereal for\n\nY2 cup\nAmount Per Serving Cheerios skim milk\n\n150 |\n20\n\n% Daily Value**\n\n3% |\n\n11% |\n\nChildren\nUnder 4\n\n80\n10\n\n",
+    "Nutrition Facts\n\nServing Size 1 cup (28g)\n\nChildren Under 4 - 34 cup (21g)\n\nServings Per Container about 18\n\nChildren Under 4 - about 24\n\nwith | Cereal for\n\nY2 cup\n\nChildren\n\nAmount Per Serving Cheerios ski\n\nm milk\n\nUnder 4\n\nCalories\n\n100\n\n80\n\nCalories from Fat\n\n150 |\n\n15\n\n20\n\n10\n\n% Daily Value**\n\nTotal Fat 2g’\n\n3%\n\n3% |\n\n1.59\n\nSaturated Fat 0.59 3%\n\n%\n\nOg\n\nTrans Fat Og\n\nOg\n\nPolyunsaturated Fat 0.59\n\n0.5g\n\nMonounsaturated Fat 0.5g\n\n0.5g\n\nCholesterol Omg\n\n0%\n\n1%\n\nOmg\n\nSodium 140mg\n\n6%\n\n8%\n\n105mg\n\nPotassium  180mg\n\n5%\n\n11%\n\n135mg\n\nTotal\n\nCarbohydrate 20g\n\n7%\n\n9%\n\n15g\n\nDietary Fiber 3g\n\n11%\n\n11%\n\n2g\n\nSoluble Fiber 1g\n\nSugars 1g\n\nOg\n\nOther Carbohvdrate 16~\n\nTP\n\n1g\n"
+   ]
+  },
+  "pringles": {
+   "truth": {
+    "cal": 200,
+    "fat": 12,
+    "sat": 3.5,
+    "trans": 0,
+    "chol": 0,
+    "na": 200
+   },
+   "texts": [
+    "22 \\58\\S    >\n== | SE | Son\nsS=S.\\ SS\n== | Se =o    \\\n== =    \\!\nSES | =n     \\\n~~   =\\      \\\\\n|S =      \\\\\noz |     =)    Py   \\\\\n—g       SRY\n<  .  RE az\n$   = EEA    \\\n$   .   SIELE\nagl= 5 PAE oy    3\nElz EEE\nad leo P=RE= pe p           4\nMH HERE bd         )\ncolSInSR Sm       \\\nSxl  SIRS  -\nSE = EET EES     ;\n5 SEER |\nEs   ISISiRS 8\n4% I   &   s 2\n<  SH  8      As\ngh |] EB   Hq. 5\n:       7 [RNY\n=    py      3\nmn. TL\n",
+    "gor racion\n07)\n\n",
+    "ee —\n\nEE\n\npa\n\n_—\n\n—\n\n——\n\n= =\n\noN\n\n—\n\n—\n\n— =\n\n=3\n\n.\n\n- a\n\n——\n\n— TD\n\n©\n\n—\n\n\\\\\n\neo |\n\n—\n\nTQ\n\n—3\n\nwn\n\n—\n\nSIRIA\n\nry\n\nBK\n\nES\n\no>\n\nBR\n\now\n\n2\n\n=a\n\non\n\n2\n\n=\n\n~\n\nwr\n\no\n\n—\n\no>\n\n=\n\nor\n\non\n\n™\n\nwa\n\n<-\n\n—\n\noo\n\nwo\n\nae\n\nAR\n\ni ¢\n\n~>\n\n|\n\nPa\n\n| on\n\n©\n\n_-n\n\nRY\n"
+   ]
+  },
+  "skippy": {
+   "truth": {
+    "cal": 190,
+    "fat": 16,
+    "sat": 3,
+    "trans": 0,
+    "chol": 0,
+    "na": 150,
+    "carb": 6,
+    "fib": 2,
+    "sug": 3,
+    "add": 2,
+    "pro": 7
+   },
+   "texts": [
+    "Nutrition Facts\nAbout 25 Senvings Per Container\nSeningsize 2 Thsp (329)\nAmount per serving\n\"9% Daily Value* |\nTotal Fat 169                21%\nSaturated Fat 3g              15%\nTrans Fat Og                       >\nCholesterol Omg            0% |\nSodium 150mg                 7%\nTotal Carbohydrate 6 2%\nDitary Fiber 2g                 7%\nTotal Sugars 3g\nIncludes 2g Added Sugars 4%\nProtein 7g                           7%\nEE\n;  VieninE 1 mg 0% » Niacin 32mg 20%\n",
+    "Nutrition Facts |\nAbout 25 Servings Per Gontainer |\n2 Thsp (329)\n\n% Daily Value\n{Total Fat16g        21%\nSaturated Fat 3g              15%\n| TransFat0y\nCholesterol Omg                0%\n4 Sodium 150mg              7%\nTotal Carbohydrate 6 2%\nDietary Fiber 2g                   7%\ni Total Sugars 3g\nIncludes 2g Added Sugars 4%\ntotein 7g                           7%\n\namin 1.5mg 10% » Niacin 32mg 20%\n\n",
+    "Nutrition Facts\n\nAbout 25 Servings Per Container\n\nServing size 2 ed\n\nAmount per serving\n\nCalories 190\n\n% Daily Value*\n\n21%\n\nTotal Fat 16g\n\nSaturated Fat 3g\n\n15%\n\nTrans Fat Og\n\nCholesterol Omg\n\n0%\n\nSodium 150mg\n\n1%\n\nTotal Carbohydrate 6g\n\n2%\n\nDietary Fiber 2g\n\n7%\n\nTotal Sugars 3g\n\nIncludes 2g Added Sugars 4%\n\notein 7g\n\n7%\n\nViaminD Omog 0% » Calcium Omg 0%\n\n04mg 2% Potassium omg 2%\n\nfain E1.5mq 10% » Niacin 32mg  20%\n"
+   ]
+  },
+  "oreo": {
+   "truth": {
+    "cal": 160,
+    "fat": 7,
+    "sat": 2,
+    "trans": 0,
+    "chol": 0,
+    "na": 135,
+    "carb": 25,
+    "fib": 0.5,
+    "sug": 14,
+    "pro": 1
+   },
+   "texts": [
+    "FEE PH %\nServing Size 3 cookies (349)\n— Per Container about 12\nAmoun' r Serving\nCz' os 160 Calories from Fat 60\n—   %\n% Daily Value*\nTotal Fat 7g                      11%\nSaturated Fat 2g                 10%\nTrans Fat Og\nCholesterol Omg              0%\nSodium 135mg             6%\n| Potassium55mg ~~ 2%\nTotal Carbohydrate 25g 8%\nDietary Fiber Less than 1g     3% |\nSugars 14g\nProtein 1g\nVitamin A0% Vitamin C 0%\nCalcium 0%       .     Iron 8%\n* Percent Daily Values are based on a 2,000\n\\    calorie diet. Your daily values may be higher\nor lower depending on your calorie needs\nfl         Calories: 2,000     2,500\nTotal Fat       Less than 659       80g\nSat Fat        Less than 20g       259\nCholesterol   Less than 300mg   300mg\nSodium        Less than 2,400mg 2,400mg\nPotassium        3.500mg 3,500mg\nTotal Carbohydrate       300g     375g\nDietary Fiber           25g      30g\n",
+    "Saturated\nTrans Fat Og\nCholesterol Omg\nSodium 135mg\nPotassium 55mg              2\nTotal Carbohydrate 259      8%\nDietary Fiber Less than 1g     3% |\nSoars iég\nProtein 1g\n\nVitamin A 0%     *     Vitamin C 0%\n\nCalcium 0%       .     Iron 8%\n\n* Percent Daily Values are based on a 2,000\ncalorie diet. Your daily values may be higher\n\nor lower depending on your calorie needs:\nCalories: 2,000 2,500\n\nTotal Fat        Less than 65g        80g\n\nSat Fat         Less than 20g         25\nCholesterol Less than 300mg 300mg\nSodium          Less than 2,400mg 2,400mg\n\nPotassium               3,500mg 3,500mg\nTotal Carbohydrate          300g       3759\nDietary Fiber                25g         30g\n\n",
+    "7.\n\n+\n\nTotal F\n\nSaturation  -\"\n\nTrans Fat Og\n\nChole: sterol Omg\n\nSodium 135mg\n\nPotassium 55mg\n\nTotal Carbohydrate 25g\n\n87%\n\n3%\n\n————————————————\n\nDietary Fiber Less than 1g\n\nSugars 14g\n\nProtein 1g\n\nVitamin A 0%\n\n®\n\nVitamin C 0%\n\nCalcium 0%\n\nEl\n\niron 8%\n\n* Percent Daily Values are based on a 2,000\n\ncalorie diet. Your daily values may be higher\n\nor lower depending on your calorie needs:\n\nCalories\n\n2,000\n\n2,500\n\nTotal Fat\n\nLess than\n\n659\n\n80g\n\nSat Fat\n\nLess than\n\n25\n\n20g\n\n30\n\nCholesterol\n\nLess than\n\n300mg\n\nmg\n\nSodium\n\nLess than\n\n2,400mg\n\n2,400mg\n\nPotassium\n\n3,.500mg\n\n3,500mg\n\nTotal Carbohydrate\n\n300g\n\n3759\n\nDietary Fiber\n\n259g\n\n30g\n"
+   ]
+  },
+  "nutella": {
+   "truth": {
+    "cal": 200,
+    "fat": 11,
+    "sat": 4,
+    "trans": 0,
+    "chol": 2.5,
+    "na": 15,
+    "carb": 22,
+    "fib": 1,
+    "sug": 21,
+    "add": 19,
+    "pro": 2
+   },
+   "texts": [
+    "rition    Amount/serving  % Daily Value*  Amount/serving       % Dally Valu' 3\nTotal Fat 11g     14% Total Carbohydrate 22g 8% =\nS               Saturated Fat4g 20% _ Dietary Fiber 1g        =\nservings       Trans Fat Og                        Total Sugars21g\nize        Cholesterol <5mg 0%     Includes 19g Added Sugars 38% Zo\nB79) Sodium 15mg         1% Proteinzg\nS 200  Vitamin D Omcg 0% + Calcium 40mg re\nng          Potassium 170mg 4%     Sel\n",
+    "Amount/serving  % Daily Value*  Amount/serving       % Dally Value'\n\nTotal Fat 11g     14% Total Carbohydrate 22g 8%\nSaturated Fat4g 20% Dietary Fiber 1g       [15\nTrans Fat Og                        Total Sugars 21g\n\nCholesterol <5mg 0%      Includes 19g Added Sugars 38%\n\nSodium 15mg            1% Protein 2g\n\nVitamin D Omcg 0% + Calcium 40mg 4%\nPotassium 170mg 4%\n\n+ Iron 1mg€*\n\n",
+    "Amount/serving\n\n% Daily Value*\n\nAmount/serving\n\n% Daily Value\n\nrition\n\n1 4%\n\nTotal Carbohydrate 22g 8%\n\nTotal Fat 11g\n\nSaturated Fat 4g\n\n20%\n\nDietary Fiber 1g\n\n4%\n\n219\n\n»\n\nJ servings\n\nTrans Fat 0g\n\nTotal Sugars\n\nee\n\nze\n\nCholesterol <5mg\n\n0%\n\nIncludes 19g Added Sugars  38%\n\n79)\n\nSodium 15mg\n\n1%\n\nProtein 2g\n\nium 40mg 4%\n\n+ Iron mg 6%\n\nVitamin D Omcg 0% + Calc\n\n200\n\nPotassium 170mg 4%\n"
+   ]
+  },
+  "lays": {
+   "truth": {
+    "cal": 160,
+    "fat": 10,
+    "sat": 1.5,
+    "trans": 0,
+    "chol": 0,
+    "na": 170,
+    "carb": 15,
+    "fib": 1,
+    "sug": 0.5,
+    "pro": 2
+   },
+   "texts": [
+    "i serving per container = 8    ;\nih ot Rn                 1 package\ndR ii... SM\nAmount per serving\nCalories 160\nMES HEE Rally Velde”\nTotal Fat 10g                      13%\nSaturated Fat 1.59                   7%\nTrans Fat Og\nCholesterolomg ~~ 0%\nSodiumi70mg 7%\n\"Dietary Fiber 19                          5%\nTotal Sugars less than 1g\nProtein 29                             Ta\nVitamin D Omcg                               0%\nCalcium 10mg                             0%\nrE\nVitamin C                                        6%\nNota significant source of added SUGEES..\n1\" The Daily Val                         much a nutrient\nna serving of pal tells you how diet. 2,000\n+ add day i use or genera £ tition advice     :\nER,\nBinoy : POTATOES, VEGETABLE O'- Cl\n1    R CANOLA OIL), AND SALT.\n",
+    "—EEENT Me\n\n[Nutrition ar     ph\n1 serving per container   ——\nServing size                 1 package\n\nAmount per serving\n\nCalories        160\n\n% Daily Value*\n\nTotal Fat 10g                      13%\n\nSaturated Fat 1.59                   7%\nTrans Fat Og\n\nCholesterol Omg\nSodium 170mg\nTotal Carbohydrate 15g\nDietary Fiber 1g\nTotal Sugars less than 1g\nProtein 29\n\nVitamin D Omcg\n\nCalcium 10mg\n0.6mg\n\nPotassium 350mg\n\nOr Ee\n\not a significant source of added sugars.\nThe % Daily Value (DV                ow much a nutrient\nsing of 00d cout 10221 de, 200\naday is used for general nu!\"\ng NFLOWER,\n\nU\nDIENTS: POTATOES, VEGETABLE O'-\nMDIOR CANOLA OIL) AND SALT.\n\n3\n\n",
+    "CYEEN Ne\n\nNutritioss\n\n800\n\n=\n\n|\n\nServing size\n\n1 serving per container\n\n1   package\n\nAmount per serving\n\nCalories\n\n160\n\n% Daily Value*\n\nTotal Fat 10g\n\n13%\n\nSaturated Fat 1.59\n\n7%\n\nTrans Fat Og\n\ncholesterol Omg\n\n%\n\n7%\n\nSodium 170mg\n\nTotal Carbohydrate 159g\n\n6%\n\n5%\n\n\"Dietary Fiber 1g\n\nTotal Sugars less than 19\n\nProtein 29\n\n0%\n\nV\n\nitamin D Omcg\n\nGdoum omg 0%\n\nlon 0.6mg        Ea 2%\n\nrotassium 350mg\n\n6%\n\n6%\n\n5%\n\nNot a significant source of added sugars.\n\nThe %\n\nDaily Value (DV) tells you how\n\nch a nutrient\n\ndiet. 2,00\n\nnase\n\nving of food contributes to @\n\noN\n\na day\n\nis used for general NU\n\nrii\n\nSUNFLOWER\n\nENTS: POTATOES, VEGETABLE 01\n\nDIOR CANOLA OIL), AND SALT\n"
+   ]
+  },
+  "quaker": {
+   "truth": {
+    "cal": 150,
+    "fat": 3,
+    "sat": 0.5,
+    "trans": 0,
+    "chol": 0,
+    "na": 0,
+    "carb": 27,
+    "fib": 4,
+    "sug": 1,
+    "add": 0,
+    "pro": 5
+   },
+   "texts": [
+    "-  -                1\nNutrition Facts|\ner\nAbout 13 servings per container {4\nServing size 1/2 cup dry (40g) |\nAmount per serving                          |\nCalories 190\n| —  i\n9% Daily Value* |\nWary ey\nSaturated Fat 0.59                        3% |\nTrans Fat 0g                 |\nPolyunsaturated Fat 19\nMonounsaturated Fat 1g                       i\nCholesterol Omg          0%\nSodium Omg            0% |\nDenFordy CE\nwhlSgsly of\nProtein 59                              a\nMagnesium 40mg 10%         pe\n\n\" The % Daly Value (OV) tos you hot much and\n\nLh\nh\n",
+    "Nutrition Facts|\n\nAout 13 servings per container {8\nServing size 1/2 cup dry (409)\nTT ZR\n\nmount per serving    |\nCalories   150]\n\nTotal Fat 3g                          a |\nSaturated Fat 0.59                        3% |\n\nTrans Fat 0g\nPolyunsaturated Fat 1g\nMonounsaturated Fat 1g\nCholesterol Omg          0% |\nSodium Omg                 0% |\nTotal Carbohydrate 27        10%\nDietary Fiber 4g             13%\nSoluble Fiber 29\n\nTotal Sugars 1g                            3\n\nIncludes Og Added Sugars         0%\n\n__ Includes 0g Added Sugars =\nProtein 59\n\nMagnesium 40mg 10%\n* The Dally Value (OV) tolls you how MUER [re\n\n4 serving of food contributes toa daly diet  ic\ncalories a day is used for general nutiton ol\n\n",
+    "Nutrition Facts\n\nAout 13 servings per container\n\nserving size 1/2 cup dry (40g)\n\nAmount per serving\n\nCalories\n\n150\n\n% Daily Value*\n\nTotal Fat 3g\n\n4%\n\nSaturated Fat 0.59\n\n3% 4\n\nTrans Fat Og\n\nPolyunsaturated Fat 1g\n\nMonounsaturated Fat 1\n\nCc\n\n0%\n\nholesterol Omg\n\nSodium Omg\n\n0%\n\n10%\n\nTotal Carbohydrate 279\n\nDietary Fiber 4g\n\n13%\n\n~~ OONDIC TIDET.AY” i Seay\n\nS\n\noluble Fiber 2g\n\nTotal Sugars 1g\n\n0%\n\n___Inciudes Ug Added ot9d1S =\n\nIncludes 0g Added Sugars\n\nProtein 5g\n\nCalcium 20mg 0%\n\nVitamin D Omeg 0% *\n\nYtamin D Omeg 0% ¢  CalCliMEr=—s\n\nIron 1.5mg 8%\n\n+ Potassium 150m\n\ng 2%\n\nT\n\nThiamin 0.2mg 15% + Phosphorus 142 —\n\namin 02mg 15% + Phosphorus 1309]\n\nMagnesium 40mg 10%\n\nL\n\nmuch a nutrie”\n\nThe % Daily Value (DV) tells you ho\n\n\"a serving of food contributes toa\n\nally\n\non\n\ndiet\n\nadv\n\ncalories a day is used for general nul\n"
+   ]
+  },
+  "campbell": {
+   "truth": {
+    "cal": 100,
+    "fat": 7,
+    "sat": 1,
+    "trans": 0,
+    "chol": 0,
+    "na": 860,
+    "carb": 8,
+    "fib": 0,
+    "sug": 0.5,
+    "add": 0,
+    "pro": 2
+   },
+   "texts": [
+    "——— TT a ae\nition Amountiserving % Daily Value* Amountiserving  % Dai yay\n\nCs eemmee———\n|         Total Fat 7g               9% Sodium 850mg        [i\nShera       5% Total Carbohydrate;\nionings Trans Fat Og                     Dietary Fiber Og        1}\nay Polyunsaturated Fat 359              Total Sugars <1g              |\n2f(il] Monounsaturated Fat 1.59        Includes Og Added Sugars 0%:\nCholesterol Omg         0% Protein 2g\nEE — fee\no 00 Vitamin D Omcg             0% Calcium 10mg          0,\n&      Iron 0.2mg             0% Potassium50mg (0%\n",
+    "*   in   .\nON ——— —\n\nTotal Fat 7g        9% Sodium 860mg\n “Sawaarariy      5% Total Carbohydrate’; -\nmings Trans Fat Og           Dietary Fiber 0g      [1]\n{Polyunsaturated Fat 35g       Total Sugars <1g\nslmiinl] Monounsaturated Fat 1.5 “sss Includes Og Added Sugas 0%\nCholesterol Omg Protein 2g           |\nEE — Co CTT)\n\n| 1 WLLL —. Vitamin D Omeg             0% Calcium 10mg\nim02mg 0% 1 VV ion 02mg                       0% Potassium 50mg       l\n",
+    "ition Amount/serving  % Daily Value* Amount/serving   —\n\nTotal Fat 7g\n\n9% Sodium 860mg\n\nlS\n\nSaturated Fat 1g\n\n5% Total Carbohydrate\n\nfeningg Trans Fat Og\n\nDietary Fiber 0g\n\n[}]\n\nThiel\n\nPolyunsaturated Fat 3.59\n\nTotal Sugars <iq\n\nHqflnl] Monounsaturated Fat 1.59\n\nincludes Og Added Sigas 0%\n\nwall 5\n\nCholesterol Omg\n\n[3 Protein 2g\n\n|\n\nVitamin D Omcg\n\n“0% Calcium 10mg\n\nTe ts\n\nton02mg 0% % VV lon 0.2mg\n\n0% Potassium 50mg\n\n4\n"
+   ]
+  },
+  "dietcoke": {
+   "truth": {
+    "cal": 0,
+    "fat": 0,
+    "na": 40,
+    "carb": 0,
+    "sug": 0,
+    "add": 0,
+    "pro": 0
+   },
+   "texts": [
+    "Nutrition Facts |\n12 wn per container\nServing Size        1 Can | |\nfilet enipas aie]\nAmount Per Serving                                       :\nCalories 0,\n__% Daily Value | |\nTotal Fat 0g                 0% | |\nTotal Carbohydrate 0g      0% | |\nTotal Sugars 0g\nincludes 0g Added Sugars 0% |\nProtein 0g\nNot a significant source of saturated fat,\ntrans fat, cholesterol, dietary fiber,\nvitamin D, calcium, iron and potassium\n",
+    "Nutrition Facts\n12 servings per container\nServing Size         1 Can\n\nAmount Per Serving\nCalories 0\n\n% Daily Value\nTotal Fat (Og                     0%\nSodium 40mg          2%\n\nTotal Carbohydrate Og        0%\nTotal Sugars 0g\nincludes 0g Added Sugars 0%\nProtein 0g\n\nNot a significant source of saturated fat,\ntrans fat, cholesterol, dietary fiber,\nvitamin D, calcium, iron and potassium.\n\n",
+    "Nutrition Facts\n\n12 servings per container\n\nCan\n\nServing Size\n\nAmount Per Serving\n\nCalories\n\n0\n\n% Daily Value\n\nTotal Fat (Og\n\n0%\n\nSodium 40mg\n\n2%\n\nTotal Carbohydrate 0g\n\nTotal Sugars Og\n\nIncludes Og Added Sugars\n\n0%\n\nProtein (Og\n\nNot a significant source of saturated fat\n\ntrans fat, cholesterol, dietary fiber,\n\nvitamin D, calcium, iron and potassium.\n"
+   ]
+  },
+  "snickers": {
+   "truth": {
+    "cal": 250,
+    "fat": 12,
+    "sat": 4.5,
+    "trans": 0,
+    "chol": 5,
+    "na": 120,
+    "carb": 33,
+    "sug": 27,
+    "pro": 4
+   },
+   "texts": [
+    "CC ceewwmmn CC eowrietrtedteeseetettentend\na he Woo vats sav Sie: 1 Dar, AMOUNT PET SETVING: Galeries Zou, Fak Gal. 110, Tokar Fal 120 (7\n\nBR =e Z20V), Trans Fat Og, Cholest. Smg (2%DV), Sodium 120mg (5%0V), Total Carb. 33\n\nNSE  210. Protein Ag: Vian A{0%0V), Vitamin C (0%0V), Calcium (4%0Y    -\n",
+    "ew IEE SEES SS SSO —\n\nSTV Size: 1 Dar, AMOUNT Per SETVINg: Galonies Zou, fai Gal. 110, Tokar Fal 129 (7:\n\nAZ/DV), Trans Fat Og, Cholest. Smg (2%DV), Sodium 120mg (5%0V), Total Carb. 335 (7\n21                        tain A (0%DV), Vitamin C (0%0V), Calcium (4%0V\"\n\n",
+    "_—\n\nPEE Sa\n\nFINNS.\n\nSEIV Size: 1 Dar, AMOUNT PET SEIVINY: Calories Zou, fal Gal. 110, Tokar Fal 12t\n\nZ¥/0V), Trans Fat 0g, Cholest.\n\n5mg (2%DV), Sodium 120mg (5%0V), Total Carb. 339\n\na2\n\n A {0%DV), Vitamin C (0%0V), Calcium (4%0V/\n"
+   ]
+  },
+  "tropicana": {
+   "truth": {
+    "cal": 80,
+    "fat": 0,
+    "na": 20,
+    "carb": 19,
+    "sug": 19,
+    "add": 17,
+    "pro": 0
+   },
+   "texts": [
+    "ub]\n:   DO NOT CONSUME IF INNER SEAL IS\nIngredients\nLice Concern\nNutrition   Ion Facts |--\nServing gia 2%\" container    Topcana Mr\n8floz (240 mL) | 22770\nCalorie\nSs 80\nEy TT rit\n3                0% ||   Shakes |\nPF          1%   P TIONS 0\nBal 00 Sa 5% |\n=\nal * Calcium Omg 0° =  .\na,    —.          eee]\n",
+    "",
+    "DONOT CONSUME F wc sea.\n\nIngredients\n\nLICE CONCEn\n\nFacts\n\nLice\n\na\n\nE\n\ncontainer\n\n0z (240 mL)\n\nca\n\n80\n\n| Keep Refrige!\n\n% Daily Value\n\nWithin 7 to\n\n0%\n\nShake 1\n\nSettl\n\n1%\n\nQUESTIONS\n\n0C\n\ni\n\n—\n\n—a\n\nOmg 0%\n\n0\n\npre\n"
+   ]
+  },
+  "mayo": {
+   "truth": {
+    "cal": 90,
+    "fat": 10,
+    "sat": 1.5,
+    "trans": 0,
+    "chol": 2.5,
+    "na": 90,
+    "carb": 0,
+    "pro": 0
+   },
+   "texts": [
+    "Nutrition Facts\n60 servings per container\nServing size 1 Thsp (13g)\n| ti\nAmount er seving\n\nCalories 90\n\n% Daily Value\n\nTotal Fat 10g                   13%\nSaturated Fat 1.50            8%\nTrans Fat 0g\n\nPolyunsaturated Fat 6g\nMonounsaturated Fat 2.5¢\nCholesterol Less than 5mg 2%\nSodium 90mg                      4%\nTotal Carbohydrate Og         0%\nProtein 0g\n|\nNota significant source of dietary fiber, toa sugars,\n‘added sugars, vitamin D, calcium, fon and potassium.\n",
+    "Nutrition Facts\n60 servings per container\nServing size 1 Thsp (13g)\n\n|\nAout er seing\nCalories 90\nTT\nTotal Fat 10g                 13%\nSaturated Fat 1.5            8%\nTrans Fat 0g\nPolyunsaturated Fat 6g\nMonounsaturated Fat 2.5¢\nCholesterol Less than 5mg 2%\nSodium 90mg                      4%\nTotal Carbohydrate Og         0%\nProtein 0g\n\nNota sigan source oer er, otal sas,\nadded sugars, vitamin 0, calcium, fon and potassium.\n\n",
+    "Nutrition Facts\n\n60 servings per container\n\nServing size\n\n1Thsp (139)\n\nAmount per serving\n\nalories\n\n90\n\n% Daily Value\n\nTotal Fat 10g\n\n13%\n\nSaturated Fat 1.59            8%\n\nTrans Fat 0\n\nPolyunsaturated Fat 6g\n\nMonounsaturated Fat 2.5\n\nCholesterol Less than 5Smg 2%\n\nSodium 90mg\n\n4%\n\nTotal Carbohydrate Og\n\n0%\n\nProtein Og\n\nNot a significant source of dietary fiber, otal sugars,\n\nadded sugars, vitamin D, calcium, iron and potassium.\n"
+   ]
+  },
+  "ketchup": {
+   "truth": {
+    "cal": 97,
+    "fat": 0,
+    "sat": 0,
+    "trans": 0,
+    "chol": 0,
+    "na": 720,
+    "carb": 24,
+    "fib": 0.7,
+    "sug": 23,
+    "add": 20,
+    "pro": 1.2
+   },
+   "texts": [
+    "Nutrition Facts ais su\n33 servings per container / YY 3g.mll § jauasdl sue\nServing Sie / das ge 170 £   $\nAmount per 100g ple + + JS) duns\n Calories/ Lo dShmadl     £5 |\n                      %Dally Value*\na      :       Kpoolgloofdnd®\n)  TotalFat | ©isigeainlg    3\n)  -Satrated Fat /®)dn.tassa3 09       eR\n“Monounsaturated Fat /@) ate shilanly   anil\n|  mean TE) ode gh Tuistodgtd   ee\nTrans Fal /&) dyin             3\n-  rr —\n[ @la) ps   720mg            J\nRR LT Come —\n3     Fiber /€) Laat 35 079    I\nT Tow Sugars / §) iss. 23    a\n.      dos AQded Sugars | &) ke = janis 20g M%\n=    pe Co    BEAST  >\nValue (DV) tells you how much a nutrient in a 100g of food\no BT\n",
+    "33 servings pes container\nae TT\n\nAmount per 100g lye   2\nrm Ne\nlor     re\n=\n\nRet        BO 5\n\nTotal Fat / ©)iisnoeaan 0g       Le\n\nFr        —\n——     Fat /&) dmtn 2 Lol       0%\n\nPolyunsaturated Fat  deido pb Blo!       =\n\n-    Fal 76) inte nb Bouse oo\n\nTras a6 nip  om\n\nCasal Tig\n\n0 Che I LE AE thr\n",
+    "Nutrition Facts 44ue si\n\n33 servings per container / YY'\n\nServing Sie / Last poe 170 t\n\nAmount per 100g lye «+ JSU daSUl\n\nCalories/ L Hel Ol yma\n\nemi\n\nValue*\n\nKall glioYlda\n\nSENSED\n\nTotal Fat / £)45005a40 0g _\n\n-Saturated Fat /®) ds.ta (ga\n\n—\n\n—\n\nMonounsaturated Fat /&) daria zt Lotols nil\n\n~~\n\nPolyunsaturated Fal / (2) dna pb boise hs     =\n\nTrans Fat /&) Byocaisyas 0g\n\n———————————————\n\nCholesterol @e)dsiadsS Omg\n\n———\n\n—\n\nse\n\nJIT\n\nJ) LsSACiyonge SHAG\n\n@®) LIscl\n\n2) datos 0.79\n\n|\n\nSugars / €) San So aan 20g\n\nProtein IE) yep\n\n————\n\nThe %\n\nVaiue (DV) tells you how much a autnest i 3\n\nPreps\n\nally het.\n\nSe ym ¥\n\nPe ol P)\n\nCalones a day & used for\n\npr\n\nons\n\noo\n\na\n"
+   ]
+  },
+  "mgcheerios": {
+   "truth": {
+    "cal": 150,
+    "fat": 1.5,
+    "sat": 0,
+    "trans": 0,
+    "chol": 0,
+    "na": 150,
+    "carb": 32,
+    "fib": 3,
+    "sug": 8,
+    "add": 8,
+    "pro": 3
+   },
+   "texts": [
+    "Nutrition Facts\nAbout 8 servings per container\nServing size    11/3 cup (39g)\n| ______————————ay\nwon| um\n—   =\ncalories 150 210\nee =\n* 0  Sov\nTotal Fat 1.50\"     ™   =\nSehated Fat 09    [3   _%\nTrans Fat 0g      |\nET\n‘Monounsaturated Fat 055\nCholestersi 00    3   T%\nSodium 150mg    &   19%\nET —\nDenes wx ws\nTE\n| Bamisons tex tex\nProtein 5\nEEE\n|\nCo NN\n[Ei —\nE=—wr=    LS —\n=      | ws\nma wn on\n—\na\nFo       00%   om\neSequews | ___\n3       00%   =\n=\nERE Te\na Bl ea ta ho\naE te\nvs Sw pm sea 217\na STE\na\nSe\n",
+    "Nutrition Facts\n\n| About 8 servings per container\n\n",
+    "Nutrition Facts\n\nAbout 8 servings per container\n\n11/3 cup (39g)\n\nwan\n\ncp skim\n\n150 210\n\n% Ov\n\n% Dv\n\nTotal Fat 1.50\"\n\nSaturated Fat 0g\n\nTrans Fat 0g\n\nPolyunsaturated Fat 0.5\n\nMonounsshurated Fat 0.5g\n\nCholestersl Omg\n\n1%\n\n10%\n\nSodium 150mg\n\nTotal Carbolrydrate 329\n\n12%\n\n15%\n\nDistary Fder 35\n\n1%)\n\nns\n\nTotal Sugars 8g\n\nnc Added Sugars 89\n\n16%\n\n16%\n\nProtein 33\n\nViamin D dmc\n\n20%]\n\n15%\n\nx\n\nCaicum 200mg\n\nFon 18mg\n\n100%\n\n0%\n\nPotassum 150mg\n\n[3\n\n=\n\nVian A\n\n10%\n\nFoy\n\n=\n\nVitamin C\n\n10%\n\n100%\n\n100%\n\n0%\n\nVitamin Be\n\n00%\n\n100%\n\nws\n\n(235g loiic aod)\n\n100%\n\n=\n\nVitamin B\n\nPastothenc AX\n\n0%\n\n100%\n\nwR\n\n* Are\n\nTom et £25 Sms FS. wm Ta Sy\n\n“rer of cr pis wom A\n\nSgn 5 Pe\n\nCog cm. Gey\n\now ch 3 mt 3 IWS\n\n= The Duty tae ON 0\n\nCE\n\n200 cores 3 ay 5\n\nFey nth anc\n\nI RES RG Se TT OE\n"
+   ]
+  },
+  "hncheerios": {
+   "truth": {
+    "cal": 140,
+    "fat": 2,
+    "sat": 0,
+    "trans": 0,
+    "chol": 0,
+    "na": 210,
+    "carb": 30,
+    "fib": 3,
+    "sug": 12,
+    "add": 12,
+    "pro": 3
+   },
+   "texts": [
+    "Nutrition Facts |\nAbout 8 servings per container §\nServing size 1 cup (37g) §\nFir rr, |\nwith % [8\nHoney Nut| cup skim\nCheerios    milk\nCalories 140/210\nI —  [— S—\n% DV % Dy\nTotal Fat 2g\"        2%      3%\nSaturated Fat 0g      0%      3%\nTrans Fat Og\nPolyunsaturated Fat 0.59\nMonounsaturated Fat 0.59\nCholesterol Omg      0%      1%\nSodium 210mg         9%      12%\nTotal Carbohydrate 305 11%   14%\nDietary Fiber 3g    10%   10% J\nSoluble Fiber 1g                                   ¢\nTotal Sugars 12g                            Fl\nIncl. Added Sugars 12g 24%    24% §\nProtein 3g                    J\nEET EEE |\nVitamin D 4mcg 20%    30%\nCalcium 130mg 10%| 25%\nIron 3.6mg      20%| 20% ff\nPotassium 150mg 4%     8%\nVitamin A       10% 20%\nVitamin C        10% 10% @\nThiamin         20%| 25%\nRiboflavin        0% 35%\nNiacin          10%| 10%\nVitamin Bs          20%| 20% J\nFolate         20%| 20%\n¢ (45mcg folic acid)                  IE\nVitamin B:       20%| 50%\ni               20%| 25% g\n",
+    "Nutrition Facts\n\nAbout 8 servings per container\nServing size 1 cup (37g)\n| Saas\n\nHoney Nut     rll\n\nCheerios        milk\n\ncalories 140) 210\n% Dy        % Dy\n\nTotal Fat 2¢*           2%       3%\n\nSaturated Fat 0g              0%             3%\nTrans Fat Og\nPolyunsaturated Fat 0.59\nMonounsaturated Fat 0.5\nCholesterol Omg          0%         1%\nSodium 210mg          9%      12%\nTotal Carbohydrate 30g 11%        14%\nDietary Fiber 3g             10%           10%\nSoluble Fiber 1g\nTotal Sugars 12g\nIncl. Added Sugars 129 24%      U%\nProtein 3g\nEs\nVitamin D 4mcg 20%     30%\nCalcium 130mg =~ 10%       25%\nIron 3.6mg           20%       20%\nPotassium 150mg 4%        8%\nVitamin A                   10%          20%\nVitamin C             10%       10%\nThiamin               20%       25%\nRiboflavin            10%       35%\nNiacin                 10%       10%\nVitamin Bs            20%       20%\nFolate                 20%       20%\n(45mcg folic acid)\nVitamin B;,\n\nZinc\n\n",
+    "Nutrition Facts\n\nAbout 8 servings per container\n\nServing size 1 cup (37g)\n\nwith %\n\nHoney Nut\n\nCheerios\n\ncup skim\n\nmilk\n\ncalories 140\n\n210\n\n% DV**\n\n% DV\n\nTotal Fat 2°\n\n2%\n\n3%\n\nSaturated Fat Og\n\n0%\n\n3%\n\nTrans Fat Og\n\nPolyunsaturated Fat 0.59\n\nMonounsaturated Fat 0.59\n\nCholesterol Omg\n\n0%\n\n1%\n\nSodium 210mg\n\n9%\n\n12%\n\nTotal Carbohydrate 30g 11%\n\n14%\n\n10%\n\n10%\n\nDietary Fiber 3g\n\nSoluble Fiber 1g\n\nTotal Sugars 12g\n\nIncl. Added Sugars 129 24%\n\n2%\n\nProtein 3g\n\nVitamin D 4mcg\n\n20%\n\n30%\n\nCalcium 130mg\n\n10%\n\n25%\n\nIron 3.6mg\n\n20%\n\n20%\n\nPotassium 150mg\n\n4%\n\n8%\n\nVitamin A\n\n10%\n\n20%\n\nVitamin C\n\n10%\n\n10%\n\nThiamin\n\n20%\n\n25%\n\nRiboflavin\n\n10%\n\n35%\n\nNiacin\n\n10%\n\n10%\n\nVitamin Bg\n\n20%\n\n20%\n\nFolate\n\n20%\n\n20%\n\n(45mcg folic acid)\n\n20%\n\n50%\n\nVitamin Bi,\n\nZinc\n\n20%\n\n5%\n"
+   ]
+  },
+  "clif": {
+   "truth": {
+    "cal": 250,
+    "fat": 6,
+    "sat": 2,
+    "trans": 0,
+    "chol": 0,
+    "na": 130,
+    "carb": 43,
+    "fib": 5,
+    "sug": 17,
+    "add": 16,
+    "pro": 10
+   },
+   "texts": [
+    "Nutrition    TE RTT TT ER TT TTR 11] |   41\nFacts      TowlFaicg 8% Sodium 10g 8% Gd supsTTg\nSan     _ SATA    9% Total Card, & 16%    Teo Aaj Sugars 32%\nCare Jas a0;       dary Fier by 19% Protein      19%\nres                  lesterol img      Yo\npersening 200 Hester fg _Th eh laren\nNGRIDINTS: RGADC ROLLED OS. JAGAN B40)    r            2         —                    -\nEARS RAC, INC TONS VS i i wy SS 0, D0 CCL ARLE BES\nBO a i oo a DRE te 1 sno son oC aed |\n4    ALLEWGER STENT: CONWAIS S01.\ncs sw ns sa                                                                fod\nese\nRRR                        241\nRAKTITED ORGANIC ¥Y QAI     HON-GHO       or                                  \\        |\nHg                               pe\n|S    i         —t bo        pe         Pe\n=      : WEE &r 5)\n—_—\n",
+    "Ameunizerving     — AmosnUsarving    IV Amounts\n\nTotal Fat 6g   % Sodiwm 1307 6%    170\nrb, 43 16%      16g A032 50\nja S28 1 bar (880) Transl 07      [   bey 19% Protein\n| Calories      Cholestarol\n| persocing 290 Tie\nGHEE TRAST FEED O45 JAC\nSOS\n\nONY 105 SYP 5 TE GSS 5 FOTN SOUNT, PE 118 WL) Al CCT, BRA MED\nIVIUCHSTRLE Q3644 CHE S132 ENSWEETLAGD CHUA. OYCORT FEE.\nFURIES SLL DRC\n\nCONN ED 10\nALLER STUNT, CONANS 01\nMAT CONIA FONTS THLE NGS. MLA SESAME Ano wha\n\ni, CRGMRE SIN OUR. SUNTWER 10/07 SOYBEAN OL BALA\nBS ATOR\n\nIE]\nfui\nLARTI1ED ORGANIC BY Al\n\nga TY\n",
+    "Amount'serving\n\nAmounUseving\n\nOV\n\nAmount/sesving\n\nad\n\nRutrition\n\nrs 17\n\nTotal Fat Gg\n\nie be\n\nSodium 130mg\n\n5%\n\nacts\n\n9%\n\nTotal Carb\n\n“16%\n\n160 Add\n\n.\n\n15 32%\n\nSal. Fat 2g\n\n5\n\n19%\n\nServ. size 1\n\nrans\n\na0\n\ntary |\n\n19%\n\nProtein\n\n]\n\n—\n\nCalories\n\nEhalestaral\n\n0%\n\nper sewing\n\n250 7\n\nMERLDINS\n\nORG\n\nLED OW\n\nDRGANC\n\nINK INCE SYRUP SOY RCE Ch\n\n[501 PROTEIN\n\nFREE\n\nIR BA\n\nwil\n\n[To\n\nSOBA. DREANC\n\nIF D26ANIC CANE SYRIZ LASWEETERED CHOCOLA!\n\nCORY HER. OR\n\nSI FLOUR, SUNFLOWER AND)/OR SOYBEAN CIC RAM\n\n[LEU\n\n10\n\nAY\n\nMON. WX\n\nOCOPHEROLS (ANTIDR LAN!\n\nALE\n\nWTMENT; CONWAINS S01\n\nMAY CONTAIN POTS. THLE NUTS, WILK, SESAME Ao wieas\n\nay\n\nTRL\n\nJ5A CLF\n\nOh\n\nPe\n\nier\n\nHON-GMO\n\nLIRTINED\n\nC WY QAl\n\nwe WEE] &\n\nTERY\n\n> a 40\n"
+   ]
+  },
+  "mac": {
+   "truth": {
+    "cal": 220,
+    "fat": 2,
+    "sat": 1,
+    "trans": 0,
+    "chol": 5,
+    "na": 530,
+    "carb": 43,
+    "fib": 1,
+    "sug": 7,
+    "add": 0,
+    "pro": 8
+   },
+   "texts": [
+    "Nutrition Facts\nAbout 3.5 servings per container\nServing size ~~ 2.2 oz (62g)\n(Makes about 1 cup)\ndry mix | prepared\"\nCalories 220 320\nSasi, <ul hay, | by FE 1, id\nWall |g ml\nSuef (1 (3% 1M\nTsk (lg |\nMoistenl (Sng 2% [10mg 3%\nfoim | ng 2% |g 2\nTait [4 1% [Hg 10%\nDeayRoer (1g |g\nWasws |W |y\n\\ _ I Ae Sos [I AL\nProtein      i      %\n[22s Smal WN SR\nViannD 1 0meg Un Omg 0%\nCalm | 120mg 10% | 10mg 10%\nIn 23mg 15h (24mg 1%\nPotassium     210mg 6% | 300mg 6%\n",
+    "Nutrition Facts\nAbout 3.5 servings per container\nServing size ~~ 2.2 oz (62g)\n(Makes about 1 cup)\n\nMh (Hy Wh\n\n3\ng\n=\n=\n=\n=\n\nTash (lg (op\noistenl (Sng 2% [10mg 3%\nfolm | ng 20% Gn\nTita (4 1% (4 16%\n\ng\n=k\n=\n32\n\nC4\n\ni\nE\n=\nE\n==\n\n=\n~~\neo\n=\n>\n=\n~\n=>\na=\n\n|\n\nE\ng\n=\n5\n=\n",
+    "Nutrition Facts\n\nAbout 3.5 Servings per container\n\nServing size\n\n2.202 (629)\n\n(Makes about 1 cup)\n\nPer2.20z | Per1cup\n\ndry mix | prepared\n\nCalories fi] dl\n\nTotal Fat\n\na 8\n\ni  i ”\n\nSaturated Fat\n\nI\n\nlp |i 1M\n\nTrans Fat\n\nI\n\nI\n\nCholesterol\n\nmg |fomg 3%\n\nSodimm\n\n330mg 2%  Bo0mg 2%\n\nTotal Carb\n\nBy 19% | 4g 1%\n\nDietary Fiber\n\nLL)\n\nMilp Wm\n\ni\n\nTotal Sugars\n\n[\n\nby\n\ncl Added Sugars (Og ~~ 0% (0g 0%\n\nPRE PRS SCR\n\nVitamin D\n\n— ee —\n\n(mcg O% |Omeg 0\n\nGaim ~~~\n\n120mg 10% | 140mg 10%\n\nme\n\n23mg 15% (24mg 15%\n\nPotassium\n\n210mg 6% | 300mg 6%\n"
+   ]
+  }
+ }
+}

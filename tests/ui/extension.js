@@ -94,8 +94,10 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
       if (id) hits.samsIp = (hits.samsIp || 0) + 1;
       return SAMS_ID[id] ? r.fulfill({ contentType: "text/html", body: pageHtml(SAMS_ID[id]) }) : r.fulfill({ contentType: "text/html", body: "<!doctype html><title>Sam's Club</title><p>home</p>" });
     });
+    await ctx.route("https://gdx-assets.costco.com/**", r => r.fulfill({ contentType: "image/jpeg", body: fs.readFileSync(path.join(ROOT, "tests/fixtures/label-skippy.jpg")), headers: { "access-control-allow-origin": "*" } }));
     await ctx.route("https://www.costco.com/**", r => {
       const id = C_ID(r.request().url());
+      if (/gdx-assets\.costco\.com\/test\/pb-label\.jpg/.test(r.request().url())) return r.fulfill({ contentType: "image/jpeg", body: fs.readFileSync(path.join(ROOT, "tests/fixtures/label-skippy.jpg")), headers: { "access-control-allow-origin": "*" } });
       return CO_ID[id] ? r.fulfill({ contentType: "text/html", body: costcoHtml(CO_ID[id]) }) : r.fulfill({ contentType: "text/html", body: "<!doctype html><title>Costco</title><p>home</p>" });
     });
     await ctx.route("https://world.openfoodfacts.org/**", r => { hits.off++; const code = (r.request().url().match(/product\/(\d+)/) || [])[1]; return r.fulfill({ contentType: "application/json", body: JSON.stringify(OFF[code] || { status: 0 }) }); });
@@ -302,6 +304,40 @@ const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!
     ok(/^https:\/\/www\.costco\.com\/s\?keyword=/.test(coSwap || ""), `swaps search Costco (${coSwap})`);
     await sw.evaluate(() => chrome.storage.local.set({ profile: null }));
     await page.waitForTimeout(1500); await badge(/Get it/); // the goals change re-checks the page
+
+    // ---- 8e. Reading a label photo: no Nutrition Facts on the page and no barcode record, so the panel offers the photo ----
+    // The photo is a real one (Skippy peanut butter, from Open Food Facts, CC BY-SA 3.0), read by the bundled Tesseract.
+    await page.goto(CO.url("pb"));
+    b = await badge(/no nutrition data/);
+    pt = await ptext(/READ THE LABEL PHOTO/);
+    ok(/Open Food Facts and USDA don't have its barcode/.test(pt) && await panel.evaluate(() => document.querySelectorAll(".thumb").length === 1 && document.querySelector("details.disc[open] .thumbs") !== null),
+      "no data: the panel opens 'Read the label photo' with the product's photo to pick");
+    const t0 = Date.now();
+    await panel.setInputFiles("#phfile", path.join(ROOT, "tests/fixtures/label-skippy.jpg"));
+    await panel.waitForSelector(".lform input[name=cal]", { timeout: 90000 });
+    const read = await panel.evaluate(() => Object.fromEntries([...document.querySelectorAll(".lform input")].map(i => [i.name, i.value])));
+    ok(read.cal === "190" && read.fat === "16" && read.na === "150" && read.pro === "7", `the photo is read on this computer and the numbers fill a form to check (${((Date.now() - t0) / 1000).toFixed(1)} s: ${JSON.stringify(read)})`);
+    if (SHOTS) await panel.screenshot({ path: path.join(SHOTS, "ext13-photo-form.png"), fullPage: true });
+    {
+      // The form, checked with axe on a copy of the panel (the extension page's CSP blocks injecting axe).
+      const formCopy = await ctx.newPage(); await formCopy.setViewportSize({ width: 380, height: 900 });
+      const fhtml = await panel.evaluate(() => document.body.innerHTML.replace(/<script[\s\S]*?<\/script>/g, ""));
+      await formCopy.setContent(`<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Should I Buy It?</title><style>${fs.readFileSync(path.join(EXT, "sidepanel.css"), "utf8")}</style></head><body>${fhtml}</body></html>`);
+      await formCopy.addScriptTag({ content: fs.readFileSync(require.resolve("axe-core/axe.min.js"), "utf8") });
+      for (const scheme of ["light", "dark"]) {
+        await formCopy.emulateMedia({ colorScheme: scheme });
+        const v = await formCopy.evaluate(async () => (await axe.run(document, { runOnly: ["wcag2a", "wcag2aa"] })).violations.map(x => `${x.id} (${x.nodes.length}): ${x.nodes[0].target}`));
+        ok(!v.length, `the photo form, ${scheme}: no WCAG A/AA violations${v.length ? ": " + v.join(", ") : ""}`);
+      }
+      await formCopy.close();
+    }
+    await panel.fill(".lform input[name=cal]", "190");
+    await panel.click(".lform button[type=submit]");
+    pt = await ptext(/The Nutrition Facts photo you checked/);
+    ok(/Your daily limits/i.test(pt) && /Sat fat 3 g/.test(pt), "checking the numbers shows the full verdict, sourced to the photo");
+    b = await badge(/^(Get it|In moderation|Limit it|Fine)/);
+    ok(!/no nutrition data/.test(b.text), `and the page's badge updates to match (${b.text})`);
+    if (SHOTS) await panel.screenshot({ path: path.join(SHOTS, "ext14-photo-verdict.png"), fullPage: true });
 
     // ---- 9. Accessibility and dark mode ----
     const axeSrc = fs.readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");

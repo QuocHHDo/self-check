@@ -52,9 +52,77 @@
     if (data.state === "none") return main.replaceChildren(el("section", {},
       data.product ? el("p", { class: "pname", text: data.product.name }) : null,
       el("p", { class: "headline", text: data.message }),
-      el("p", { class: "small" }, "You can still ", el("a", { href: SITE, target: "_blank", rel: "noopener", text: "look it up by name in the app ↗" }), ".")));
+      el("p", { class: "small" }, "You can still ", el("a", { href: SITE, target: "_blank", rel: "noopener", text: "look it up by name in the app ↗" }), ".")),
+      data.product ? photoSection(data, true) : null);
     if (data.state === "supplement") return main.replaceChildren(...supplement(data));
     main.replaceChildren(...ready(data.result, data.product || {}));
+  }
+
+  // ---------- reading a label photo ----------
+  // When the page has no Nutrition Facts text (Costco, many supplements, products the barcode databases don't know),
+  // the label is often one of the product photos. The person picks it (or a photo of their own), it's read on this
+  // computer with Tesseract (extension/ocr/), and they check the numbers before anything is scored. Nothing is uploaded.
+  const LS = self.SelfCheckLabelScan, LO = self.SelfCheckLabelOcr, SRC = self.SelfCheckSources;
+  // Costco's image host doesn't serve other sites, so reading its photos needs permission (asked for on first use).
+  const NEEDS_PERMISSION = /^https:\/\/gdx-assets\.costco\.com\//;
+  const big = u => /walmartimages|samsclubimages/.test(u) ? u.split("?")[0] + "?odnHeight=2000&odnWidth=2000" : u;
+  const thumb = u => /walmartimages|samsclubimages/.test(u) ? u.split("?")[0] + "?odnHeight=180&odnWidth=180" : u;
+  let photoBusy = false;
+  function photoSection(d, open) {
+    const prod = d.product || {}, imgs = (prod.images || []).filter(u => /^https:\/\//.test(u));
+    const status = el("p", { class: "small", role: "status" });
+    const out = el("div", { class: "photoout" });
+    const supp = d.state === "supplement";
+    const run = async getBlob => {
+      if (photoBusy) return;
+      photoBusy = true; out.replaceChildren(); status.textContent = "Getting the photo…";
+      try {
+        const blob = await getBlob();
+        const r = await LS.read(blob, { base: chrome.runtime.getURL("ocr/"), onStep: t => { status.textContent = t; } });
+        status.textContent = "";
+        if (supp || r.kind === "supplement") return out.replaceChildren(suppCheck(r, d));
+        out.replaceChildren(LS.form(r, { el, idPrefix: "ph", onSubmit: (values, serving) => usePhoto(d, { food: LO.toFood(SRC, prod.name, serving, values) }), onCancel: () => out.replaceChildren() }));
+        const first = out.querySelector(".check input, input"); if (first) first.focus();
+      } catch (e) {
+        status.textContent = e && e.message && /permission/i.test(e.message) ? e.message : "Couldn't read that photo. Try another one, or a sharper photo of just the label.";
+      } finally { photoBusy = false; }
+    };
+    const fromUrl = u => () => {
+      // Chrome only shows a permission prompt right after a click, so ask before anything is awaited.
+      const asked = NEEDS_PERMISSION.test(u) ? chrome.permissions.request({ origins: [new URL(u).origin + "/*"] }) : Promise.resolve(true);
+      run(async () => {
+        if (!(await asked)) throw new Error("Reading Costco's photos needs permission to load images from gdx-assets.costco.com. You can still use a photo of your own.");
+        const res = await fetch(big(u), { credentials: "omit" });
+        if (!res.ok) throw new Error("photo " + res.status);
+        return res.blob();
+      });
+    };
+    const file = el("input", { type: "file", accept: "image/*", class: "vh", id: "phfile", onchange: e => { const f = e.target.files && e.target.files[0]; if (f) run(async () => f); e.target.value = ""; } });
+    const body = [
+      el("p", { class: "small", text: supp ? "Pick the photo that shows the Supplement Facts. It's read on this computer; nothing is uploaded." : "Pick the photo that shows the Nutrition Facts. It's read on this computer; nothing is uploaded. You check the numbers before the verdict." }),
+      imgs.length ? el("div", { class: "thumbs" }, ...imgs.map((u, i) => el("button", { type: "button", class: "thumb", "aria-label": `Read product photo ${i + 1}`, onclick: fromUrl(u) }, el("img", { src: thumb(u), alt: "", loading: "lazy", referrerpolicy: "no-referrer" })))) : null,
+      el("p", { class: "small" }, file, el("label", { for: "phfile", class: "linkish", text: imgs.length ? "Or use a photo of your own" : "Use a photo of the label" }), " · first time, it loads the reader (about 7 MB, inside the extension)."),
+      status, out];
+    const det = disclosure("photo", supp ? "Read the Supplement Facts photo" : "Read the label photo", null, ...body);
+    if (open) det.open = true;
+    return det;
+  }
+  // Supplement Facts read from a photo: the lines it found, to check, then the supplement view.
+  function suppCheck(r, d) {
+    const rows = r.rows.filter(x => x && x.name);
+    if (!rows.length) return el("p", { class: "small", text: "Couldn't read the Supplement Facts from this photo. Try another photo, or check the label on the package." });
+    return el("div", { class: "lform" },
+      el("p", { class: "lsum", text: `Read ${rows.length} line${rows.length === 1 ? "" : "s"}. Check them against the photo: OCR can drop a decimal point (3.2 g read as 32 g).` }),
+      el("ul", { class: "alist" }, ...rows.map(x => el("li", {}, el("div", { class: "arow" }, el("span", { class: "an", text: x.name }), el("span", { class: "ar", text: x.amount }))))),
+      el("div", { class: "lbtns" }, el("button", { type: "button", class: "primary", text: "Use these", onclick: () => usePhoto(d, { rows, serving: r.serving }) })));
+  }
+  // Shows the result here at once, and tells the page so its badge matches.
+  function usePhoto(d, photo) {
+    const prod = d.product || {};
+    if (photo.food) data = { ...d, state: "ready", result: { food: photo.food, source: "photo", detail: "The Nutrition Facts photo you checked, read in your browser", note: "Read from a photo and checked by you, so it's as good as those numbers." } };
+    else { const SUP = self.SelfCheckSupplement; data = { ...d, state: "supplement", supplement: { ...SUP.analyze({ name: prod.name, rows: photo.rows, ingredients: prod.ingredients, serving: photo.serving || "" }), fromPhoto: true }, detail: "The Supplement Facts photo you picked, read in your browser" }; }
+    render();
+    try { if (tabId != null && prod.url) chrome.tabs.sendMessage(tabId, { type: "photo", url: prod.url, ...photo }, () => void chrome.runtime.lastError); } catch {}
   }
 
   // ---------- supplements: their own view, not a food verdict ----------
@@ -79,7 +147,7 @@
     else if (S.sugar != null) rows.push(line("Sugar", `${V.fmt(S.sugar)} g`, `Sugar: ${V.fmt(S.sugar)} g.`));
     if (S.calories != null) rows.push(line("Calories", String(Math.round(S.calories)), `Calories: ${Math.round(S.calories)}.`));
     const per = rows.length ? el("section", { "aria-labelledby": "hPer" }, el("h2", { id: "hPer", text: `Per serving${S.serving ? ` · ${S.serving}` : ""}` }), el("div", { class: "bars" }, ...rows),
-      el("p", { class: "small", text: S.fromLabel ? "A Supplement Facts label leaves out nutrients that round to zero, so those show as 0." : S.caffeine && S.caffeine.from === "name" ? "This page has the Supplement Facts only as a photo, so the caffeine amount comes from the product's name. Check the label." : "This page has the Supplement Facts only as a photo; check the label for amounts." }))
+      el("p", { class: "small", text: S.fromPhoto ? "Read from a photo of the Supplement Facts. Check the amounts against the label; a line the photo didn't show counts as 0." : S.fromLabel ? "A Supplement Facts label leaves out nutrients that round to zero, so those show as 0." : S.caffeine && S.caffeine.from === "name" ? "This page has the Supplement Facts only as a photo, so the caffeine amount comes from the product's name. Check the label." : "This page has the Supplement Facts only as a photo; check the label for amounts." }))
       : el("section", {}, el("p", { class: "small", text: "This page has the Supplement Facts only as a photo; check the label for amounts." }));
     // Notes.
     const notes = SUP.notes(S).map(n => {
@@ -91,7 +159,7 @@
     // What's in it, as the label lists it.
     const actives = S.actives.length ? el("section", { "aria-labelledby": "hAct" }, el("h2", { id: "hAct", text: "What's in a serving, as listed" }),
       el("ul", { class: "alist" }, ...S.actives.map(x => el("li", {}, el("div", { class: "arow" }, el("span", { class: "an", text: x.name }), el("span", { class: "ar", text: [x.amount, x.dvp && x.dvp !== "**" ? `${x.dvp} DV` : ""].filter(Boolean).join(" · ") })))))) : null;
-    return [head, per, el("section", { "aria-labelledby": "hWhy" }, el("h2", { id: "hWhy", text: "Good to know" }), el("ul", { class: "notes" }, ...notes)),
+    return [head, per, !S.fromLabel && !S.fromPhoto ? photoSection(d, false) : null, el("section", { "aria-labelledby": "hWhy" }, el("h2", { id: "hWhy", text: "Good to know" }), el("ul", { class: "notes" }, ...notes)),
       actives, S.ingredients ? ingredients(S.ingredients) : null,
       el("section", { class: "foot" }, el("p", {}, el("b", { text: "Source: " }), `${d.detail}.`),
         el("div", { class: "links" }, el("button", { class: "btn", type: "button", text: "Change your goals", onclick: () => chrome.runtime.openOptionsPage() })))].filter(Boolean);
@@ -102,7 +170,8 @@
     const f = r.food, a = V.assess(f, profile);
     const ingr = ING ? ING.analyze(prod.ingredients || f.ingredients, [prod.name, f.n].filter(Boolean).join(" | ")) : null;
     const adds = ADD && ADD.analyze(f);
-    return [verdict(f, a, prod), bars(f), facts(f, r, prod), notes(f, a, adds), swap(f, a), ingr ? ingredients(ingr) : null, foot(r, prod, f)].filter(Boolean);
+    const offerPhoto = r.source !== "this page" && r.source !== "photo" && !r.typical && (prod.images || []).length;
+    return [verdict(f, a, prod), bars(f), facts(f, r, prod), notes(f, a, adds), swap(f, a), ingr ? ingredients(ingr) : null, offerPhoto ? photoSection(data, false) : null, foot(r, prod, f)].filter(Boolean);
   }
 
   function verdict(f, a, prod) {

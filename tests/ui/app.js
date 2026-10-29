@@ -9,7 +9,7 @@ try { ({ chromium } = require("playwright")); } catch { console.log("SKIP app ch
 
 const ROOT = path.join(__dirname, "..", "..");
 const SHOTS = process.env.SHOTS_DIR;
-const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".png": "image/png", ".webmanifest": "application/manifest+json" };
+const TYPES = { ".html": "text/html", ".js": "text/javascript", ".jpg": "image/jpeg", ".gz": "application/gzip", ".css": "text/css", ".json": "application/json", ".png": "image/png", ".webmanifest": "application/manifest+json" };
 const fixture = n => fs.readFileSync(path.join(ROOT, "tests", "fixtures", n), "utf8");
 let fails = 0;
 const ok = (cond, msg) => { console.log((cond ? "PASS " : "FAIL ") + msg); if (!cond) fails++; };
@@ -112,6 +112,33 @@ const serve = () => new Promise(resolve => {
     if (SHOTS) await page.screenshot({ path: path.join(SHOTS, "app3-iphone-banner.png") });
     await page.click('#tabs [data-view="goals"]');
     ok(/iPhone or iPad \(Safari\): tap\s+Share/.test(await page.textContent("#installHow")), "Goals always has the full install steps");
+    await ctx.close();
+
+    // 6b. A photo of the label (a real one: Skippy peanut butter, Open Food Facts, CC BY-SA 3.0), read on the phone,
+    // checked, then scored. Tesseract loads from vendor/tesseract/ only now.
+    ({ ctx, page } = await open("?source=app"));
+    const tess = []; page.on("request", r => { if (/vendor\/tesseract\//.test(r.url())) tess.push(r.url()); });
+    ok(await visible(page, "#labelBtn") && tess.length === 0, "the home offers 'Read a photo of the label', and the reader isn't loaded until it's used");
+    const chooser = page.waitForEvent("filechooser");
+    await page.click("#labelBtn");
+    await (await chooser).setFiles(path.join(ROOT, "tests/fixtures/label-skippy.jpg"));
+    await page.waitForSelector("#out .lform input[name=cal]", { timeout: 90000 });
+    const vals = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll("#out .lform input")].map(i => [i.name, i.value])));
+    ok(vals.cal === "190" && vals.fat === "16" && vals.pro === "7" && /^2 Tbsp/.test(vals.serving), `the photo is read into a form to check (${JSON.stringify(vals)})`);
+    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, "app4-label-form.png"), fullPage: true });
+    await page.addScriptTag({ content: fs.readFileSync(require.resolve("axe-core/axe.min.js"), "utf8") });
+    for (const scheme of ["light", "dark"]) {
+      await page.emulateMedia({ colorScheme: scheme });
+      const v = await page.evaluate(async () => (await axe.run(document.querySelector("#out .notice"), { runOnly: ["wcag2a", "wcag2aa"] })).violations.map(x => `${x.id}: ${x.nodes[0].target}`));
+      ok(!v.length, `the form, ${scheme}: no WCAG A/AA violations${v.length ? ": " + v.join(", ") : ""}`);
+    }
+    await page.emulateMedia({ colorScheme: "light" });
+    await page.fill("#out .lform input[name=pname]", "Skippy creamy peanut butter");
+    await page.click("#out .lform button[type=submit]");
+    await page.waitForFunction(() => /From a photo of the label/.test(document.getElementById("out").textContent));
+    const card = await page.textContent("#out");
+    ok(/Skippy creamy peanut butter/.test(card) && /(Get it|In moderation|Limit it)/.test(card), "checking the numbers shows the verdict card, sourced to the photo");
+    ok(tess.some(u => /eng\.traineddata\.gz/.test(u)) && !tess.some(u => !/localhost/.test(u)), "everything it loaded came from this site (no outside servers)");
     await ctx.close();
 
     // 7. On a computer the phone home stays out of the way.

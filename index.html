@@ -269,6 +269,29 @@ button { font: inherit; color: inherit; }
 .ctable td.win { background: var(--good-soft); color: var(--good); font-weight: 600; }
 
 /* lookups, scan, notices */
+/* Reading a label photo: the numbers to check */
+.photolink { all: unset; cursor: pointer; font-size: 14px; color: var(--muted); justify-self: center; text-align: center; }
+.photolink u { color: var(--accent); font-weight: 600; }
+.photolink:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.lform { display: grid; gap: 6px; width: 100%; max-width: 460px; }
+.lsum { margin: 0; font-size: 14px; }
+.lnotes { margin: 0; padding-left: 18px; font-size: 14px; color: var(--mid); }
+.lrow { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2px 10px; padding: 3px 4px; border-bottom: 1px solid var(--line); }
+.lrow.sub label { padding-left: 14px; }
+.lrow label { font-size: 15px; }
+.lin { display: inline-flex; align-items: center; gap: 6px; }
+.lin input { width: 84px; font: inherit; font-size: 16px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink); text-align: right; }
+.lin.wide input { width: 170px; text-align: left; }
+.lunit { width: 30px; font-size: 12px; color: var(--muted); }
+.lrow.check { background: var(--mid-soft); border-radius: 6px; }
+.lrow.check input { border-color: var(--mid); }
+.lmark { grid-column: 1 / -1; font-size: 12px; font-weight: 600; color: var(--mid); }
+.lhint { margin: 0; font-size: 12.5px; color: var(--muted); }
+.lbtns { display: flex; gap: 8px; margin-top: 4px; }
+.lbtns button { font: inherit; padding: 9px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.lbtns .primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+:root[data-theme="dark"] .lbtns .primary { color: #10140f; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lbtns .primary { color: #10140f; } }
 .notice { border: 1.5px dashed var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 10px; justify-items: start; background: var(--surface); }
 .notice p { margin: 0; max-width: 62ch; }
 .muted { color: var(--muted); }
@@ -478,6 +501,7 @@ body:not([data-view="check"]) #appHome, body:not([data-view="check"]) #installBa
   </div>
   <section class="apphome" id="appHome" hidden data-pages-only aria-label="Scan">
     <button class="scanbig" type="button" id="scanBig"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8V5.5A1.5 1.5 0 015.5 4H8M16 4h2.5A1.5 1.5 0 0120 5.5V8M20 16v2.5a1.5 1.5 0 01-1.5 1.5H16M8 20H5.5A1.5 1.5 0 014 18.5V16"/><path d="M8 8v8M11 8v8M14 8v8M17 8v8"/></svg><span><b>Scan a barcode</b><small>Point your camera at any food's barcode</small></span></button>
+    <button class="photolink" type="button" id="labelBtn">No barcode, or it isn't found? <u>Read a photo of the label</u></button>
     <div class="scans" id="scanRecentBox" hidden>
       <h2 class="scans-h">Recent scans</h2>
       <ul class="scans-list" id="scanRecent"></ul>
@@ -491,6 +515,7 @@ body:not([data-view="check"]) #appHome, body:not([data-view="check"]) #installBa
       <button class="btn ghost" type="button" id="scanBtn" hidden>Scan barcode</button>
     </form>
     <ul class="suggest" id="suggest" role="listbox" hidden></ul>
+    <input type="file" id="labelFile" accept="image/*" hidden data-pages-only>
     <section class="scan" id="scan" hidden aria-label="Barcode scanner">
       <div id="reader"></div>
       <p class="muted" id="scanMsg" style="margin:0" role="status" aria-live="polite">Point your camera at the barcode.</p>
@@ -649,6 +674,8 @@ body:not([data-view="check"]) #appHome, body:not([data-view="check"]) #installBa
 <script src="js/learn.js"></script>
 <script src="js/meals.js"></script>
 <script src="js/backup.js"></script>
+<script src="js/labelocr.js"></script>
+<script src="js/labelscan.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

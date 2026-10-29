@@ -77,6 +77,26 @@
     }
     return failed ? { failed: true } : null;
   }
+  // Label photos read in the side panel, per product page, for as long as this page stays open.
+  const photos = new Map();
+  function fromPhoto(photo, prod, profile) {
+    if (photo.food && typeof photo.food === "object") return { food: photo.food, source: "photo", detail: "The Nutrition Facts photo you checked, read in your browser", note: "Read from a photo and checked by you, so it's as good as those numbers." };
+    if (Array.isArray(photo.rows)) {
+      const SUP = self.SelfCheckSupplement;
+      const supp = { ...SUP.analyze({ name: prod.name, rows: photo.rows.slice(0, 60), ingredients: prod.ingredients, serving: String(photo.serving || "") }), fromPhoto: true };
+      return { supplement: supp, skip: null, source: "photo", detail: "The Supplement Facts photo you picked, read in your browser" };
+    }
+    return null;
+  }
+  try {
+    chrome.runtime.onMessage.addListener((msg, sender, reply) => {
+      if (!msg || msg.type !== "photo" || sender.id !== chrome.runtime.id || typeof msg.url !== "string") return;
+      photos.set(msg.url, { food: msg.food, rows: msg.rows, serving: msg.serving });
+      if (msg.url === location.href) { lastUrl = null; check(); }
+      reply({ ok: true });
+    });
+  } catch {}
+
   async function resolve(p, profile) {
     const plan = READ.plan(p);
     // Supplements aren't scored like food: their own view, from the page's label lines, name and ingredients.
@@ -369,10 +389,14 @@
       if (pl.kind === "none" && !/^No nutrition/.test(pl.why)) { publish(null); return; }
       badgeState = { tier: null, word: "", reason: "checking…", warn: null, label: "Checking this product" };
       drawBadge(); watchPage();
-      const r = pl.kind === "none" ? { none: "No nutrition facts on this page, and no barcode to look up." } : await resolve(prod, p);
+      let r = pl.kind === "none" ? { none: "No nutrition facts on this page, and no barcode to look up." } : await resolve(prod, p);
       if (mine !== run) return;
       if (!r) { removeBadge(); publish(null); return; }
-      const product = { name: prod.name, ingredients: prod.ingredients || "", url, store: { id: STORE.id, name: STORE.name } };
+      // A label photo the person read and checked in the side panel replaces lookups and names (not a page's own
+      // Nutrition Facts, which the panel doesn't offer to replace).
+      const photo = photos.get(url);
+      if (photo && r.source !== "this page" || photo && r.supplement && !r.supplement.fromLabel) r = fromPhoto(photo, prod, p) || r;
+      const product = { name: prod.name, ingredients: prod.ingredients || "", url, store: { id: STORE.id, name: STORE.name }, images: (prod.images || []).slice(0, 12) };
       if (r.supplement) {
         const sp = r.supplement;
         badgeState = r.skip ? { tier: "skip", word: "Skip", reason: "on your skip list", warn: null, label: `Skip: ${r.skip.why}` }

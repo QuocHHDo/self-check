@@ -13,6 +13,14 @@ test("extension/lib matches js/ (run `node scripts/sync-extension.mjs` after cha
   }
 });
 
+test("extension/ocr matches vendor/tesseract: the label reader ships inside the extension (no remote code)", () => {
+  for (const f of fs.readdirSync(path.join(EXT, "ocr")))
+    assert.ok(fs.readFileSync(path.join(EXT, "ocr", f)).equals(fs.readFileSync(path.join(ROOT, "vendor/tesseract", f))), `extension/ocr/${f} is out of date`);
+  for (const f of ["tesseract.min.js", "worker.min.js", "tesseract-core-simd-lstm.wasm.js", "eng.traineddata.gz"]) assert.ok(fs.existsSync(path.join(EXT, "ocr", f)), f);
+  // WebAssembly needs 'wasm-unsafe-eval' on extension pages; nothing else is loosened.
+  assert.equal(manifest.content_security_policy.extension_pages, "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'");
+});
+
 test("every file the manifest names exists, in a load order that works", () => {
   const files = [manifest.background.service_worker, manifest.options_page, ...Object.values(manifest.icons), ...manifest.content_scripts.flatMap(c => c.js)];
   for (const f of files) assert.ok(fs.existsSync(path.join(EXT, f)), f);

@@ -41,6 +41,8 @@
       nutrition: idml.nutritionFacts || null,
       labelRows: labelRows(idml),
       price: priceOf(p.priceInfo),
+      // The product photos, for reading a label photo in the side panel (Walmart and Sam's Club serve them to any site).
+      images: ((p.imageInfo && p.imageInfo.allImages) || []).map(i => i && i.url).filter(u => typeof u === "string" && /^https:\/\/i5\.(walmartimages|samsclubimages)\.com\//.test(u)).slice(0, 12),
     };
   }
 

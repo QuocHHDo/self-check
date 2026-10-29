@@ -20,6 +20,7 @@ Live at **https://quochhdo.github.io/should-i-buy-it/**. It installs to your pho
 - **Learn mode** (under Browse): a quiz built from the app's own data; missed questions come back after 3, 8, then 20 questions.
 - **Serving size** control (½× to 3×), **favorites**, **recent searches**, and **shareable links** (`#salmon`).
 - **Lookups beyond the built-in list**: USDA search and barcode scanning via Open Food Facts on the web version; a Claude lookup in the Claude version.
+- **Read a photo of the label** when a barcode isn't found (or there's none): the photo is read on the device with Tesseract.js, the numbers fill a form to check and fix, and only then is it scored. See "Label photos" below.
 - **Installable and offline** via a service worker.
 
 - **Works like a phone app**: install it to the home screen (Android shows an Install button; iPhone gets the Share → Add to Home Screen steps; Goals has both). The installed app opens on a big Scan button with your recent scans and their verdicts, starts the camera right away when it's already allowed, and has Scan and Grocery list shortcuts on its icon. No app store needed.
@@ -140,10 +141,19 @@ More in the extension:
 - **Ingredient data checked against the name**: when a product's name says caffeine-free, sugar-free or gluten-free and its ingredient list disagrees, that ingredient is marked ⚠ with a one-line explanation. This happens on Walmart's own listings too: the Caffeine-Free Diet Coke 12-pack's ingredients on walmart.com include caffeine (Oct 2026).
 - **Ingredients, sorted**: the side panel shows the label's own allergen statement (“Contains: Egg”) and opens the ingredient list into plain groups: foods, whole grains, water/salt/vinegar, added sugars, oils and fats (unsaturated or saturated), refined starches, sweeteners, caffeine, flavorings, vitamins, and additives with each one's job and status. Numbers are each ingredient's place on the label. It describes rather than scores: the verdict already counts the amounts that matter. The app shows the same breakdown (`js/ingredients.js`).
 - **Swaps of the same kind**: “Try instead” only offers the same kind of food: a creamy sauce for a creamy sauce, cereal for cereal, a breakfast meat for bacon, an oil for butter (`KINDS` in `js/verdict.js`). Store products borrow the hand-picked swaps of the built-in food their name contains (Oscar Mayer bacon → Bacon's). When nothing of the same kind earns a better verdict, a lighter version of the same kind is offered instead (at least 40% fewer calories or less sodium, added sugar or saturated fat at the same weight, and no more of the others), labeled “A lighter version”. Cooking oils are never swapped for being lighter.
+- **Read the label photo**: when the page has no Nutrition Facts text and the barcode databases don't know the product (Costco pages show no Nutrition Facts text; many supplement pages have the label only as a photo), the side panel offers the product's own photos to pick from, or a photo of your own. See "Label photos" below.
 - **Search badges** (off by default; turn on in the settings): a verdict on each product in Walmart search and category pages. Search pages don't include nutrition, so the extension opens each product page in the background: only products you scroll to, one about every 1.5 seconds, at most 40 per page, remembered for a week.
 - Barcode lookups are cached for 30 days (not found: 1 day; network failures aren't cached).
 
 Checked against 41 real Walmart products across the store (captured Oct 25, 2026; `tests/fixtures/walmart-audit.json`): 26 have Walmart's Nutrition Facts panel, 10 go to a barcode lookup, and 5 fresh-produce items are matched by name. `tests/walmart-audit.test.js` pins each one's route and verdict.
+
+## Label photos
+
+`js/labelocr.js` turns OCR text into label numbers; `js/labelscan.js` runs [Tesseract.js](https://github.com/naptha/tesseract.js) in the browser and shows the form to check them. Tesseract is vendored in `vendor/tesseract/` (about 7 MB with the English model, loaded only when someone taps the button; the extension ships its own copy in `extension/ocr/`, since extensions can't load remote code). Nothing is uploaded.
+
+It never scores silently, because OCR on package photos is unreliable. Each photo gets three passes (as-is, grayscale with contrast stretched, and grayscale at 1.5×), and each number takes the value most passes agree on. Numbers read by only one pass, corrected ("0.59" read for 0.5g), or contradicted by the label itself (its %DV, fat + carbs + protein vs calories, saturated fat over total fat) are marked "check it". The person fixes or fills in the numbers; blank ones stay unknown.
+
+**How well it reads** (17 real phone photos of Nutrition Facts from Open Food Facts, in Chromium, Oct 2026): 109 of 165 numbers right (66%). Of the 89 it left unmarked, 3 were wrong; 10 more wrong ones were marked. Clear, flat labels came out complete or nearly (Cheerios, Skippy, Oreo, Nutella, Lay's, Quaker, Diet Coke, Hellmann's, Honey Nut Cheerios). It mostly failed on a label photographed sideways around a can, a blurry tilted bottle, tiny one-line labels (Snickers, Clif bar) and tall condensed type in columns (Kraft mac & cheese). Each photo took 3 to 8 seconds. Supplement Facts photos come back as their lines (a store's 1080-px Supplement Facts image read all but one line, with "3.2 g" read as "32 g"), shown for checking before the supplement view. A seller's 320-px Supplement Facts image on the same product page was too small to read at all. `tests/labelocr.test.js` keeps the OCR text of those 17 photos and pins the results; the browser tests read `tests/fixtures/label-skippy.jpg` (an Open Food Facts photo of Skippy's label, CC BY-SA 3.0, Open Food Facts contributors) with the real Tesseract.
 
 ## Phone bookmark (Walmart on your phone)
 
@@ -156,7 +166,7 @@ Phones can't run extensions, so Goals → **Walmart on your phone** gives a book
 
 Phones: Chrome on Android and iOS doesn't run extensions.
 
-**Permissions:** storage (your goals), the side panel, Walmart, Sam's Club and Costco pages (to show the badge), and Open Food Facts and USDA (barcode lookups, without cookies). Nothing is sent anywhere else.
+**Permissions:** storage (your goals), the side panel, Walmart, Sam's Club and Costco pages (to show the badge), optional access to Costco's image host (gdx-assets.costco.com, asked for the first time you read a Costco photo; Walmart and Sam's Club serve their photos to any site), and Open Food Facts and USDA (barcode lookups, without cookies). Nothing is sent anywhere else.
 
 **For development:** `extension/lib/` holds copies of the app code; after changing `js/`, run `npm run sync:extension` (a test fails if the copies are out of date). `node tests/ui/extension.js` loads the extension in Chromium against saved Walmart page data (`tests/fixtures/walmart-pages.json`).
 

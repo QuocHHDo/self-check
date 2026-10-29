@@ -436,6 +436,7 @@
       `The brand's own label${f.published ? `, published ${f.published}` : ""}${f.gtin ? ` (UPC ${f.gtin})` : ""}. ${f.perServing ? "Values per serving." : "Values per 100 g."} Recipes change; the package wins.`);
     else if (f.src === "usda") src.append(el("b", { text: "From USDA FoodData Central. " }), "Values per 100 g.");
     else if (f.src === "walmart") src.append(el("b", { text: "From Walmart's Nutrition Facts panel. " }), "Added from the browser extension. Recipes change; the package wins.");
+    else if (f.src === "photo") src.append(el("b", { text: "From a photo of the label. " }), "Read on this device and checked by you; the photo wasn't uploaded.");
     else if (f.src === "off") src.append(el("b", { text: "From Open Food Facts. " }), f.per100 ? "Values are per 100 g because the package has no serving size on file; use the servings buttons to match what you eat." : "Values per the package's serving. Crowd-sourced; check the label.");
     else if (isPlate) src.append("The sum of every item at the servings you chose. Judged as one meal: against a third of your daily goals and limits.");
     else if (isDish(f)) src.append(el("b", { text: "A typical recipe. " }), "Restaurant and homemade versions vary a lot, most of all in sodium and portion size, so treat these numbers as an estimate. If the restaurant posts nutrition, that wins.");
@@ -1048,7 +1049,37 @@
           el("p", { class: "muted", text: "Check the number, or search the food by name." })]
       : [el("p", { text: `Couldn't finish the lookup: ${offErr ? `Open Food Facts ${why(offErr)}` : "Open Food Facts doesn't have it"}, and USDA ${usdaErr ? why(usdaErr) : "doesn't have it"}.` }),
           usdaErr && usdaErr.name === "RateLimit" ? el("p", { class: "muted", text: "Add your own free USDA key under Your goals to search more." }) : null];
-    box.replaceChildren(...lines.filter(Boolean), el("div", { class: "chiprow", style: "margin:0" }, (offErr || usdaErr) && !offline ? retry : null, byName));
+    const photo = PAGES && LS ? el("button", { class: "btn small", type: "button", text: "Read a photo of the label", onclick: () => askLabelPhoto({ code: clean, name: offEmpty || "" }) }) : null;
+    box.replaceChildren(...lines.filter(Boolean), el("div", { class: "chiprow", style: "margin:0" }, photo, (offErr || usdaErr) && !offline ? retry : null, byName));
+  }
+
+  // ---------- reading a label photo ----------
+  // For a barcode the databases don't know, or a food with none: the photo is read on this device (vendor/tesseract/,
+  // about 7 MB, loaded the first time) and the person checks the numbers before the verdict. Nothing is uploaded.
+  const LS = window.SelfCheckLabelScan, LO = window.SelfCheckLabelOcr;
+  let labelCtx = null;
+  function askLabelPhoto(ctx) { labelCtx = ctx || {}; $("labelFile").click(); }
+  async function readLabelPhoto(file) {
+    const ctx = labelCtx || {}; labelCtx = null;
+    if (homeMode) { homeMode = false; renderAppHome(); }
+    const status = el("p", { role: "status", style: "margin:0", text: "Getting the photo…" });
+    const box = el("div", { class: "notice" }, el("h2", { style: "margin:0;font-size:18px", text: "Reading the label" }), status);
+    $("out").replaceChildren(box);
+    try {
+      const r = await LS.read(file, { base: "vendor/tesseract/", onStep: t => { status.textContent = t; } });
+      if (r.kind === "supplement" && r.rows.length) { renderSupplement({ name: ctx.name || "Supplement (from a label photo)", ingredients: "" }, { kind: "supplement", rows: r.rows, serving: r.serving }); return; }
+      box.replaceChildren(el("h2", { style: "margin:0;font-size:18px", text: "Check the numbers" }),
+        LS.form(r, { el, idPrefix: "lp", askName: true, name: ctx.name || "", onCancel: () => { box.remove(); },
+          onSubmit: (values, serving, name) => {
+            const f = LO.toFood(S, name || (ctx.code ? `Barcode ${ctx.code}` : "Product from a label photo"), serving, values);
+            if (ctx.code) f.code = ctx.code;
+            saveLookup(f); addScan(f); pick(f);
+          } }));
+      const first = box.querySelector(".check input") || box.querySelector("input[name=cal]"); if (first) first.focus();
+    } catch (e) {
+      box.replaceChildren(el("p", { style: "margin:0", text: navigator.onLine === false ? "You're offline, and the label reader hasn't been loaded on this device yet. Try again with a connection." : "Couldn't read that photo. Try a sharper, straight-on photo of just the Nutrition Facts." }),
+        el("button", { class: "btn small", type: "button", text: "Try another photo", onclick: () => askLabelPhoto(ctx) }));
+    }
   }
   // USDA Branded Foods by UPC: the search only matches the exact digits stored, so try each likely form.
   async function usdaByUpc(code) {
@@ -1502,6 +1533,8 @@
     wireBackup(); wireBookmarklet();
     if (PAGES) {
       $("scanBig").addEventListener("click", startScanFromHome);
+      $("labelBtn").addEventListener("click", () => askLabelPhoto({}));
+      $("labelFile").addEventListener("change", e => { const f = e.target.files && e.target.files[0]; e.target.value = ""; if (f && LS) readLabelPhoto(f); });
       $("installBtn").addEventListener("click", install);
       $("installNo").addEventListener("click", () => { store.set("installDismissed", Date.now()); renderInstall(); });
       try { matchMedia("(max-width: 720px)").addEventListener("change", () => { renderAppHome(); renderInstall(); }); } catch {}

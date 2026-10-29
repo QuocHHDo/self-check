@@ -30,6 +30,15 @@
     return { upc: pick("upc"), dept: pick("as400DeptName"), deptNumber: pick("as400DeptNumber"), uom: pick("uom"), factor: Number(pick("factor")) || null };
   }
 
+  // The product photos (Costco's image host, gdx-assets.costco.com): the structured data's image, then the gallery's
+  // large images on the page itself. Icons and thumbnails under 400 px are left out.
+  const IMG = /^https:\/\/gdx-assets\.costco\.com\//;
+  function images(src, p) {
+    const out = [].concat((p && p.image) || []).map(u => typeof u === "string" ? u : u && u.url).filter(u => typeof u === "string" && IMG.test(u));
+    if (typeof src !== "string" && src.querySelectorAll) for (const im of src.querySelectorAll("img")) { const u = im.currentSrc || im.src; if (IMG.test(u) && (im.naturalWidth || 0) >= 400) out.push(u); }
+    return [...new Set(out)].slice(0, 12);
+  }
+
   // The parts of the page the extension uses, in Walmart's product shape.
   function product(src) {
     if (!src) return null;
@@ -49,6 +58,7 @@
       ingredients: "", nutrition: null, labelRows: [],
       dept: rec.dept || null,
       price: now > 0 ? { now, perUnit: perOz, unit: perOz ? "oz" : null, text: perOz ? `$${perOz.toFixed(2)}/oz` : "" } : null,
+      images: images(src, p),
     };
   }
 
